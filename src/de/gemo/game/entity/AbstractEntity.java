@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.game.collision.EasyVector;
-import de.gemo.game.collision.Vector;
 import de.gemo.game.core.Game;
 
 public abstract class AbstractEntity {
@@ -23,11 +22,11 @@ public abstract class AbstractEntity {
     protected final int entityID;
     protected EasyVector center = null;
 
-    public AbstractEntity(Vector center) {
+    public AbstractEntity(EasyVector center) {
         this(center.getX(), center.getY());
     }
 
-    public AbstractEntity(double x, double y) {
+    public AbstractEntity(float x, float y) {
         this.center = new EasyVector(x, y);
         this.entityID = AbstractEntity.getNextFreeID();
     }
@@ -53,25 +52,25 @@ public abstract class AbstractEntity {
         return center;
     }
 
-    public void setCenter(Vector vector) {
+    public void setCenter(EasyVector vector) {
         this.setCenter(vector.getX(), vector.getY());
     }
 
-    public void setCenter(double x, double y) {
-        double dX = x - center.getX();
-        double dY = y - center.getY();
+    public void setCenter(float x, float y) {
+        float dX = x - center.getX();
+        float dY = y - center.getY();
         this.move(dX, dY);
     }
 
-    public final void setZ(double z) {
+    public final void setZ(float z) {
         this.center.setZ(z);
     }
 
-    public void move(Vector vector) {
+    public void move(EasyVector vector) {
         this.center.move(vector.getX(), vector.getY());
     }
 
-    public void move(double x, double y) {
+    public void move(float x, float y) {
         this.center.move(x, y);
     }
 

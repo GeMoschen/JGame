@@ -1,25 +1,24 @@
 package de.gemo.game.animation;
 
 import org.lwjgl.opengl.GL11;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 
 public class Animation {
 
     protected Texture texture;
-    protected final double tileWidth, tileHeight;
+    protected final float tileWidth, tileHeight;
     protected final int tilesX, tilesY;
     private final int singleTileWidth, singleTileHeight;
-    private final double halfTileWidth, halfTileHeight;
+    private final float halfTileWidth, halfTileHeight;
     protected int currentFrame = -1;
     protected final int maxFrames;
 
-    protected double u = 0d, v = 0d;
-    protected double u2 = 1d, v2 = 1d;
+    protected float u = 0f, v = 0f;
+    protected float u2 = 1f, v2 = 1f;
 
-    protected double currentStep = 0d;
+    protected float currentStep = 0f;
 
-    private double wantedFPS;
+    private float wantedFPS;
 
     public Animation(Texture texture, int tilesX, int tilesY) {
         this(texture, tilesX, tilesY, 30);
@@ -34,14 +33,14 @@ public class Animation {
         this.tilesY = tilesY;
 
         // pre-calculate width/height
-        this.tileWidth = 1.0d / (double) tilesX;
-        this.tileHeight = 1.0d / (double) tilesY;
+        this.tileWidth = 1.0f / (float) tilesX;
+        this.tileHeight = 1.0f / (float) tilesY;
 
         this.singleTileWidth = this.texture.getImageWidth() / tilesX;
         this.singleTileHeight = this.texture.getImageHeight() / tilesY;
 
-        this.halfTileWidth = this.singleTileWidth / 2d;
-        this.halfTileHeight = this.singleTileHeight / 2d;
+        this.halfTileWidth = this.singleTileWidth / 2f;
+        this.halfTileHeight = this.singleTileHeight / 2f;
 
         // go to frame 0
         this.goToFrame(0);
@@ -92,11 +91,11 @@ public class Animation {
     }
 
     public void setWantedFPS(int wantedFPS) {
-        this.wantedFPS = (double) wantedFPS / 1000d;
+        this.wantedFPS = (float) wantedFPS / 1000f;
     }
 
-    public void step(double delta) {
-        double toGo = this.wantedFPS * delta;
+    public void step(float delta) {
+        float toGo = this.wantedFPS * delta;
         this.currentStep += toGo;
         if (this.currentStep >= this.maxFrames) {
             this.currentStep -= this.maxFrames;
@@ -104,19 +103,19 @@ public class Animation {
         this.goToFrame((int) this.currentStep);
     }
 
-    public double getU() {
+    public float getU() {
         return u;
     }
 
-    public double getU2() {
+    public float getU2() {
         return u2;
     }
 
-    public double getV() {
+    public float getV() {
         return v;
     }
 
-    public double getV2() {
+    public float getV2() {
         return v2;
     }
 
@@ -136,66 +135,44 @@ public class Animation {
         return singleTileHeight;
     }
 
-    public double getHalfTileWidth() {
+    public float getHalfTileWidth() {
         return halfTileWidth;
     }
 
-    public double getHalfTileHeight() {
+    public float getHalfTileHeight() {
         return halfTileHeight;
     }
 
-    public void render(double x, double y, double z) {
-        // bind texture
-        Color.white.bind();
-        this.texture.bind();
-
-        // begin quads
-        GL11.glBegin(GL11.GL_QUADS);
-
-        // up-left
-        GL11.glTexCoord2d(u, v);
-        GL11.glVertex3d(x, y, z);
-        // up-right
-        GL11.glTexCoord2d(u2, v);
-        GL11.glVertex3d(x + this.singleTileWidth, y, z);
-
-        // down-right
-        GL11.glTexCoord2d(u2, v2);
-        GL11.glVertex3d(x + this.singleTileWidth, y + this.singleTileHeight, z);
-
-        // down-left
-        GL11.glTexCoord2d(u, v2);
-        GL11.glVertex3d(x, y + this.singleTileHeight, z);
-
-        // end quads
-        GL11.glEnd();
+    public void render(float x, float y, float z) {
+        this.render(x, y, z, 0f, 1f, this.texture.getImageWidth(), this.texture.getImageHeight());
     }
 
-    public void render(double x, double y, double z, double angle, double alpha, double width, double height) {
+    public void render(float x, float y, float z, float angle, float alpha, float width, float height) {
         // bind texture
-
-        GL11.glColor4d(1, 1, 1, alpha);
+        GL11.glColor4f(1, 1, 1, alpha);
         this.texture.bind();
 
-        double halfW = width / 2;
-        double halfH = height / 2;
+        float halfW = width / 2;
+        float halfH = height / 2;
 
         // begin quads
         GL11.glBegin(GL11.GL_QUADS);
+
         // up-left
-        GL11.glTexCoord2d(u, v);
-        GL11.glVertex3d(-halfW, -halfH, 0);
+        GL11.glTexCoord2f(u, v);
+        GL11.glVertex3f(-halfW, -halfH, 0);
+
         // up-right
-        GL11.glTexCoord2d(u2, v);
-        GL11.glVertex3d(+halfW, -halfH, 0);
+        GL11.glTexCoord2f(u2, v);
+        GL11.glVertex3f(+halfW, -halfH, 0);
 
         // down-right
-        GL11.glTexCoord2d(u2, v2);
-        GL11.glVertex3d(+halfW, +halfH, 0);
+        GL11.glTexCoord2f(u2, v2);
+        GL11.glVertex3f(+halfW, +halfH, 0);
 
         // down-left
-        GL11.glTexCoord2d(u, v2);
-        GL11.glVertex3d(-halfW, +halfH, 0);
+        GL11.glTexCoord2f(u, v2);
+        GL11.glVertex3f(-halfW, +halfH, 0);
 
         // end quads
         GL11.glEnd();

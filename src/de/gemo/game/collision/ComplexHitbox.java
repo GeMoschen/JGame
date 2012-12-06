@@ -19,7 +19,7 @@ public class ComplexHitbox implements Cloneable {
         this.center = new EasyVector(center.getX(), center.getY(), center.getZ());
     }
 
-    public ComplexHitbox(double x, double y) {
+    public ComplexHitbox(float x, float y) {
         this(new EasyVector(x, y));
     }
 
@@ -40,7 +40,7 @@ public class ComplexHitbox implements Cloneable {
         this.points.add(vector);
     }
 
-    public final void addPoint(double x, double y) {
+    public final void addPoint(float x, float y) {
         this.addPoint(new ComplexVector(this.center, x, y));
     }
 
@@ -48,9 +48,9 @@ public class ComplexHitbox implements Cloneable {
         return this.center;
     }
 
-    public final void setCenter(double x, double y) {
-        double difX = this.center.getX() - x;
-        double difY = this.center.getY() - y;
+    public final void setCenter(float x, float y) {
+        float difX = this.center.getX() - x;
+        float difY = this.center.getY() - y;
         this.move(difX, difY);
     }
 
@@ -63,13 +63,13 @@ public class ComplexHitbox implements Cloneable {
         this.move(vector.getX(), vector.getY());
     }
 
-    public final void move(double x, double y) {
+    public final void move(float x, float y) {
         this.center.move(x, y);
         for (ComplexVector vector : this.points) {
             vector.recalculatePositions();
         }
     }
-    public final void rotate(double angle) {
+    public final void rotate(float angle) {
         double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);

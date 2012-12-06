@@ -64,7 +64,6 @@ public class Game {
     private boolean USE_VSYNC = true;
     private boolean HIDE_TEXT = false;
 
-    private int x = 0, y = 0;
     ArrayList<GUIButton> buttonList = new ArrayList<GUIButton>();
 
     private long getTime() {
@@ -88,22 +87,20 @@ public class Game {
     }
 
     private void initOpenGL() {
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-
         GL11.glOrtho(0, Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(), 0, 1000, -1000);
-
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-        // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        // GL11.glClearColor(0.1f, 0.5f, 1.0f, 1.0f);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
 
-        // GL11.glEnable(GL11.GL_DEPTH_TEST); // depth test enabled
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
     }
 
     public Game() {
@@ -220,6 +217,7 @@ public class Game {
         Display.destroy();
         System.exit(0);
     }
+
     private void createGUI() {
         Texture buttonTexture;
 
@@ -230,7 +228,7 @@ public class Game {
             button.setZ(-3);
             button.setLabel("Button 1");
             button.setColor(Color.orange);
-            button.setAlpha(0.1d);
+            button.setAlpha(0.1f);
             buttonList.add(button);
 
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
@@ -238,14 +236,14 @@ public class Game {
             button.setZ(-3);
             button.setLabel("Button 2");
             button.setColor(Color.orange);
-            button.setAlpha(0.75d);
+            button.setAlpha(0.75f);
             buttonList.add(button);
 
             button = new GUIButton(310 + 32, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
             button.setZ(-3);
             button.setLabel("Button 3");
             button.setColor(Color.orange);
-            button.setAlpha(1d);
+            button.setAlpha(1f);
             buttonList.add(button);
 
             button = new GUIButton(this.WIN_WIDTH - 80, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
@@ -253,7 +251,7 @@ public class Game {
             button.setLabel("Exit");
             button.setColor(Color.orange);
             button.setActionListener(new ExitButtonListener());
-            button.setAlpha(0.25d);
+            button.setAlpha(0.25f);
             buttonList.add(button);
 
         } catch (FileNotFoundException e) {
@@ -282,24 +280,24 @@ public class Game {
         Game.font_14 = new TrueTypeFont(arialFont, true);
     }
 
-    public void rotate(double angle) {
+    public void rotate(float angle) {
         this.buttonList.get(3).rotate(angle * delta);
     }
 
     public void moveRight() {
-        this.buttonList.get(3).move(0.25 * delta, 0);
+        this.buttonList.get(3).move(0.25f * delta, 0);
     }
 
     public void moveLeft() {
-        this.buttonList.get(3).move(-0.25 * delta, 0);
+        this.buttonList.get(3).move(-0.25f * delta, 0);
     }
 
     public void moveUp() {
-        this.buttonList.get(3).move(0, -0.25 * delta);
+        this.buttonList.get(3).move(0, -0.25f * delta);
     }
 
     public void moveDown() {
-        this.buttonList.get(3).move(0, 0.25 * delta);
+        this.buttonList.get(3).move(0, 0.25f * delta);
     }
 
     // ////////////////////////////////////////
@@ -315,11 +313,11 @@ public class Game {
     public void onKeyHold(KeyEvent event) {
         switch (event.getKey()) {
             case Keyboard.KEY_A : {
-                rotate(-0.1);
+                rotate(-0.1f);
                 break;
             }
             case Keyboard.KEY_D : {
-                rotate(0.1);
+                rotate(0.1f);
                 break;
             }
             case Keyboard.KEY_LEFT : {

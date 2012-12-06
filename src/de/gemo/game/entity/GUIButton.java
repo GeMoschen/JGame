@@ -16,17 +16,17 @@ public class GUIButton extends GUIElement {
     private GUIElementStatus status;
     private Animation animation;
 
-    private double width = 128, height = 32;
+    private float width = 128, height = 32;
     private String label = "";
     private Color color;
     private TrueTypeFont font;
 
-    private double textWidth = 0, textHeight = 0;
+    private float textWidth = 0, textHeight = 0;
 
     private float maxText = 0.8f;
     private ActionListener listener = null;
 
-    public GUIButton(double x, double y, double width, double height, Texture texture) {
+    public GUIButton(float x, float y, float width, float height, Texture texture) {
         super(x, y, width, height, texture);
         this.width = width;
         this.height = height;
@@ -90,9 +90,9 @@ public class GUIButton extends GUIElement {
     }
 
     @Override
-    public void setAlpha(double alpha) {
+    public void setAlpha(float alpha) {
         super.setAlpha(alpha);
-        this.setColor(this.color);
+        this.color.a = (float) alpha;
     }
 
     public GUIElementStatus getStatus() {
@@ -109,10 +109,13 @@ public class GUIButton extends GUIElement {
         }
     }
 
+    public Animation getAnimation() {
+        return animation;
+    }
+
     @Override
     public void render() {
         this.animation.render(this.center.getX(), this.center.getY(), this.center.getZ(), this.angle, this.alpha, this.width, this.height);
-
         if (this.label.length() > 0) {
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glTranslated(0d, 0d, -1d);

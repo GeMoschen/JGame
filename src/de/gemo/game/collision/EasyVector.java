@@ -1,13 +1,13 @@
 package de.gemo.game.collision;
 
 public class EasyVector {
-    protected double x, y, z;
+    protected float x, y, z;
 
-    public static EasyVector FromPoint(double x, double y) {
+    public static EasyVector FromPoint(float x, float y) {
         return new EasyVector(x, y, 0);
     }
 
-    public static EasyVector FromPoint(double x, double y, double z) {
+    public static EasyVector FromPoint(float x, float y, float z) {
         return new EasyVector(x, y, z);
     }
 
@@ -15,11 +15,11 @@ public class EasyVector {
         this(0, 0, 0);
     }
 
-    public EasyVector(double x, double y) {
+    public EasyVector(float x, float y) {
         this(x, y, 0);
     }
 
-    public EasyVector(double x, double y, double z) {
+    public EasyVector(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -28,7 +28,7 @@ public class EasyVector {
     /**
      * @return the x
      */
-    public double getX() {
+    public float getX() {
         return x;
     }
 
@@ -36,14 +36,14 @@ public class EasyVector {
      * @param x
      *            the x to set
      */
-    public void setX(double x) {
+    public void setX(float x) {
         this.x = x;
     }
 
     /**
      * @return the y
      */
-    public double getY() {
+    public float getY() {
         return y;
     }
 
@@ -51,14 +51,14 @@ public class EasyVector {
      * @param y
      *            the y to set
      */
-    public void setY(double y) {
+    public void setY(float y) {
         this.y = y;
     }
 
     /**
      * @return the z
      */
-    public double getZ() {
+    public float getZ() {
         return z;
     }
 
@@ -66,11 +66,11 @@ public class EasyVector {
      * @param z
      *            the z to set
      */
-    public void setZ(double z) {
+    public void setZ(float z) {
         this.z = z;
     }
 
-    public void move(double x, double y) {
+    public void move(float x, float y) {
         this.x += x;
         this.y += y;
     }

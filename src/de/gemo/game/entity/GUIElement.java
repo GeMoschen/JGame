@@ -11,14 +11,14 @@ public class GUIElement extends AbstractEntity2D {
 
     private ComplexHitbox clickBox;
 
-    public GUIElement(double x, double y, Texture texture) {
+    public GUIElement(float x, float y, Texture texture) {
         super(x, y, texture);
 
         // create texture-clickbox
         this.createClickBoxFromTexture();
     }
 
-    public GUIElement(double x, double y, double width, double height, Texture texture) {
+    public GUIElement(float x, float y, float width, float height, Texture texture) {
         super(x, y, texture);
 
         this.halfWidth = width / 2;
@@ -62,12 +62,12 @@ public class GUIElement extends AbstractEntity2D {
     }
 
     @Override
-    public void move(double x, double y) {
+    public void move(float x, float y) {
         super.move(x, y);
         this.clickBox.move(x, y);
     }
 
-    public void rotate(double angle) {
+    public void rotate(float angle) {
         super.rotate(angle);
         this.clickBox.rotate(angle);
     }

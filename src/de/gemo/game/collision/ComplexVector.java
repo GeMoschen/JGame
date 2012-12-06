@@ -3,19 +3,19 @@ package de.gemo.game.collision;
 import static org.lwjgl.opengl.GL11.glVertex3d;
 
 public class ComplexVector implements Cloneable {
-    protected double x, y, z;
+    protected float x, y, z;
     protected final EasyVector parent;
-    protected double calcX, calcY, calcZ;
+    protected float calcX, calcY, calcZ;
 
     public ComplexVector(EasyVector parent) {
         this(parent, 0, 0, 0);
     }
 
-    public ComplexVector(EasyVector parent, double x, double y) {
+    public ComplexVector(EasyVector parent, float x, float y) {
         this(parent, x, y, 0);
     }
 
-    public ComplexVector(EasyVector parent, double x, double y, double z) {
+    public ComplexVector(EasyVector parent, float x, float y, float z) {
         this.parent = parent;
         this.x = x;
         this.y = y;
@@ -32,13 +32,13 @@ public class ComplexVector implements Cloneable {
         double tempx = (cos * x) - (sin * y);
         double tempy = (sin * x) + (cos * y);
 
-        // double tempx = parent.getX() + (cos * (x - parent.getX()) - sin * (y - parent.getY()));
-        // double tempy = parent.getY() + (sin * (x - parent.getX()) + cos * (y - parent.getY()));
-        x = tempx;
-        y = tempy;
+        // float tempx = parent.getX() + (cos * (x - parent.getX()) - sin * (y - parent.getY()));
+        // float tempy = parent.getY() + (sin * (x - parent.getX()) + cos * (y - parent.getY()));
+        x = (float) tempx;
+        y = (float) tempy;
     }
 
-    public void move(double x, double y) {
+    public void move(float x, float y) {
         this.x += x;
         this.y += y;
     }
@@ -74,31 +74,31 @@ public class ComplexVector implements Cloneable {
         return "ComplexVector { " + getX() + " , " + getY() + " }";
     }
 
-    public double getSelfX() {
+    public float getSelfX() {
         return x;
     }
 
-    public double getSelfY() {
+    public float getSelfY() {
         return y;
     }
 
-    public double getSelfZ() {
+    public float getSelfZ() {
         return z;
     }
 
-    public void setSelfZ(double z) {
+    public void setSelfZ(float z) {
         this.z = z;
     }
 
-    public double getX() {
+    public float getX() {
         return calcX;
     }
 
-    public double getY() {
+    public float getY() {
         return calcY;
     }
 
-    public double getZ() {
+    public float getZ() {
         return calcZ;
     }
 
