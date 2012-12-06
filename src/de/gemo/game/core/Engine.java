@@ -7,10 +7,7 @@ import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
 
 import java.awt.Font;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -20,32 +17,26 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
-import de.gemo.game.collision.CollisionHelper;
-import de.gemo.game.entity.GUIButton;
-import de.gemo.game.entity.GUIElementStatus;
-import de.gemo.game.events.gui.ClickBeginEvent;
-import de.gemo.game.events.gui.ClickReleaseEvent;
-import de.gemo.game.events.gui.HoverBeginEvent;
-import de.gemo.game.events.gui.HoverEndEvent;
-import de.gemo.game.events.gui.HoverEvent;
-import de.gemo.game.events.gui.buttons.ExitButtonListener;
+import de.gemo.game.collision.ComplexHitbox;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.implementation.MyGUIController;
+import de.gemo.game.implementation.SecondGUIController;
 import de.gemo.game.input.KeyboardManager;
 import de.gemo.game.input.MouseManager;
 
 public class Engine {
 
+    public static Engine INSTANCE = null;
+
     private long lastFrame;
     private int delta;
 
-    private String WIN_TITLE = "JGame";
+    private String WIN_TITLE = "Enginetest";
 
     private int WIN_WIDTH = 1024;
     private int WIN_HEIGHT = 768;
@@ -62,9 +53,11 @@ public class Engine {
     private KeyboardManager keyManager;
     private MouseManager mouseManager;
 
-    private ArrayList<GUIButton> buttonList = new ArrayList<GUIButton>();
+    private GUIController activeGUIController = null;
+    private HashMap<Integer, GUIController> guiController;
 
     public Engine() {
+        INSTANCE = this;
         this.createWindow();
         this.initOpenGL();
         this.loadFonts();
@@ -105,7 +98,7 @@ public class Engine {
             mouseManager.update();
 
             if (tick) {
-                this.updateCollisions();
+                this.updateGUIControllers();
             }
 
             GL11.glPushMatrix();
@@ -117,7 +110,9 @@ public class Engine {
             // RENDER GUI
             GL11.glPushMatrix();
 
-            this.renderButtons();
+            for (GUIController controller : this.guiController.values()) {
+                controller.render();
+            }
 
             // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
@@ -126,14 +121,21 @@ public class Engine {
             if (!HIDE_TEXT) {
                 font.drawString(10, 25, "Delta: " + oldCount, Color.red);
 
-                font.drawString(10, 50, "A/D: rotate Exit-Button", Color.magenta);
-                font.drawString(10, 65, "W/S: change alpha of Exit-Button", Color.magenta);
-                font.drawString(10, 80, "Arrowkeys: move Exit-Button", Color.magenta);
+                font.drawString(10, 35, "1/2: Scale active button", Color.magenta);
+                font.drawString(10, 50, "A/D: rotate active button", Color.magenta);
+                font.drawString(10, 65, "W/S: change alpha of active button", Color.magenta);
+                font.drawString(10, 80, "Arrowkeys: move active button", Color.magenta);
 
                 font.drawString(10, 105, "F1: toggle vysnc", Color.orange);
                 font.drawString(10, 120, "F2: toggle text", Color.orange);
                 font.drawString(10, 135, "F11: toggle graphics", Color.orange);
                 font.drawString(10, 150, "F12: toggle hitboxes", Color.orange);
+
+                String text = "NONE";
+                if (this.activeGUIController != null) {
+                    text = this.activeGUIController.getName();
+                }
+                font.drawString(10, 175, "Active UI: " + text, Color.red);
             }
             GL11.glDisable(GL11.GL_BLEND);
 
@@ -160,6 +162,12 @@ public class Engine {
         System.exit(0);
     }
 
+    private void updateGUIControllers() {
+        for (GUIController controller : this.guiController.values()) {
+            controller.updateVisibility();
+        }
+    }
+
     private void createWindow() {
         try {
             Display.setDisplayMode(new DisplayMode(WIN_WIDTH, WIN_HEIGHT));
@@ -172,57 +180,29 @@ public class Engine {
         }
     }
 
-    private void createGUI() {
-        Texture buttonTexture;
-
-        try {
-            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
-
-            GUIButton button = new GUIButton(50 + 32, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
-            button.setZ(-3);
-            button.setLabel("Button 1");
-            button.setColor(Color.orange);
-            button.setAlpha(0.1f);
-            buttonList.add(button);
-
-            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
-            button = new GUIButton(180 + 32, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
-            button.setZ(-3);
-            button.setLabel("Button 2");
-            button.setColor(Color.orange);
-            button.setAlpha(0.75f);
-            buttonList.add(button);
-
-            button = new GUIButton(310 + 32, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
-            button.setZ(-3);
-            button.setLabel("Testbutton too long");
-            button.setColor(Color.orange);
-            button.setAlpha(1f);
-            buttonList.add(button);
-
-            button = new GUIButton(this.WIN_WIDTH - 80, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
-            button.setZ(-4);
-            button.setLabel("Exit");
-            button.setColor(Color.orange);
-            button.setActionListener(new ExitButtonListener());
-            button.setAlpha(0.25f);
-
-            button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
-
-            buttonList.add(button);
-
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public final void registerGUIController(GUIController controller) {
+        this.guiController.put(controller.getID(), controller);
     }
-    private void renderButtons() {
-        for (GUIButton button : this.buttonList) {
-            Renderer.render(button);
-        }
+
+    private void createGUI() {
+        this.guiController = new HashMap<Integer, GUIController>();
+
+        float halfWidth = WIN_WIDTH / 2f;
+        float halfHeight = 50;
+
+        ComplexHitbox hitbox = new ComplexHitbox(halfWidth, WIN_HEIGHT - 50);
+        hitbox.addPoint(-halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, halfHeight);
+        hitbox.addPoint(-halfWidth, halfHeight);
+        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
+
+        hitbox = new ComplexHitbox(halfWidth, 300);
+        hitbox.addPoint(-halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, halfHeight);
+        hitbox.addPoint(-halfWidth, halfHeight);
+        this.registerGUIController(new SecondGUIController("Second GUI", hitbox, this.mouseManager.getMouseVector()));
     }
 
     private void initOpenGL() {
@@ -257,26 +237,6 @@ public class Engine {
         FontManager.loadFont("Verdana", Font.BOLD, 14);
     }
 
-    public void rotate(float angle) {
-        this.buttonList.get(3).rotate(angle * delta);
-    }
-
-    public void moveRight() {
-        this.buttonList.get(3).move(0.25f * delta, 0);
-    }
-
-    public void moveLeft() {
-        this.buttonList.get(3).move(-0.25f * delta, 0);
-    }
-
-    public void moveUp() {
-        this.buttonList.get(3).move(0, -0.25f * delta);
-    }
-
-    public void moveDown() {
-        this.buttonList.get(3).move(0, 0.25f * delta);
-    }
-
     // ////////////////////////////////////////
     //
     // KEYBOARD EVENTS
@@ -284,48 +244,21 @@ public class Engine {
     // ////////////////////////////////////////
 
     public void onKeyPressed(KeyEvent event) {
-
+        if (this.activeGUIController != null) {
+            this.activeGUIController.onKeyPressed(event);
+        }
     }
 
     public void onKeyHold(KeyEvent event) {
-        switch (event.getKey()) {
-            case Keyboard.KEY_A : {
-                rotate(-0.1f);
-                break;
-            }
-            case Keyboard.KEY_D : {
-                rotate(0.1f);
-                break;
-            }
-            case Keyboard.KEY_LEFT : {
-                moveLeft();
-                break;
-            }
-            case Keyboard.KEY_RIGHT : {
-                moveRight();
-                break;
-            }
-            case Keyboard.KEY_UP : {
-                moveUp();
-                break;
-            }
-            case Keyboard.KEY_DOWN : {
-                moveDown();
-                this.mouseManager.move(0, -20);
-                break;
-            }
-            case Keyboard.KEY_W : {
-                this.buttonList.get(3).setAlpha(this.buttonList.get(3).getAlpha() + 0.001f * this.getDelta());
-                break;
-            }
-            case Keyboard.KEY_S : {
-                this.buttonList.get(3).setAlpha(this.buttonList.get(3).getAlpha() - 0.001f * this.getDelta());
-                break;
-            }
+        if (this.activeGUIController != null) {
+            this.activeGUIController.onKeyHold(event);
         }
     }
 
     public void onKeyReleased(KeyEvent event) {
+        if (this.activeGUIController != null) {
+            this.activeGUIController.onKeyReleased(event);
+        }
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
                 USE_VSYNC = !USE_VSYNC;
@@ -353,62 +286,60 @@ public class Engine {
     // ////////////////////////////////////////
 
     public void onMouseMove(MouseMoveEvent event) {
-
-    }
-
-    public void updateCollisions() {
-        boolean isColliding = false;
-        for (GUIButton button : this.buttonList) {
-            isColliding = CollisionHelper.isVectorInHitbox(mouseManager.getMouseVector(), button.getClickBox());
-            if (isColliding && !button.getStatus().equals(GUIElementStatus.ACTIVE)) {
-                if (button.getStatus().equals(GUIElementStatus.HOVERING)) {
-                    button.fireEvent(new HoverEvent(button));
-                } else {
-                    button.fireEvent(new HoverBeginEvent(button));
-                    button.setStatus(GUIElementStatus.HOVERING);
-                }
-            }
-            if (!isColliding && !button.getStatus().equals(GUIElementStatus.NONE)) {
-                button.fireEvent(new HoverEndEvent(button));
-                button.setStatus(GUIElementStatus.NONE);
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.isColliding()) {
+                this.activateGUIController(controller);
+                controller.onMouseMove(event);
+                return;
             }
         }
+        this.activateGUIController(null);
+    }
+
+    private void activateGUIController(GUIController controller) {
+        if (this.activeGUIController != null && this.activeGUIController != controller) {
+            this.activeGUIController.onMouseOut();
+            if (controller != null) {
+                controller.onMouseIn();
+            }
+        }
+        this.activeGUIController = controller;
     }
 
     public void onMouseDown(MouseDownEvent event) {
         if (!freeMouse) {
             freeMouse = !freeMouse;
         }
-        int index = 0;
-        boolean collide = false;
-        for (GUIButton button : this.buttonList) {
-            if (CollisionHelper.isVectorInHitbox(mouseManager.getMouseVector(), button.getClickBox())) {
-                button.setStatus(GUIElementStatus.ACTIVE);
-                button.fireEvent(new ClickBeginEvent(button));
-            } else {
-                button.setStatus(GUIElementStatus.NONE);
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.isColliding()) {
+                this.activateGUIController(controller);
+                controller.onMouseDown(event);
+                return;
             }
         }
-
-        if (collide) {
-            System.out.println("colliding with #" + index);
-        }
+        this.activateGUIController(null);
     }
 
     public void onMouseUp(MouseUpEvent event) {
-        for (GUIButton button : this.buttonList) {
-            if (CollisionHelper.isVectorInHitbox(mouseManager.getMouseVector(), button.getClickBox())) {
-                if (button.getStatus().equals(GUIElementStatus.ACTIVE)) {
-                    button.fireEvent(new ClickReleaseEvent(button));
-                }
-                button.setStatus(GUIElementStatus.HOVERING);
-            } else {
-                button.setStatus(GUIElementStatus.NONE);
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.isColliding()) {
+                this.activateGUIController(controller);
+                controller.onMouseUp(event);
+                return;
             }
         }
+        this.activateGUIController(null);
     }
 
     public void onMouseDrag(MouseDragEvent event) {
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.isColliding()) {
+                this.activateGUIController(controller);
+                controller.onMouseDrag(event);
+                return;
+            }
+        }
+        this.activateGUIController(null);
     }
 
     private long getTime() {
@@ -422,15 +353,15 @@ public class Engine {
         return delta;
     }
 
-    public int getDelta() {
+    public int getCurrentDelta() {
         return delta;
     }
 
-    public int getWIN_WIDTH() {
+    public int getWindowWidth() {
         return WIN_WIDTH;
     }
 
-    public int getWIN_HEIGHT() {
+    public int getWindowHeight() {
         return WIN_HEIGHT;
     }
 

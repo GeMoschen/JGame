@@ -17,6 +17,7 @@ public abstract class AbstractEntity2D extends AbstractEntity {
     protected float halfWidth, halfHeight;
     protected float angle = 0;
     protected float alpha = 1f;
+    protected boolean visible = true;
 
     public AbstractEntity2D(Vector center, String fileName) throws FileNotFoundException, IOException {
         this(center.getX(), center.getY(), fileName);
@@ -79,6 +80,14 @@ public abstract class AbstractEntity2D extends AbstractEntity {
         // GL11.glTranslated((int) -this.center.getX(), (int) -this.center.getY(), -this.center.getZ());
     }
 
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
     public void debugRender() {
         // render center
         super.render();
@@ -128,11 +137,14 @@ public abstract class AbstractEntity2D extends AbstractEntity {
     }
 
     public void setAlpha(float alpha) {
-        if (alpha < 0) {
-            alpha = 0;
+        if (alpha <= 0) {
+            alpha = 0f;
+            this.setVisible(false);
+        } else {
+            this.setVisible(true);
         }
         if (alpha > 1) {
-            alpha = 1;
+            alpha = 1f;
         }
         this.alpha = alpha;
     }

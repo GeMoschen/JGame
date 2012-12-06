@@ -26,8 +26,8 @@ public class MouseManager {
     private final ComplexHitbox hitBox, movedHitBox;
 
     public void blockMouseMovement() {
-        int x = this.engine.getWIN_WIDTH() / 2;
-        int y = this.engine.getWIN_HEIGHT() / 2;
+        int x = this.engine.getWindowWidth() / 2;
+        int y = this.engine.getWindowHeight() / 2;
         // set the cursor
         Mouse.setCursorPosition(x, y);
 
@@ -42,8 +42,8 @@ public class MouseManager {
         }
 
         // build hitbox for mouse
-        int x = this.engine.getWIN_WIDTH() / 2;
-        int y = this.engine.getWIN_HEIGHT() / 2;
+        int x = this.engine.getWindowWidth() / 2;
+        int y = this.engine.getWindowHeight() / 2;
         hitBox = new ComplexHitbox(x, y);
         hitBox.addPoint(0, 0);
         hitBox.addPoint(dim, 0);
@@ -78,7 +78,7 @@ public class MouseManager {
         for (int currentKey : this.holdButtons) {
             if (Mouse.isButtonDown(currentKey)) {
                 // hold button
-                engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWIN_HEIGHT() - Mouse.getY(), dX, dY, currentKey));
+                engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, currentKey));
             }
         }
 
@@ -105,7 +105,7 @@ public class MouseManager {
             this.hitBox.move(dX, dY);
             this.movedHitBox.move(dX, dY);
             // throw MouseMoveEvent
-            engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWIN_HEIGHT() - Mouse.getY(), dX, dY));
+            engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY));
         }
         currentX = Mouse.getX();
         currentY = Mouse.getY();

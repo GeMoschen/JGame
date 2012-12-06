@@ -1,8 +1,5 @@
 package de.gemo.game.entity;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
@@ -13,29 +10,23 @@ import de.gemo.game.core.FontManager;
 
 public class GUIButton extends GUIElement {
 
-    private GUIElementStatus status;
     private Animation animation;
 
-    private float width = 128, height = 32;
     private String label = "";
+    private String originalLabel = "";
     private Color color;
     private TrueTypeFont font;
 
     private float textWidth = 0, textHeight = 0;
-
     private float maxText = 0.8f;
-    private ActionListener listener = null;
 
     public GUIButton(float x, float y, float width, float height, Texture texture) {
         super(x, y, width, height, texture);
-        this.width = width;
-        this.height = height;
         this.animation = new Animation(texture, 1, 4);
-        this.setStatus(GUIElementStatus.NONE);
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
-        this.listener = null;
     }
+
     public void setColor(Color color) {
         this.color = new Color(color.r, color.g, color.b, (float) this.alpha);
     }
@@ -53,7 +44,8 @@ public class GUIButton extends GUIElement {
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.originalLabel = label;
+        this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
         this.textHeight = this.font.getHeight(this.label) / 2;
 
@@ -70,8 +62,14 @@ public class GUIButton extends GUIElement {
         this.textWidth = (int) (this.textWidth / 2);
     }
 
+    @Override
+    public void scale(float scale) {
+        super.scale(scale);
+        this.setLabel(this.originalLabel);
+    }
+
     public String getLabel() {
-        return label;
+        return this.originalLabel;
     }
 
     public void setFont(TrueTypeFont font) {
@@ -83,29 +81,16 @@ public class GUIButton extends GUIElement {
         return font;
     }
 
+    @Override
     public void setStatus(GUIElementStatus status) {
-        this.status = status;
-        this.animation.goToFrame(this.status.ordinal());
+        super.setStatus(status);
+        this.animation.goToFrame(this.getStatus().ordinal());
     }
 
     @Override
     public void setAlpha(float alpha) {
         super.setAlpha(alpha);
         this.color.a = (float) alpha;
-    }
-
-    public GUIElementStatus getStatus() {
-        return status;
-    }
-
-    public void setActionListener(ActionListener actionListener) {
-        this.listener = actionListener;
-    }
-
-    public void fireEvent(ActionEvent event) {
-        if (this.listener != null) {
-            this.listener.actionPerformed(event);
-        }
     }
 
     public Animation getAnimation() {

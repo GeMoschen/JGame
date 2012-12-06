@@ -121,4 +121,12 @@ public class ComplexHitbox implements Cloneable {
         return otherBox;
     }
 
+    public void scale(float scale) {
+        for (ComplexVector vector : this.points) {
+            vector.setX(vector.getSelfX() * scale);
+            vector.setY(vector.getSelfY() * scale);
+            vector.recalculatePositions();
+        }
+    }
+
 }
