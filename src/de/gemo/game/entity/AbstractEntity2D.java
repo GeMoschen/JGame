@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-import de.gemo.game.collision.EasyVector;
+import de.gemo.game.collision.Vector;
 
 public abstract class AbstractEntity2D extends AbstractEntity {
 
@@ -18,7 +18,7 @@ public abstract class AbstractEntity2D extends AbstractEntity {
     protected float angle = 0;
     protected float alpha = 1f;
 
-    public AbstractEntity2D(EasyVector center, String fileName) throws FileNotFoundException, IOException {
+    public AbstractEntity2D(Vector center, String fileName) throws FileNotFoundException, IOException {
         this(center.getX(), center.getY(), fileName);
     }
 

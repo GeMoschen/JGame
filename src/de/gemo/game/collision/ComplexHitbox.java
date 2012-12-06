@@ -1,10 +1,6 @@
 package de.gemo.game.collision;
 
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3d;
+import static org.lwjgl.opengl.GL11.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +9,14 @@ import org.lwjgl.opengl.GL11;
 
 public class ComplexHitbox implements Cloneable {
     private List<ComplexVector> points = new ArrayList<ComplexVector>();
-    private final EasyVector center;
+    private final Vector center;
 
-    public ComplexHitbox(EasyVector center) {
-        this.center = new EasyVector(center.getX(), center.getY(), center.getZ());
+    public ComplexHitbox(Vector center) {
+        this.center = new Vector(center.getX(), center.getY(), center.getZ());
     }
 
     public ComplexHitbox(float x, float y) {
-        this(new EasyVector(x, y));
+        this(new Vector(x, y));
     }
 
     public final List<ComplexVector> getPoints() {
@@ -44,7 +40,7 @@ public class ComplexHitbox implements Cloneable {
         this.addPoint(new ComplexVector(this.center, x, y));
     }
 
-    public final EasyVector getCenter() {
+    public final Vector getCenter() {
         return this.center;
     }
 
@@ -54,12 +50,12 @@ public class ComplexHitbox implements Cloneable {
         this.move(difX, difY);
     }
 
-    public final void setCenter(EasyVector vector) {
+    public final void setCenter(Vector vector) {
         this.setCenter(center.getX(), center.getY());
         this.center.setZ(center.getZ());
     }
 
-    public final void moveHitbox(EasyVector vector) {
+    public final void moveHitbox(Vector vector) {
         this.move(vector.getX(), vector.getY());
     }
 
@@ -69,10 +65,11 @@ public class ComplexHitbox implements Cloneable {
             vector.recalculatePositions();
         }
     }
+
     public final void rotate(float angle) {
-        double rad = Math.toRadians(angle);
-        double sin = Math.sin(rad);
-        double cos = Math.cos(rad);
+        float rad = (float) Math.toRadians(angle);
+        float sin = (float) Math.sin(rad);
+        float cos = (float) Math.cos(rad);
         for (ComplexVector vector : this.points) {
             vector.rotate(rad, sin, cos);
             vector.recalculatePositions();
@@ -95,10 +92,10 @@ public class ComplexHitbox implements Cloneable {
         // render center
         glBegin(GL11.GL_LINE_LOOP);
         glColor3f(1.0f, 0, 0);
-        glVertex3d(this.center.getX() - 2, this.center.getY() - 2, 0d);
-        glVertex3d(this.center.getX() + 2, this.center.getY() - 2, 0d);
-        glVertex3d(this.center.getX() + 2, this.center.getY() + 2, 0d);
-        glVertex3d(this.center.getX() - 2, this.center.getY() + 2, 0d);
+        glVertex3f(this.center.getX() - 2, this.center.getY() - 2, 0f);
+        glVertex3f(this.center.getX() + 2, this.center.getY() - 2, 0f);
+        glVertex3f(this.center.getX() + 2, this.center.getY() + 2, 0f);
+        glVertex3f(this.center.getX() - 2, this.center.getY() + 2, 0f);
         glEnd();
     }
 

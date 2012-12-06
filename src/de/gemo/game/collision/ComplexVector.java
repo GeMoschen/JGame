@@ -1,25 +1,20 @@
 package de.gemo.game.collision;
 
-import static org.lwjgl.opengl.GL11.glVertex3d;
-
-public class ComplexVector implements Cloneable {
-    protected float x, y, z;
-    protected final EasyVector parent;
+public class ComplexVector extends Vector implements Cloneable {
+    protected final Vector parent;
     protected float calcX, calcY, calcZ;
 
-    public ComplexVector(EasyVector parent) {
+    public ComplexVector(Vector parent) {
         this(parent, 0, 0, 0);
     }
 
-    public ComplexVector(EasyVector parent, float x, float y) {
+    public ComplexVector(Vector parent, float x, float y) {
         this(parent, x, y, 0);
     }
 
-    public ComplexVector(EasyVector parent, float x, float y, float z) {
+    public ComplexVector(Vector parent, float x, float y, float z) {
+        super(x, y, z);
         this.parent = parent;
-        this.x = x;
-        this.y = y;
-        this.z = z;
     }
 
     public void recalculatePositions() {
@@ -28,23 +23,35 @@ public class ComplexVector implements Cloneable {
         this.calcZ = parent.getZ() + z;
     }
 
-    public void rotate(double rad, double sin, double cos) {
-        double tempx = (cos * x) - (sin * y);
-        double tempy = (sin * x) + (cos * y);
-
-        // float tempx = parent.getX() + (cos * (x - parent.getX()) - sin * (y - parent.getY()));
-        // float tempy = parent.getY() + (sin * (x - parent.getX()) + cos * (y - parent.getY()));
-        x = (float) tempx;
-        y = (float) tempy;
+    public float getSelfX() {
+        return x;
     }
 
-    public void move(float x, float y) {
-        this.x += x;
-        this.y += y;
+    public float getSelfY() {
+        return y;
     }
 
-    public double distanceTo(ComplexVector vector) {
-        return Math.sqrt(Math.pow(vector.getX() - this.getX(), 2) + Math.pow(vector.getY() - this.getY(), 2));
+    public float getSelfZ() {
+        return z;
+    }
+
+    public void setSelfZ(float z) {
+        this.z = z;
+    }
+
+    @Override
+    public float getX() {
+        return calcX;
+    }
+
+    @Override
+    public float getY() {
+        return calcY;
+    }
+
+    @Override
+    public float getZ() {
+        return calcZ;
     }
 
     @Override
@@ -72,38 +79,6 @@ public class ComplexVector implements Cloneable {
     @Override
     public String toString() {
         return "ComplexVector { " + getX() + " , " + getY() + " }";
-    }
-
-    public float getSelfX() {
-        return x;
-    }
-
-    public float getSelfY() {
-        return y;
-    }
-
-    public float getSelfZ() {
-        return z;
-    }
-
-    public void setSelfZ(float z) {
-        this.z = z;
-    }
-
-    public float getX() {
-        return calcX;
-    }
-
-    public float getY() {
-        return calcY;
-    }
-
-    public float getZ() {
-        return calcZ;
-    }
-
-    public void render() {
-        glVertex3d(this.getX(), this.getY(), this.getZ());
     }
 
     @Override

@@ -3,12 +3,12 @@ package de.gemo.game.entity;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3d;
+import static org.lwjgl.opengl.GL11.glVertex3i;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
-import de.gemo.game.collision.EasyVector;
+import de.gemo.game.collision.Vector;
 import de.gemo.game.core.Game;
 
 public abstract class AbstractEntity {
@@ -20,24 +20,24 @@ public abstract class AbstractEntity {
     }
 
     protected final int entityID;
-    protected EasyVector center = null;
+    protected Vector center = null;
 
-    public AbstractEntity(EasyVector center) {
+    public AbstractEntity(Vector center) {
         this(center.getX(), center.getY());
     }
 
     public AbstractEntity(float x, float y) {
-        this.center = new EasyVector(x, y);
+        this.center = new Vector(x, y);
         this.entityID = AbstractEntity.getNextFreeID();
     }
 
     public void render() {
         glBegin(GL11.GL_LINE_LOOP);
         glColor3f(0f, 1.0f, 0f);
-        glVertex3d(-2, -2, -1);
-        glVertex3d(+2, -2, -1);
-        glVertex3d(+2, +2, -1);
-        glVertex3d(-2, +2, -1);
+        glVertex3i(-2, -2, -1);
+        glVertex3i(+2, -2, -1);
+        glVertex3i(+2, +2, -1);
+        glVertex3i(-2, +2, -1);
         glEnd();
 
         GL11.glEnable(GL11.GL_BLEND);
@@ -48,11 +48,11 @@ public abstract class AbstractEntity {
         return entityID;
     }
 
-    public final EasyVector getCenter() {
+    public final Vector getCenter() {
         return center;
     }
 
-    public void setCenter(EasyVector vector) {
+    public void setCenter(Vector vector) {
         this.setCenter(vector.getX(), vector.getY());
     }
 
@@ -66,7 +66,7 @@ public abstract class AbstractEntity {
         this.center.setZ(z);
     }
 
-    public void move(EasyVector vector) {
+    public void move(Vector vector) {
         this.center.move(vector.getX(), vector.getY());
     }
 

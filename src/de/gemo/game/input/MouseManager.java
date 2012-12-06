@@ -6,7 +6,7 @@ import java.util.HashSet;
 import org.lwjgl.input.Mouse;
 
 import de.gemo.game.collision.ComplexHitbox;
-import de.gemo.game.collision.EasyVector;
+import de.gemo.game.collision.Vector;
 import de.gemo.game.core.Game;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
@@ -119,7 +119,7 @@ public class MouseManager {
         return pressedButtons.get(button);
     }
 
-    public EasyVector getMouseVector() {
+    public Vector getMouseVector() {
         return this.hitBox.getCenter();
     }
 }

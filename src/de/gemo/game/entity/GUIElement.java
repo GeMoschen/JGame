@@ -5,7 +5,7 @@ import org.newdawn.slick.opengl.Texture;
 import de.gemo.game.collision.CollisionHelper;
 import de.gemo.game.collision.ComplexHitbox;
 import de.gemo.game.collision.ComplexVector;
-import de.gemo.game.collision.EasyVector;
+import de.gemo.game.collision.Vector;
 
 public class GUIElement extends AbstractEntity2D {
 
@@ -49,7 +49,7 @@ public class GUIElement extends AbstractEntity2D {
         this.clickBox.moveHitbox(this.center);
     }
 
-    public boolean isVectorInHitbox(EasyVector vector) {
+    public boolean isVectorInHitbox(Vector vector) {
         return CollisionHelper.isVectorInHitbox(vector, this.clickBox);
     }
 
