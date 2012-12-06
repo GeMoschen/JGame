@@ -47,23 +47,22 @@ public class Engine {
 
     private String WIN_TITLE = "JGame";
 
-    private final int WIN_WIDTH = 1024;
-    private final int WIN_HEIGHT = 768;
+    private int WIN_WIDTH = 1024;
+    private int WIN_HEIGHT = 768;
 
-    private final int VIEW_WIDTH = 1024;
-    private final int VIEW_HEIGHT = 768;
+    private int VIEW_WIDTH = 1024;
+    private int VIEW_HEIGHT = 768;
 
     private boolean USE_VSYNC = true;
     private boolean HIDE_TEXT = false;
 
     private boolean freeMouse = false;
 
-    private static int FPS = 0;
+    private int currentFPS = 0;
     private KeyboardManager keyManager;
     private MouseManager mouseManager;
 
     private ArrayList<GUIButton> buttonList = new ArrayList<GUIButton>();
-    public static TrueTypeFont font_10, font_12, font_14;
 
     public Engine() {
         this.createWindow();
@@ -87,7 +86,7 @@ public class Engine {
 
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
-            FPS++;
+            currentFPS++;
 
             if (startTimer <= System.currentTimeMillis()) {
                 tick = true;
@@ -120,23 +119,24 @@ public class Engine {
 
             this.renderButtons();
 
+            // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
-            font_14.drawString(10, 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
-
+            TrueTypeFont font = FontManager.getFont("Verdana", Font.BOLD, 12);
+            font.drawString(10, 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
             if (!HIDE_TEXT) {
-                font_14.drawString(10, 25, "Delta: " + oldCount, Color.red);
+                font.drawString(10, 25, "Delta: " + oldCount, Color.red);
 
-                font_14.drawString(10, 50, "A/D: rotate Exit-Button", Color.magenta);
-                font_14.drawString(10, 65, "Arrowkeys: move Exit-Button", Color.magenta);
+                font.drawString(10, 50, "A/D: rotate Exit-Button", Color.magenta);
+                font.drawString(10, 65, "W/S: change alpha of Exit-Button", Color.magenta);
+                font.drawString(10, 80, "Arrowkeys: move Exit-Button", Color.magenta);
 
-                font_14.drawString(10, 90, "F1: toggle vysnc", Color.orange);
-                font_14.drawString(10, 105, "F2: toggle text", Color.orange);
-                font_14.drawString(10, 120, "F11: toggle graphics", Color.orange);
-                font_14.drawString(10, 135, "F12: toggle hitboxes", Color.orange);
+                font.drawString(10, 105, "F1: toggle vysnc", Color.orange);
+                font.drawString(10, 120, "F2: toggle text", Color.orange);
+                font.drawString(10, 135, "F11: toggle graphics", Color.orange);
+                font.drawString(10, 150, "F12: toggle hitboxes", Color.orange);
             }
             GL11.glDisable(GL11.GL_BLEND);
 
-            // GL11.glDisable(GL11.GL_BLEND);
             GL11.glPopMatrix();
 
             // update and sync
@@ -148,9 +148,9 @@ public class Engine {
 
             if (startTime < System.currentTimeMillis()) {
                 startTime = System.currentTimeMillis() + 1000;
-                oldFPS = FPS;
+                oldFPS = currentFPS;
                 oldCount = delta;
-                FPS = 0;
+                currentFPS = 0;
             }
 
             tick = false;
@@ -195,7 +195,7 @@ public class Engine {
 
             button = new GUIButton(310 + 32, this.WIN_HEIGHT - 32, 128, 32, buttonTexture);
             button.setZ(-3);
-            button.setLabel("Button 3");
+            button.setLabel("Testbutton too long");
             button.setColor(Color.orange);
             button.setAlpha(1f);
             buttonList.add(button);
@@ -206,6 +206,9 @@ public class Engine {
             button.setColor(Color.orange);
             button.setActionListener(new ExitButtonListener());
             button.setAlpha(0.25f);
+
+            button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
+
             buttonList.add(button);
 
         } catch (FileNotFoundException e) {
@@ -216,7 +219,6 @@ public class Engine {
             e.printStackTrace();
         }
     }
-
     private void renderButtons() {
         for (GUIButton button : this.buttonList) {
             Renderer.render(button);
@@ -251,14 +253,8 @@ public class Engine {
     }
 
     private void loadFonts() {
-        Font arialFont = new Font("Verdana", Font.BOLD, 10);
-        font_10 = new TrueTypeFont(arialFont, true);
-
-        arialFont = new Font("Verdana", Font.BOLD, 12);
-        font_12 = new TrueTypeFont(arialFont, true);
-
-        arialFont = new Font("Verdana", Font.BOLD, 14);
-        font_14 = new TrueTypeFont(arialFont, true);
+        FontManager.loadFont("Verdana", Font.BOLD, 12);
+        FontManager.loadFont("Verdana", Font.BOLD, 14);
     }
 
     public void rotate(float angle) {
@@ -316,6 +312,14 @@ public class Engine {
             case Keyboard.KEY_DOWN : {
                 moveDown();
                 this.mouseManager.move(0, -20);
+                break;
+            }
+            case Keyboard.KEY_W : {
+                this.buttonList.get(3).setAlpha(this.buttonList.get(3).getAlpha() + 0.001f * this.getDelta());
+                break;
+            }
+            case Keyboard.KEY_S : {
+                this.buttonList.get(3).setAlpha(this.buttonList.get(3).getAlpha() - 0.001f * this.getDelta());
                 break;
             }
         }

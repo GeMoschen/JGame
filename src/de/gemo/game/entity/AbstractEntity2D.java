@@ -128,6 +128,12 @@ public abstract class AbstractEntity2D extends AbstractEntity {
     }
 
     public void setAlpha(float alpha) {
+        if (alpha < 0) {
+            alpha = 0;
+        }
+        if (alpha > 1) {
+            alpha = 1;
+        }
         this.alpha = alpha;
     }
 

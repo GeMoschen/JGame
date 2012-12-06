@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.game.collision.Vector;
-import de.gemo.game.core.Engine;
+import de.gemo.game.core.FontManager;
 
 public abstract class AbstractEntity {
 
@@ -41,9 +41,10 @@ public abstract class AbstractEntity {
         glEnd();
 
         GL11.glEnable(GL11.GL_BLEND);
-        Engine.font_10.drawString((int) (Engine.font_10.getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
+        FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
         GL11.glDisable(GL11.GL_BLEND);
     }
+
     public int getEntityID() {
         return entityID;
     }
@@ -73,5 +74,4 @@ public abstract class AbstractEntity {
     public void move(float x, float y) {
         this.center.move(x, y);
     }
-
 }
