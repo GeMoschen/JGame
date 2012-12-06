@@ -5,17 +5,17 @@ import java.util.HashSet;
 
 import org.lwjgl.input.Keyboard;
 
-import de.gemo.game.core.Game;
+import de.gemo.game.core.Engine;
 import de.gemo.game.events.keyboard.KeyEvent;
 
 public class KeyboardManager {
 
-    private final Game game;
+    private final Engine engine;
     public HashMap<Integer, Boolean> pressedKeys = new HashMap<Integer, Boolean>();
     private HashSet<Integer> holdKeys = new HashSet<Integer>();
 
-    public KeyboardManager(Game game) {
-        this.game = game;
+    public KeyboardManager(Engine engine) {
+        this.engine = engine;
         this.holdKeys = new HashSet<Integer>();
         for (int index = 0; index < 65536; index++) {
             pressedKeys.put(index, false);
@@ -27,7 +27,7 @@ public class KeyboardManager {
         for (int currentKey : this.holdKeys) {
             if (Keyboard.isKeyDown(currentKey)) {
                 // hold key
-                game.onKeyHold(new KeyEvent(currentKey, true));
+                engine.onKeyHold(new KeyEvent(currentKey, true));
             }
         }
 
@@ -40,11 +40,11 @@ public class KeyboardManager {
             oldState = holdKeys.contains(key);
             if (!currentState && oldState) {
                 // released key
-                game.onKeyReleased(new KeyEvent(key, false));
+                engine.onKeyReleased(new KeyEvent(key, false));
                 holdKeys.remove(key);
             } else if (currentState && !oldState) {
                 // newly pressed key
-                game.onKeyPressed(new KeyEvent(key, true));
+                engine.onKeyPressed(new KeyEvent(key, true));
                 holdKeys.add(key);
             }
             pressedKeys.put(key, currentState);

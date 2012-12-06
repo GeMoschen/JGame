@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.game.collision.Vector;
-import de.gemo.game.core.Game;
+import de.gemo.game.core.Engine;
 
 public abstract class AbstractEntity {
 
@@ -41,7 +41,7 @@ public abstract class AbstractEntity {
         glEnd();
 
         GL11.glEnable(GL11.GL_BLEND);
-        Game.font_10.drawString((int) (Game.font_10.getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
+        Engine.font_10.drawString((int) (Engine.font_10.getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
         GL11.glDisable(GL11.GL_BLEND);
     }
     public int getEntityID() {

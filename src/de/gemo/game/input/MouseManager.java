@@ -7,14 +7,14 @@ import org.lwjgl.input.Mouse;
 
 import de.gemo.game.collision.ComplexHitbox;
 import de.gemo.game.collision.Vector;
-import de.gemo.game.core.Game;
+import de.gemo.game.core.Engine;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
 
 public class MouseManager {
-    private final Game game;
+    private final Engine engine;
     public HashMap<Integer, Boolean> pressedButtons = new HashMap<Integer, Boolean>();
     private HashSet<Integer> holdButtons = new HashSet<Integer>();
 
@@ -26,24 +26,24 @@ public class MouseManager {
     private final ComplexHitbox hitBox, movedHitBox;
 
     public void blockMouseMovement() {
-        int x = this.game.WIN_WIDTH / 2;
-        int y = this.game.WIN_HEIGHT / 2;
+        int x = this.engine.getWIN_WIDTH() / 2;
+        int y = this.engine.getWIN_HEIGHT() / 2;
         // set the cursor
         Mouse.setCursorPosition(x, y);
 
         this.hitBox.setCenter(x, y);
     }
 
-    public MouseManager(Game game) {
-        this.game = game;
+    public MouseManager(Engine engine) {
+        this.engine = engine;
         this.holdButtons = new HashSet<Integer>();
         for (int index = 0; index < 20; index++) {
             pressedButtons.put(index, false);
         }
 
         // build hitbox for mouse
-        int x = this.game.WIN_WIDTH / 2;
-        int y = this.game.WIN_HEIGHT / 2;
+        int x = this.engine.getWIN_WIDTH() / 2;
+        int y = this.engine.getWIN_HEIGHT() / 2;
         hitBox = new ComplexHitbox(x, y);
         hitBox.addPoint(0, 0);
         hitBox.addPoint(dim, 0);
@@ -78,7 +78,7 @@ public class MouseManager {
         for (int currentKey : this.holdButtons) {
             if (Mouse.isButtonDown(currentKey)) {
                 // hold button
-                game.onMouseDrag(new MouseDragEvent(Mouse.getX(), game.WIN_HEIGHT - Mouse.getY(), dX, dY, currentKey));
+                engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWIN_HEIGHT() - Mouse.getY(), dX, dY, currentKey));
             }
         }
 
@@ -90,11 +90,11 @@ public class MouseManager {
             oldState = holdButtons.contains(index);
             if (!currentState && oldState) {
                 // throw MouseUpEvent
-                game.onMouseUp(new MouseUpEvent(Mouse.getX(), Mouse.getY(), index));
+                engine.onMouseUp(new MouseUpEvent(Mouse.getX(), Mouse.getY(), index));
                 holdButtons.remove(index);
             } else if (currentState && !oldState) {
                 // throw MouseDownEvent
-                game.onMouseDown(new MouseDownEvent(Mouse.getX(), Mouse.getY(), index));
+                engine.onMouseDown(new MouseDownEvent(Mouse.getX(), Mouse.getY(), index));
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);
@@ -105,7 +105,7 @@ public class MouseManager {
             this.hitBox.move(dX, dY);
             this.movedHitBox.move(dX, dY);
             // throw MouseMoveEvent
-            game.onMouseMove(new MouseMoveEvent(Mouse.getX(), game.WIN_HEIGHT - Mouse.getY(), dX, dY));
+            engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWIN_HEIGHT() - Mouse.getY(), dX, dY));
         }
         currentX = Mouse.getX();
         currentY = Mouse.getY();

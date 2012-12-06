@@ -9,7 +9,7 @@ import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 
 import de.gemo.game.animation.Animation;
-import de.gemo.game.core.Game;
+import de.gemo.game.core.Engine;
 
 public class GUIButton extends GUIElement {
 
@@ -32,7 +32,7 @@ public class GUIButton extends GUIElement {
         this.height = height;
         this.animation = new Animation(texture, 1, 4);
         this.setStatus(GUIElementStatus.NONE);
-        this.setFont(Game.font_12);
+        this.setFont(Engine.font_12);
         this.setColor(Color.white);
         this.listener = null;
     }
