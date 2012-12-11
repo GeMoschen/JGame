@@ -5,13 +5,13 @@ import java.util.HashSet;
 
 import org.lwjgl.input.Mouse;
 
-import de.gemo.game.collision.ComplexHitbox;
-import de.gemo.game.collision.Vector;
+import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.interfaces.Vector;
 
 public class MouseManager {
     private final Engine engine;
@@ -23,7 +23,7 @@ public class MouseManager {
 
     private final int dim = 1;
 
-    private final ComplexHitbox hitBox, movedHitBox;
+    private final Hitbox hitBox, movedHitBox;
 
     public void blockMouseMovement() {
         int x = this.engine.getWindowWidth() / 2;
@@ -44,14 +44,14 @@ public class MouseManager {
         // build hitbox for mouse
         int x = this.engine.getWindowWidth() / 2;
         int y = this.engine.getWindowHeight() / 2;
-        hitBox = new ComplexHitbox(x, y);
+        hitBox = new Hitbox(x, y);
         hitBox.addPoint(0, 0);
         hitBox.addPoint(dim, 0);
         hitBox.addPoint(dim, dim);
         hitBox.addPoint(0, dim);
 
         // build hitbox for mouse
-        movedHitBox = new ComplexHitbox(x, y);
+        movedHitBox = new Hitbox(x, y);
         movedHitBox.addPoint(0, 0);
         movedHitBox.addPoint(dim, 0);
         movedHitBox.addPoint(dim, dim);
@@ -65,7 +65,7 @@ public class MouseManager {
         movedHitBox.move(x, y);
     }
 
-    public ComplexHitbox getMovedHitBox() {
+    public Hitbox getMovedHitBox() {
         return movedHitBox;
     }
 
@@ -111,7 +111,7 @@ public class MouseManager {
         currentY = Mouse.getY();
     }
 
-    public ComplexHitbox getHitBox() {
+    public Hitbox getHitBox() {
         return hitBox;
     }
 

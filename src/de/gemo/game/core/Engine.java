@@ -18,14 +18,13 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 
-import de.gemo.game.collision.ComplexHitbox;
+import de.gemo.game.collision.Hitbox;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
 import de.gemo.game.implementation.MyGUIController;
-import de.gemo.game.implementation.SecondGUIController;
 import de.gemo.game.input.KeyboardManager;
 import de.gemo.game.input.MouseManager;
 
@@ -54,7 +53,7 @@ public class Engine {
     private MouseManager mouseManager;
 
     private GUIController activeGUIController = null;
-    private HashMap<Integer, GUIController> guiController;
+    private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
 
     public Engine() {
         INSTANCE = this;
@@ -110,8 +109,18 @@ public class Engine {
             // RENDER GUI
             GL11.glPushMatrix();
 
-            for (GUIController controller : this.guiController.values()) {
-                controller.render();
+            if (Renderer.SHOW_GRAPHICS) {
+                GL11.glEnable(GL11.GL_BLEND);
+                for (GUIController controller : this.guiController.values()) {
+                    controller.render();
+                }
+                GL11.glDisable(GL11.GL_BLEND);
+            }
+
+            if (Renderer.SHOW_HITBOXES) {
+                for (GUIController controller : this.guiController.values()) {
+                    controller.debugRender();
+                }
             }
 
             // draw debug-informations
@@ -185,24 +194,22 @@ public class Engine {
     }
 
     private void createGUI() {
-        this.guiController = new HashMap<Integer, GUIController>();
-
         float halfWidth = WIN_WIDTH / 2f;
         float halfHeight = 50;
 
-        ComplexHitbox hitbox = new ComplexHitbox(halfWidth, WIN_HEIGHT - 50);
+        Hitbox hitbox = new Hitbox(halfWidth, WIN_HEIGHT - 50);
         hitbox.addPoint(-halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, halfHeight);
         this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
 
-        hitbox = new ComplexHitbox(halfWidth, 300);
-        hitbox.addPoint(-halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, halfHeight);
-        hitbox.addPoint(-halfWidth, halfHeight);
-        this.registerGUIController(new SecondGUIController("Second GUI", hitbox, this.mouseManager.getMouseVector()));
+        // hitbox = new ComplexHitbox(halfWidth, 300);
+        // hitbox.addPoint(-halfWidth, -halfHeight);
+        // hitbox.addPoint(halfWidth, -halfHeight);
+        // hitbox.addPoint(halfWidth, halfHeight);
+        // hitbox.addPoint(-halfWidth, halfHeight);
+        // this.registerGUIController(new SecondGUIController("Second GUI", hitbox, this.mouseManager.getMouseVector()));
     }
 
     private void initOpenGL() {
@@ -215,6 +222,7 @@ public class Engine {
 
         GL11.glShadeModel(GL11.GL_SMOOTH);
 
+        GL11.glShadeModel(GL11.GL_SMOOTH);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
         GL11.glOrtho(0, Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(), 0, 1000, -1000);
@@ -222,7 +230,7 @@ public class Engine {
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
 
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
@@ -310,6 +318,7 @@ public class Engine {
         if (!freeMouse) {
             freeMouse = !freeMouse;
         }
+
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);

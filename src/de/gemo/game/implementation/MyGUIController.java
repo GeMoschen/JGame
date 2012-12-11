@@ -10,8 +10,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-import de.gemo.game.collision.ComplexHitbox;
-import de.gemo.game.collision.Vector;
+import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
 import de.gemo.game.core.FontManager;
 import de.gemo.game.core.GUIController;
@@ -20,10 +19,11 @@ import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
+import de.gemo.game.interfaces.Vector;
 
 public class MyGUIController extends GUIController {
 
-    public MyGUIController(String name, ComplexHitbox hitbox, Vector mouseVector) {
+    public MyGUIController(String name, Hitbox hitbox, Vector mouseVector) {
         super(name, hitbox, mouseVector);
     }
 
@@ -34,35 +34,39 @@ public class MyGUIController extends GUIController {
         try {
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
-            GUIButton button = new GUIButton(50 + 32, Engine.INSTANCE.getWindowHeight() - 32, 128, 32, buttonTexture);
+            GUIButton button = new GUIButton(50 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
             button.setZ(-3);
             button.setLabel("Button 1");
             button.setColor(Color.orange);
             button.setAlpha(0.1f);
+            button.scale(0.25f);
             this.add(button);
 
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
-            button = new GUIButton(180 + 32, Engine.INSTANCE.getWindowHeight() - 32, 128, 32, buttonTexture);
+            button = new GUIButton(180 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
             button.setZ(-3);
             button.setLabel("Button 2");
             button.setColor(Color.orange);
             button.setAlpha(0.75f);
+            button.scale(0.25f);
             this.add(button);
 
-            button = new GUIButton(310 + 32, Engine.INSTANCE.getWindowHeight() - 32, 128, 32, buttonTexture);
+            button = new GUIButton(310 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
             button.setZ(-3);
             button.setLabel("Testbutton with a text which is fucking too long! :{");
             button.setColor(Color.orange);
             button.setAlpha(1f);
             button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
+            button.scale(0.25f);
             this.add(button);
 
-            button = new GUIButton(Engine.INSTANCE.getWindowWidth() - 80, Engine.INSTANCE.getWindowHeight() - 32, 128, 32, buttonTexture);
+            button = new GUIButton(Engine.INSTANCE.getWindowWidth() - 80, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
             button.setZ(-4);
             button.setLabel("Exit");
             button.setColor(Color.orange);
             button.setActionListener(new ExitButtonListener());
             button.setAlpha(0.25f);
+            button.scale(0.25f);
 
             button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
 
@@ -88,18 +92,6 @@ public class MyGUIController extends GUIController {
     @Override
     public void onKeyHold(KeyEvent event) {
         switch (event.getKey()) {
-            case Keyboard.KEY_A : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().rotate(-0.1f * Engine.INSTANCE.getCurrentDelta());
-                }
-                break;
-            }
-            case Keyboard.KEY_D : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().rotate(0.1f * Engine.INSTANCE.getCurrentDelta());
-                }
-                break;
-            }
             case Keyboard.KEY_LEFT : {
                 if (this.getActiveElement() != null) {
                     this.getActiveElement().move(-0.1f * Engine.INSTANCE.getCurrentDelta(), 0);
@@ -138,13 +130,13 @@ public class MyGUIController extends GUIController {
             }
             case Keyboard.KEY_1 : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().scale(1f - 0.001f * Engine.INSTANCE.getCurrentDelta());
+                    this.getActiveElement().scale(1f - 0.002f * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
             case Keyboard.KEY_2 : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().scale(1f + 0.001f * Engine.INSTANCE.getCurrentDelta());
+                    this.getActiveElement().scale(1f + 0.002f * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
@@ -153,8 +145,20 @@ public class MyGUIController extends GUIController {
 
     @Override
     public void onKeyPressed(KeyEvent event) {
-        // TODO Auto-generated method stub
-
+        switch (event.getKey()) {
+            case Keyboard.KEY_A : {
+                if (this.getActiveElement() != null) {
+                    this.getActiveElement().setAngle(this.getActiveElement().getAngle() - 45f);
+                }
+                break;
+            }
+            case Keyboard.KEY_D : {
+                if (this.getActiveElement() != null) {
+                    this.getActiveElement().setAngle(this.getActiveElement().getAngle() + 45f);
+                }
+                break;
+            }
+        }
     }
 
     @Override

@@ -10,8 +10,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-import de.gemo.game.collision.ComplexHitbox;
-import de.gemo.game.collision.Vector;
+import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
 import de.gemo.game.core.FontManager;
 import de.gemo.game.core.GUIController;
@@ -20,10 +19,11 @@ import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
+import de.gemo.game.interfaces.Vector;
 
 public class SecondGUIController extends GUIController {
 
-    public SecondGUIController(String name, ComplexHitbox hitbox, Vector mouseVector) {
+    public SecondGUIController(String name, Hitbox hitbox, Vector mouseVector) {
         super(name, hitbox, mouseVector);
     }
 
@@ -34,7 +34,7 @@ public class SecondGUIController extends GUIController {
         try {
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
-            GUIButton button = new GUIButton(Engine.INSTANCE.getWindowWidth() - 80, 340, 128, 32, buttonTexture);
+            GUIButton button = new GUIButton(Engine.INSTANCE.getWindowWidth() - 80, 340, buttonTexture);
             button.setZ(-4);
             button.setLabel("Exit 2");
             button.setColor(Color.orange);

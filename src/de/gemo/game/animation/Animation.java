@@ -8,7 +8,8 @@ public class Animation {
     protected Texture texture;
     protected final float tileWidth, tileHeight;
     protected final int tilesX, tilesY;
-    private final int singleTileWidth, singleTileHeight;
+    private float singleTileWidth;
+    private float singleTileHeight;
     private final float halfTileWidth, halfTileHeight;
     protected int currentFrame = -1;
     protected final int maxFrames;
@@ -127,11 +128,11 @@ public class Animation {
         return currentFrame;
     }
 
-    public int getSingleTileWidth() {
+    public float getSingleTileWidth() {
         return singleTileWidth;
     }
 
-    public int getSingleTileHeight() {
+    public float getSingleTileHeight() {
         return singleTileHeight;
     }
 
@@ -143,38 +144,44 @@ public class Animation {
         return halfTileHeight;
     }
 
-    public void render(float x, float y, float z) {
-        this.render(x, y, z, 0f, 1f, this.texture.getImageWidth(), this.texture.getImageHeight());
-    }
-
-    public void render(float x, float y, float z, float angle, float alpha, float width, float height) {
+    public void render(float alpha) {
         // bind texture
         GL11.glColor4f(1, 1, 1, alpha);
         this.texture.bind();
-
-        float halfW = width / 2;
-        float halfH = height / 2;
 
         // begin quads
         GL11.glBegin(GL11.GL_QUADS);
 
         // up-left
         GL11.glTexCoord2f(u, v);
-        GL11.glVertex3f(-halfW, -halfH, 0);
+        GL11.glVertex3f(-this.getSingleTileWidth(), -this.getSingleTileHeight(), 0);
 
         // up-right
         GL11.glTexCoord2f(u2, v);
-        GL11.glVertex3f(+halfW, -halfH, 0);
+        GL11.glVertex3f(+this.getSingleTileWidth(), -this.getSingleTileHeight(), 0);
 
         // down-right
         GL11.glTexCoord2f(u2, v2);
-        GL11.glVertex3f(+halfW, +halfH, 0);
+        GL11.glVertex3f(+this.getSingleTileWidth(), +this.getSingleTileHeight(), 0);
 
         // down-left
         GL11.glTexCoord2f(u, v2);
-        GL11.glVertex3f(-halfW, +halfH, 0);
+        GL11.glVertex3f(-this.getSingleTileWidth(), +this.getSingleTileHeight(), 0);
 
         // end quads
         GL11.glEnd();
+    }
+
+    public void scale(float scale) {
+        this.singleTileWidth *= scale;
+        this.singleTileHeight *= scale;
+    }
+
+    public void scaleX(float scaleX) {
+        this.singleTileWidth *= scaleX;
+    }
+
+    public void scaleY(float scaleY) {
+        this.singleTileHeight *= scaleY;
     }
 }

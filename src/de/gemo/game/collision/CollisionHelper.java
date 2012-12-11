@@ -3,6 +3,8 @@ package de.gemo.game.collision;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.gemo.game.interfaces.Vector;
+
 public class CollisionHelper {
 
     // /////////////////////////////////////////////
@@ -12,7 +14,7 @@ public class CollisionHelper {
     // /////////////////////////////////////////////
 
     // Jordan Curve Theorem - very fast
-    public static boolean isVectorInHitbox(Vector vector, ComplexHitbox hitbox) {
+    public static boolean isVectorInHitbox(Vector vector, Hitbox hitbox) {
         int nvert = hitbox.getPointCount();
         int i, j, count = 0;
         for (i = 0, j = nvert - 1; i < nvert; j = i++) {
@@ -24,7 +26,22 @@ public class CollisionHelper {
     }
 
     // Use the JC-Theorem for collisiondetection
-    public static boolean isColliding(ComplexHitbox hitboxA, ComplexHitbox hitboxB) {
+    public static boolean isColliding(Hitbox hitboxA, Hitbox hitboxB) {
+        for (Vector vector : hitboxA.getPoints()) {
+            if (isVectorInHitbox(vector, hitboxB)) {
+                return true;
+            }
+        }
+        for (Vector vector : hitboxB.getPoints()) {
+            if (isVectorInHitbox(vector, hitboxA)) {
+                return true;
+            }
+        }
+        return findIntersection(hitboxA, hitboxB) != null;
+    }
+
+    // Use the JC-Theorem for collisiondetection
+    public static boolean isCollidingFast(Hitbox hitboxA, Hitbox hitboxB) {
         for (Vector vector : hitboxA.getPoints()) {
             if (isVectorInHitbox(vector, hitboxB)) {
                 return true;
@@ -39,8 +56,8 @@ public class CollisionHelper {
     }
 
     // find intersections
-    public static List<Vector> findIntersection(ComplexHitbox hitboxA, ComplexHitbox hitboxB) {
-        List<Vector> result = new ArrayList<Vector>();
+    public static List<Vector> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
+        List<Vector> result = null;
 
         Vector a1 = null, a2 = null;
         Vector b1 = null, b2 = null;
@@ -61,6 +78,9 @@ public class CollisionHelper {
 
                 Vector vector = findIntersection(a1, a2, b1, b2);
                 if (vector != null) {
+                    if (result == null) {
+                        result = new ArrayList<Vector>();
+                    }
                     result.add(vector);
                 }
             }

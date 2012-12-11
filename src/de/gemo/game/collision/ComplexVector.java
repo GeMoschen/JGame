@@ -1,6 +1,8 @@
 package de.gemo.game.collision;
 
-public class ComplexVector extends Vector implements Cloneable {
+import de.gemo.game.interfaces.Vector;
+
+public class ComplexVector extends Vector {
     protected final Vector parent;
     protected float calcX, calcY, calcZ;
 
@@ -82,7 +84,7 @@ public class ComplexVector extends Vector implements Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public ComplexVector clone() {
         return new ComplexVector(parent, x, y, z);
     }
 }

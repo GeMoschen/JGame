@@ -10,21 +10,25 @@ import de.gemo.game.core.FontManager;
 
 public class GUIButton extends GUIElement {
 
-    private Animation animation;
-
     private String label = "";
     private String originalLabel = "";
     private Color color;
     private TrueTypeFont font;
 
     private float textWidth = 0, textHeight = 0;
-    private float maxText = 0.8f;
+    private float maxText = 0.80f;
 
-    public GUIButton(float x, float y, float width, float height, Texture texture) {
-        super(x, y, width, height, texture);
-        this.animation = new Animation(texture, 1, 4);
+    public GUIButton(float x, float y, Texture texture) {
+        super(x, y, texture);
+        this.setTexture(texture, 1, 4);
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
+        this.getClickbox().scaleY(0.25f);
+    }
+
+    public GUIButton(float x, float y, Texture texture, String label) {
+        this(x, y, texture);
+        this.setLabel(label);
     }
 
     public void setColor(Color color) {
@@ -49,19 +53,18 @@ public class GUIButton extends GUIElement {
         this.textWidth = this.font.getWidth(this.label);
         this.textHeight = this.font.getHeight(this.label) / 2;
 
-        if (this.textWidth >= this.width * maxText) {
+        if (this.textWidth >= this.animation.getSingleTileWidth() * maxText * 2) {
             this.label = label;
             this.textWidth = this.getFont().getWidth(this.label + "...");
             String tempLabel = this.label;
-            while (this.textWidth >= this.width * maxText) {
+            while (this.textWidth >= this.animation.getSingleTileWidth() * maxText * 2) {
                 tempLabel = tempLabel.substring(0, tempLabel.length() - 1);
                 this.textWidth = this.font.getWidth(tempLabel + "...");
             }
             this.label = tempLabel + "...";
         }
-        this.textWidth = (int) (this.textWidth / 2);
+        this.textWidth = (this.textWidth / 2);
     }
-
     @Override
     public void scale(float scale) {
         super.scale(scale);
@@ -99,13 +102,11 @@ public class GUIButton extends GUIElement {
 
     @Override
     public void render() {
-        this.animation.render(this.center.getX(), this.center.getY(), this.center.getZ(), this.angle, this.alpha, this.width, this.height);
+        super.render();
         if (this.label.length() > 0) {
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glTranslated(0d, 0d, -1d);
-            this.font.drawString((float) (-this.textWidth), (float) (-this.textHeight), this.label, this.color);
-            GL11.glTranslated(0d, 0d, +1d);
-            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glTranslatef(0f, 0f, -1f);
+            this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.color);
+            GL11.glTranslatef(0f, 0f, +1f);
         }
     }
 }

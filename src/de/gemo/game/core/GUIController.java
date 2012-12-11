@@ -4,9 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import de.gemo.game.collision.CollisionHelper;
-import de.gemo.game.collision.ComplexHitbox;
-import de.gemo.game.collision.Vector;
-import de.gemo.game.entity.AbstractEntity;
+import de.gemo.game.collision.Hitbox;
+import de.gemo.game.entity.Entity;
 import de.gemo.game.entity.GUIElement;
 import de.gemo.game.entity.GUIElementStatus;
 import de.gemo.game.events.gui.ClickBeginEvent;
@@ -21,19 +20,20 @@ import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.interfaces.Vector;
 
 public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     private final int ID;
     private final String name;
     private HashMap<Integer, GUIElement> allElements, visibleElements, invisibleElements;
-    private final ComplexHitbox hitbox;
+    private final Hitbox hitbox;
     protected final Vector mouseVector;
 
     private GUIElement activeElement = null;
 
-    public GUIController(String name, ComplexHitbox hitbox, Vector mouseVector) {
-        this.ID = AbstractEntity.getNextFreeID();
+    public GUIController(String name, Hitbox hitbox, Vector mouseVector) {
+        this.ID = Entity.getNextFreeID();
         this.name = name;
         this.hitbox = hitbox;
         this.mouseVector = mouseVector;
@@ -118,9 +118,15 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     }
 
     public void render() {
-        Renderer.render(this.getName(), this.hitbox);
         for (GUIElement element : this.visibleElements.values()) {
             Renderer.render(element);
+        }
+    }
+
+    public void debugRender() {
+        Renderer.renderHitbox(this.getName(), this.hitbox);
+        for (GUIElement element : this.visibleElements.values()) {
+            Renderer.debugRender(element);
         }
     }
 
@@ -140,7 +146,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
         return CollisionHelper.isVectorInHitbox(this.mouseVector, this.hitbox);
     }
 
-    public final ComplexHitbox getHitbox() {
+    public final Hitbox getHitbox() {
         return hitbox;
     }
 
@@ -164,7 +170,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
         boolean setToNull = true;
         boolean isColliding = false;
         for (GUIElement element : this.getVisibleElements()) {
-            isColliding = element.isVectorInHitbox(this.mouseVector);
+            isColliding = element.isVectorInClickbox(this.mouseVector);
             if (isColliding && !element.getStatus().equals(GUIElementStatus.ACTIVE)) {
                 if (element.getStatus().equals(GUIElementStatus.HOVERING)) {
                     this.activeElement = element;
@@ -182,7 +188,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
                 element.setStatus(GUIElementStatus.NONE);
             }
         }
-        if (setToNull) {
+        if (setToNull && this.activeElement != null && this.activeElement.getStatus().equals(GUIElementStatus.NONE)) {
             this.activeElement = null;
         }
     }
@@ -196,7 +202,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     private final void updateVisibility(GUIElement element) {
         if (element.isVisible()) {
-            if (!element.isColliding(this.hitbox)) {
+            if (!element.isCollidingWithClickbox(this.hitbox)) {
                 this.partialRemove(element);
                 this.addInvisible(element);
                 return;
@@ -235,6 +241,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     @Override
     public void onMouseDown(MouseDownEvent event) {
         if (this.getActiveElement() != null) {
+            this.getActiveElement().setStatus(GUIElementStatus.ACTIVE);
             this.getActiveElement().fireEvent(new ClickBeginEvent(this.getActiveElement()));
         }
     }
@@ -248,6 +255,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     @Override
     public void onMouseUp(MouseUpEvent event) {
         if (this.getActiveElement() != null) {
+            this.getActiveElement().setStatus(GUIElementStatus.HOVERING);
             this.getActiveElement().fireEvent(new ClickReleaseEvent(this.getActiveElement()));
         }
     }
