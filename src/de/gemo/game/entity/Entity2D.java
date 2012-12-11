@@ -6,7 +6,7 @@ import de.gemo.game.animation.Animation;
 import de.gemo.game.interfaces.IRenderable;
 import de.gemo.game.interfaces.Vector;
 
-public class Entity2D extends Entity implements IRenderable {
+public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D> {
 
     protected Animation animation = null;
     protected float alpha = 1f;
@@ -74,5 +74,10 @@ public class Entity2D extends Entity implements IRenderable {
 
     public void render() {
         this.animation.render(this.alpha);
+    }
+
+    @Override
+    public int compareTo(Entity2D o) {
+        return (int) (o.getZ() - this.getZ());
     }
 }

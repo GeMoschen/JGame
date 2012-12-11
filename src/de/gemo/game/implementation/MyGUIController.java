@@ -35,7 +35,7 @@ public class MyGUIController extends GUIController {
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
             GUIButton button = new GUIButton(50 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
-            button.setZ(-3);
+            button.setZ(-8);
             button.setLabel("Button 1");
             button.setColor(Color.orange);
             button.setAlpha(0.1f);
@@ -44,7 +44,7 @@ public class MyGUIController extends GUIController {
 
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
             button = new GUIButton(180 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
-            button.setZ(-3);
+            button.setZ(-2);
             button.setLabel("Button 2");
             button.setColor(Color.orange);
             button.setAlpha(0.75f);
@@ -94,25 +94,31 @@ public class MyGUIController extends GUIController {
         switch (event.getKey()) {
             case Keyboard.KEY_LEFT : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().move(-0.1f * Engine.INSTANCE.getCurrentDelta(), 0);
+                    this.getActiveElement().rotate(-0.2f * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
             case Keyboard.KEY_RIGHT : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().move(0.1f * Engine.INSTANCE.getCurrentDelta(), 0);
+                    this.getActiveElement().rotate(+0.2f * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
             case Keyboard.KEY_UP : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().move(0, -0.1f * Engine.INSTANCE.getCurrentDelta());
+                    float rad = (float) Math.toRadians(this.getActiveElement().getAngle() - 90);
+                    float x = (float) Math.cos(rad) / 12f;
+                    float y = (float) Math.sin(rad) / 12f;
+                    this.getActiveElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
             case Keyboard.KEY_DOWN : {
                 if (this.getActiveElement() != null) {
-                    this.getActiveElement().move(0, 0.1f * Engine.INSTANCE.getCurrentDelta());
+                    float rad = (float) Math.toRadians(this.getActiveElement().getAngle() - 90);
+                    float x = -(float) Math.cos(rad) / 12f;
+                    float y = -(float) Math.sin(rad) / 12f;
+                    this.getActiveElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
                 }
                 break;
             }
@@ -145,20 +151,6 @@ public class MyGUIController extends GUIController {
 
     @Override
     public void onKeyPressed(KeyEvent event) {
-        switch (event.getKey()) {
-            case Keyboard.KEY_A : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().setAngle(this.getActiveElement().getAngle() - 45f);
-                }
-                break;
-            }
-            case Keyboard.KEY_D : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().setAngle(this.getActiveElement().getAngle() + 45f);
-                }
-                break;
-            }
-        }
     }
 
     @Override

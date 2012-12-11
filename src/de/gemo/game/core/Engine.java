@@ -221,8 +221,6 @@ public class Engine {
         glMatrixMode(GL_MODELVIEW);
 
         GL11.glShadeModel(GL11.GL_SMOOTH);
-
-        GL11.glShadeModel(GL11.GL_SMOOTH);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
         GL11.glOrtho(0, Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(), 0, 1000, -1000);
@@ -239,7 +237,6 @@ public class Engine {
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
     }
-
     private void loadFonts() {
         FontManager.loadFont("Verdana", Font.BOLD, 12);
         FontManager.loadFont("Verdana", Font.BOLD, 14);

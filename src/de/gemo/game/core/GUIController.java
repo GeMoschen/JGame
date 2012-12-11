@@ -1,7 +1,10 @@
 package de.gemo.game.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import de.gemo.game.collision.CollisionHelper;
 import de.gemo.game.collision.Hitbox;
@@ -26,6 +29,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     private final int ID;
     private final String name;
+    private List<GUIElement> sortedList = new ArrayList<GUIElement>();
     private HashMap<Integer, GUIElement> allElements, visibleElements, invisibleElements;
     private final Hitbox hitbox;
     protected final Vector mouseVector;
@@ -61,6 +65,9 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     private final void addVisible(GUIElement element) {
         this.visibleElements.put(element.getEntityID(), element);
+
+        this.sortedList = new ArrayList<GUIElement>(this.visibleElements.values());
+        Collections.sort(this.sortedList);
     }
 
     private final void addInvisible(GUIElement element) {
@@ -118,7 +125,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     }
 
     public void render() {
-        for (GUIElement element : this.visibleElements.values()) {
+        for (GUIElement element : this.sortedList) {
             Renderer.render(element);
         }
     }

@@ -146,8 +146,8 @@ public class Animation {
 
     public void render(float alpha) {
         // bind texture
-        GL11.glColor4f(1, 1, 1, alpha);
         this.texture.bind();
+        GL11.glColor4f(1, 1, 1, alpha);
 
         // begin quads
         GL11.glBegin(GL11.GL_QUADS);
