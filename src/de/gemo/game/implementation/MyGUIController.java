@@ -10,11 +10,15 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import de.gemo.game.animation.Animation;
+import de.gemo.game.animation.MultiTexture;
+import de.gemo.game.animation.SingleTexture;
 import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
 import de.gemo.game.core.FontManager;
 import de.gemo.game.core.GUIController;
 import de.gemo.game.entity.GUIButton;
+import de.gemo.game.entity.GUITextfield;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
@@ -27,6 +31,8 @@ public class MyGUIController extends GUIController {
         super(name, hitbox, mouseVector);
     }
 
+    public boolean hotkeysActive = false;
+
     @Override
     protected void init() {
         Texture buttonTexture;
@@ -34,44 +40,48 @@ public class MyGUIController extends GUIController {
         try {
             buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
-            GUIButton button = new GUIButton(50 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
+            Color normalColor = new Color(162, 162, 162);
+            Color hoverColor = new Color(215, 165, 0);
+            Color pressedColor = new Color(64, 64, 64);
+
+            MultiTexture multiTexture = new MultiTexture(175, 34);
+            multiTexture.addTextures(new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 2 * 34, 175, 34));
+            Animation animation = new Animation(multiTexture);
+
+            GUIButton button = new GUIButton(20, Engine.INSTANCE.getWindowHeight() - 80, animation);
             button.setZ(-8);
             button.setLabel("Button 1");
-            button.setColor(Color.orange);
-            button.setAlpha(0.1f);
-            button.scale(0.25f);
+            button.setColor(normalColor);
+            button.setHoverColor(hoverColor);
+            button.setPressedColor(pressedColor);
+            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
             this.add(button);
 
-            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
-            button = new GUIButton(180 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
+            button = new GUIButton(200, Engine.INSTANCE.getWindowHeight() - 80, animation);
             button.setZ(-2);
             button.setLabel("Button 2");
-            button.setColor(Color.orange);
-            button.setAlpha(0.75f);
-            button.scale(0.25f);
+            button.setColor(normalColor);
+            button.setHoverColor(hoverColor);
+            button.setPressedColor(pressedColor);
+            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
             this.add(button);
 
-            button = new GUIButton(310 + 32, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
-            button.setZ(-3);
-            button.setLabel("Testbutton with a text which is fucking too long! :{");
-            button.setColor(Color.orange);
-            button.setAlpha(1f);
-            button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
-            button.scale(0.25f);
-            this.add(button);
-
-            button = new GUIButton(Engine.INSTANCE.getWindowWidth() - 80, Engine.INSTANCE.getWindowHeight() - 32, buttonTexture);
+            button = new GUIButton(380, Engine.INSTANCE.getWindowHeight() - 80, animation);
             button.setZ(-4);
             button.setLabel("Exit");
-            button.setColor(Color.orange);
+            button.setColor(normalColor);
+            button.setHoverColor(hoverColor);
+            button.setPressedColor(pressedColor);
             button.setActionListener(new ExitButtonListener());
-            button.setAlpha(0.25f);
-            button.scale(0.25f);
-
-            button.setFont(FontManager.getFont("Verdana", Font.BOLD, 14));
-
+            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
             this.add(button);
 
+            // textfield
+            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("edit_normal.jpg"));
+            SingleTexture singleTexture = new SingleTexture(buttonTexture, 0, 0, 256, 34);
+            GUITextfield textfield = new GUITextfield(200, 250, singleTexture);
+            textfield.setFont(FontManager.getStandardFont());
+            this.add(textfield);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -91,60 +101,62 @@ public class MyGUIController extends GUIController {
 
     @Override
     public void onKeyHold(KeyEvent event) {
-        switch (event.getKey()) {
-            case Keyboard.KEY_LEFT : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().rotate(-0.2f * Engine.INSTANCE.getCurrentDelta());
+        if (hotkeysActive) {
+            switch (event.getKey()) {
+                case Keyboard.KEY_LEFT : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().rotate(-0.2f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_RIGHT : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().rotate(+0.2f * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_RIGHT : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().rotate(+0.2f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_UP : {
-                if (this.getActiveElement() != null) {
-                    float rad = (float) Math.toRadians(this.getActiveElement().getAngle() - 90);
-                    float x = (float) Math.cos(rad) / 12f;
-                    float y = (float) Math.sin(rad) / 12f;
-                    this.getActiveElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_UP : {
+                    if (this.getHoveredElement() != null) {
+                        float rad = (float) Math.toRadians(this.getHoveredElement().getAngle() - 90);
+                        float x = (float) Math.cos(rad) / 6f;
+                        float y = (float) Math.sin(rad) / 6f;
+                        this.getHoveredElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_DOWN : {
-                if (this.getActiveElement() != null) {
-                    float rad = (float) Math.toRadians(this.getActiveElement().getAngle() - 90);
-                    float x = -(float) Math.cos(rad) / 12f;
-                    float y = -(float) Math.sin(rad) / 12f;
-                    this.getActiveElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_DOWN : {
+                    if (this.getHoveredElement() != null) {
+                        float rad = (float) Math.toRadians(this.getHoveredElement().getAngle() - 90);
+                        float x = -(float) Math.cos(rad) / 6f;
+                        float y = -(float) Math.sin(rad) / 6f;
+                        this.getHoveredElement().move(x * Engine.INSTANCE.getCurrentDelta(), y * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_W : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().setAlpha(this.getActiveElement().getAlpha() + 0.001f * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_W : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().setAlpha(this.getHoveredElement().getAlpha() + 0.001f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_S : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().setAlpha(this.getActiveElement().getAlpha() - 0.001f * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_S : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().setAlpha(this.getHoveredElement().getAlpha() - 0.001f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_1 : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().scale(1f - 0.002f * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_1 : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().scale(1f - 0.002f * Engine.INSTANCE.getCurrentDelta(), 1f - 0.002f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
-            }
-            case Keyboard.KEY_2 : {
-                if (this.getActiveElement() != null) {
-                    this.getActiveElement().scale(1f + 0.002f * Engine.INSTANCE.getCurrentDelta());
+                case Keyboard.KEY_2 : {
+                    if (this.getHoveredElement() != null) {
+                        this.getHoveredElement().scale(1f + 0.002f * Engine.INSTANCE.getCurrentDelta(), 1f + 0.002f * Engine.INSTANCE.getCurrentDelta());
+                    }
+                    break;
                 }
-                break;
             }
         }
     }
@@ -155,7 +167,8 @@ public class MyGUIController extends GUIController {
 
     @Override
     public void onKeyReleased(KeyEvent event) {
-        // TODO Auto-generated method stub
-
+        if (event.getKey() == Keyboard.KEY_F8) {
+            this.hotkeysActive = !this.hotkeysActive;
+        }
     }
 }

@@ -9,6 +9,10 @@ public enum EventEnums {
 
     HOVER,
 
-    HOVER_END;
+    HOVER_END,
+
+    FOCUS_GAINED,
+
+    FOCUS_LOST;
 
 }

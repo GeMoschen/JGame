@@ -7,12 +7,15 @@ import org.newdawn.slick.TrueTypeFont;
 
 public class FontManager {
 
+    public static final String DIN = "DIN Schablonierschrift";
+    public static final String VERDANA = "Verdana";
+
     private static TrueTypeFont standardFont;
     private static HashMap<String, TrueTypeFont> fontMap;
 
     static {
         fontMap = new HashMap<String, TrueTypeFont>();
-        Font standard = new Font("Verdana", Font.BOLD, 10);
+        Font standard = new Font(VERDANA, Font.BOLD, 12);
         standardFont = new TrueTypeFont(standard, true);
     }
 
@@ -26,6 +29,7 @@ public class FontManager {
         TrueTypeFont font = fontMap.get(fontName + "_" + style + "_" + size);
         return font != null ? font : standardFont;
     }
+
     public static TrueTypeFont getStandardFont() {
         return standardFont;
     }

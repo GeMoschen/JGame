@@ -1,7 +1,7 @@
 package de.gemo.game.input;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 
@@ -12,11 +12,11 @@ public class KeyboardManager {
 
     private final Engine engine;
     public HashMap<Integer, Boolean> pressedKeys = new HashMap<Integer, Boolean>();
-    private HashSet<Integer> holdKeys = new HashSet<Integer>();
+    private HashMap<Integer, Character> holdKeys = new HashMap<Integer, Character>();
 
     public KeyboardManager(Engine engine) {
         this.engine = engine;
-        this.holdKeys = new HashSet<Integer>();
+        this.holdKeys = new HashMap<Integer, Character>();
         for (int index = 0; index < 65536; index++) {
             pressedKeys.put(index, false);
         }
@@ -24,28 +24,25 @@ public class KeyboardManager {
 
     public void update() {
         // iterate over currently pressed keys to handle hold keys
-        for (int currentKey : this.holdKeys) {
-            if (Keyboard.isKeyDown(currentKey)) {
+        for (Map.Entry<Integer, Character> entry : this.holdKeys.entrySet()) {
+            if (Keyboard.isKeyDown(entry.getKey())) {
                 // hold key
-                engine.onKeyHold(new KeyEvent(currentKey, true));
+                engine.onKeyHold(new KeyEvent(entry.getKey(), entry.getValue(), true));
             }
         }
 
-        boolean currentState = false;
-        int key = 0;
-        boolean oldState;
         while (Keyboard.next()) {
-            currentState = Keyboard.getEventKeyState();
-            key = Keyboard.getEventKey();
-            oldState = holdKeys.contains(key);
+            boolean currentState = Keyboard.getEventKeyState();
+            char character = Keyboard.getEventCharacter();
+            int key = Keyboard.getEventKey();
+            boolean oldState = holdKeys.containsKey(key);
             if (!currentState && oldState) {
                 // released key
-                engine.onKeyReleased(new KeyEvent(key, false));
-                holdKeys.remove(key);
+                engine.onKeyReleased(new KeyEvent(key, holdKeys.remove(key), false));
             } else if (currentState && !oldState) {
                 // newly pressed key
-                engine.onKeyPressed(new KeyEvent(key, true));
-                holdKeys.add(key);
+                engine.onKeyPressed(new KeyEvent(key, character, true));
+                holdKeys.put(key, character);
             }
             pressedKeys.put(key, currentState);
         }

@@ -1,4 +1,6 @@
-package de.gemo.game.collision;
+package de.gemo.game.interfaces;
+
+import de.gemo.game.collision.Hitbox;
 
 public interface IClickable {
     public Hitbox getClickbox();

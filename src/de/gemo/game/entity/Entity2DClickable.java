@@ -1,22 +1,32 @@
 package de.gemo.game.entity;
 
-import org.newdawn.slick.opengl.Texture;
-
+import de.gemo.game.animation.Animation;
+import de.gemo.game.animation.SingleTexture;
 import de.gemo.game.collision.Hitbox;
-import de.gemo.game.collision.IClickable;
+import de.gemo.game.interfaces.IClickable;
 import de.gemo.game.interfaces.Vector;
 
 public class Entity2DClickable extends Entity2D implements IClickable {
 
     private Hitbox clickbox = null;
 
-    public Entity2DClickable(float x, float y, Texture texture) {
-        super(x, y, texture);
+    public Entity2DClickable(float x, float y, SingleTexture singleTexture) {
+        super(x, y, singleTexture);
         this.autoGenerateClickbox();
     }
 
-    public Entity2DClickable(Vector center, Texture texture) {
-        super(center, texture);
+    public Entity2DClickable(Vector center, SingleTexture singleTexture) {
+        super(center, singleTexture);
+        this.autoGenerateClickbox();
+    }
+
+    public Entity2DClickable(float x, float y, Animation animation) {
+        super(x, y, animation);
+        this.autoGenerateClickbox();
+    }
+
+    public Entity2DClickable(Vector center, Animation animation) {
+        super(center, animation);
         this.autoGenerateClickbox();
     }
 
@@ -39,20 +49,9 @@ public class Entity2DClickable extends Entity2D implements IClickable {
     }
 
     @Override
-    public void scale(float scale) {
-        super.scale(scale);
-        this.clickbox.scale(scale);
-    }
-
-    @Override
-    public void scaleX(float scaleX) {
-        super.scaleX(scaleX);
+    public void scale(float scaleX, float scaleY) {
+        super.scale(scaleX, scaleY);
         this.clickbox.scaleX(scaleX);
-    }
-
-    @Override
-    public void scaleY(float scaleY) {
-        super.scaleY(scaleY);
         this.clickbox.scaleY(scaleY);
     }
 
@@ -64,10 +63,12 @@ public class Entity2DClickable extends Entity2D implements IClickable {
 
     protected void autoGenerateClickbox() {
         this.clickbox = new Hitbox(this.center);
-        this.clickbox.addPoint(-this.animation.getSingleTileWidth(), -this.animation.getSingleTileHeight());
-        this.clickbox.addPoint(+this.animation.getSingleTileWidth(), -this.animation.getSingleTileHeight());
-        this.clickbox.addPoint(+this.animation.getSingleTileWidth(), +this.animation.getSingleTileHeight());
-        this.clickbox.addPoint(-this.animation.getSingleTileWidth(), +this.animation.getSingleTileHeight());
+        float x = this.animation.getWidth() / 2;
+        float y = this.animation.getHeight() / 2;
+        this.clickbox.addPoint(-x, -y);
+        this.clickbox.addPoint(+x, -y);
+        this.clickbox.addPoint(+x, +y);
+        this.clickbox.addPoint(-x, +y);
         this.clickbox.recalculatePositions();
     }
 

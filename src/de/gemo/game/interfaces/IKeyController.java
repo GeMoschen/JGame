@@ -1,6 +1,8 @@
-package de.gemo.game.events.keyboard;
+package de.gemo.game.interfaces;
 
-public interface IKeyHandler {
+import de.gemo.game.events.keyboard.KeyEvent;
+
+public interface IKeyController {
 
     public void onKeyHold(KeyEvent event);
 

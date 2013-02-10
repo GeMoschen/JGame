@@ -1,14 +1,19 @@
 package de.gemo.game.entity;
 
+import java.util.HashMap;
+
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.game.animation.Animation;
+import de.gemo.game.animation.SingleTexture;
 import de.gemo.game.core.FontManager;
 import de.gemo.game.events.keyboard.KeyEvent;
 
-public class GUIButton extends GUIElement {
+public class GUITextfield extends GUIElement {
+
+    private static String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ˆ÷‰ƒ¸‹,;.:-_#'+*~!\"ß$%&/()=?}][{\\·‡<>| ";
 
     private String label = "";
     private String originalLabel = "";
@@ -16,20 +21,34 @@ public class GUIButton extends GUIElement {
     private TrueTypeFont font;
 
     private float textWidth = 0, textHeight = 0;
-    private float maxText = 0.80f;
+    private float maxText = 0.92f;
+    private int maxLength = Integer.MAX_VALUE;
 
-    public GUIButton(float x, float y, Animation animation) {
-        super(x, y, animation);
+    private int tickCount = 0;
+    private boolean showLine = true;
+
+    private HashMap<Integer, Long> lastInputList = new HashMap<Integer, Long>();
+
+    public GUITextfield(float x, float y, SingleTexture singleTexture) {
+        super(x, y, singleTexture);
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
         this.setHoverColor(Color.white);
         this.setPressedColor(Color.white);
+        this.setAutoLooseFocus(false);
         this.shadowColor = new Color(50, 50, 50);
         this.animation.goToFrame(0);
     }
 
-    public GUIButton(float x, float y, Animation animation, String label) {
-        this(x, y, animation);
+    public void setMaxLength(int maxLength) {
+        if (this.maxLength < 1) {
+            this.maxLength = Integer.MAX_VALUE;
+        }
+        this.maxLength = maxLength;
+    }
+
+    public GUITextfield(float x, float y, SingleTexture singleTexture, String label) {
+        this(x, y, singleTexture);
         this.setLabel(label);
     }
 
@@ -66,16 +85,16 @@ public class GUIButton extends GUIElement {
     }
 
     public void setLabel(String label) {
-        this.originalLabel = label.toUpperCase();
+        this.originalLabel = label;
         this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
         this.textHeight = this.font.getHeight(this.label) / 2;
 
-        if (this.textWidth >= this.animation.getWidth() * maxText * 2) {
+        if (this.textWidth >= this.animation.getWidth() * maxText) {
             this.label = label;
             this.textWidth = this.getFont().getWidth(this.label + "...");
             String tempLabel = this.label;
-            while (this.textWidth >= this.animation.getWidth() * maxText * 2) {
+            while (this.textWidth >= this.animation.getWidth() * maxText) {
                 tempLabel = tempLabel.substring(0, tempLabel.length() - 1);
                 this.textWidth = this.font.getWidth(tempLabel + "...");
             }
@@ -106,7 +125,6 @@ public class GUIButton extends GUIElement {
     @Override
     public void setStatus(GUIElementStatus status) {
         super.setStatus(status);
-        this.animation.goToFrame(this.getStatus().ordinal());
     }
 
     @Override
@@ -122,22 +140,42 @@ public class GUIButton extends GUIElement {
     @Override
     public void render() {
         super.render();
-        if (this.label.length() > 0) {
-            GL11.glTranslatef(0f, 0f, -1f);
-            this.font.drawString((int) (-this.textWidth) + 2, (int) (-this.textHeight) + 2, this.label, this.shadowColor);
-            if (this.isHovered()) {
-                this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.hoverColor);
-            } else if (this.isActive()) {
-                this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.pressedColor);
-            } else {
-                this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.normalColor);
-            }
-            GL11.glTranslatef(0f, 0f, +1f);
+        GL11.glTranslatef(0f, 0f, -1f);
+        int x = (int) (-this.animation.getWidth() / 2 + 8);
+        this.font.drawString(x + 2, (int) (-this.textHeight) + 2, this.label, this.shadowColor);
+        this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);
+        if (this.isFocused() && this.showLine) {
+            x += this.font.getWidth(this.label) - 2;
+            this.font.drawString(x + 2, (int) (-this.textHeight) + 2, "|", this.shadowColor);
+            this.font.drawString(x, (int) (-this.textHeight), "|", this.normalColor);
         }
+        GL11.glTranslatef(0f, 0f, +1f);
     }
 
     @Override
     public boolean handleKeyHold(KeyEvent event) {
+
+        Long lastInput = lastInputList.get(event.getKey());
+        if (lastInput == null) {
+            lastInput = Long.MIN_VALUE;
+        }
+
+        int distance = 170;
+        if (event.getKey() == 14) {
+            distance = 70;
+        }
+
+        if (System.currentTimeMillis() > lastInput + distance) {
+            if (allowedChars.contains("" + event.getCharacter()) && this.originalLabel.length() + 1 <= this.maxLength) {
+                this.setLabel(originalLabel + event.getCharacter());
+            } else {
+                // BACKSPACE
+                if (event.getKey() == 14 && originalLabel.length() > 0) {
+                    this.setLabel(originalLabel.substring(0, originalLabel.length() - 1));
+                }
+            }
+            lastInputList.put(event.getKey(), System.currentTimeMillis());
+        }
         return false;
     }
 
@@ -149,5 +187,19 @@ public class GUIButton extends GUIElement {
     @Override
     public boolean handleKeyReleased(KeyEvent event) {
         return false;
+    }
+
+    @Override
+    public void doTick() {
+        if (this.isFocused()) {
+            tickCount++;
+            if (tickCount % 10 == 0) {
+                tickCount = 0;
+                this.showLine = !this.showLine;
+            }
+        } else {
+            this.showLine = true;
+            this.tickCount = 0;
+        }
     }
 }

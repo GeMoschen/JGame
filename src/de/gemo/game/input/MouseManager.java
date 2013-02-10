@@ -25,13 +25,21 @@ public class MouseManager {
 
     private final Hitbox hitBox, movedHitBox;
 
-    public void blockMouseMovement() {
+    public void grabMouse() {
+        // set the cursor
         int x = this.engine.getWindowWidth() / 2;
         int y = this.engine.getWindowHeight() / 2;
-        // set the cursor
         Mouse.setCursorPosition(x, y);
 
+        // move hitbox
         this.hitBox.setCenter(x, y);
+
+        // grab mouse
+        Mouse.setGrabbed(true);
+    }
+
+    public void ungrabMouse() {
+        Mouse.setGrabbed(false);
     }
 
     public MouseManager(Engine engine) {
@@ -75,10 +83,12 @@ public class MouseManager {
         dY = -Mouse.getDY();
 
         // iterate over currently pressed buttons to handle dragged buttons
-        for (int currentKey : this.holdButtons) {
-            if (Mouse.isButtonDown(currentKey)) {
-                // hold button
-                engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, currentKey));
+        if (!Mouse.isGrabbed()) {
+            for (int currentKey : this.holdButtons) {
+                if (Mouse.isButtonDown(currentKey)) {
+                    // hold button
+                    engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, currentKey));
+                }
             }
         }
 
@@ -100,15 +110,17 @@ public class MouseManager {
             pressedButtons.put(index, currentState);
         }
 
-        if (currentX != Mouse.getX() || currentY != Mouse.getY()) {
-            // move hitbox
-            this.hitBox.move(dX, dY);
-            this.movedHitBox.move(dX, dY);
-            // throw MouseMoveEvent
-            engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY));
+        if (!Mouse.isGrabbed()) {
+            if (currentX != Mouse.getX() || currentY != Mouse.getY()) {
+                // move hitbox
+                this.hitBox.move(dX, dY);
+                this.movedHitBox.move(dX, dY);
+                // throw MouseMoveEvent
+                engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY));
+            }
+            currentX = Mouse.getX();
+            currentY = Mouse.getY();
         }
-        currentX = Mouse.getX();
-        currentY = Mouse.getY();
     }
 
     public Hitbox getHitBox() {

@@ -13,19 +13,22 @@ import de.gemo.game.entity.GUIElement;
 import de.gemo.game.entity.GUIElementStatus;
 import de.gemo.game.events.gui.ClickBeginEvent;
 import de.gemo.game.events.gui.ClickReleaseEvent;
+import de.gemo.game.events.gui.FocusGainedEvent;
+import de.gemo.game.events.gui.FocusLostEvent;
 import de.gemo.game.events.gui.HoverBeginEvent;
 import de.gemo.game.events.gui.HoverEndEvent;
 import de.gemo.game.events.gui.HoverEvent;
-import de.gemo.game.events.keyboard.IKeyHandler;
 import de.gemo.game.events.keyboard.KeyEvent;
-import de.gemo.game.events.mouse.IMouseHandler;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
 import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.interfaces.IKeyAdapter;
+import de.gemo.game.interfaces.IKeyController;
+import de.gemo.game.interfaces.IMouseController;
 import de.gemo.game.interfaces.Vector;
 
-public abstract class GUIController implements IKeyHandler, IMouseHandler {
+public abstract class GUIController implements IKeyController, IMouseController, IKeyAdapter {
 
     private final int ID;
     private final String name;
@@ -34,7 +37,7 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     private final Hitbox hitbox;
     protected final Vector mouseVector;
 
-    private GUIElement activeElement = null;
+    private GUIElement hoveredElement = null, focusedElement = null;
 
     public GUIController(String name, Hitbox hitbox, Vector mouseVector) {
         this.ID = Entity.getNextFreeID();
@@ -65,7 +68,6 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     private final void addVisible(GUIElement element) {
         this.visibleElements.put(element.getEntityID(), element);
-
         this.sortedList = new ArrayList<GUIElement>(this.visibleElements.values());
         Collections.sort(this.sortedList);
     }
@@ -117,6 +119,8 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     private final void partialRemove(GUIElement element) {
         this.visibleElements.remove(element.getEntityID());
         this.invisibleElements.remove(element.getEntityID());
+        this.sortedList = new ArrayList<GUIElement>(this.visibleElements.values());
+        Collections.sort(this.sortedList);
     }
 
     public final void remove(GUIElement element) {
@@ -145,8 +149,8 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
         return name;
     }
 
-    public final GUIElement getActiveElement() {
-        return activeElement;
+    public final GUIElement getHoveredElement() {
+        return hoveredElement;
     }
 
     public final boolean isColliding() {
@@ -174,47 +178,87 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     protected abstract void init();
 
     public void updateCollisions() {
-        boolean setToNull = true;
         boolean isColliding = false;
-        for (GUIElement element : this.getVisibleElements()) {
-            isColliding = element.isVectorInClickbox(this.mouseVector);
-            if (isColliding && !element.getStatus().equals(GUIElementStatus.ACTIVE)) {
-                if (element.getStatus().equals(GUIElementStatus.HOVERING)) {
-                    this.activeElement = element;
-                    element.fireEvent(new HoverEvent(element));
-                    setToNull = false;
-                } else {
-                    this.activeElement = element;
-                    element.fireEvent(new HoverBeginEvent(element));
-                    element.setStatus(GUIElementStatus.HOVERING);
-                    setToNull = false;
+
+        // unfocs element, if the mouse is outside the hitbox
+        if (this.focusedElement != null) {
+            if (this.focusedElement.isAutoLooseFocus()) {
+                if (!this.focusedElement.isVectorInClickbox(this.mouseVector)) {
+                    this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                    this.focusedElement.setStatus(GUIElementStatus.NONE);
+                    this.focusedElement = null;
                 }
             }
-            if (!isColliding && !element.getStatus().equals(GUIElementStatus.NONE)) {
-                element.fireEvent(new HoverEndEvent(element));
-                element.setStatus(GUIElementStatus.NONE);
+        }
+
+        GUIElement oldHoveringElement = this.hoveredElement;
+        GUIElement newHoveringElement = null;
+
+        // get the current hovering element
+        GUIElement element;
+        for (int index = this.sortedList.size() - 1; index > -1; index--) {
+            element = this.sortedList.get(index);
+            isColliding = element.isVectorInClickbox(this.mouseVector);
+            if (isColliding) {
+                newHoveringElement = element;
+                break;
             }
         }
-        if (setToNull && this.activeElement != null && this.activeElement.getStatus().equals(GUIElementStatus.NONE)) {
-            this.activeElement = null;
+
+        if (oldHoveringElement != null || newHoveringElement != null) {
+            // old element != new element
+            if (oldHoveringElement != newHoveringElement) {
+                if (newHoveringElement != null) {
+                    // fire hover begin event
+                    newHoveringElement.setStatus(GUIElementStatus.HOVERING);
+                    newHoveringElement.fireEvent(new HoverBeginEvent(newHoveringElement));
+                    this.hoveredElement = newHoveringElement;
+                }
+                if (oldHoveringElement != null) {
+                    // fire hover end event
+                    oldHoveringElement.setStatus(GUIElementStatus.NONE);
+                    oldHoveringElement.fireEvent(new HoverEndEvent(oldHoveringElement));
+                    this.hoveredElement = null;
+                }
+                return;
+            } else {
+                if (oldHoveringElement != null) {
+                    if (!oldHoveringElement.getStatus().equals(GUIElementStatus.ACTIVE)) {
+                        // fire hover event
+                        oldHoveringElement.fireEvent(new HoverEvent(newHoveringElement));
+                        this.hoveredElement = newHoveringElement;
+                    }
+                }
+            }
         }
     }
 
-    public final void updateVisibility() {
+    public final void updateController() {
+        // update visibility of all elements
         for (GUIElement element : this.allElements.values()) {
             this.updateVisibility(element);
         }
-        this.updateCollisions();
+
+        // check collisions
+        if (this.isColliding()) {
+            this.updateCollisions();
+        }
+
+        // tick all elements
+        for (GUIElement element : this.allElements.values()) {
+            element.doTick();
+        }
     }
 
     private final void updateVisibility(GUIElement element) {
         if (element.isVisible()) {
             if (!element.isCollidingWithClickbox(this.hitbox)) {
+                element.setVisible(false);
                 this.partialRemove(element);
                 this.addInvisible(element);
-                return;
             } else {
                 if (!this.hasVisible(element)) {
+                    element.setVisible(true);
                     this.partialRemove(element);
                     this.addVisible(element);
                 }
@@ -237,19 +281,45 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     }
 
     public void onMouseOut() {
-        for (GUIElement element : this.getVisibleElements()) {
-            if (!element.getStatus().equals(GUIElementStatus.NONE)) {
-                element.fireEvent(new HoverEndEvent(element));
-                element.setStatus(GUIElementStatus.NONE);
-            }
+        if (this.focusedElement != null) {
+            this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+            this.focusedElement.setStatus(GUIElementStatus.NONE);
+            this.focusedElement = null;
+        }
+        if (this.hoveredElement != null) {
+            this.hoveredElement.fireEvent(new HoverEndEvent(this.hoveredElement));
+            this.hoveredElement.setStatus(GUIElementStatus.NONE);
+            this.hoveredElement = null;
         }
     }
 
     @Override
     public void onMouseDown(MouseDownEvent event) {
-        if (this.getActiveElement() != null) {
-            this.getActiveElement().setStatus(GUIElementStatus.ACTIVE);
-            this.getActiveElement().fireEvent(new ClickBeginEvent(this.getActiveElement()));
+        if (this.getHoveredElement() != null) {
+            if (this.getHoveredElement().isVectorInClickbox(this.mouseVector)) {
+                if (this.focusedElement != null && this.focusedElement != this.getHoveredElement()) {
+                    this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
+                    this.getHoveredElement().fireEvent(new ClickBeginEvent(this.getHoveredElement()));
+                    this.focusedElement.setFocused(false);
+                    this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                    this.focusedElement = null;
+                }
+                if (this.focusedElement != this.getHoveredElement()) {
+                    this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
+                    this.getHoveredElement().fireEvent(new ClickBeginEvent(this.getHoveredElement()));
+                    this.focusedElement = this.getHoveredElement();
+                    this.focusedElement.setFocused(true);
+                    this.focusedElement.fireEvent(new FocusGainedEvent(this.focusedElement));
+                }
+            } else {
+                this.getHoveredElement().setStatus(GUIElementStatus.NONE);
+            }
+        } else {
+            if (this.focusedElement != null) {
+                this.focusedElement.setFocused(false);
+                this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                this.focusedElement = null;
+            }
         }
     }
 
@@ -261,10 +331,22 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
-        if (this.getActiveElement() != null) {
-            this.getActiveElement().setStatus(GUIElementStatus.HOVERING);
-            this.getActiveElement().fireEvent(new ClickReleaseEvent(this.getActiveElement()));
+        if (this.focusedElement != null) {
+            if (this.focusedElement != null && this.focusedElement.isAutoLooseFocus()) {
+                this.focusedElement.setFocused(false);
+                this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                if (this.focusedElement.isVectorInClickbox(this.mouseVector)) {
+                    this.focusedElement.fireEvent(new ClickReleaseEvent(this.getHoveredElement()));
+                    this.focusedElement.setStatus(GUIElementStatus.HOVERING);
+                    this.hoveredElement = this.focusedElement;
+                    this.hoveredElement.fireEvent(new HoverBeginEvent(this.hoveredElement));
+                } else {
+                    this.focusedElement.setStatus(GUIElementStatus.NONE);
+                }
+                this.focusedElement = null;
+            }
         }
+
     }
 
     // //////////////////////////////////////////
@@ -272,6 +354,39 @@ public abstract class GUIController implements IKeyHandler, IMouseHandler {
     // KEY-EVENTS
     //
     // //////////////////////////////////////////
+
+    @Override
+    public final boolean handleKeyPressed(KeyEvent event) {
+        if (this.focusedElement != null && !this.focusedElement.isAutoLooseFocus()) {
+            if (this.focusedElement.handleKeyPressed(event)) {
+                return true;
+            }
+        }
+        this.onKeyPressed(event);
+        return true;
+    }
+
+    @Override
+    public final boolean handleKeyHold(KeyEvent event) {
+        if (this.focusedElement != null && !this.focusedElement.isAutoLooseFocus()) {
+            if (this.focusedElement.handleKeyHold(event)) {
+                return true;
+            }
+        }
+        this.onKeyHold(event);
+        return true;
+    }
+
+    @Override
+    public final boolean handleKeyReleased(KeyEvent event) {
+        if (this.focusedElement != null && !this.focusedElement.isAutoLooseFocus()) {
+            if (this.focusedElement.handleKeyReleased(event)) {
+                return true;
+            }
+        }
+        this.onKeyReleased(event);
+        return true;
+    }
 
     @Override
     public abstract void onKeyHold(KeyEvent event);

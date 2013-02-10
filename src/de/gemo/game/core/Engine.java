@@ -76,6 +76,8 @@ public class Engine {
         long startTimer = System.currentTimeMillis() + tickTime;
         boolean tick = true;
 
+        this.mouseManager.grabMouse();
+
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
             currentFPS++;
@@ -87,11 +89,6 @@ public class Engine {
 
             // clear contents
             glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-            // block MouseMovement?
-            if (!freeMouse) {
-                mouseManager.blockMouseMovement();
-            }
 
             keyManager.update();
             mouseManager.update();
@@ -125,15 +122,24 @@ public class Engine {
 
             // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
-            TrueTypeFont font = FontManager.getFont("Verdana", Font.BOLD, 12);
+            if (!freeMouse) {
+                TrueTypeFont font = FontManager.getFont(FontManager.DIN, Font.PLAIN, 24);
+                String text = "Press Mouse to release it!".toUpperCase();
+                int width = font.getWidth(text) / 2;
+                int height = font.getHeight(text) / 2;
+                font.drawString(this.getWindowWidth() / 2 - width, this.getWindowHeight() / 2 - height, text, Color.red);
+            }
+
+            TrueTypeFont font = FontManager.getStandardFont();
             font.drawString(10, 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
+
             if (!HIDE_TEXT) {
                 font.drawString(10, 25, "Delta: " + oldCount, Color.red);
 
-                font.drawString(10, 35, "1/2: Scale active button", Color.magenta);
-                font.drawString(10, 50, "A/D: rotate active button", Color.magenta);
-                font.drawString(10, 65, "W/S: change alpha of active button", Color.magenta);
-                font.drawString(10, 80, "Arrowkeys: move active button", Color.magenta);
+                font.drawString(10, 40, "1/2: Scale active button", Color.magenta);
+                font.drawString(10, 70, "W/S: change alpha of active button", Color.magenta);
+                font.drawString(10, 55, "LEFT/RIGHT: rotate active button", Color.magenta);
+                font.drawString(10, 85, "UP/DOWN: move active button", Color.magenta);
 
                 font.drawString(10, 105, "F1: toggle vysnc", Color.orange);
                 font.drawString(10, 120, "F2: toggle text", Color.orange);
@@ -143,8 +149,13 @@ public class Engine {
                 String text = "NONE";
                 if (this.activeGUIController != null) {
                     text = this.activeGUIController.getName();
+
+                    MyGUIController controller = (MyGUIController) this.activeGUIController;
+                    if (controller.hotkeysActive) {
+                        font.drawString(10, 180, "Hotkeys active", Color.green);
+                    }
                 }
-                font.drawString(10, 175, "Active UI: " + text, Color.red);
+                font.drawString(10, 165, "Active UI: " + text, Color.red);
             }
             GL11.glDisable(GL11.GL_BLEND);
 
@@ -173,7 +184,7 @@ public class Engine {
 
     private void updateGUIControllers() {
         for (GUIController controller : this.guiController.values()) {
-            controller.updateVisibility();
+            controller.updateController();
         }
     }
 
@@ -195,21 +206,14 @@ public class Engine {
 
     private void createGUI() {
         float halfWidth = WIN_WIDTH / 2f;
-        float halfHeight = 50;
+        float halfHeight = WIN_HEIGHT / 2f;
 
-        Hitbox hitbox = new Hitbox(halfWidth, WIN_HEIGHT - 50);
+        Hitbox hitbox = new Hitbox(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, halfHeight);
         this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
-
-        // hitbox = new ComplexHitbox(halfWidth, 300);
-        // hitbox.addPoint(-halfWidth, -halfHeight);
-        // hitbox.addPoint(halfWidth, -halfHeight);
-        // hitbox.addPoint(halfWidth, halfHeight);
-        // hitbox.addPoint(-halfWidth, halfHeight);
-        // this.registerGUIController(new SecondGUIController("Second GUI", hitbox, this.mouseManager.getMouseVector()));
     }
 
     private void initOpenGL() {
@@ -237,9 +241,10 @@ public class Engine {
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
     }
+
     private void loadFonts() {
-        FontManager.loadFont("Verdana", Font.BOLD, 12);
-        FontManager.loadFont("Verdana", Font.BOLD, 14);
+        FontManager.loadFont(FontManager.DIN, Font.PLAIN, 20);
+        FontManager.loadFont(FontManager.DIN, Font.PLAIN, 24);
     }
 
     // ////////////////////////////////////////
@@ -250,19 +255,19 @@ public class Engine {
 
     public void onKeyPressed(KeyEvent event) {
         if (this.activeGUIController != null) {
-            this.activeGUIController.onKeyPressed(event);
+            this.activeGUIController.handleKeyPressed(event);
         }
     }
 
     public void onKeyHold(KeyEvent event) {
         if (this.activeGUIController != null) {
-            this.activeGUIController.onKeyHold(event);
+            this.activeGUIController.handleKeyHold(event);
         }
     }
 
     public void onKeyReleased(KeyEvent event) {
         if (this.activeGUIController != null) {
-            this.activeGUIController.onKeyReleased(event);
+            this.activeGUIController.handleKeyReleased(event);
         }
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
@@ -313,6 +318,7 @@ public class Engine {
 
     public void onMouseDown(MouseDownEvent event) {
         if (!freeMouse) {
+            this.mouseManager.ungrabMouse();
             freeMouse = !freeMouse;
         }
 

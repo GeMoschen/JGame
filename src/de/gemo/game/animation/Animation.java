@@ -1,56 +1,21 @@
 package de.gemo.game.animation;
 
-import org.lwjgl.opengl.GL11;
-import org.newdawn.slick.opengl.Texture;
-
 public class Animation {
 
-    protected Texture texture;
-    protected final float tileWidth, tileHeight;
-    protected final int tilesX, tilesY;
-    private float singleTileWidth;
-    private float singleTileHeight;
-    private final float halfTileWidth, halfTileHeight;
     protected int currentFrame = -1;
-    protected final int maxFrames;
-
-    protected float u = 0f, v = 0f;
-    protected float u2 = 1f, v2 = 1f;
+    private MultiTexture multiTextures;
 
     protected float currentStep = 0f;
 
     private float wantedFPS;
 
-    public Animation(Texture texture, int tilesX, int tilesY) {
-        this(texture, tilesX, tilesY, 30);
+    public Animation(MultiTexture multiTexture) {
+        this(multiTexture, 30);
     }
 
-    public Animation(Texture texture, int tilesX, int tilesY, int wantedFPS) {
-        // set texture
-        this.texture = texture;
-
-        // save tiledimensions
-        this.tilesX = tilesX;
-        this.tilesY = tilesY;
-
-        // pre-calculate width/height
-        this.tileWidth = 1.0f / (float) tilesX;
-        this.tileHeight = 1.0f / (float) tilesY;
-
-        this.singleTileWidth = this.texture.getImageWidth() / tilesX;
-        this.singleTileHeight = this.texture.getImageHeight() / tilesY;
-
-        this.halfTileWidth = this.singleTileWidth / 2f;
-        this.halfTileHeight = this.singleTileHeight / 2f;
-
-        // go to frame 0
-        this.goToFrame(0);
-
-        // update fps
+    public Animation(MultiTexture multiTexture, int wantedFPS) {
+        this.multiTextures = multiTexture;
         this.setWantedFPS(wantedFPS);
-
-        // calculate maxframes
-        this.maxFrames = tilesX * tilesY;
     }
 
     public void nextFrame() {
@@ -69,26 +34,14 @@ public class Animation {
 
         // check framebounds
         if (frame < 0) {
-            frame = maxFrames - 1;
-        } else if (frame >= maxFrames) {
+            frame = this.multiTextures.getTextureCount() - 1;
+        } else if (frame > this.multiTextures.getTextureCount()) {
             frame = 0;
         }
 
         // update the frame
         this.currentFrame = frame;
-
-        // calculate x & y-tile
-        int posX = this.currentFrame % this.tilesX;
-        int posY = this.currentFrame;
-        if (this.currentFrame > this.tilesY) {
-            posY = this.currentFrame / this.tilesY;
-        }
-
-        // calculate new u & v-coordinates
-        u = posX * this.tileWidth;
-        v = posY * this.tileHeight;
-        u2 = u + this.tileWidth;
-        v2 = v + this.tileHeight;
+        this.multiTextures.setIndex(this.currentFrame);
     }
 
     public void setWantedFPS(int wantedFPS) {
@@ -98,90 +51,37 @@ public class Animation {
     public void step(float delta) {
         float toGo = this.wantedFPS * delta;
         this.currentStep += toGo;
-        if (this.currentStep >= this.maxFrames) {
-            this.currentStep -= this.maxFrames;
+        if (this.currentStep >= this.multiTextures.getTextureCount()) {
+            this.currentStep -= this.multiTextures.getTextureCount();
         }
         this.goToFrame((int) this.currentStep);
-    }
-
-    public float getU() {
-        return u;
-    }
-
-    public float getU2() {
-        return u2;
-    }
-
-    public float getV() {
-        return v;
-    }
-
-    public float getV2() {
-        return v2;
-    }
-
-    public Texture getTexture() {
-        return texture;
     }
 
     public int getCurrentFrame() {
         return currentFrame;
     }
 
-    public float getSingleTileWidth() {
-        return singleTileWidth;
+    public void scale(float scaleX, float scaleY) {
+        this.multiTextures.scale(scaleX, scaleY);
     }
 
-    public float getSingleTileHeight() {
-        return singleTileHeight;
+    public float getWidth() {
+        return this.multiTextures.getWidth();
     }
 
-    public float getHalfTileWidth() {
-        return halfTileWidth;
+    public float getHeight() {
+        return this.multiTextures.getHeight();
     }
 
-    public float getHalfTileHeight() {
-        return halfTileHeight;
+    public void render(float x, float y, float z, float alpha) {
+        this.render(x, y, z, 1, 1, 1, alpha);
     }
 
-    public void render(float alpha) {
-        // bind texture
-        this.texture.bind();
-        GL11.glColor4f(1, 1, 1, alpha);
-
-        // begin quads
-        GL11.glBegin(GL11.GL_QUADS);
-
-        // up-left
-        GL11.glTexCoord2f(u, v);
-        GL11.glVertex3f(-this.getSingleTileWidth(), -this.getSingleTileHeight(), 0);
-
-        // up-right
-        GL11.glTexCoord2f(u2, v);
-        GL11.glVertex3f(+this.getSingleTileWidth(), -this.getSingleTileHeight(), 0);
-
-        // down-right
-        GL11.glTexCoord2f(u2, v2);
-        GL11.glVertex3f(+this.getSingleTileWidth(), +this.getSingleTileHeight(), 0);
-
-        // down-left
-        GL11.glTexCoord2f(u, v2);
-        GL11.glVertex3f(-this.getSingleTileWidth(), +this.getSingleTileHeight(), 0);
-
-        // end quads
-        GL11.glEnd();
+    public void render(float x, float y, float z, float r, float g, float b, float alpha) {
+        this.multiTextures.render(x, y, z, r, g, b, alpha);
     }
 
-    public void scale(float scale) {
-        this.singleTileWidth *= scale;
-        this.singleTileHeight *= scale;
-    }
-
-    public void scaleX(float scaleX) {
-        this.singleTileWidth *= scaleX;
-    }
-
-    public void scaleY(float scaleY) {
-        this.singleTileHeight *= scaleY;
+    public Animation clone() {
+        return new Animation(this.multiTextures.clone());
     }
 }

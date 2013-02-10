@@ -1,8 +1,8 @@
 package de.gemo.game.entity;
 
-import org.newdawn.slick.opengl.Texture;
-
 import de.gemo.game.animation.Animation;
+import de.gemo.game.animation.MultiTexture;
+import de.gemo.game.animation.SingleTexture;
 import de.gemo.game.interfaces.IRenderable;
 import de.gemo.game.interfaces.Vector;
 
@@ -11,28 +11,38 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
     protected Animation animation = null;
     protected float alpha = 1f;
     protected boolean visible = true;
+    protected boolean valid = false;
+    protected boolean dead = false;
 
-    public Entity2D(Vector center, Texture texture) {
+    public Entity2D(Vector center, SingleTexture singleTexture) {
         super(center);
 
         // set texture
-        this.setTexture(texture);
+        this.setTexture(singleTexture);
     }
 
-    public Entity2D(float x, float y, Texture texture) {
-        this(new Vector(x, y), texture);
+    public Entity2D(float x, float y, SingleTexture singleTexture) {
+        this(new Vector(x, y), singleTexture);
     }
 
-    public final void setTexture(Texture texture) {
-        this.setTexture(texture, 1, 1);
+    public Entity2D(Vector center, Animation animation) {
+        super(center);
+
+        // set animation
+        this.setAnimation(animation);
     }
 
-    public final void setTexture(Texture texture, int tilesX, int tilesY) {
-        this.animation = new Animation(texture, tilesX, tilesY);
+    public Entity2D(float x, float y, Animation animation) {
+        this(new Vector((int) (x + animation.getWidth() / 2), (int) (y + animation.getHeight() / 2)), animation.clone());
     }
 
-    public final void setTexture(Texture texture, int tilesX, int tilesY, int fps) {
-        this.animation = new Animation(texture, tilesX, tilesY, fps);
+    public final void setAnimation(Animation animation) {
+        this.animation = animation;
+    }
+
+    public final void setTexture(SingleTexture singleTexture) {
+        MultiTexture multiTexture = new MultiTexture(singleTexture.getWidth(), singleTexture.getHeight(), singleTexture);
+        this.animation = new Animation(multiTexture);
     }
 
     public void setVisible(boolean visible) {
@@ -60,20 +70,34 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         this.alpha = alpha;
     }
 
-    public void scale(float scale) {
-        this.animation.scale(scale);
+    public void scale(float scaleX, float scaleY) {
+        this.animation.scale(scaleX, scaleY);
     }
 
-    public void scaleX(float scaleX) {
-        this.animation.scaleX(scaleX);
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 
-    public void scaleY(float scaleY) {
-        this.animation.scaleY(scaleY);
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 
     public void render() {
-        this.animation.render(this.alpha);
+        this.render(1, 1, 1);
+    }
+
+    public void render(float r, float g, float b) {
+        float x = -this.animation.getWidth() / 2;
+        float y = -this.animation.getHeight() / 2;
+        this.animation.render(x, y, this.getZ(), r, g, b, this.alpha);
     }
 
     @Override
