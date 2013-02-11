@@ -24,8 +24,11 @@ public class ButtonMoveListener implements MouseListener {
     @Override
     public void onMouseDrag(GUIElement element, MouseDragEvent event) {
         if (event.isRightButton() && event.hasMoved()) {
-            element.move(event.getDifX(), event.getDifY());
+            float newX = event.getX() + element.getXOnScreen();
+            int tX = (int) (newX / 10);
+            float newY = event.getY() + element.getYOnScreen();
+            int tY = (int) (newY / 10);
+            element.setCenter(tX * 10, tY * 10);
         }
     }
-
 }

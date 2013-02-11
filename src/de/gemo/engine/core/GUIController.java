@@ -346,7 +346,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     @Override
     public final boolean handleMouseDrag(MouseDragEvent event) {
         if (this.focusedElement != null && this.focusedElement.isVectorInClickbox(this.mouseVector)) {
-            this.focusedElement.fireMouseEvent(new MouseDragEvent((int) (event.getX() - this.hoveredElement.getX() + (this.hoveredElement.getWidth() / 2)), (int) (event.getY() - this.hoveredElement.getY() + (this.hoveredElement.getHeight() / 2)), event.getDifX(), event.getDifY(), event.getButton()));
+            this.focusedElement.fireMouseEvent(new MouseDragEvent((int) (event.getX() - this.focusedElement.getX() + (this.focusedElement.getWidth() / 2)), (int) (event.getY() - this.focusedElement.getY() + (this.focusedElement.getHeight() / 2)), event.getDifX(), event.getDifY(), event.getButton()));
         }
         this.onMouseDrag(event);
         return true;

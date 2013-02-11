@@ -13,21 +13,25 @@ public class Entity2DClickable extends Entity2D implements IClickable {
     public Entity2DClickable(float x, float y, SingleTexture singleTexture) {
         super(x, y, singleTexture);
         this.autoGenerateClickbox();
+        this.setCenter(x, y);
     }
 
     public Entity2DClickable(Vector center, SingleTexture singleTexture) {
         super(center, singleTexture);
         this.autoGenerateClickbox();
+        this.setCenter(center);
     }
 
     public Entity2DClickable(float x, float y, Animation animation) {
         super(x, y, animation);
         this.autoGenerateClickbox();
+        this.setCenter(x, y);
     }
 
     public Entity2DClickable(Vector center, Animation animation) {
         super(center, animation);
         this.autoGenerateClickbox();
+        this.setCenter(center);
     }
 
     @Override

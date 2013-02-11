@@ -25,6 +25,22 @@ public class SingleTexture {
         this.height = height;
     }
 
+    public SingleTexture(Texture texture) {
+        this.texture = texture;
+
+        this.x = 0;
+        this.y = 0;
+
+        u = 0;
+        v = 0;
+
+        u2 = 1;
+        v2 = 1;
+
+        this.width = this.texture.getImageWidth();
+        this.height = this.texture.getImageHeight();
+    }
+
     public void scale(float scaleX, float scaleY) {
         this.width *= scaleX;
         this.height *= scaleY;

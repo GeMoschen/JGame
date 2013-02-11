@@ -28,9 +28,10 @@ public class MouseManager {
 
     public void grabMouse() {
         // set the cursor
-        int x = this.engine.getWindowWidth() / 2;
-        int y = this.engine.getWindowHeight() / 2;
-        Mouse.setCursorPosition(x, y);
+        Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
+
+        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.ratioX);
+        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.ratioY);
 
         // move hitbox
         this.hitBox.setCenter(x, y);
@@ -50,9 +51,17 @@ public class MouseManager {
             pressedButtons.put(index, false);
         }
 
+        // set the cursor
+        Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
+
+        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.ratioX);
+        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.ratioY);
+
+        // move hitbox
+
         // build hitbox for mouse
-        int x = this.engine.getWindowWidth() / 2;
-        int y = this.engine.getWindowHeight() / 2;
+        // int x = this.engine.getWindowWidth() / 2;
+        // int y = this.engine.getWindowHeight() / 2;
         hitBox = new Hitbox(x, y);
         hitBox.addPoint(0, 0);
         hitBox.addPoint(dim, 0);
@@ -83,12 +92,15 @@ public class MouseManager {
         dX = Mouse.getDX();
         dY = -Mouse.getDY();
 
+        int correctedX = (int) (Mouse.getX() * this.engine.ratioX);
+        int correctedY = (int) ((engine.getWindowHeight() - Mouse.getY()) * this.engine.ratioY);
+
         // iterate over currently pressed buttons to handle dragged buttons
         if (!Mouse.isGrabbed()) {
             for (int currentKey : this.holdButtons) {
                 if (Mouse.isButtonDown(currentKey)) {
                     // hold button
-                    engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, MouseButton.byID(currentKey)));
+                    engine.onMouseDrag(new MouseDragEvent(correctedX, correctedY, dX, dY, MouseButton.byID(currentKey)));
                 }
             }
         }
@@ -101,30 +113,29 @@ public class MouseManager {
             oldState = holdButtons.contains(index);
             if (!currentState && oldState) {
                 // throw MouseUpEvent
-                engine.onMouseUp(new MouseReleaseEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
+                engine.onMouseUp(new MouseReleaseEvent(correctedX, correctedY, MouseButton.byID(index)));
                 holdButtons.remove(index);
             } else if (currentState && !oldState) {
                 // throw MouseDownEvent
 
-                engine.onMouseDown(new MouseClickEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
+                engine.onMouseDown(new MouseClickEvent(correctedX, correctedY, MouseButton.byID(index)));
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);
         }
 
         if (!Mouse.isGrabbed()) {
-            if (currentX != Mouse.getX() || currentY != Mouse.getY()) {
+            if (currentX != correctedX || currentY != correctedY) {
                 // move hitbox
-                this.hitBox.move(dX, dY);
-                this.movedHitBox.move(dX, dY);
+                this.hitBox.move(dX * this.engine.ratioX, dY * this.engine.ratioY);
+                this.movedHitBox.move(dX * this.engine.ratioX, dY * this.engine.ratioY);
                 // throw MouseMoveEvent
-                engine.onMouseMove(new MouseMoveEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY));
+                engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, dX, dY));
             }
-            currentX = Mouse.getX();
-            currentY = Mouse.getY();
+            currentX = correctedX;
+            currentY = correctedY;
         }
     }
-
     public Hitbox getHitBox() {
         return hitBox;
     }

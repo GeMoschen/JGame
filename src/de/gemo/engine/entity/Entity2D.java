@@ -25,6 +25,14 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         this(new Vector(x, y), singleTexture);
     }
 
+    public float getXOnScreen() {
+        return this.getX() - this.getWidth() / 2f;
+    }
+
+    public float getYOnScreen() {
+        return this.getY() - this.getHeight() / 2f;
+    }
+
     public float getWidth() {
         return this.animation.getWidth();
     }

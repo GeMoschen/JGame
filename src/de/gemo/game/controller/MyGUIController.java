@@ -15,14 +15,16 @@ import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
+import de.gemo.engine.core.Renderer;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.gui.GUIButton;
-import de.gemo.engine.gui.GUITextfield;
+import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.units.Vector;
-import de.gemo.game.events.gui.buttons.ButtonMoveListener;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 
 public class MyGUIController extends GUIController {
+
+    private GUIGraphic gui;
 
     public MyGUIController(String name, Hitbox hitbox, Vector mouseVector) {
         super(name, hitbox, mouseVector);
@@ -33,7 +35,10 @@ public class MyGUIController extends GUIController {
     @Override
     protected void init() {
         try {
-            ButtonMoveListener moveListener = new ButtonMoveListener();
+            Texture guiTexture = TextureLoader.getTexture("PNG", new FileInputStream("GUI_INGAME.png"));
+            SingleTexture singleTexture = new SingleTexture(guiTexture, 0, 0, 1280, 1024);
+            gui = new GUIGraphic(640, 512, singleTexture);
+            gui.setZ(0);
 
             Texture buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
@@ -45,28 +50,8 @@ public class MyGUIController extends GUIController {
             multiTexture.addTextures(new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 2 * 34, 175, 34));
             Animation animation = new Animation(multiTexture);
 
-            GUIButton button = new GUIButton(20, Engine.INSTANCE.getWindowHeight() - 80, animation);
-            button.setZ(-8);
-            button.setLabel("Button 1");
-            button.setColor(normalColor);
-            button.setHoverColor(hoverColor);
-            button.setPressedColor(pressedColor);
-            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
-            button.setMouseListener(moveListener);
-            this.add(button);
-
-            button = new GUIButton(200, Engine.INSTANCE.getWindowHeight() - 80, animation);
-            button.setZ(-2);
-            button.setLabel("Button 2");
-            button.setColor(normalColor);
-            button.setHoverColor(hoverColor);
-            button.setPressedColor(pressedColor);
-            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
-            button.setMouseListener(moveListener);
-            this.add(button);
-
-            button = new GUIButton(380, Engine.INSTANCE.getWindowHeight() - 80, animation);
-            button.setZ(-4);
+            GUIButton button = new GUIButton(1181, 990, animation);
+            button.setZ(1);
             button.setLabel("Exit");
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
@@ -76,16 +61,6 @@ public class MyGUIController extends GUIController {
             button.setFocusListener(listener);
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
-
-            // textfield
-            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("edit_normal.jpg"));
-            SingleTexture singleTexture = new SingleTexture(buttonTexture, 0, 0, 256, 34);
-            GUITextfield textfield = new GUITextfield(200, 250, singleTexture);
-            textfield.setFont(FontManager.getStandardFont());
-            textfield.setText("Das ist ein Textfeld!");
-            textfield.setMouseListener(moveListener);
-            this.add(textfield);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,14 +129,16 @@ public class MyGUIController extends GUIController {
     }
 
     @Override
-    public void onKeyPressed(KeyEvent event) {
-    }
-
-    @Override
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F8) {
             this.hotkeysActive = !this.hotkeysActive;
         }
+    }
+
+    @Override
+    public void render() {
+        Renderer.render(gui);
+        super.render();
     }
 
 }

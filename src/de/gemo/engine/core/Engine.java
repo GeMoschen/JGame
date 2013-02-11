@@ -38,11 +38,13 @@ public class Engine {
 
     private String WIN_TITLE = "Enginetest";
 
-    private int WIN_WIDTH = 1024;
-    private int WIN_HEIGHT = 768;
+    public float ratioX = 1, ratioY = 1;
 
-    private int VIEW_WIDTH = 1024;
-    private int VIEW_HEIGHT = 768;
+    public int WIN_WIDTH = 1280;
+    public int WIN_HEIGHT = 1024;
+
+    public int VIEW_WIDTH = 1280;
+    public int VIEW_HEIGHT = 1024;
 
     private boolean USE_VSYNC = true;
     private boolean HIDE_TEXT = false;
@@ -58,7 +60,7 @@ public class Engine {
 
     public Engine() {
         INSTANCE = this;
-        this.createWindow();
+        this.createWindow(true);
         this.initOpenGL();
         this.loadFonts();
         this.createGUI();
@@ -128,7 +130,7 @@ public class Engine {
                 String text = "Press Mouse to release it!".toUpperCase();
                 int width = font.getWidth(text) / 2;
                 int height = font.getHeight(text) / 2;
-                font.drawString(this.getWindowWidth() / 2 - width, this.getWindowHeight() / 2 - height, text, Color.red);
+                font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
             }
 
             TrueTypeFont font = FontManager.getStandardFont();
@@ -173,7 +175,7 @@ public class Engine {
             Display.update();
 
             if (USE_VSYNC) {
-                Display.sync(60);
+                Display.sync(100);
             }
 
             if (startTime < System.currentTimeMillis()) {
@@ -195,9 +197,22 @@ public class Engine {
         }
     }
 
-    private void createWindow() {
+    private void createWindow(boolean fullscreen) {
         try {
-            Display.setDisplayMode(new DisplayMode(WIN_WIDTH, WIN_HEIGHT));
+            this.ratioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
+            this.ratioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
+            DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
+            if (fullscreen) {
+                displayMode = null;
+                DisplayMode[] modes = Display.getAvailableDisplayModes();
+                for (int i = 0; i < modes.length; i++) {
+                    if (modes[i].getWidth() == WIN_WIDTH && modes[i].getHeight() == WIN_HEIGHT && modes[i].isFullscreenCapable()) {
+                        displayMode = modes[i];
+                    }
+                }
+                Display.setFullscreen(fullscreen);
+            }
+            Display.setDisplayMode(displayMode);
             org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 8);
             Display.setTitle(WIN_TITLE);
             Display.create(pixelFormat);
@@ -231,8 +246,8 @@ public class Engine {
     }
 
     private void createGUI() {
-        float halfWidth = WIN_WIDTH / 2f;
-        float halfHeight = WIN_HEIGHT / 2f;
+        float halfWidth = VIEW_WIDTH / 2f;
+        float halfHeight = VIEW_HEIGHT / 2f;
 
         Hitbox hitbox = new Hitbox(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, -halfHeight);
@@ -253,7 +268,7 @@ public class Engine {
         GL11.glShadeModel(GL11.GL_SMOOTH);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        GL11.glOrtho(0, Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(), 0, 1000, -1000);
+        GL11.glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
