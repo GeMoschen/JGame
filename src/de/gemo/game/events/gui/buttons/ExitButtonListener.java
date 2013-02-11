@@ -1,22 +1,20 @@
 package de.gemo.game.events.gui.buttons;
 
 import de.gemo.engine.events.mouse.MouseDownEvent;
-import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.FocusListener;
-import de.gemo.engine.interfaces.listener.MouseListener;
 
-public class ExitButtonListener implements MouseListener, FocusListener {
+public class ExitButtonListener extends ButtonMoveListener implements FocusListener {
 
     @Override
-    public void onMouseClick(MouseDownEvent event) {
-        // TODO Auto-generated method stub
+    public void onMouseClick(GUIElement element, MouseDownEvent event) {
         System.out.println("mouse click");
     }
 
     @Override
-    public void onMouseRelease(MouseReleaseEvent event) {
+    public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
         System.out.println("mouse release");
         if (event.isLeftButton()) {
             System.exit(0);
@@ -24,38 +22,32 @@ public class ExitButtonListener implements MouseListener, FocusListener {
     }
 
     @Override
-    public void onMouseMove(MouseMoveEvent event) {
+    public void onMouseMove(GUIElement element, MouseMoveEvent event) {
         System.out.println("mouse move: " + event.getX() + " / " + event.getY());
     }
 
     @Override
-    public void onMouseDrag(MouseDragEvent event) {
-        // TODO Auto-generated method stub
-        System.out.println("mouse drag");
-    }
-
-    @Override
-    public void onFocusGained() {
+    public void onFocusGained(GUIElement element) {
         System.out.println("focus gained");
     }
 
     @Override
-    public void onFocusLost() {
+    public void onFocusLost(GUIElement element) {
         System.out.println("focus lost");
     }
 
     @Override
-    public void onHoverBegin() {
+    public void onHoverBegin(GUIElement element) {
         System.out.println("hover begin");
     }
 
     @Override
-    public void onHover() {
+    public void onHover(GUIElement element) {
         System.out.println("hover");
     }
 
     @Override
-    public void onHoverEnd() {
+    public void onHoverEnd(GUIElement element) {
         System.out.println("hover end!");
     }
 

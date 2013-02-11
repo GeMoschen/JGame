@@ -16,10 +16,10 @@ import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
 import de.gemo.engine.events.keyboard.KeyEvent;
-import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUITextfield;
 import de.gemo.engine.units.Vector;
+import de.gemo.game.events.gui.buttons.ButtonMoveListener;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 
 public class MyGUIController extends GUIController {
@@ -33,6 +33,8 @@ public class MyGUIController extends GUIController {
     @Override
     protected void init() {
         try {
+            ButtonMoveListener moveListener = new ButtonMoveListener();
+
             Texture buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
             Color normalColor = new Color(162, 162, 162);
@@ -50,6 +52,7 @@ public class MyGUIController extends GUIController {
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            button.setMouseListener(moveListener);
             this.add(button);
 
             button = new GUIButton(200, Engine.INSTANCE.getWindowHeight() - 80, animation);
@@ -59,6 +62,7 @@ public class MyGUIController extends GUIController {
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            button.setMouseListener(moveListener);
             this.add(button);
 
             button = new GUIButton(380, Engine.INSTANCE.getWindowHeight() - 80, animation);
@@ -79,19 +83,11 @@ public class MyGUIController extends GUIController {
             GUITextfield textfield = new GUITextfield(200, 250, singleTexture);
             textfield.setFont(FontManager.getStandardFont());
             textfield.setText("Das ist ein Textfeld!");
+            textfield.setMouseListener(moveListener);
             this.add(textfield);
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onMouseDrag(MouseDragEvent event) {
-        if (event.isRightButton() && (event.getDifX() != 0 || event.getDifY() != 0)) {
-            if (this.getFocusedElement() != null) {
-                this.getFocusedElement().move(event.getDifX(), event.getDifY());
-            }
         }
     }
 

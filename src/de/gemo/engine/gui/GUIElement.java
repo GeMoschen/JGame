@@ -51,16 +51,16 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
     public void fireMouseEvent(AbstractMouseEvent event) {
         if (this.mouseListener != null) {
             if (event.isMouseMove()) {
-                this.mouseListener.onMouseMove((MouseMoveEvent) event);
+                this.mouseListener.onMouseMove(this, (MouseMoveEvent) event);
                 return;
             } else if (event.isMouseClick()) {
-                this.mouseListener.onMouseClick((MouseDownEvent) event);
+                this.mouseListener.onMouseClick(this, (MouseDownEvent) event);
                 return;
             } else if (event.isMouseRelease()) {
-                this.mouseListener.onMouseRelease((MouseReleaseEvent) event);
+                this.mouseListener.onMouseRelease(this, (MouseReleaseEvent) event);
                 return;
             } else if (event.isMouseDrag()) {
-                this.mouseListener.onMouseDrag((MouseDragEvent) event);
+                this.mouseListener.onMouseDrag(this, (MouseDragEvent) event);
                 return;
             }
         }
@@ -72,31 +72,31 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     public void fireFocusGainedEvent() {
         if (this.focusListener != null) {
-            this.focusListener.onFocusGained();
+            this.focusListener.onFocusGained(this);
         }
     }
 
     public void fireFocusLostEvent() {
         if (this.focusListener != null) {
-            this.focusListener.onFocusLost();
+            this.focusListener.onFocusLost(this);
         }
     }
 
     public void fireHoverBeginEvent() {
         if (this.focusListener != null) {
-            this.focusListener.onHoverBegin();
+            this.focusListener.onHoverBegin(this);
         }
     }
 
     public void fireHoverEvent() {
         if (this.focusListener != null) {
-            this.focusListener.onHover();
+            this.focusListener.onHover(this);
         }
     }
 
     public void fireHoverEndEvent() {
         if (this.focusListener != null) {
-            this.focusListener.onHoverEnd();
+            this.focusListener.onHoverEnd(this);
         }
     }
 

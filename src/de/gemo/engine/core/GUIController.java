@@ -336,8 +336,13 @@ public abstract class GUIController implements IKeyController, IMouseController,
             this.hoveredElement.fireMouseEvent(new MouseMoveEvent((int) (event.getX() - this.hoveredElement.getX() + (this.hoveredElement.getWidth() / 2)), (int) (event.getY() - this.hoveredElement.getY() + (this.hoveredElement.getHeight() / 2)), event.getDifX(), event.getDifY()));
         }
     }
+
     @Override
-    public abstract void onMouseDrag(MouseDragEvent event);
+    public void onMouseDrag(MouseDragEvent event) {
+        if (this.focusedElement != null && this.focusedElement.isVectorInClickbox(this.mouseVector)) {
+            this.focusedElement.fireMouseEvent(event);
+        }
+    }
 
     @Override
     public void onMouseUp(MouseReleaseEvent event) {
