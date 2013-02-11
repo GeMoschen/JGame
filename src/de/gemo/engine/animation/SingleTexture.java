@@ -6,12 +6,15 @@ import org.newdawn.slick.opengl.Texture;
 public class SingleTexture {
     private final Texture texture;
     private float width, height;
-    private final float x, y;
+    private float x;
+    private float y;
     private final float u, v, u2, v2;
+
+    boolean newList = true;
+    int displayList;
 
     public SingleTexture(Texture texture, float x, float y, float width, float height) {
         this.texture = texture;
-
         this.x = x;
         this.y = y;
 
@@ -25,25 +28,45 @@ public class SingleTexture {
         this.height = height;
     }
 
-    public SingleTexture(Texture texture) {
-        this.texture = texture;
+    private void createDisplayList(float z) {
+        GL11.glPushMatrix();
+        displayList = GL11.glGenLists(1);
 
-        this.x = 0;
-        this.y = 0;
+        float halfWidth = this.width / 2f;
+        float halfHeight = this.height / 2f;
+        GL11.glNewList(displayList, GL11.GL_COMPILE);
 
-        u = 0;
-        v = 0;
+        this.texture.bind();
+        // begin quads
+        GL11.glBegin(GL11.GL_QUADS);
 
-        u2 = 1;
-        v2 = 1;
+        // up-left
+        GL11.glTexCoord2f(u, v);
+        GL11.glVertex3f(-halfWidth, -halfHeight, z);
 
-        this.width = this.texture.getImageWidth();
-        this.height = this.texture.getImageHeight();
+        // up-right
+        GL11.glTexCoord2f(u2, v);
+        GL11.glVertex3f(halfWidth, -halfHeight, z);
+
+        // down-right
+        GL11.glTexCoord2f(u2, v2);
+        GL11.glVertex3f(halfWidth, halfHeight, z);
+
+        // down-left
+        GL11.glTexCoord2f(u, v2);
+        GL11.glVertex3f(-halfWidth, halfHeight, z);
+
+        // end quads
+        GL11.glEnd();
+        GL11.glEndList();
+        GL11.glPopMatrix();
+        newList = false;
     }
 
     public void scale(float scaleX, float scaleY) {
         this.width *= scaleX;
         this.height *= scaleY;
+        newList = true;
     }
 
     public float getWidth() {
@@ -60,31 +83,13 @@ public class SingleTexture {
 
     public void render(float x, float y, float z, float r, float g, float b, float alpha) {
         // bind texture
-        this.texture.bind();
         GL11.glColor4f(r, g, b, alpha);
-
-        // begin quads
-        GL11.glBegin(GL11.GL_QUADS);
-
-        // up-left
-        GL11.glTexCoord2f(u, v);
-        GL11.glVertex3f(x, y, z);
-
-        // up-right
-        GL11.glTexCoord2f(u2, v);
-        GL11.glVertex3f(x + this.width, y, z);
-
-        // down-right
-        GL11.glTexCoord2f(u2, v2);
-        GL11.glVertex3f(x + this.width, y + this.height, z);
-
-        // down-left
-        GL11.glTexCoord2f(u, v2);
-        GL11.glVertex3f(x, y + this.height, z);
-
-        // end quads
-        GL11.glEnd();
+        if (newList) {
+            this.createDisplayList(z);
+        }
+        GL11.glCallList(displayList);
     }
+
     public SingleTexture clone() {
         return new SingleTexture(this.texture, x, y, width, height);
     }

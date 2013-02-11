@@ -111,13 +111,15 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
     }
 
     public void render(float r, float g, float b) {
-        float x = -this.animation.getWidth() / 2;
-        float y = -this.animation.getHeight() / 2;
-        this.animation.render(x, y, this.getZ(), r, g, b, this.alpha);
+        this.animation.render(-this.animation.getHalfWidth(), -this.animation.getHalfHeight(), this.getZ(), r, g, b, this.alpha);
     }
 
     @Override
     public int compareTo(Entity2D o) {
         return (int) (o.getZ() - this.getZ());
+    }
+
+    public Animation getAnimation() {
+        return animation;
     }
 }

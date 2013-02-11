@@ -127,8 +127,11 @@ public class MouseManager {
         if (!Mouse.isGrabbed()) {
             if (currentX != correctedX || currentY != correctedY) {
                 // move hitbox
-                this.hitBox.move(dX * this.engine.ratioX, dY * this.engine.ratioY);
-                this.movedHitBox.move(dX * this.engine.ratioX, dY * this.engine.ratioY);
+                float correctedDX = dX * this.engine.ratioX;
+                float correctedDY = dY * this.engine.ratioY;
+
+                this.hitBox.move(correctedDX, correctedDY);
+                this.movedHitBox.move(correctedDX, correctedDY);
                 // throw MouseMoveEvent
                 engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, dX, dY));
             }

@@ -51,7 +51,6 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     }
 
     public final void add(GUIElement element) {
-        this.allElements.put(element.getEntityID(), element);
         this.addToAll(element);
         this.updateVisibility(element);
     }
@@ -115,6 +114,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         this.invisibleElements.remove(element.getEntityID());
         this.sortedList = new ArrayList<GUIElement>(this.visibleElements.values());
         Collections.sort(this.sortedList);
+        this.sortedList.toArray();
     }
 
     public final void remove(GUIElement element) {
@@ -174,6 +174,8 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     // //////////////////////////////////////////
 
     protected abstract void init();
+
+    public abstract void doTick(float delta);
 
     public final void updateCollisions() {
         boolean isColliding = false;

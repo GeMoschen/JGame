@@ -23,12 +23,12 @@ public class ExitButtonListener extends ButtonMoveListener implements FocusListe
 
     @Override
     public void onMouseMove(GUIElement element, MouseMoveEvent event) {
-        System.out.println("mouse move: " + event.getX() + " / " + event.getY());
+        // System.out.println("mouse move: " + event.getX() + " / " + event.getY());
     }
 
     @Override
     public void onFocusGained(GUIElement element) {
-        System.out.println("focus gained");
+        // System.out.println("focus gained");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ExitButtonListener extends ButtonMoveListener implements FocusListe
 
     @Override
     public void onHover(GUIElement element) {
-        System.out.println("hover");
+        // System.out.println("hover");
     }
 
     @Override

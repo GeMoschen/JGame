@@ -24,7 +24,7 @@ import de.gemo.game.events.gui.buttons.ExitButtonListener;
 
 public class MyGUIController extends GUIController {
 
-    private GUIGraphic gui;
+    private GUIGraphic gui, countdown, countdown2;
 
     public MyGUIController(String name, Hitbox hitbox, Vector mouseVector) {
         super(name, hitbox, mouseVector);
@@ -51,7 +51,6 @@ public class MyGUIController extends GUIController {
             Animation animation = new Animation(multiTexture);
 
             GUIButton button = new GUIButton(1181, 990, animation);
-            button.setZ(1);
             button.setLabel("Exit");
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
@@ -61,6 +60,26 @@ public class MyGUIController extends GUIController {
             button.setFocusListener(listener);
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
+
+            // LOAD ANIMATION
+            multiTexture = new MultiTexture(72, 104);
+            int y = 0;
+            int x = 0;
+            for (int i = 9; i >= 0; i--) {
+                if (i == 4) {
+                    y += multiTexture.getHeight();
+                    x = 0;
+                }
+                multiTexture.addTextures(new SingleTexture(guiTexture, 1280 + x, y, 72, 104));
+                x += multiTexture.getWidth();
+            }
+            animation = new Animation(multiTexture);
+            countdown = new GUIGraphic(1181 + 36, 900, animation);
+            countdown.getAnimation().setWantedFPS(10);
+            this.add(countdown);
+
+            countdown2 = new GUIGraphic(1181 - 36, 900, animation);
+            this.add(countdown2);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,6 +151,13 @@ public class MyGUIController extends GUIController {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F8) {
             this.hotkeysActive = !this.hotkeysActive;
+        }
+    }
+
+    @Override
+    public void doTick(float delta) {
+        if (countdown.getAnimation().step(delta)) {
+            countdown2.getAnimation().nextFrame();
         }
     }
 

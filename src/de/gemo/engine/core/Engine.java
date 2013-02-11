@@ -60,7 +60,7 @@ public class Engine {
 
     public Engine() {
         INSTANCE = this;
-        this.createWindow(true);
+        this.createWindow(false);
         this.initOpenGL();
         this.loadFonts();
         this.createGUI();
@@ -92,12 +92,16 @@ public class Engine {
 
             // clear contents
             glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
             keyManager.update();
             mouseManager.update();
 
+            // tick controllers
+            for (GUIController controller : this.guiController.values()) {
+                controller.doTick(delta);
+            }
+
             if (tick) {
-                this.updateGUIControllers();
+                this.updateGUIControllers(delta);
             }
 
             GL11.glPushMatrix();
@@ -175,7 +179,7 @@ public class Engine {
             Display.update();
 
             if (USE_VSYNC) {
-                Display.sync(100);
+                Display.sync(60);
             }
 
             if (startTime < System.currentTimeMillis()) {
@@ -191,7 +195,7 @@ public class Engine {
         Display.destroy();
         System.exit(0);
     }
-    private void updateGUIControllers() {
+    private void updateGUIControllers(float delta) {
         for (GUIController controller : this.guiController.values()) {
             controller.updateController();
         }
@@ -216,6 +220,7 @@ public class Engine {
             org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 8);
             Display.setTitle(WIN_TITLE);
             Display.create(pixelFormat);
+            // Display.create();
         } catch (LWJGLException e) {
             e.printStackTrace();
             Display.destroy();
@@ -279,6 +284,7 @@ public class Engine {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_FASTEST);
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
     }

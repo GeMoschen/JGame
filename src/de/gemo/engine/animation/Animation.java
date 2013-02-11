@@ -4,6 +4,7 @@ public class Animation {
 
     protected int currentFrame = -1;
     private MultiTexture multiTextures;
+    private float halfWidth = 0, halfHeight = 0;
 
     protected float currentStep = 0f;
 
@@ -16,6 +17,16 @@ public class Animation {
     public Animation(MultiTexture multiTexture, int wantedFPS) {
         this.multiTextures = multiTexture;
         this.setWantedFPS(wantedFPS);
+        this.halfWidth = this.multiTextures.getWidth() / 2f;
+        this.halfHeight = this.multiTextures.getHeight() / 2f;
+    }
+
+    public float getHalfWidth() {
+        return halfWidth;
+    }
+
+    public float getHalfHeight() {
+        return halfHeight;
     }
 
     public void nextFrame() {
@@ -26,35 +37,41 @@ public class Animation {
         this.goToFrame(this.currentFrame - 1);
     }
 
-    public void goToFrame(int frame) {
+    public boolean goToFrame(int frame) {
         // we need different frames
         if (this.currentFrame == frame) {
-            return;
+            return false;
         }
 
         // check framebounds
+        boolean result = false;
         if (frame < 0) {
             frame = this.multiTextures.getTextureCount() - 1;
-        } else if (frame > this.multiTextures.getTextureCount()) {
+            result = true;
+        } else if (frame > this.multiTextures.getTextureCount() - 1) {
             frame = 0;
+            result = true;
         }
 
         // update the frame
         this.currentFrame = frame;
         this.multiTextures.setIndex(this.currentFrame);
+        return result;
     }
 
     public void setWantedFPS(int wantedFPS) {
         this.wantedFPS = (float) wantedFPS / 1000f;
     }
 
-    public void step(float delta) {
+    public boolean step(float delta) {
         float toGo = this.wantedFPS * delta;
         this.currentStep += toGo;
+        boolean result = false;
         if (this.currentStep >= this.multiTextures.getTextureCount()) {
             this.currentStep -= this.multiTextures.getTextureCount();
+            result = true;
         }
-        this.goToFrame((int) this.currentStep);
+        return result || this.goToFrame((int) this.currentStep);
     }
 
     public int getCurrentFrame() {
