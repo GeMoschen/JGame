@@ -51,16 +51,16 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
     public void fireMouseEvent(AbstractMouseEvent event) {
         if (this.mouseListener != null) {
             if (event.isMouseMove()) {
-                this.mouseListener.onMove((MouseMoveEvent) event);
+                this.mouseListener.onMouseMove((MouseMoveEvent) event);
                 return;
             } else if (event.isMouseClick()) {
-                this.mouseListener.onClick((MouseDownEvent) event);
+                this.mouseListener.onMouseClick((MouseDownEvent) event);
                 return;
             } else if (event.isMouseRelease()) {
-                this.mouseListener.onRelease((MouseReleaseEvent) event);
+                this.mouseListener.onMouseRelease((MouseReleaseEvent) event);
                 return;
             } else if (event.isMouseDrag()) {
-                this.mouseListener.onDrag((MouseDragEvent) event);
+                this.mouseListener.onMouseDrag((MouseDragEvent) event);
                 return;
             }
         }

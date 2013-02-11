@@ -10,13 +10,13 @@ import de.gemo.engine.interfaces.listener.MouseListener;
 public class ExitButtonListener implements MouseListener, FocusListener {
 
     @Override
-    public void onClick(MouseDownEvent event) {
+    public void onMouseClick(MouseDownEvent event) {
         // TODO Auto-generated method stub
         System.out.println("mouse click");
     }
 
     @Override
-    public void onRelease(MouseReleaseEvent event) {
+    public void onMouseRelease(MouseReleaseEvent event) {
         System.out.println("mouse release");
         if (event.isLeftButton()) {
             System.exit(0);
@@ -24,13 +24,12 @@ public class ExitButtonListener implements MouseListener, FocusListener {
     }
 
     @Override
-    public void onMove(MouseMoveEvent event) {
-        // TODO Auto-generated method stub
-        System.out.println("mouse move");
+    public void onMouseMove(MouseMoveEvent event) {
+        System.out.println("mouse move: " + event.getX() + " / " + event.getY());
     }
 
     @Override
-    public void onDrag(MouseDragEvent event) {
+    public void onMouseDrag(MouseDragEvent event) {
         // TODO Auto-generated method stub
         System.out.println("mouse drag");
     }

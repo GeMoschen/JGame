@@ -7,12 +7,12 @@ import de.gemo.engine.events.mouse.MouseReleaseEvent;
 
 public interface MouseListener {
 
-    public void onClick(MouseDownEvent event);
+    public void onMouseClick(MouseDownEvent event);
 
-    public void onRelease(MouseReleaseEvent event);
+    public void onMouseRelease(MouseReleaseEvent event);
 
-    public void onMove(MouseMoveEvent event);
+    public void onMouseMove(MouseMoveEvent event);
 
-    public void onDrag(MouseDragEvent event);
+    public void onMouseDrag(MouseDragEvent event);
 
 }

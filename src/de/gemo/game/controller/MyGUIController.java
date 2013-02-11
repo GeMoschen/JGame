@@ -17,7 +17,6 @@ import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
-import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUITextfield;
 import de.gemo.engine.units.Vector;
@@ -85,10 +84,6 @@ public class MyGUIController extends GUIController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onMouseMove(MouseMoveEvent event) {
     }
 
     @Override
