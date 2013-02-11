@@ -8,7 +8,7 @@ import org.lwjgl.input.Mouse;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.events.mouse.MouseButton;
-import de.gemo.engine.events.mouse.MouseDownEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
@@ -106,7 +106,7 @@ public class MouseManager {
             } else if (currentState && !oldState) {
                 // throw MouseDownEvent
 
-                engine.onMouseDown(new MouseDownEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
+                engine.onMouseDown(new MouseClickEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);

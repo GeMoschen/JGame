@@ -21,7 +21,7 @@ import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.events.keyboard.KeyEvent;
-import de.gemo.engine.events.mouse.MouseDownEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
@@ -325,7 +325,7 @@ public class Engine {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
-                controller.onMouseMove(event);
+                controller.handleMouseMove(event);
                 return;
             }
         }
@@ -342,7 +342,7 @@ public class Engine {
         this.activeGUIController = controller;
     }
 
-    public void onMouseDown(MouseDownEvent event) {
+    public void onMouseDown(MouseClickEvent event) {
         if (!freeMouse) {
             this.mouseManager.ungrabMouse();
             freeMouse = !freeMouse;
@@ -351,7 +351,7 @@ public class Engine {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
-                controller.onMouseDown(event);
+                controller.handleMouseClick(event);
                 return;
             }
         }
@@ -362,7 +362,7 @@ public class Engine {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
-                controller.onMouseUp(event);
+                controller.handleMouseRelease(event);
                 return;
             }
         }
@@ -373,7 +373,7 @@ public class Engine {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
-                controller.onMouseDrag(event);
+                controller.handleMouseDrag(event);
                 return;
             }
         }

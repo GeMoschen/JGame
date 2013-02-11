@@ -6,7 +6,6 @@ import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.core.FontManager;
-import de.gemo.engine.events.keyboard.KeyEvent;
 
 public class GUIButton extends GUIElement {
 
@@ -143,20 +142,5 @@ public class GUIButton extends GUIElement {
             }
             GL11.glTranslatef(0f, 0f, +1f);
         }
-    }
-
-    @Override
-    public boolean handleKeyHold(KeyEvent event) {
-        return false;
-    }
-
-    @Override
-    public boolean handleKeyPressed(KeyEvent event) {
-        return false;
-    }
-
-    @Override
-    public boolean handleKeyReleased(KeyEvent event) {
-        return false;
     }
 }

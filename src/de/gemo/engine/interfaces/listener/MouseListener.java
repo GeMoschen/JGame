@@ -1,6 +1,6 @@
 package de.gemo.engine.interfaces.listener;
 
-import de.gemo.engine.events.mouse.MouseDownEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
@@ -8,7 +8,7 @@ import de.gemo.engine.gui.GUIElement;
 
 public interface MouseListener {
 
-    public void onMouseClick(GUIElement element, MouseDownEvent event);
+    public void onMouseClick(GUIElement element, MouseClickEvent event);
 
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event);
 

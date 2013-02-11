@@ -163,16 +163,6 @@ public class GUITextfield extends GUIElement {
     }
 
     @Override
-    public boolean handleKeyPressed(KeyEvent event) {
-        return false;
-    }
-
-    @Override
-    public boolean handleKeyReleased(KeyEvent event) {
-        return false;
-    }
-
-    @Override
     public void doTick() {
         if (this.isFocused()) {
             tickCount++;

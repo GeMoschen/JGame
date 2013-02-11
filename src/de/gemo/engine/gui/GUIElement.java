@@ -15,8 +15,9 @@ import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.FontManager;
 import de.gemo.engine.entity.Entity2DClickable;
+import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.AbstractMouseEvent;
-import de.gemo.engine.events.mouse.MouseDownEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
@@ -54,7 +55,7 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
                 this.mouseListener.onMouseMove(this, (MouseMoveEvent) event);
                 return;
             } else if (event.isMouseClick()) {
-                this.mouseListener.onMouseClick(this, (MouseDownEvent) event);
+                this.mouseListener.onMouseClick(this, (MouseClickEvent) event);
                 return;
             } else if (event.isMouseRelease()) {
                 this.mouseListener.onMouseRelease(this, (MouseReleaseEvent) event);
@@ -176,6 +177,21 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     public boolean isFocused() {
         return isFocused;
+    }
+
+    @Override
+    public boolean handleKeyHold(KeyEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean handleKeyPressed(KeyEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean handleKeyReleased(KeyEvent event) {
+        return true;
     }
 
     public void doTick() {

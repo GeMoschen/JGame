@@ -1,6 +1,6 @@
 package de.gemo.game.events.gui.buttons;
 
-import de.gemo.engine.events.mouse.MouseDownEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
@@ -9,7 +9,7 @@ import de.gemo.engine.interfaces.listener.FocusListener;
 public class ExitButtonListener extends ButtonMoveListener implements FocusListener {
 
     @Override
-    public void onMouseClick(GUIElement element, MouseDownEvent event) {
+    public void onMouseClick(GUIElement element, MouseClickEvent event) {
         System.out.println("mouse click");
     }
 
