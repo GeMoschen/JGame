@@ -217,7 +217,7 @@ public class Engine {
                 Display.setFullscreen(fullscreen);
             }
             Display.setDisplayMode(displayMode);
-            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 8);
+            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
             Display.setTitle(WIN_TITLE);
             Display.create(pixelFormat);
             // Display.create();
@@ -285,6 +285,7 @@ public class Engine {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_FASTEST);
+
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
     }

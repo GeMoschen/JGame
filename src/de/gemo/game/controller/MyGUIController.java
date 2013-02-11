@@ -164,6 +164,7 @@ public class MyGUIController extends GUIController {
     @Override
     public void render() {
         Renderer.render(gui);
+        // for (int i = 0; i < 1000; i++)
         super.render();
     }
 
