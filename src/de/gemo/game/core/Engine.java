@@ -15,6 +15,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.PixelFormat;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 
@@ -23,7 +24,7 @@ import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
-import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.events.mouse.MouseReleaseEvent;
 import de.gemo.game.implementation.MyGUIController;
 import de.gemo.game.input.KeyboardManager;
 import de.gemo.game.input.MouseManager;
@@ -123,7 +124,7 @@ public class Engine {
             // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
             if (!freeMouse) {
-                TrueTypeFont font = FontManager.getFont(FontManager.DIN, Font.PLAIN, 24);
+                TrueTypeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
                 String text = "Press Mouse to release it!".toUpperCase();
                 int width = font.getWidth(text) / 2;
                 int height = font.getHeight(text) / 2;
@@ -151,8 +152,15 @@ public class Engine {
                     text = this.activeGUIController.getName();
 
                     MyGUIController controller = (MyGUIController) this.activeGUIController;
+
+                    if (controller.getHoveredElement() != null) {
+                        font.drawString(10, 180, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
+                    }
+                    if (controller.getFocusedElement() != null) {
+                        font.drawString(10, 195, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
+                    }
                     if (controller.hotkeysActive) {
-                        font.drawString(10, 180, "Hotkeys active", Color.green);
+                        font.drawString(10, 210, "Hotkeys active", Color.green);
                     }
                 }
                 font.drawString(10, 165, "Active UI: " + text, Color.red);
@@ -181,7 +189,6 @@ public class Engine {
         Display.destroy();
         System.exit(0);
     }
-
     private void updateGUIControllers() {
         for (GUIController controller : this.guiController.values()) {
             controller.updateController();
@@ -191,8 +198,9 @@ public class Engine {
     private void createWindow() {
         try {
             Display.setDisplayMode(new DisplayMode(WIN_WIDTH, WIN_HEIGHT));
+            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 8);
             Display.setTitle(WIN_TITLE);
-            Display.create();
+            Display.create(pixelFormat);
         } catch (LWJGLException e) {
             e.printStackTrace();
             Display.destroy();
@@ -202,6 +210,24 @@ public class Engine {
 
     public final void registerGUIController(GUIController controller) {
         this.guiController.put(controller.getID(), controller);
+    }
+
+    public final GUIController getGUIController(int ID) {
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.getID() == ID) {
+                return controller;
+            }
+        }
+        return null;
+    }
+
+    public final GUIController getGUIController(String name) {
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.getName().equalsIgnoreCase(name)) {
+                return controller;
+            }
+        }
+        return null;
     }
 
     private void createGUI() {
@@ -243,8 +269,8 @@ public class Engine {
     }
 
     private void loadFonts() {
-        FontManager.loadFont(FontManager.DIN, Font.PLAIN, 20);
-        FontManager.loadFont(FontManager.DIN, Font.PLAIN, 24);
+        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20);
+        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
     }
 
     // ////////////////////////////////////////
@@ -332,7 +358,7 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    public void onMouseUp(MouseUpEvent event) {
+    public void onMouseUp(MouseReleaseEvent event) {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);

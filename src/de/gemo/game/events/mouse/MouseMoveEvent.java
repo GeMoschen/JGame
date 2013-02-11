@@ -1,11 +1,11 @@
 package de.gemo.game.events.mouse;
 
-public class MouseMoveEvent extends MouseEvent {
+public class MouseMoveEvent extends AbstractMouseEvent {
 
     private final int difX, difY;
 
     public MouseMoveEvent(int x, int y, int difX, int difY) {
-        super(x, y);
+        super(x, y, 0);
         this.difX = difX;
         this.difY = difY;
     }

@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: Engine.jar 
+Main-Class: de.gemo.game.core.Game

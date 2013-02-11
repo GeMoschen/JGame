@@ -7,7 +7,7 @@ import org.newdawn.slick.TrueTypeFont;
 
 public class FontManager {
 
-    public static final String DIN = "DIN Schablonierschrift";
+    // public static final String DIN = "DIN Schablonierschrift";
     public static final String VERDANA = "Verdana";
 
     private static TrueTypeFont standardFont;

@@ -104,7 +104,6 @@ public class Entity extends EntityLogic implements IDebugRenderable {
         GL11.glEnable(GL11.GL_BLEND);
 
         // write entity-id
-
         FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
 
         // translate back

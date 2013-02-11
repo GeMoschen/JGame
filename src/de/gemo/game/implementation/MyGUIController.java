@@ -2,8 +2,6 @@ package de.gemo.game.implementation;
 
 import java.awt.Font;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
@@ -17,12 +15,12 @@ import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
 import de.gemo.game.core.FontManager;
 import de.gemo.game.core.GUIController;
-import de.gemo.game.entity.GUIButton;
-import de.gemo.game.entity.GUITextfield;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
+import de.gemo.game.gui.GUIButton;
+import de.gemo.game.gui.GUITextfield;
 import de.gemo.game.interfaces.Vector;
 
 public class MyGUIController extends GUIController {
@@ -35,10 +33,8 @@ public class MyGUIController extends GUIController {
 
     @Override
     protected void init() {
-        Texture buttonTexture;
-
         try {
-            buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
+            Texture buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
 
             Color normalColor = new Color(162, 162, 162);
             Color hoverColor = new Color(215, 165, 0);
@@ -54,7 +50,7 @@ public class MyGUIController extends GUIController {
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
-            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
+            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
             button = new GUIButton(200, Engine.INSTANCE.getWindowHeight() - 80, animation);
@@ -63,7 +59,7 @@ public class MyGUIController extends GUIController {
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
-            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
+            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
             button = new GUIButton(380, Engine.INSTANCE.getWindowHeight() - 80, animation);
@@ -72,8 +68,10 @@ public class MyGUIController extends GUIController {
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
-            button.setActionListener(new ExitButtonListener());
-            button.setFont(FontManager.getFont(FontManager.DIN, Font.PLAIN, 20));
+            ExitButtonListener listener = new ExitButtonListener();
+            button.setMouseListener(listener);
+            button.setFocusListener(listener);
+            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
             // textfield
@@ -81,12 +79,10 @@ public class MyGUIController extends GUIController {
             SingleTexture singleTexture = new SingleTexture(buttonTexture, 0, 0, 256, 34);
             GUITextfield textfield = new GUITextfield(200, 250, singleTexture);
             textfield.setFont(FontManager.getStandardFont());
+            textfield.setText("Das ist ein Textfeld!");
             this.add(textfield);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -97,6 +93,11 @@ public class MyGUIController extends GUIController {
 
     @Override
     public void onMouseDrag(MouseDragEvent event) {
+        if (event.isRightButton() && (event.getDifX() != 0 || event.getDifY() != 0)) {
+            if (this.getFocusedElement() != null) {
+                this.getFocusedElement().move(event.getDifX(), event.getDifY());
+            }
+        }
     }
 
     @Override
@@ -171,4 +172,5 @@ public class MyGUIController extends GUIController {
             this.hotkeysActive = !this.hotkeysActive;
         }
     }
+
 }

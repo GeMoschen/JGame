@@ -1,4 +1,4 @@
-package de.gemo.game.entity;
+package de.gemo.game.gui;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
@@ -106,13 +106,22 @@ public class GUIButton extends GUIElement {
     @Override
     public void setStatus(GUIElementStatus status) {
         super.setStatus(status);
-        this.animation.goToFrame(this.getStatus().ordinal());
+        if (this.isHovered()) {
+            this.animation.goToFrame(1);
+        } else if (this.isActive()) {
+            this.animation.goToFrame(2);
+        } else {
+            this.animation.goToFrame(0);
+        }
     }
 
     @Override
     public void setAlpha(float alpha) {
         super.setAlpha(alpha);
         this.normalColor.a = (float) alpha;
+        this.hoverColor.a = (float) alpha;
+        this.pressedColor.a = (float) alpha;
+        this.shadowColor.a = (float) alpha;
     }
 
     public Animation getAnimation() {

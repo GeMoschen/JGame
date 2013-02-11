@@ -8,7 +8,7 @@ import de.gemo.game.entity.Entity2D;
 
 public class Renderer {
 
-    public static boolean SHOW_HITBOXES = true;
+    public static boolean SHOW_HITBOXES = false;
     public static boolean SHOW_GRAPHICS = true;
 
     public static void render(Entity2D renderable) {

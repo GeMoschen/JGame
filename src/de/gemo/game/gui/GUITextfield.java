@@ -1,4 +1,4 @@
-package de.gemo.game.entity;
+package de.gemo.game.gui;
 
 import java.util.HashMap;
 
@@ -17,7 +17,7 @@ public class GUITextfield extends GUIElement {
 
     private String label = "";
     private String originalLabel = "";
-    private Color normalColor, hoverColor, pressedColor, shadowColor;
+    private Color normalColor, shadowColor;
     private TrueTypeFont font;
 
     private float textWidth = 0, textHeight = 0;
@@ -33,8 +33,6 @@ public class GUITextfield extends GUIElement {
         super(x, y, singleTexture);
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
-        this.setHoverColor(Color.white);
-        this.setPressedColor(Color.white);
         this.setAutoLooseFocus(false);
         this.shadowColor = new Color(50, 50, 50);
         this.animation.goToFrame(0);
@@ -49,7 +47,7 @@ public class GUITextfield extends GUIElement {
 
     public GUITextfield(float x, float y, SingleTexture singleTexture, String label) {
         this(x, y, singleTexture);
-        this.setLabel(label);
+        this.setText(label);
     }
 
     public void setColor(Color color) {
@@ -60,22 +58,6 @@ public class GUITextfield extends GUIElement {
         return normalColor;
     }
 
-    public void setHoverColor(Color hoverColor) {
-        this.hoverColor = hoverColor;
-    }
-
-    public Color getHoverColor() {
-        return hoverColor;
-    }
-
-    public void setPressedColor(Color pressedColor) {
-        this.pressedColor = pressedColor;
-    }
-
-    public Color getPressedColor() {
-        return pressedColor;
-    }
-
     public void setMaxText(float maxText) {
         this.maxText = maxText;
     }
@@ -84,7 +66,7 @@ public class GUITextfield extends GUIElement {
         return maxText;
     }
 
-    public void setLabel(String label) {
+    public void setText(String label) {
         this.originalLabel = label;
         this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
@@ -106,16 +88,16 @@ public class GUITextfield extends GUIElement {
     @Override
     public void scale(float scaleX, float scaleY) {
         super.scale(scaleX, scaleY);
-        this.setLabel(this.originalLabel);
+        this.setText(this.originalLabel);
     }
 
-    public String getLabel() {
+    public String getText() {
         return this.originalLabel;
     }
 
     public void setFont(TrueTypeFont font) {
         this.font = font;
-        this.setLabel(this.getLabel());
+        this.setText(this.getText());
     }
 
     public TrueTypeFont getFont() {
@@ -131,6 +113,8 @@ public class GUITextfield extends GUIElement {
     public void setAlpha(float alpha) {
         super.setAlpha(alpha);
         this.normalColor.a = (float) alpha;
+        this.normalColor.a = (float) alpha;
+        this.shadowColor.a = (float) alpha;
     }
 
     public Animation getAnimation() {
@@ -154,7 +138,6 @@ public class GUITextfield extends GUIElement {
 
     @Override
     public boolean handleKeyHold(KeyEvent event) {
-
         Long lastInput = lastInputList.get(event.getKey());
         if (lastInput == null) {
             lastInput = Long.MIN_VALUE;
@@ -167,11 +150,11 @@ public class GUITextfield extends GUIElement {
 
         if (System.currentTimeMillis() > lastInput + distance) {
             if (allowedChars.contains("" + event.getCharacter()) && this.originalLabel.length() + 1 <= this.maxLength) {
-                this.setLabel(originalLabel + event.getCharacter());
+                this.setText(originalLabel + event.getCharacter());
             } else {
                 // BACKSPACE
                 if (event.getKey() == 14 && originalLabel.length() > 0) {
-                    this.setLabel(originalLabel.substring(0, originalLabel.length() - 1));
+                    this.setText(originalLabel.substring(0, originalLabel.length() - 1));
                 }
             }
             lastInputList.put(event.getKey(), System.currentTimeMillis());

@@ -9,20 +9,13 @@ import java.util.List;
 import de.gemo.game.collision.CollisionHelper;
 import de.gemo.game.collision.Hitbox;
 import de.gemo.game.entity.Entity;
-import de.gemo.game.entity.GUIElement;
-import de.gemo.game.entity.GUIElementStatus;
-import de.gemo.game.events.gui.ClickBeginEvent;
-import de.gemo.game.events.gui.ClickReleaseEvent;
-import de.gemo.game.events.gui.FocusGainedEvent;
-import de.gemo.game.events.gui.FocusLostEvent;
-import de.gemo.game.events.gui.HoverBeginEvent;
-import de.gemo.game.events.gui.HoverEndEvent;
-import de.gemo.game.events.gui.HoverEvent;
 import de.gemo.game.events.keyboard.KeyEvent;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
-import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.events.mouse.MouseReleaseEvent;
+import de.gemo.game.gui.GUIElement;
+import de.gemo.game.gui.GUIElementStatus;
 import de.gemo.game.interfaces.IKeyAdapter;
 import de.gemo.game.interfaces.IKeyController;
 import de.gemo.game.interfaces.IMouseController;
@@ -37,7 +30,7 @@ public abstract class GUIController implements IKeyController, IMouseController,
     private final Hitbox hitbox;
     protected final Vector mouseVector;
 
-    private GUIElement hoveredElement = null, focusedElement = null;
+    protected GUIElement hoveredElement = null, focusedElement = null;
 
     public GUIController(String name, Hitbox hitbox, Vector mouseVector) {
         this.ID = Entity.getNextFreeID();
@@ -153,6 +146,10 @@ public abstract class GUIController implements IKeyController, IMouseController,
         return hoveredElement;
     }
 
+    public GUIElement getFocusedElement() {
+        return focusedElement;
+    }
+
     public final boolean isColliding() {
         return CollisionHelper.isVectorInHitbox(this.mouseVector, this.hitbox);
     }
@@ -180,11 +177,19 @@ public abstract class GUIController implements IKeyController, IMouseController,
     public void updateCollisions() {
         boolean isColliding = false;
 
-        // unfocs element, if the mouse is outside the hitbox
+        // unhover element, if element is outside
+        for (GUIElement element : this.sortedList) {
+            if (!element.isVectorInClickbox(this.mouseVector) && element.isHovered()) {
+                element.setStatus(GUIElementStatus.NONE);
+                element.fireHoverEndEvent();
+            }
+        }
+
+        // unfocus element, if the mouse is outside the hitbox
         if (this.focusedElement != null) {
             if (this.focusedElement.isAutoLooseFocus()) {
                 if (!this.focusedElement.isVectorInClickbox(this.mouseVector)) {
-                    this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                    this.focusedElement.fireFocusLostEvent();
                     this.focusedElement.setStatus(GUIElementStatus.NONE);
                     this.focusedElement = null;
                 }
@@ -211,21 +216,23 @@ public abstract class GUIController implements IKeyController, IMouseController,
                 if (newHoveringElement != null) {
                     // fire hover begin event
                     newHoveringElement.setStatus(GUIElementStatus.HOVERING);
-                    newHoveringElement.fireEvent(new HoverBeginEvent(newHoveringElement));
+                    newHoveringElement.fireHoverBeginEvent();
                     this.hoveredElement = newHoveringElement;
                 }
                 if (oldHoveringElement != null) {
                     // fire hover end event
-                    oldHoveringElement.setStatus(GUIElementStatus.NONE);
-                    oldHoveringElement.fireEvent(new HoverEndEvent(oldHoveringElement));
+                    if (oldHoveringElement.isHovered()) {
+                        oldHoveringElement.setStatus(GUIElementStatus.NONE);
+                        oldHoveringElement.fireHoverEndEvent();
+                    }
                     this.hoveredElement = null;
                 }
                 return;
             } else {
                 if (oldHoveringElement != null) {
-                    if (!oldHoveringElement.getStatus().equals(GUIElementStatus.ACTIVE)) {
+                    if (oldHoveringElement.getStatus().equals(GUIElementStatus.HOVERING)) {
                         // fire hover event
-                        oldHoveringElement.fireEvent(new HoverEvent(newHoveringElement));
+                        oldHoveringElement.fireHoverEvent();
                         this.hoveredElement = newHoveringElement;
                     }
                 }
@@ -282,13 +289,13 @@ public abstract class GUIController implements IKeyController, IMouseController,
 
     public void onMouseOut() {
         if (this.focusedElement != null) {
-            this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+            this.focusedElement.fireFocusLostEvent();
             this.focusedElement.setStatus(GUIElementStatus.NONE);
             this.focusedElement = null;
         }
         if (this.hoveredElement != null) {
-            this.hoveredElement.fireEvent(new HoverEndEvent(this.hoveredElement));
             this.hoveredElement.setStatus(GUIElementStatus.NONE);
+            this.hoveredElement.fireHoverEndEvent();
             this.hoveredElement = null;
         }
     }
@@ -299,17 +306,17 @@ public abstract class GUIController implements IKeyController, IMouseController,
             if (this.getHoveredElement().isVectorInClickbox(this.mouseVector)) {
                 if (this.focusedElement != null && this.focusedElement != this.getHoveredElement()) {
                     this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
-                    this.getHoveredElement().fireEvent(new ClickBeginEvent(this.getHoveredElement()));
+                    this.getHoveredElement().fireMouseEvent(event);
                     this.focusedElement.setFocused(false);
-                    this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                    this.focusedElement.fireFocusLostEvent();
                     this.focusedElement = null;
                 }
                 if (this.focusedElement != this.getHoveredElement()) {
                     this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
-                    this.getHoveredElement().fireEvent(new ClickBeginEvent(this.getHoveredElement()));
+                    this.getHoveredElement().fireMouseEvent(event);
                     this.focusedElement = this.getHoveredElement();
                     this.focusedElement.setFocused(true);
-                    this.focusedElement.fireEvent(new FocusGainedEvent(this.focusedElement));
+                    this.focusedElement.fireFocusGainedEvent();
                 }
             } else {
                 this.getHoveredElement().setStatus(GUIElementStatus.NONE);
@@ -317,7 +324,7 @@ public abstract class GUIController implements IKeyController, IMouseController,
         } else {
             if (this.focusedElement != null) {
                 this.focusedElement.setFocused(false);
-                this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                this.focusedElement.fireFocusLostEvent();
                 this.focusedElement = null;
             }
         }
@@ -330,16 +337,16 @@ public abstract class GUIController implements IKeyController, IMouseController,
     public abstract void onMouseDrag(MouseDragEvent event);
 
     @Override
-    public void onMouseUp(MouseUpEvent event) {
+    public void onMouseUp(MouseReleaseEvent event) {
         if (this.focusedElement != null) {
             if (this.focusedElement != null && this.focusedElement.isAutoLooseFocus()) {
                 this.focusedElement.setFocused(false);
-                this.focusedElement.fireEvent(new FocusLostEvent(this.focusedElement));
+                this.focusedElement.fireFocusLostEvent();
                 if (this.focusedElement.isVectorInClickbox(this.mouseVector)) {
-                    this.focusedElement.fireEvent(new ClickReleaseEvent(this.getHoveredElement()));
+                    this.focusedElement.fireMouseEvent(event);
                     this.focusedElement.setStatus(GUIElementStatus.HOVERING);
                     this.hoveredElement = this.focusedElement;
-                    this.hoveredElement.fireEvent(new HoverBeginEvent(this.hoveredElement));
+                    this.hoveredElement.fireHoverBeginEvent();
                 } else {
                     this.focusedElement.setStatus(GUIElementStatus.NONE);
                 }

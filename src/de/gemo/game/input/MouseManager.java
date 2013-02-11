@@ -7,10 +7,11 @@ import org.lwjgl.input.Mouse;
 
 import de.gemo.game.collision.Hitbox;
 import de.gemo.game.core.Engine;
+import de.gemo.game.events.gui.MouseButton;
 import de.gemo.game.events.mouse.MouseDownEvent;
 import de.gemo.game.events.mouse.MouseDragEvent;
 import de.gemo.game.events.mouse.MouseMoveEvent;
-import de.gemo.game.events.mouse.MouseUpEvent;
+import de.gemo.game.events.mouse.MouseReleaseEvent;
 import de.gemo.game.interfaces.Vector;
 
 public class MouseManager {
@@ -87,7 +88,7 @@ public class MouseManager {
             for (int currentKey : this.holdButtons) {
                 if (Mouse.isButtonDown(currentKey)) {
                     // hold button
-                    engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, currentKey));
+                    engine.onMouseDrag(new MouseDragEvent(Mouse.getX(), engine.getWindowHeight() - Mouse.getY(), dX, dY, MouseButton.byID(currentKey)));
                 }
             }
         }
@@ -100,11 +101,12 @@ public class MouseManager {
             oldState = holdButtons.contains(index);
             if (!currentState && oldState) {
                 // throw MouseUpEvent
-                engine.onMouseUp(new MouseUpEvent(Mouse.getX(), Mouse.getY(), index));
+                engine.onMouseUp(new MouseReleaseEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
                 holdButtons.remove(index);
             } else if (currentState && !oldState) {
                 // throw MouseDownEvent
-                engine.onMouseDown(new MouseDownEvent(Mouse.getX(), Mouse.getY(), index));
+
+                engine.onMouseDown(new MouseDownEvent(Mouse.getX(), Mouse.getY(), MouseButton.byID(index)));
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);
