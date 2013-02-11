@@ -27,6 +27,11 @@ public class Animation {
     }
 
     public void goToFrame(int frame) {
+        // we need different frames
+        if (this.currentFrame == frame) {
+            return;
+        }
+
         // check framebounds
         if (frame < 0) {
             frame = this.multiTextures.getTextureCount() - 1;

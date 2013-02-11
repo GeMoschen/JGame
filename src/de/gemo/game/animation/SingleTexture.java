@@ -1,8 +1,6 @@
 package de.gemo.game.animation;
 
-import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.newdawn.slick.opengl.Texture;
 
 public class SingleTexture {
@@ -46,15 +44,6 @@ public class SingleTexture {
 
     public void render(float x, float y, float z, float r, float g, float b, float alpha) {
         // bind texture
-        // GL11.glEnable(GL11.GL_BLEND);
-        // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        // GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
-        // GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
-        // GL11.glShadeModel(GL11.GL_SMOOTH);
-
-        GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
-        GL11.glEnable(GL13.GL_MULTISAMPLE);
-
         this.texture.bind();
         GL11.glColor4f(r, g, b, alpha);
 
