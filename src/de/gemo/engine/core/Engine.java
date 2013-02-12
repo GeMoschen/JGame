@@ -23,6 +23,8 @@ import org.newdawn.slick.font.effects.OutlineEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
 
 import de.gemo.engine.collision.Hitbox;
+import de.gemo.engine.core.debug.AbstractDebugMonitor;
+import de.gemo.engine.core.debug.StandardDebugMonitor;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
@@ -41,7 +43,7 @@ public class Engine {
 
     private String WIN_TITLE = "Enginetest";
 
-    public float ratioX = 1, ratioY = 1;
+    private float win2viewRatioX = 1, win2viewRatioY = 1;
 
     public int WIN_WIDTH = 1280;
     public int WIN_HEIGHT = 1024;
@@ -49,14 +51,12 @@ public class Engine {
     public int VIEW_WIDTH = 1280;
     public int VIEW_HEIGHT = 1024;
 
-    private boolean USE_VSYNC = true;
-    private boolean HIDE_TEXT = false;
-
     private boolean freeMouse = false;
 
     private int currentFPS = 0;
     private KeyboardManager keyManager;
     private MouseManager mouseManager;
+    private AbstractDebugMonitor debugMonitor;
 
     private GUIController activeGUIController = null;
     private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
@@ -70,10 +70,7 @@ public class Engine {
         this.run();
     }
 
-    private void run() {
-        int oldFPS = 0;
-        int oldCount = 0;
-
+    private final void run() {
         lastFrame = this.getTime();
         delta = this.updateDelta();
 
@@ -84,7 +81,7 @@ public class Engine {
 
         this.mouseManager.grabMouse();
 
-        Display.setVSyncEnabled(USE_VSYNC);
+        Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
 
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
@@ -119,7 +116,7 @@ public class Engine {
             // RENDER GUI
             GL11.glPushMatrix();
 
-            if (Renderer.SHOW_GRAPHICS) {
+            if (this.debugMonitor.isShowGraphics()) {
                 GL11.glEnable(GL11.GL_BLEND);
                 for (GUIController controller : this.guiController.values()) {
                     controller.render();
@@ -127,7 +124,7 @@ public class Engine {
                 GL11.glDisable(GL11.GL_BLEND);
             }
 
-            if (Renderer.SHOW_HITBOXES) {
+            if (this.debugMonitor.isShowHitboxes()) {
                 for (GUIController controller : this.guiController.values()) {
                     controller.debugRender();
                 }
@@ -142,53 +139,19 @@ public class Engine {
                 int height = font.getHeight(text) / 2;
                 font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
             }
-
-            UnicodeFont font = FontManager.getStandardFont();
-            int fontX = 30;
-            int fontY = 60;
-            font.drawString(fontX, fontY + 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
-            if (!HIDE_TEXT) {
-                font.drawString(fontX, fontY + 25, "Delta: " + oldCount, Color.red);
-
-                font.drawString(fontX, fontY + 40, "1/2: Scale active button", Color.red);
-                font.drawString(fontX, fontY + 70, "W/S: change alpha of active button", Color.magenta);
-                font.drawString(fontX, fontY + 55, "LEFT/RIGHT: rotate active button", Color.magenta);
-                font.drawString(fontX, fontY + 85, "UP/DOWN: move active button", Color.magenta);
-
-                font.drawString(fontX, fontY + 105, "F1: toggle vysnc", Color.orange);
-                font.drawString(fontX, fontY + 120, "F2: toggle debuginfo", Color.orange);
-                font.drawString(fontX, fontY + 135, "F11: toggle graphics", Color.orange);
-                font.drawString(fontX, fontY + 150, "F12: toggle hitboxes", Color.orange);
-
-                String text = "NONE";
-                if (this.activeGUIController != null) {
-                    text = this.activeGUIController.getName();
-
-                    MyGUIController controller = (MyGUIController) this.activeGUIController;
-
-                    if (controller.getHoveredElement() != null) {
-                        font.drawString(fontX, fontY + 180, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
-                    }
-                    if (controller.getFocusedElement() != null) {
-                        font.drawString(fontX, fontY + 195, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
-                    }
-                    if (controller.hotkeysActive) {
-                        font.drawString(fontX, fontY + 210, "Hotkeys active", Color.green);
-                    }
-                }
-                font.drawString(fontX, fontY + 165, "Active UI: " + text, Color.red);
-            }
             GL11.glDisable(GL11.GL_BLEND);
-
             GL11.glPopMatrix();
+
+            // render debugmonitor
+            this.debugMonitor.render();
 
             // update and sync
             Display.update();
 
             if (startTime < System.currentTimeMillis()) {
                 startTime = System.currentTimeMillis() + 1000;
-                oldFPS = currentFPS;
-                oldCount = delta;
+                this.debugMonitor.setFPS(currentFPS);
+                this.debugMonitor.setDelta(delta);
                 currentFPS = 0;
             }
 
@@ -198,18 +161,19 @@ public class Engine {
         Display.destroy();
         System.exit(0);
     }
-    private void updateGUIControllers(float delta) {
+
+    private final void updateGUIControllers(float delta) {
         for (GUIController controller : this.guiController.values()) {
             controller.updateController();
         }
     }
 
-    private void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
+    private final void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
         try {
             this.WIN_WIDTH = windowWidth;
             this.WIN_HEIGHT = windowHeight;
-            this.ratioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
-            this.ratioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
+            this.win2viewRatioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
+            this.win2viewRatioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
             DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
             if (fullscreen) {
                 displayMode = null;
@@ -255,7 +219,7 @@ public class Engine {
         return null;
     }
 
-    private void createGUI() {
+    private final void createGUI() {
         float halfWidth = VIEW_WIDTH / 2f;
         float halfHeight = VIEW_HEIGHT / 2f;
 
@@ -267,7 +231,7 @@ public class Engine {
         this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
     }
 
-    private void initOpenGL() {
+    private final void initOpenGL() {
         // init OpenGL
         glMatrixMode(GL_PROJECTION);
 
@@ -293,50 +257,52 @@ public class Engine {
 
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
+        debugMonitor = new StandardDebugMonitor();
     }
 
     private void loadFonts() {
         FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
         FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
     }
+
     // ////////////////////////////////////////
     //
     // KEYBOARD EVENTS
     //
     // ////////////////////////////////////////
 
-    public void onKeyPressed(KeyEvent event) {
+    public final void onKeyPressed(KeyEvent event) {
         if (this.activeGUIController != null) {
             this.activeGUIController.handleKeyPressed(event);
         }
     }
 
-    public void onKeyHold(KeyEvent event) {
+    public final void onKeyHold(KeyEvent event) {
         if (this.activeGUIController != null) {
             this.activeGUIController.handleKeyHold(event);
         }
     }
 
-    public void onKeyReleased(KeyEvent event) {
+    public final void onKeyReleased(KeyEvent event) {
         if (this.activeGUIController != null) {
             this.activeGUIController.handleKeyReleased(event);
         }
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
-                USE_VSYNC = !USE_VSYNC;
-                Display.setVSyncEnabled(USE_VSYNC);
+                this.debugMonitor.setUseVSync(!this.debugMonitor.isUseVSync());
+                Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
                 break;
             }
             case Keyboard.KEY_F2 : {
-                HIDE_TEXT = !HIDE_TEXT;
+                this.debugMonitor.setShowExtended(!this.debugMonitor.isShowExtended());
                 break;
             }
             case Keyboard.KEY_F11 : {
-                Renderer.SHOW_GRAPHICS = !Renderer.SHOW_GRAPHICS;
+                this.debugMonitor.setShowGraphics(!this.debugMonitor.isShowGraphics());
                 break;
             }
             case Keyboard.KEY_F12 : {
-                Renderer.SHOW_HITBOXES = !Renderer.SHOW_HITBOXES;
+                this.debugMonitor.setShowHitboxes(!this.debugMonitor.isShowHitboxes());
                 break;
             }
         }
@@ -348,7 +314,7 @@ public class Engine {
     //
     // ////////////////////////////////////////
 
-    public void onMouseMove(MouseMoveEvent event) {
+    public final void onMouseMove(MouseMoveEvent event) {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
@@ -359,7 +325,7 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    private void activateGUIController(GUIController controller) {
+    private final void activateGUIController(GUIController controller) {
         if (this.activeGUIController != null && this.activeGUIController != controller) {
             this.activeGUIController.onMouseOut();
             if (controller != null) {
@@ -367,9 +333,10 @@ public class Engine {
             }
         }
         this.activeGUIController = controller;
+        this.debugMonitor.setActiveGUIController(this.activeGUIController);
     }
 
-    public void onMouseDown(MouseClickEvent event) {
+    public final void onMouseDown(MouseClickEvent event) {
         if (!freeMouse) {
             this.mouseManager.ungrabMouse();
             freeMouse = !freeMouse;
@@ -385,7 +352,7 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    public void onMouseUp(MouseReleaseEvent event) {
+    public final void onMouseUp(MouseReleaseEvent event) {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
@@ -396,7 +363,7 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    public void onMouseDrag(MouseDragEvent event) {
+    public final void onMouseDrag(MouseDragEvent event) {
         for (GUIController controller : this.guiController.values()) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
@@ -407,27 +374,43 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    private long getTime() {
+    private final long getTime() {
         return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
 
-    private int updateDelta() {
+    private final int updateDelta() {
         long currentTime = this.getTime();
         int delta = (int) (currentTime - lastFrame);
         lastFrame = currentTime;
         return delta;
     }
 
-    public int getCurrentDelta() {
+    public final int getCurrentDelta() {
         return delta;
     }
 
-    public int getWindowWidth() {
+    public final int getWindowWidth() {
         return WIN_WIDTH;
     }
 
-    public int getWindowHeight() {
+    public final int getWindowHeight() {
         return WIN_HEIGHT;
+    }
+
+    public final AbstractDebugMonitor getDebugMonitor() {
+        return debugMonitor;
+    }
+
+    public final GUIController getActiveGUIController() {
+        return activeGUIController;
+    }
+
+    public final float getWin2viewRatioX() {
+        return win2viewRatioX;
+    }
+
+    public final float getWin2viewRatioY() {
+        return win2viewRatioY;
     }
 
 }

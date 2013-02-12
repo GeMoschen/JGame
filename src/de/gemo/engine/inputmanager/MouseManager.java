@@ -30,8 +30,8 @@ public class MouseManager {
         // set the cursor
         Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
 
-        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.ratioX);
-        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.ratioY);
+        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.getWin2viewRatioX());
+        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.getWin2viewRatioY());
 
         // move hitbox
         this.hitBox.setCenter(x, y);
@@ -54,8 +54,8 @@ public class MouseManager {
         // set the cursor
         Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
 
-        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.ratioX);
-        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.ratioY);
+        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.getWin2viewRatioX());
+        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.getWin2viewRatioY());
 
         // move hitbox
 
@@ -92,8 +92,8 @@ public class MouseManager {
         dX = Mouse.getDX();
         dY = -Mouse.getDY();
 
-        int correctedX = (int) (Mouse.getX() * this.engine.ratioX);
-        int correctedY = (int) ((engine.getWindowHeight() - Mouse.getY()) * this.engine.ratioY);
+        int correctedX = (int) (Mouse.getX() * this.engine.getWin2viewRatioX());
+        int correctedY = (int) ((engine.getWindowHeight() - Mouse.getY()) * this.engine.getWin2viewRatioY());
 
         // iterate over currently pressed buttons to handle dragged buttons
         if (!Mouse.isGrabbed()) {
@@ -127,8 +127,8 @@ public class MouseManager {
         if (!Mouse.isGrabbed()) {
             if (currentX != correctedX || currentY != correctedY) {
                 // move hitbox
-                float correctedDX = dX * this.engine.ratioX;
-                float correctedDY = dY * this.engine.ratioY;
+                float correctedDX = dX * this.engine.getWin2viewRatioX();
+                float correctedDY = dY * this.engine.getWin2viewRatioY();
 
                 this.hitBox.move(correctedDX, correctedDY);
                 this.movedHitBox.move(correctedDX, correctedDY);
