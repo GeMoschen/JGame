@@ -24,9 +24,10 @@ public class Renderer {
     }
 
     public static void renderHitbox(String name, Hitbox hitbox) {
-        if (SHOW_HITBOXES) {
-            hitbox.render();
-            FontManager.getStandardFont().drawString(hitbox.getCenter().getX() - ((int) (FontManager.getStandardFont().getWidth(name) / 2)), hitbox.getCenter().getY(), name);
-        }
+        GL11.glDisable(GL11.GL_BLEND);
+        hitbox.render();
+        GL11.glEnable(GL11.GL_BLEND);
+        FontManager.getStandardFont().drawString(hitbox.getCenter().getX() - ((int) (FontManager.getStandardFont().getWidth(name) / 2)), hitbox.getCenter().getY(), name);
+        GL11.glDisable(GL11.GL_BLEND);
     }
 }

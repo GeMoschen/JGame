@@ -8,6 +8,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/lwjgl_util.jar"/>
-	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/slick-util.jar"/>
+	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/slick.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

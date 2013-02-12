@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.SingleTexture;
@@ -18,7 +18,7 @@ public class GUITextfield extends GUIElement {
     private String label = "";
     private String originalLabel = "";
     private Color normalColor, shadowColor;
-    private TrueTypeFont font;
+    private UnicodeFont font;
 
     private float textWidth = 0, textHeight = 0;
     private float maxText = 0.92f;
@@ -95,12 +95,12 @@ public class GUITextfield extends GUIElement {
         return this.originalLabel;
     }
 
-    public void setFont(TrueTypeFont font) {
+    public void setFont(UnicodeFont font) {
         this.font = font;
         this.setText(this.getText());
     }
 
-    public TrueTypeFont getFont() {
+    public UnicodeFont getFont() {
         return font;
     }
 

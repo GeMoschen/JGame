@@ -17,7 +17,10 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.font.effects.GradientEffect;
+import org.newdawn.slick.font.effects.OutlineEffect;
+import org.newdawn.slick.font.effects.ShadowEffect;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.events.keyboard.KeyEvent;
@@ -60,7 +63,7 @@ public class Engine {
 
     public Engine() {
         INSTANCE = this;
-        this.createWindow(false);
+        this.createWindow(WIN_WIDTH, WIN_HEIGHT, false);
         this.initOpenGL();
         this.loadFonts();
         this.createGUI();
@@ -81,6 +84,8 @@ public class Engine {
 
         this.mouseManager.grabMouse();
 
+        Display.setVSyncEnabled(USE_VSYNC);
+
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
             currentFPS++;
@@ -91,7 +96,8 @@ public class Engine {
             }
 
             // clear contents
-            glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            GL11.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
             keyManager.update();
             mouseManager.update();
 
@@ -130,28 +136,29 @@ public class Engine {
             // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
             if (!freeMouse) {
-                TrueTypeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
+                UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
                 String text = "Press Mouse to release it!".toUpperCase();
                 int width = font.getWidth(text) / 2;
                 int height = font.getHeight(text) / 2;
                 font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
             }
 
-            TrueTypeFont font = FontManager.getStandardFont();
-            font.drawString(10, 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
-
+            UnicodeFont font = FontManager.getStandardFont();
+            int fontX = 30;
+            int fontY = 60;
+            font.drawString(fontX, fontY + 10, "FPS: " + oldFPS + (USE_VSYNC ? " (vsync)" : ""), Color.red);
             if (!HIDE_TEXT) {
-                font.drawString(10, 25, "Delta: " + oldCount, Color.red);
+                font.drawString(fontX, fontY + 25, "Delta: " + oldCount, Color.red);
 
-                font.drawString(10, 40, "1/2: Scale active button", Color.magenta);
-                font.drawString(10, 70, "W/S: change alpha of active button", Color.magenta);
-                font.drawString(10, 55, "LEFT/RIGHT: rotate active button", Color.magenta);
-                font.drawString(10, 85, "UP/DOWN: move active button", Color.magenta);
+                font.drawString(fontX, fontY + 40, "1/2: Scale active button", Color.red);
+                font.drawString(fontX, fontY + 70, "W/S: change alpha of active button", Color.magenta);
+                font.drawString(fontX, fontY + 55, "LEFT/RIGHT: rotate active button", Color.magenta);
+                font.drawString(fontX, fontY + 85, "UP/DOWN: move active button", Color.magenta);
 
-                font.drawString(10, 105, "F1: toggle vysnc", Color.orange);
-                font.drawString(10, 120, "F2: toggle text", Color.orange);
-                font.drawString(10, 135, "F11: toggle graphics", Color.orange);
-                font.drawString(10, 150, "F12: toggle hitboxes", Color.orange);
+                font.drawString(fontX, fontY + 105, "F1: toggle vysnc", Color.orange);
+                font.drawString(fontX, fontY + 120, "F2: toggle debuginfo", Color.orange);
+                font.drawString(fontX, fontY + 135, "F11: toggle graphics", Color.orange);
+                font.drawString(fontX, fontY + 150, "F12: toggle hitboxes", Color.orange);
 
                 String text = "NONE";
                 if (this.activeGUIController != null) {
@@ -160,16 +167,16 @@ public class Engine {
                     MyGUIController controller = (MyGUIController) this.activeGUIController;
 
                     if (controller.getHoveredElement() != null) {
-                        font.drawString(10, 180, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
+                        font.drawString(fontX, fontY + 180, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
                     }
                     if (controller.getFocusedElement() != null) {
-                        font.drawString(10, 195, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
+                        font.drawString(fontX, fontY + 195, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
                     }
                     if (controller.hotkeysActive) {
-                        font.drawString(10, 210, "Hotkeys active", Color.green);
+                        font.drawString(fontX, fontY + 210, "Hotkeys active", Color.green);
                     }
                 }
-                font.drawString(10, 165, "Active UI: " + text, Color.red);
+                font.drawString(fontX, fontY + 165, "Active UI: " + text, Color.red);
             }
             GL11.glDisable(GL11.GL_BLEND);
 
@@ -177,10 +184,6 @@ public class Engine {
 
             // update and sync
             Display.update();
-
-            if (USE_VSYNC) {
-                Display.sync(60);
-            }
 
             if (startTime < System.currentTimeMillis()) {
                 startTime = System.currentTimeMillis() + 1000;
@@ -201,8 +204,10 @@ public class Engine {
         }
     }
 
-    private void createWindow(boolean fullscreen) {
+    private void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
         try {
+            this.WIN_WIDTH = windowWidth;
+            this.WIN_HEIGHT = windowHeight;
             this.ratioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
             this.ratioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
             DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
@@ -291,10 +296,9 @@ public class Engine {
     }
 
     private void loadFonts() {
-        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20);
+        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
         FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
     }
-
     // ////////////////////////////////////////
     //
     // KEYBOARD EVENTS
@@ -320,6 +324,7 @@ public class Engine {
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
                 USE_VSYNC = !USE_VSYNC;
+                Display.setVSyncEnabled(USE_VSYNC);
                 break;
             }
             case Keyboard.KEY_F2 : {

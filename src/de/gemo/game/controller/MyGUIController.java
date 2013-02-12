@@ -76,10 +76,10 @@ public class MyGUIController extends GUIController {
             animation = new Animation(multiTexture);
             countdown = new GUIGraphic(1181 + 36, 900, animation);
             countdown.getAnimation().setWantedFPS(10);
-            this.add(countdown);
+            // this.add(countdown);
 
             countdown2 = new GUIGraphic(1181 - 36, 900, animation);
-            this.add(countdown2);
+            // this.add(countdown2);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,7 +164,8 @@ public class MyGUIController extends GUIController {
     @Override
     public void render() {
         Renderer.render(gui);
-        // for (int i = 0; i < 1000; i++)
+        Renderer.render(countdown);
+        Renderer.render(countdown2);
         super.render();
     }
 

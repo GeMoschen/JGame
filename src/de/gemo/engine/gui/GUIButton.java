@@ -2,7 +2,7 @@ package de.gemo.engine.gui;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.core.FontManager;
@@ -12,7 +12,7 @@ public class GUIButton extends GUIElement {
     private String label = "";
     private String originalLabel = "";
     private Color normalColor, hoverColor, pressedColor, shadowColor;
-    private TrueTypeFont font;
+    private UnicodeFont font;
 
     private float textWidth = 0, textHeight = 0;
     private float maxText = 0.80f;
@@ -68,7 +68,6 @@ public class GUIButton extends GUIElement {
         this.originalLabel = label.toUpperCase();
         this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
-        this.textHeight = this.font.getHeight(this.label) / 2;
 
         if (this.textWidth >= this.animation.getWidth() * maxText * 2) {
             this.label = label;
@@ -80,6 +79,8 @@ public class GUIButton extends GUIElement {
             }
             this.label = tempLabel + "...";
         }
+
+        this.textHeight = this.font.getHeight(this.label) / 2f + this.font.getYOffset(this.label) / 2f;
         this.textWidth = (this.textWidth / 2);
     }
 
@@ -93,12 +94,12 @@ public class GUIButton extends GUIElement {
         return this.originalLabel;
     }
 
-    public void setFont(TrueTypeFont font) {
+    public void setFont(UnicodeFont font) {
         this.font = font;
         this.setLabel(this.getLabel());
     }
 
-    public TrueTypeFont getFont() {
+    public UnicodeFont getFont() {
         return font;
     }
 
@@ -132,7 +133,6 @@ public class GUIButton extends GUIElement {
         super.render();
         if (this.label.length() > 0) {
             GL11.glTranslatef(0f, 0f, -1f);
-            this.font.drawString((int) (-this.textWidth) + 2, (int) (-this.textHeight) + 2, this.label, this.shadowColor);
             if (this.isHovered()) {
                 this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.hoverColor);
             } else if (this.isActive()) {
