@@ -18,8 +18,6 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
 
     public Entity2D(Vector center, SingleTexture singleTexture) {
         super(center);
-
-        // set texture
         this.setTexture(singleTexture);
     }
 
@@ -38,25 +36,25 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         this(new Vector(x, y), multiTexture);
     }
 
-    public float getXOnScreen() {
-        return this.getX() - this.getWidth() / 2f;
+    public int getXOnScreen() {
+        return (int) (this.getX() - this.getWidth() / 2f);
     }
 
-    public float getYOnScreen() {
-        return this.getY() - this.getHeight() / 2f;
+    public int getYOnScreen() {
+        return (int) (this.getY() - this.getHeight() / 2f);
     }
 
-    public void setXOnScreen(float xOnScreen) {
-        this.setPositionOnScreen(xOnScreen, this.getY());
+    public void setXOnScreen(int xOnScreen) {
+        this.setPositionOnScreen(xOnScreen, (int) this.getY());
     }
 
-    public void setYOnScreen(float yOnScreen) {
-        this.setPositionOnScreen(this.getXOnScreen(), yOnScreen);
+    public void setYOnScreen(int yOnScreen) {
+        this.setPositionOnScreen((int) this.getXOnScreen(), yOnScreen);
     }
 
     public void setPositionOnScreen(float xOnScreen, float yOnScreen) {
-        float halfWidth = this.getWidth() / 2f;
-        float halfHeight = this.getHeight() / 2f;
+        float halfWidth = (this.getWidth() / 2f);
+        float halfHeight = (this.getHeight() / 2f);
         this.setCenter(xOnScreen + halfWidth, yOnScreen + halfHeight);
     }
 

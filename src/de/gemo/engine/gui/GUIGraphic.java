@@ -20,9 +20,4 @@ public class GUIGraphic extends GUIElement {
         super(x, y, animation);
         this.animation.goToFrame(0);
     }
-
-    @Override
-    public void scale(float scaleX, float scaleY) {
-        super.scale(scaleX, scaleY);
-    }
 }

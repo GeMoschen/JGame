@@ -89,6 +89,17 @@ public class Entity2DClickable extends Entity2D implements IClickable {
         this.clickbox.recalculatePositions();
     }
 
+    protected void autoGenerateClickbox(float offsetX, float offsetY) {
+        this.clickbox = new Hitbox(this.center.getX() + offsetX, this.center.getY() + offsetY);
+        float x = this.animation.getWidth() / 2;
+        float y = this.animation.getHeight() / 2;
+        this.clickbox.addPoint(-x, -y);
+        this.clickbox.addPoint(+x, -y);
+        this.clickbox.addPoint(+x, +y);
+        this.clickbox.addPoint(-x, +y);
+        this.clickbox.recalculatePositions();
+    }
+
     @Override
     public void recalculateClickbox() {
         this.clickbox.recalculatePositions();

@@ -90,9 +90,9 @@ public class Engine {
 
         this.mouseManager.grabMouse();
 
-        Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
-
         soundManager.playSound(0, 0, 0);
+
+        Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
 
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
@@ -119,39 +119,39 @@ public class Engine {
             }
 
             GL11.glPushMatrix();
+            {
+                // TODO: render gamefield-content
 
-            // TODO: render gamefield-content
+                // RENDER GUI
+                if (this.debugMonitor.isShowGraphics()) {
+                    GL11.glEnable(GL11.GL_BLEND);
+                    for (GUIController controller : this.guiController.values()) {
+                        controller.render();
+                    }
+                    GL11.glDisable(GL11.GL_BLEND);
+                }
 
+                // DEBUG RENDER
+                if (this.debugMonitor.isShowHitboxes()) {
+                    for (GUIController controller : this.guiController.values()) {
+                        controller.debugRender();
+                    }
+                }
+            }
             GL11.glPopMatrix();
-
-            // RENDER GUI
-            GL11.glPushMatrix();
-
-            if (this.debugMonitor.isShowGraphics()) {
-                GL11.glEnable(GL11.GL_BLEND);
-                for (GUIController controller : this.guiController.values()) {
-                    controller.render();
-                }
-                GL11.glDisable(GL11.GL_BLEND);
-            }
-
-            if (this.debugMonitor.isShowHitboxes()) {
-                for (GUIController controller : this.guiController.values()) {
-                    controller.debugRender();
-                }
-            }
 
             // draw debug-informations
             GL11.glEnable(GL11.GL_BLEND);
-            if (!freeMouse) {
-                UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
-                String text = "Press Mouse to release it!".toUpperCase();
-                int width = font.getWidth(text) / 2;
-                int height = font.getHeight(text) / 2;
-                font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
+            {
+                if (!freeMouse) {
+                    UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
+                    String text = "Press Mouse to release it!".toUpperCase();
+                    int width = font.getWidth(text) / 2;
+                    int height = font.getHeight(text) / 2;
+                    font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
+                }
             }
             GL11.glDisable(GL11.GL_BLEND);
-            GL11.glPopMatrix();
 
             // render debugmonitor
             this.debugMonitor.render();
@@ -165,8 +165,8 @@ public class Engine {
                 this.debugMonitor.setDelta(delta);
                 currentFPS = 0;
             }
-
             tick = false;
+
         }
         Engine.close();
     }
@@ -300,6 +300,7 @@ public class Engine {
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
                 this.debugMonitor.setUseVSync(!this.debugMonitor.isUseVSync());
+
                 Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
                 break;
             }

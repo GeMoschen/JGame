@@ -12,7 +12,7 @@ public class GUIButton extends GUIElement {
 
     private String label = "";
     private String originalLabel = "";
-    private Color normalColor, hoverColor, pressedColor, shadowColor;
+    private Color normalColor, hoverColor, pressedColor;
     private UnicodeFont font;
 
     private float textWidth = 0, textHeight = 0;
@@ -38,7 +38,6 @@ public class GUIButton extends GUIElement {
         this.setColor(Color.white);
         this.setHoverColor(Color.white);
         this.setPressedColor(Color.white);
-        this.shadowColor = new Color(50, 50, 50);
         this.animation.goToFrame(0);
     }
 
@@ -75,7 +74,7 @@ public class GUIButton extends GUIElement {
     }
 
     public void setLabel(String label) {
-        this.originalLabel = label.toUpperCase();
+        this.originalLabel = label;
         this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
 
@@ -90,12 +89,6 @@ public class GUIButton extends GUIElement {
             this.label = tempLabel + "...";
         }
         this.textWidth = (this.textWidth / 2);
-    }
-
-    @Override
-    public void scale(float scaleX, float scaleY) {
-        super.scale(scaleX, scaleY);
-        this.setLabel(this.originalLabel);
     }
 
     public String getLabel() {
@@ -130,7 +123,6 @@ public class GUIButton extends GUIElement {
         this.normalColor.a = (float) alpha;
         this.hoverColor.a = (float) alpha;
         this.pressedColor.a = (float) alpha;
-        this.shadowColor.a = (float) alpha;
     }
 
     public Animation getAnimation() {

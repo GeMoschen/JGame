@@ -5,10 +5,12 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
+import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.interfaces.listener.FocusListener;
 
 public class ExitButtonListener extends ButtonMoveListener implements FocusListener {
 
+    private int counter = 0;
     @Override
     public void onMouseClick(GUIElement element, MouseClickEvent event) {
         System.out.println("mouse click");
@@ -19,6 +21,12 @@ public class ExitButtonListener extends ButtonMoveListener implements FocusListe
         System.out.println("mouse release");
         if (event.isLeftButton()) {
             Engine.close();
+        } else {
+            if (element instanceof GUILabel) {
+                GUILabel label = (GUILabel) element;
+                label.setLabel(label.getLabel() + counter);
+                counter++;
+            }
         }
     }
 

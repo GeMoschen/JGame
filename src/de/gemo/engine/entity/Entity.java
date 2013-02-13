@@ -1,8 +1,6 @@
 package de.gemo.engine.entity;
 
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
 import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex3i;
 
@@ -88,28 +86,30 @@ public class Entity extends EntityLogic implements IDebugRenderable {
     }
 
     public void debugRender() {
-        GL11.glTranslatef(getX(), getY(), getZ());
-        GL11.glRotatef(this.getAngle(), 0, 0, 1);
+        GL11.glPushMatrix();
+        {
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-        // render center
-        GL11.glDisable(GL11.GL_BLEND);
+            GL11.glTranslatef(getX(), getY(), getZ());
+            GL11.glRotatef(this.getAngle(), 0, 0, 1);
 
-        glColor3f(1.0f, 0, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex3i(-2, -2, 0);
-        glVertex3i(2, -2, 0);
-        glVertex3i(+2, +2, 0);
-        glVertex3i(-2, +2, 0);
-        glEnd();
-        GL11.glEnable(GL11.GL_BLEND);
+            // render center
+            Color.yellow.bind();
+            glBegin(GL11.GL_LINE_LOOP);
+            glVertex3i(-1, -1, 0);
+            glVertex3i(1, -1, 0);
+            glVertex3i(+1, +1, 0);
+            glVertex3i(-1, +1, 0);
+            glEnd();
 
-        // write entity-id
-        FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
-
-        // translate back
-        GL11.glDisable(GL11.GL_BLEND);
-
-        GL11.glRotatef(-this.getAngle(), 0, 0, 1);
-        GL11.glTranslatef(-getX(), -getY(), -getZ());
+            // write entity-id
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+        }
+        GL11.glPopMatrix();
     }
 }

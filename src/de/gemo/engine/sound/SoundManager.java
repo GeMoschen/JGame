@@ -30,7 +30,6 @@ public class SoundManager {
             e.printStackTrace();
             loaded = false;
         }
-
     }
 
     public void setVolume(float volume) {

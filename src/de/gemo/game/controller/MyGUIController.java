@@ -17,6 +17,7 @@ import de.gemo.engine.core.TextureManager;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
+import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.gui.GUITextfield;
 import de.gemo.engine.units.Vector;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
@@ -96,10 +97,17 @@ public class MyGUIController extends GUIController {
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
+            // CREATE LABEL
+            GUILabel label = new GUILabel(0, 0, "Textfeld:");
+            label.setPositionOnScreen(15, 4);
+            label.setColor(Color.yellow);
+            label.setMouseListener(listener);
+            this.add(label);
+
             // CREATE TEXT-FIELD
             GUITextfield textfield = new GUITextfield(0, 0, TextureManager.getTexture("EDIT_1"));
-            textfield.setPositionOnScreen(17, 15);
-            textfield.setText("Das hier ist ein Textfeld!");
+            textfield.setPositionOnScreen(15, 20);
+            textfield.setText("^^ Label!");
             textfield.setColor(Color.yellow);
             textfield.setFont(FontManager.getStandardFont());
             textfield.setMouseListener(listener);

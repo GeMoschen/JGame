@@ -14,7 +14,7 @@ import de.gemo.engine.events.keyboard.KeyEvent;
 
 public class GUITextfield extends GUIElement {
 
-    private static String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ц÷дƒь№,;.:-_#'+*~!\"І$%&/()=?}][{\\ба<>| ";
+    private static String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ц÷дƒь№,;.:-_#'+*~!\"І$%&/()=?}][{\\ба<>| ^";
 
     private String label = "";
     private String originalLabel = "";
@@ -99,12 +99,6 @@ public class GUITextfield extends GUIElement {
         this.textWidth = (this.textWidth / 2);
     }
 
-    @Override
-    public void scale(float scaleX, float scaleY) {
-        super.scale(scaleX, scaleY);
-        this.setText(this.originalLabel);
-    }
-
     public String getText() {
         return this.originalLabel;
     }
@@ -117,11 +111,6 @@ public class GUITextfield extends GUIElement {
 
     public UnicodeFont getFont() {
         return font;
-    }
-
-    @Override
-    public void setStatus(GUIElementStatus status) {
-        super.setStatus(status);
     }
 
     @Override
