@@ -2,7 +2,7 @@ package de.gemo.engine.collision;
 
 import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
 import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 import static org.lwjgl.opengl.GL11.glVertex3i;
@@ -99,7 +99,7 @@ public class Hitbox {
 
     private final void renderCenter() {
         // render center
-        glColor3f(1.0f, 0, 0);
+        glColor4f(1.0f, 0, 0, 1.0f);
         glBegin(GL_LINE_LOOP);
         glVertex3i(-2, -2, 0);
         glVertex3i(2, -2, 0);
@@ -112,11 +112,11 @@ public class Hitbox {
         // translate to center
         glTranslatef(this.center.getX(), this.center.getY(), this.center.getZ());
 
+        glColor4f(0, 1.0f, 0, 1.0f);
         // render center
         this.renderCenter();
 
         // render boundingbox
-        glColor3f(0, 1.0f, 0);
         glBegin(GL_LINE_LOOP);
         for (ComplexVector vector : this.points) {
             vector.render();

@@ -1,12 +1,9 @@
 package de.gemo.game.controller;
 
 import java.awt.Font;
-import java.io.FileInputStream;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.MultiTexture;
@@ -16,6 +13,7 @@ import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
 import de.gemo.engine.core.Renderer;
+import de.gemo.engine.core.TextureManager;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
@@ -35,20 +33,46 @@ public class MyGUIController extends GUIController {
     @Override
     protected void init() {
         try {
-            Texture guiTexture = TextureLoader.getTexture("PNG", new FileInputStream("GUI_INGAME.png"));
-            SingleTexture singleTexture = new SingleTexture(guiTexture, 0, 0, 1280, 1024);
-            gui = new GUIGraphic(640, 512, singleTexture);
+            // LOAD GUI TEXTURE
+            SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
+            TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
+
+            // LOAD COUNTDOWN TEXTURE
+            MultiTexture countdownMultiTexture = new MultiTexture(72, 104);
+            int y = 0;
+            int x = 0;
+            for (int i = 9; i >= 0; i--) {
+                if (i == 4) {
+                    y += countdownMultiTexture.getHeight();
+                    x = 0;
+                }
+                countdownMultiTexture.addTextures(guiTexture.crop(1280 + x, y, countdownMultiTexture.getWidth(), countdownMultiTexture.getHeight()));
+                x += countdownMultiTexture.getWidth();
+            }
+            TextureManager.addTexture("countdown", countdownMultiTexture);
+
+            // LOAD TEXTURES FOR BUTTON
+            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("test.jpg");
+            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
+            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
+            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 34, 175, 34);
+            MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
+            TextureManager.addTexture("BTN_1", buttonMultiTexture);
+
+            // CREATE GUI
+            gui = new GUIGraphic(640, 512, TextureManager.getTexture("GUI_1"));
             gui.setZ(0);
 
-            Texture buttonTexture = TextureLoader.getTexture("JPG", new FileInputStream("test.jpg"));
+            // CREATE COUNTDOWNS
+            countdown = new GUIGraphic(1181 + 36, 900, TextureManager.getTexture("countdown"));
+            countdown.getAnimation().setWantedFPS(10);
+            countdown2 = new GUIGraphic(1181 - 36, 900, TextureManager.getTexture("countdown"));
 
+            // CREATE EXIT-BUTTON
+            Animation animation = new Animation(TextureManager.getTexture("BTN_1"));
             Color normalColor = new Color(162, 162, 162);
             Color hoverColor = new Color(215, 165, 0);
             Color pressedColor = new Color(64, 64, 64);
-
-            MultiTexture multiTexture = new MultiTexture(175, 34);
-            multiTexture.addTextures(new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 0, 175, 34), new SingleTexture(buttonTexture, 0, 2 * 34, 175, 34));
-            Animation animation = new Animation(multiTexture);
 
             GUIButton button = new GUIButton(1181, 990, animation);
             button.setLabel("Exit");
@@ -61,30 +85,10 @@ public class MyGUIController extends GUIController {
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
-            // LOAD ANIMATION
-            multiTexture = new MultiTexture(72, 104);
-            int y = 0;
-            int x = 0;
-            for (int i = 9; i >= 0; i--) {
-                if (i == 4) {
-                    y += multiTexture.getHeight();
-                    x = 0;
-                }
-                multiTexture.addTextures(new SingleTexture(guiTexture, 1280 + x, y, 72, 104));
-                x += multiTexture.getWidth();
-            }
-            animation = new Animation(multiTexture);
-            countdown = new GUIGraphic(1181 + 36, 900, animation);
-            countdown.getAnimation().setWantedFPS(10);
-            // this.add(countdown);
-
-            countdown2 = new GUIGraphic(1181 - 36, 900, animation);
-            // this.add(countdown2);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     @Override
     public void onKeyHold(KeyEvent event) {
         if (hotkeysActive) {

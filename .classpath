@@ -7,7 +7,15 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/GeMo/workspace/JGame/lib/natives-windows"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/lwjgl_util.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JGame/lib/natives-windows"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/slick.jar"/>
+	<classpathentry kind="lib" path="lib/jars/CodecJLayerMP3.jar"/>
+	<classpathentry kind="lib" path="lib/SoundSystem.jar"/>
+	<classpathentry kind="lib" path="lib/jars/LibraryLWJGLOpenAL.jar"/>
+	<classpathentry kind="lib" path="lib/jars/CodecWav.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

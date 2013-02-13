@@ -55,7 +55,6 @@ public class Animation {
 
         // update the frame
         this.currentFrame = frame;
-        this.multiTextures.setIndex(this.currentFrame);
         return result;
     }
 
@@ -78,10 +77,6 @@ public class Animation {
         return currentFrame;
     }
 
-    public void scale(float scaleX, float scaleY) {
-        this.multiTextures.scale(scaleX, scaleY);
-    }
-
     public float getWidth() {
         return this.multiTextures.getWidth();
     }
@@ -95,10 +90,10 @@ public class Animation {
     }
 
     public void render(float x, float y, float z, float r, float g, float b, float alpha) {
-        this.multiTextures.render(x, y, z, r, g, b, alpha);
+        this.multiTextures.getTexture(this.currentFrame).render(x, y, z, r, g, b, alpha);
     }
 
     public Animation clone() {
-        return new Animation(this.multiTextures.clone());
+        return new Animation(this.multiTextures);
     }
 }

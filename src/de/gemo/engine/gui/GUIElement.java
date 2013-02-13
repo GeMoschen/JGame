@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.Animation;
+import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
@@ -39,6 +40,10 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     public GUIElement(float x, float y, SingleTexture singleTexture) {
         super(x, y, singleTexture);
+    }
+
+    public GUIElement(float x, float y, MultiTexture multiTexture) {
+        super(x, y, multiTexture);
     }
 
     public GUIElement(float x, float y, Animation animation) {

@@ -13,6 +13,8 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
     protected boolean visible = true;
     protected boolean valid = false;
     protected boolean dead = false;
+    protected float scaleX = 1.0f;
+    protected float scaleY = 1.0f;
 
     public Entity2D(Vector center, SingleTexture singleTexture) {
         super(center);
@@ -21,8 +23,19 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         this.setTexture(singleTexture);
     }
 
+    public Entity2D(Vector center, MultiTexture multiTexture) {
+        super(center);
+
+        // set texture
+        this.setTexture(multiTexture);
+    }
+
     public Entity2D(float x, float y, SingleTexture singleTexture) {
         this(new Vector(x, y), singleTexture);
+    }
+
+    public Entity2D(float x, float y, MultiTexture multiTexture) {
+        this(new Vector(x, y), multiTexture);
     }
 
     public float getXOnScreen() {
@@ -34,11 +47,11 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
     }
 
     public float getWidth() {
-        return this.animation.getWidth();
+        return this.animation.getWidth() * this.scaleX;
     }
 
     public float getHeight() {
-        return this.animation.getHeight();
+        return this.animation.getHeight() * this.scaleY;
     }
 
     public Entity2D(Vector center, Animation animation) {
@@ -58,6 +71,10 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
 
     public final void setTexture(SingleTexture singleTexture) {
         MultiTexture multiTexture = new MultiTexture(singleTexture.getWidth(), singleTexture.getHeight(), singleTexture);
+        this.animation = new Animation(multiTexture);
+    }
+
+    public final void setTexture(MultiTexture multiTexture) {
         this.animation = new Animation(multiTexture);
     }
 
@@ -86,8 +103,17 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         this.alpha = alpha;
     }
 
+    public float getScaleX() {
+        return scaleX;
+    }
+
+    public float getScaleY() {
+        return scaleY;
+    }
+
     public void scale(float scaleX, float scaleY) {
-        this.animation.scale(scaleX, scaleY);
+        this.scaleX *= scaleX;
+        this.scaleY *= scaleY;
     }
 
     public void setDead(boolean dead) {

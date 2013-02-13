@@ -1,5 +1,6 @@
 package de.gemo.game.events.gui.buttons;
 
+import de.gemo.engine.core.Engine;
 import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
@@ -17,7 +18,7 @@ public class ExitButtonListener extends ButtonMoveListener implements FocusListe
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
         System.out.println("mouse release");
         if (event.isLeftButton()) {
-            System.exit(0);
+            Engine.close();
         }
     }
 

@@ -1,6 +1,7 @@
 package de.gemo.engine.entity;
 
 import de.gemo.engine.animation.Animation;
+import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.interfaces.entities.IClickable;
@@ -18,6 +19,18 @@ public class Entity2DClickable extends Entity2D implements IClickable {
 
     public Entity2DClickable(Vector center, SingleTexture singleTexture) {
         super(center, singleTexture);
+        this.autoGenerateClickbox();
+        this.setCenter(center);
+    }
+
+    public Entity2DClickable(float x, float y, MultiTexture multiTexture) {
+        super(x, y, multiTexture);
+        this.autoGenerateClickbox();
+        this.setCenter(x, y);
+    }
+
+    public Entity2DClickable(Vector center, MultiTexture multiTexture) {
+        super(center, multiTexture);
         this.autoGenerateClickbox();
         this.setCenter(center);
     }

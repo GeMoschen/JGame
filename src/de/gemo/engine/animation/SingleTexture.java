@@ -11,7 +11,7 @@ public class SingleTexture {
     private float width, height;
     private float x;
     private float y;
-    private final float u, v, u2, v2;
+    private float u, v, u2, v2;
 
     private boolean newList = true;
     // private int displayList;
@@ -21,9 +21,14 @@ public class SingleTexture {
 
     public SingleTexture(Texture texture, float x, float y, float width, float height) {
         this.texture = texture;
-        this.x = x;
-        this.y = y;
+        this.setDimensions(x, y, width, height);
+    }
 
+    public SingleTexture crop(float x, float y, float width, float height) {
+        return new SingleTexture(texture, x, y, width, height);
+    }
+
+    public void setDimensions(float x, float y, float width, float height) {
         u = x / this.texture.getImageWidth();
         v = y / this.texture.getImageHeight();
 
@@ -32,6 +37,7 @@ public class SingleTexture {
 
         this.width = width;
         this.height = height;
+        this.newList = true;
     }
 
     private void createVertices(float z) {
@@ -42,47 +48,6 @@ public class SingleTexture {
         verts.put(new float[]{-halfWidth, -halfHeight, z, halfWidth, -halfHeight, z, halfWidth, halfHeight, z, -halfWidth, halfHeight, z});
         tex.put(new float[]{u, v, u2, v, u2, v2, u, v2});
         newList = false;
-    }
-
-    // private void createDisplayList(float z) {
-    // GL11.glPushMatrix();
-    // displayList = GL11.glGenLists(1);
-    //
-    // float halfWidth = this.width / 2f;
-    // float halfHeight = this.height / 2f;
-    // GL11.glNewList(displayList, GL11.GL_COMPILE);
-    //
-    // this.texture.bind();
-    // // begin quads
-    // GL11.glBegin(GL11.GL_QUADS);
-    //
-    // // up-left
-    // GL11.glTexCoord2f(u, v);
-    // GL11.glVertex3f(-halfWidth, -halfHeight, z);
-    //
-    // // up-right
-    // GL11.glTexCoord2f(u2, v);
-    // GL11.glVertex3f(halfWidth, -halfHeight, z);
-    //
-    // // down-right
-    // GL11.glTexCoord2f(u2, v2);
-    // GL11.glVertex3f(halfWidth, halfHeight, z);
-    //
-    // // down-left
-    // GL11.glTexCoord2f(u, v2);
-    // GL11.glVertex3f(-halfWidth, halfHeight, z);
-    //
-    // // end quads
-    // GL11.glEnd();
-    // GL11.glEndList();
-    // GL11.glPopMatrix();
-    // newList = false;
-    // }
-
-    public void scale(float scaleX, float scaleY) {
-        this.width *= scaleX;
-        this.height *= scaleY;
-        newList = true;
     }
 
     public float getWidth() {

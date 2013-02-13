@@ -32,6 +32,7 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.inputmanager.KeyboardManager;
 import de.gemo.engine.inputmanager.MouseManager;
+import de.gemo.engine.sound.SoundManager;
 import de.gemo.game.controller.MyGUIController;
 
 public class Engine {
@@ -57,6 +58,7 @@ public class Engine {
     private KeyboardManager keyManager;
     private MouseManager mouseManager;
     private AbstractDebugMonitor debugMonitor;
+    private SoundManager soundManager;
 
     private GUIController activeGUIController = null;
     private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
@@ -68,6 +70,13 @@ public class Engine {
         this.loadFonts();
         this.createGUI();
         this.run();
+    }
+
+    public static void close() {
+        Engine.INSTANCE.soundManager.stopAll();
+
+        Display.destroy();
+        System.exit(0);
     }
 
     private final void run() {
@@ -82,6 +91,8 @@ public class Engine {
         this.mouseManager.grabMouse();
 
         Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
+
+        soundManager.playSound(0, 0, 0);
 
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
@@ -157,9 +168,7 @@ public class Engine {
 
             tick = false;
         }
-
-        Display.destroy();
-        System.exit(0);
+        Engine.close();
     }
 
     private final void updateGUIControllers(float delta) {
@@ -257,6 +266,7 @@ public class Engine {
 
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);
+        soundManager = new SoundManager();
         debugMonitor = new StandardDebugMonitor();
     }
 
@@ -299,6 +309,14 @@ public class Engine {
             }
             case Keyboard.KEY_F11 : {
                 this.debugMonitor.setShowGraphics(!this.debugMonitor.isShowGraphics());
+                break;
+            }
+            case Keyboard.KEY_F5 : {
+                this.soundManager.setVolume(soundManager.getVolume() - 0.1f);
+                break;
+            }
+            case Keyboard.KEY_F6 : {
+                this.soundManager.setVolume(soundManager.getVolume() + 0.1f);
                 break;
             }
             case Keyboard.KEY_F12 : {
@@ -413,4 +431,7 @@ public class Engine {
         return win2viewRatioY;
     }
 
+    public final SoundManager getSoundManager() {
+        return soundManager;
+    }
 }
