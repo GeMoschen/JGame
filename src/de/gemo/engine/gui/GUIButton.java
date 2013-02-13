@@ -5,6 +5,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
+import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.core.FontManager;
 
 public class GUIButton extends GUIElement {
@@ -19,17 +20,26 @@ public class GUIButton extends GUIElement {
 
     public GUIButton(float x, float y, Animation animation) {
         super(x, y, animation);
+        initButton();
+    }
+
+    public GUIButton(float x, float y, MultiTexture multiTexture) {
+        super(x, y, multiTexture);
+        initButton();
+    }
+
+    public GUIButton(float x, float y, Animation animation, String label) {
+        this(x, y, animation);
+        this.setLabel(label);
+    }
+
+    private void initButton() {
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
         this.setHoverColor(Color.white);
         this.setPressedColor(Color.white);
         this.shadowColor = new Color(50, 50, 50);
         this.animation.goToFrame(0);
-    }
-
-    public GUIButton(float x, float y, Animation animation, String label) {
-        this(x, y, animation);
-        this.setLabel(label);
     }
 
     public void setColor(Color color) {

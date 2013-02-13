@@ -29,6 +29,7 @@ public class ButtonMoveListener implements MouseListener {
             float newY = event.getY() + element.getYOnScreen();
             int tY = (int) (newY / 10);
             element.setCenter(tX * 10, tY * 10);
+            System.out.println(tX * 10 + " / " + tY * 10);
         }
     }
 }

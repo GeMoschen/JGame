@@ -17,6 +17,7 @@ import de.gemo.engine.core.TextureManager;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
+import de.gemo.engine.gui.GUITextfield;
 import de.gemo.engine.units.Vector;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 
@@ -31,9 +32,9 @@ public class MyGUIController extends GUIController {
     public boolean hotkeysActive = false;
 
     @Override
-    protected void init() {
-        try {
-            // LOAD GUI TEXTURE
+    protected void loadTextures() {
+
+        try { // LOAD GUI TEXTURE
             SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
 
@@ -59,22 +60,32 @@ public class MyGUIController extends GUIController {
             MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
+            // LOAD TEXTFIELD TEXTURE
+            SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 256, 34);
+            TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    protected void initGUI() {
+        try {
             // CREATE GUI
             gui = new GUIGraphic(640, 512, TextureManager.getTexture("GUI_1"));
             gui.setZ(0);
 
             // CREATE COUNTDOWNS
-            countdown = new GUIGraphic(1181 + 36, 900, TextureManager.getTexture("countdown"));
+            countdown = new GUIGraphic(1181 + 36, 850, TextureManager.getTexture("countdown"));
             countdown.getAnimation().setWantedFPS(10);
-            countdown2 = new GUIGraphic(1181 - 36, 900, TextureManager.getTexture("countdown"));
+            countdown2 = new GUIGraphic(1181 - 36, 850, TextureManager.getTexture("countdown"));
 
             // CREATE EXIT-BUTTON
-            Animation animation = new Animation(TextureManager.getTexture("BTN_1"));
+            Animation animationButton = new Animation(TextureManager.getTexture("BTN_1"));
             Color normalColor = new Color(162, 162, 162);
             Color hoverColor = new Color(215, 165, 0);
             Color pressedColor = new Color(64, 64, 64);
 
-            GUIButton button = new GUIButton(1181, 990, animation);
+            GUIButton button = new GUIButton(1181, 990, animationButton);
             button.setLabel("Exit");
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
@@ -85,6 +96,13 @@ public class MyGUIController extends GUIController {
             button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(button);
 
+            // CREATE TEXT-FIELD
+            GUITextfield textfield = new GUITextfield(144, 30, TextureManager.getTexture("EDIT_1"));
+            textfield.setText("Das hier ist ein Textfeld!");
+            textfield.setColor(Color.yellow);
+            textfield.setFont(FontManager.getStandardFont());
+            textfield.setMouseListener(listener);
+            this.add(textfield);
         } catch (Exception e) {
             e.printStackTrace();
         }

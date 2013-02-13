@@ -7,6 +7,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
+import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.core.FontManager;
 import de.gemo.engine.events.keyboard.KeyEvent;
@@ -31,6 +32,20 @@ public class GUITextfield extends GUIElement {
 
     public GUITextfield(float x, float y, SingleTexture singleTexture) {
         super(x, y, singleTexture);
+        initTextfield();
+    }
+
+    public GUITextfield(float x, float y, MultiTexture multiTexture) {
+        super(x, y, multiTexture);
+        initTextfield();
+    }
+
+    public GUITextfield(float x, float y, Animation animation) {
+        super(x, y, animation);
+        initTextfield();
+    }
+
+    private void initTextfield() {
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
         this.setAutoLooseFocus(false);
@@ -70,7 +85,6 @@ public class GUITextfield extends GUIElement {
         this.originalLabel = label;
         this.label = originalLabel;
         this.textWidth = this.font.getWidth(this.label);
-        this.textHeight = this.font.getHeight(this.label) / 2;
 
         if (this.textWidth >= this.animation.getWidth() * maxText) {
             this.label = label;
@@ -83,6 +97,10 @@ public class GUITextfield extends GUIElement {
             this.label = tempLabel + "...";
         }
         this.textWidth = (this.textWidth / 2);
+        this.textHeight = this.font.getHeight(this.label) / 2f + this.font.getYOffset(this.label) / 2f;
+        if (label.length() < 1) {
+            this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
+        }
     }
 
     @Override
@@ -126,12 +144,10 @@ public class GUITextfield extends GUIElement {
         super.render();
         GL11.glTranslatef(0f, 0f, -1f);
         int x = (int) (-this.animation.getWidth() / 2 + 8);
-        this.font.drawString(x + 2, (int) (-this.textHeight) + 2, this.label, this.shadowColor);
         this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);
         if (this.isFocused() && this.showLine) {
             x += this.font.getWidth(this.label) - 2;
-            this.font.drawString(x + 2, (int) (-this.textHeight) + 2, "|", this.shadowColor);
-            this.font.drawString(x, (int) (-this.textHeight), "|", this.normalColor);
+            this.font.drawString(x, (int) (-this.textHeight) - 1, "|", this.normalColor);
         }
         GL11.glTranslatef(0f, 0f, +1f);
     }

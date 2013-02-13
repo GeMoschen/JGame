@@ -41,7 +41,8 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         this.allElements = new HashMap<Integer, GUIElement>();
         this.visibleElements = new HashMap<Integer, GUIElement>();
         this.invisibleElements = new HashMap<Integer, GUIElement>();
-        this.init();
+        this.loadTextures();
+        this.initGUI();
     }
 
     public final void clear() {
@@ -173,7 +174,9 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     //
     // //////////////////////////////////////////
 
-    protected abstract void init();
+    protected abstract void loadTextures();
+
+    protected abstract void initGUI();
 
     public abstract void doTick(float delta);
 
