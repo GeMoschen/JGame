@@ -46,6 +46,20 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
         return this.getY() - this.getHeight() / 2f;
     }
 
+    public void setXOnScreen(float xOnScreen) {
+        this.setPositionOnScreen(xOnScreen, this.getY());
+    }
+
+    public void setYOnScreen(float yOnScreen) {
+        this.setPositionOnScreen(this.getXOnScreen(), yOnScreen);
+    }
+
+    public void setPositionOnScreen(float xOnScreen, float yOnScreen) {
+        float halfWidth = this.getWidth() / 2f;
+        float halfHeight = this.getHeight() / 2f;
+        this.setCenter(xOnScreen + halfWidth, yOnScreen + halfHeight);
+    }
+
     public float getWidth() {
         return this.animation.getWidth() * this.scaleX;
     }

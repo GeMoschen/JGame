@@ -97,7 +97,8 @@ public class MyGUIController extends GUIController {
             this.add(button);
 
             // CREATE TEXT-FIELD
-            GUITextfield textfield = new GUITextfield(144, 30, TextureManager.getTexture("EDIT_1"));
+            GUITextfield textfield = new GUITextfield(0, 0, TextureManager.getTexture("EDIT_1"));
+            textfield.setPositionOnScreen(17, 15);
             textfield.setText("Das hier ist ein Textfeld!");
             textfield.setColor(Color.yellow);
             textfield.setFont(FontManager.getStandardFont());
@@ -107,6 +108,7 @@ public class MyGUIController extends GUIController {
             e.printStackTrace();
         }
     }
+
     @Override
     public void onKeyHold(KeyEvent event) {
         if (hotkeysActive) {

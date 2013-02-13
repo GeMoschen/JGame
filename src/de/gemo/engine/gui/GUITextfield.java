@@ -97,10 +97,6 @@ public class GUITextfield extends GUIElement {
             this.label = tempLabel + "...";
         }
         this.textWidth = (this.textWidth / 2);
-        this.textHeight = this.font.getHeight(this.label) / 2f + this.font.getYOffset(this.label) / 2f;
-        if (label.length() < 1) {
-            this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
-        }
     }
 
     @Override
@@ -116,6 +112,7 @@ public class GUITextfield extends GUIElement {
     public void setFont(UnicodeFont font) {
         this.font = font;
         this.setText(this.getText());
+        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
     }
 
     public UnicodeFont getFont() {

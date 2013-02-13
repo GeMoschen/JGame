@@ -89,8 +89,6 @@ public class GUIButton extends GUIElement {
             }
             this.label = tempLabel + "...";
         }
-
-        this.textHeight = this.font.getHeight(this.label) / 2f + this.font.getYOffset(this.label) / 2f;
         this.textWidth = (this.textWidth / 2);
     }
 
@@ -107,6 +105,7 @@ public class GUIButton extends GUIElement {
     public void setFont(UnicodeFont font) {
         this.font = font;
         this.setLabel(this.getLabel());
+        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
     }
 
     public UnicodeFont getFont() {
