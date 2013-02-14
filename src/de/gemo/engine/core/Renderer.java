@@ -5,6 +5,7 @@ import org.newdawn.slick.Color;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.entity.Entity;
 import de.gemo.engine.entity.Entity2D;
+import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
 

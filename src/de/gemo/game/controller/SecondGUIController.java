@@ -2,13 +2,13 @@ package de.gemo.game.controller;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
-import de.gemo.engine.core.GUIController;
 import de.gemo.engine.entity.EntityVertex;
 import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.units.Vector;
 
-public class SecondGUIController extends GUIController {
+public class SecondGUIController extends GUIManager {
 
     private VertexManager vertexManager;
     private EntityVertex selectedVertex = null;
@@ -19,8 +19,8 @@ public class SecondGUIController extends GUIController {
     }
 
     @Override
-    protected void initController() {
-        controller = (MyGUIController) Engine.INSTANCE.getGUIController("GUI");
+    protected void initManager() {
+        controller = (MyGUIController) Engine.INSTANCE.getGUIManager("GUI");
         // ADD VERTEXMANAGER
         vertexManager = new VertexManager(this, controller);
     }

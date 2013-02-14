@@ -5,7 +5,7 @@ import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.core.FontManager;
+import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
 

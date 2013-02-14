@@ -1,4 +1,4 @@
-package de.gemo.engine.core;
+package de.gemo.engine.manager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
+import de.gemo.engine.core.Renderer;
 import de.gemo.engine.entity.Entity;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseClickEvent;
@@ -16,14 +17,13 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.gui.GUIElementStatus;
-import de.gemo.engine.inputmanager.MouseManager;
 import de.gemo.engine.interfaces.input.IKeyAdapter;
 import de.gemo.engine.interfaces.input.IKeyController;
 import de.gemo.engine.interfaces.input.IMouseAdapter;
 import de.gemo.engine.interfaces.input.IMouseController;
 import de.gemo.engine.units.Vector;
 
-public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyController, IMouseController, Comparable<GUIController> {
+public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyController, IMouseController, Comparable<GUIManager> {
 
     private final int ID;
     private final int z;
@@ -35,7 +35,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
 
     protected GUIElement hoveredElement = null, focusedElement = null;
 
-    public GUIController(String name, Hitbox hitbox, Vector mouseVector, int z) {
+    public GUIManager(String name, Hitbox hitbox, Vector mouseVector, int z) {
         this.ID = Entity.getNextFreeID();
         this.z = z;
         this.name = name;
@@ -46,8 +46,8 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         this.invisibleElements = new HashMap<Integer, GUIElement>();
     }
 
-    public final void initializeController() {
-        this.initController();
+    public final void initializeManager() {
+        this.initManager();
         this.loadTextures();
         this.initGUI();
     }
@@ -213,7 +213,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     //
     // //////////////////////////////////////////
 
-    protected void initController() {
+    protected void initManager() {
     }
 
     protected void loadTextures() {
@@ -292,7 +292,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         }
     }
 
-    public final void updateController() {
+    public final void updateManager() {
         // update visibility of all elements
         for (GUIElement element : this.allElements.values()) {
             this.updateVisibility(element);
@@ -492,7 +492,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     }
 
     @Override
-    public int compareTo(GUIController o) {
+    public int compareTo(GUIManager o) {
         return (int) (this.z - o.z);
     }
 

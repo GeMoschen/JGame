@@ -6,7 +6,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.core.FontManager;
+import de.gemo.engine.manager.FontManager;
 
 public class GUILabel extends GUIElement {
 

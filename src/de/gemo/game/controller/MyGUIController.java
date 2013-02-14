@@ -10,22 +10,22 @@ import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
-import de.gemo.engine.core.FontManager;
-import de.gemo.engine.core.GUIController;
 import de.gemo.engine.core.Renderer;
-import de.gemo.engine.core.TextureManager;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.gui.GUITextfield;
+import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.manager.GUIManager;
+import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.units.Vector;
 import de.gemo.game.events.gui.buttons.AddButtonListener;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.gui.buttons.RemoveButtonListener;
 
-public class MyGUIController extends GUIController {
+public class MyGUIController extends GUIManager {
 
     private GUIGraphic gui, countdown, countdown2;
     private GUILabel lbl_position;
@@ -47,8 +47,8 @@ public class MyGUIController extends GUIController {
     }
 
     @Override
-    protected void initController() {
-        controller = (SecondGUIController) Engine.INSTANCE.getGUIController("GUI2");
+    protected void initManager() {
+        controller = (SecondGUIController) Engine.INSTANCE.getGUIManager("GUI2");
     }
 
     @Override

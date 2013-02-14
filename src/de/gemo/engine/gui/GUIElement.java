@@ -7,7 +7,6 @@ import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
-import de.gemo.engine.core.FontManager;
 import de.gemo.engine.entity.Entity2DClickable;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.AbstractMouseEvent;
@@ -18,6 +17,7 @@ import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.interfaces.input.IKeyAdapter;
 import de.gemo.engine.interfaces.listener.FocusListener;
 import de.gemo.engine.interfaces.listener.MouseListener;
+import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.units.ComplexVector;
 import de.gemo.engine.units.Vector;
 

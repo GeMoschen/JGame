@@ -26,9 +26,11 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
-import de.gemo.engine.inputmanager.KeyboardManager;
-import de.gemo.engine.inputmanager.MouseManager;
-import de.gemo.engine.sound.SoundManager;
+import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.manager.GUIManager;
+import de.gemo.engine.manager.KeyboardManager;
+import de.gemo.engine.manager.MouseManager;
+import de.gemo.engine.manager.SoundManager;
 import de.gemo.game.controller.MyGUIController;
 import de.gemo.game.controller.SecondGUIController;
 
@@ -64,10 +66,10 @@ public class Engine {
     private SoundManager soundManager;
     private AbstractDebugMonitor debugMonitor;
 
-    // GUI-CONTROLLER
-    private GUIController activeGUIController = null;
-    private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
-    private List<GUIController> sortedGUIControllerList = new ArrayList<GUIController>();
+    // GUI-MANAGER
+    private GUIManager activeGUIManager = null;
+    private HashMap<Integer, GUIManager> guiManager = new HashMap<Integer, GUIManager>();
+    private List<GUIManager> sortedGUIManagerList = new ArrayList<GUIManager>();
 
     // ////////////////////////////////////////
     //
@@ -164,7 +166,7 @@ public class Engine {
         hitbox.addPoint(1080, VIEW_HEIGHT - 20);
         hitbox.addPoint(20, VIEW_HEIGHT - 20);
         SecondGUIController controller = new SecondGUIController("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
-        this.registerGUIController(controller);
+        this.registerGUIManager(controller);
 
         halfWidth = VIEW_WIDTH / 2f;
         halfHeight = VIEW_HEIGHT / 2f;
@@ -174,10 +176,10 @@ public class Engine {
         hitbox.addPoint(halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, halfHeight);
-        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
+        this.registerGUIManager(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
 
-        this.initGUIController(this.getGUIController("GUI2"));
-        this.initGUIController(this.getGUIController("GUI"));
+        this.initGUIManager(this.getGUIManager("GUI2"));
+        this.initGUIManager(this.getGUIManager("GUI"));
     }
 
     private final void run() {
@@ -211,13 +213,14 @@ public class Engine {
                 keyManager.update();
                 mouseManager.update();
 
-                // tick controllers
-                for (GUIController controller : this.guiController.values()) {
-                    controller.doTick(delta);
+                // tick GUI-Managers
+                for (GUIManager manager : this.guiManager.values()) {
+                    manager.doTick(delta);
                 }
 
+                // update GUI-Managers
                 if (tick) {
-                    this.updateGUIControllers(delta);
+                    this.updateGUIManagers(delta);
                 }
 
                 glPushMatrix();
@@ -227,16 +230,16 @@ public class Engine {
                     // RENDER GUI
                     if (this.debugMonitor.isShowGraphics()) {
                         glEnable(GL_BLEND);
-                        for (GUIController controller : this.guiController.values()) {
-                            controller.render();
+                        for (GUIManager manager : this.guiManager.values()) {
+                            manager.render();
                         }
                         glDisable(GL_BLEND);
                     }
 
                     // DEBUG RENDER
                     if (this.debugMonitor.isShowHitboxes()) {
-                        for (GUIController controller : this.guiController.values()) {
-                            controller.debugRender();
+                        for (GUIManager manager : this.guiManager.values()) {
+                            manager.debugRender();
                         }
                     }
                 }
@@ -291,20 +294,20 @@ public class Engine {
     // ////////////////////////////////////////
 
     public final void onKeyPressed(KeyEvent event) {
-        if (this.activeGUIController != null) {
-            this.activeGUIController.handleKeyPressed(event);
+        if (this.activeGUIManager != null) {
+            this.activeGUIManager.handleKeyPressed(event);
         }
     }
 
     public final void onKeyHold(KeyEvent event) {
-        if (this.activeGUIController != null) {
-            this.activeGUIController.handleKeyHold(event);
+        if (this.activeGUIManager != null) {
+            this.activeGUIManager.handleKeyHold(event);
         }
     }
 
     public final void onKeyReleased(KeyEvent event) {
-        if (this.activeGUIController != null) {
-            this.activeGUIController.handleKeyReleased(event);
+        if (this.activeGUIManager != null) {
+            this.activeGUIManager.handleKeyReleased(event);
         }
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
@@ -343,16 +346,16 @@ public class Engine {
     // ////////////////////////////////////////
 
     public final void onMouseMove(MouseMoveEvent event) {
-        for (GUIController controller : this.sortedGUIControllerList) {
-            if (controller.isColliding()) {
-                if (controller != this.activeGUIController) {
-                    this.activateGUIController(controller);
+        for (GUIManager manager : this.sortedGUIManagerList) {
+            if (manager.isColliding()) {
+                if (manager != this.activeGUIManager) {
+                    this.activateGUIManager(manager);
                 }
-                controller.handleMouseMove(event);
+                manager.handleMouseMove(event);
                 return;
             }
         }
-        this.activateGUIController(null);
+        this.activateGUIManager(null);
     }
 
     public final void onMouseDown(MouseClickEvent event) {
@@ -361,36 +364,36 @@ public class Engine {
             freeMouse = !freeMouse;
         }
 
-        for (GUIController controller : this.sortedGUIControllerList) {
-            if (controller.isColliding()) {
-                this.activateGUIController(controller);
-                controller.handleMouseClick(event);
+        for (GUIManager manager : this.sortedGUIManagerList) {
+            if (manager.isColliding()) {
+                this.activateGUIManager(manager);
+                manager.handleMouseClick(event);
                 return;
             }
         }
-        this.activateGUIController(null);
+        this.activateGUIManager(null);
     }
 
     public final void onMouseUp(MouseReleaseEvent event) {
-        for (GUIController controller : this.sortedGUIControllerList) {
-            if (controller.isColliding()) {
-                this.activateGUIController(controller);
-                controller.handleMouseRelease(event);
+        for (GUIManager manager : this.sortedGUIManagerList) {
+            if (manager.isColliding()) {
+                this.activateGUIManager(manager);
+                manager.handleMouseRelease(event);
                 return;
             }
         }
-        this.activateGUIController(null);
+        this.activateGUIManager(null);
     }
 
     public final void onMouseDrag(MouseDragEvent event) {
-        for (GUIController controller : this.sortedGUIControllerList) {
-            if (controller.isColliding()) {
-                this.activateGUIController(controller);
-                controller.handleMouseDrag(event);
+        for (GUIManager manager : this.sortedGUIManagerList) {
+            if (manager.isColliding()) {
+                this.activateGUIManager(manager);
+                manager.handleMouseDrag(event);
                 return;
             }
         }
-        this.activateGUIController(null);
+        this.activateGUIManager(null);
     }
 
     // ////////////////////////////////////////
@@ -416,50 +419,50 @@ public class Engine {
 
     // ////////////////////////////////////////
     //
-    // METHODS TO HANDLE GUI-CONTROLLERS
+    // METHODS TO HANDLE GUI-MANAGERS
     //
     // ////////////////////////////////////////
 
-    private final void updateGUIControllers(float delta) {
-        for (GUIController controller : this.guiController.values()) {
-            controller.updateController();
+    private final void updateGUIManagers(float delta) {
+        for (GUIManager manager : this.guiManager.values()) {
+            manager.updateManager();
         }
     }
 
-    private final void activateGUIController(GUIController controller) {
-        if (this.activeGUIController != null && this.activeGUIController != controller) {
-            this.activeGUIController.onMouseOut();
-            if (controller != null) {
-                controller.onMouseIn();
+    private final void activateGUIManager(GUIManager manager) {
+        if (this.activeGUIManager != null && this.activeGUIManager != manager) {
+            this.activeGUIManager.onMouseOut();
+            if (manager != null) {
+                manager.onMouseIn();
             }
         }
-        this.activeGUIController = controller;
-        this.debugMonitor.setActiveGUIController(this.activeGUIController);
+        this.activeGUIManager = manager;
+        this.debugMonitor.setActiveGUIManager(this.activeGUIManager);
     }
 
-    public final void registerGUIController(GUIController controller) {
-        this.guiController.put(controller.getID(), controller);
-        this.sortedGUIControllerList = new ArrayList<GUIController>(this.guiController.values());
-        Collections.sort(this.sortedGUIControllerList);
+    public final void registerGUIManager(GUIManager manager) {
+        this.guiManager.put(manager.getID(), manager);
+        this.sortedGUIManagerList = new ArrayList<GUIManager>(this.guiManager.values());
+        Collections.sort(this.sortedGUIManagerList);
     }
 
-    public final void initGUIController(GUIController controller) {
-        controller.initializeController();
+    public final void initGUIManager(GUIManager manager) {
+        manager.initializeManager();
     }
 
-    public final GUIController getGUIController(int ID) {
-        for (GUIController controller : this.guiController.values()) {
-            if (controller.getID() == ID) {
-                return controller;
+    public final GUIManager getGUIManager(int ID) {
+        for (GUIManager manager : this.guiManager.values()) {
+            if (manager.getID() == ID) {
+                return manager;
             }
         }
         return null;
     }
 
-    public final GUIController getGUIController(String name) {
-        for (GUIController controller : this.guiController.values()) {
-            if (controller.getName().equalsIgnoreCase(name)) {
-                return controller;
+    public final GUIManager getGUIManager(String name) {
+        for (GUIManager manager : this.guiManager.values()) {
+            if (manager.getName().equalsIgnoreCase(name)) {
+                return manager;
             }
         }
         return null;
@@ -489,7 +492,7 @@ public class Engine {
 
     // ////////////////////////////////////////
     //
-    // GETTER AND SETTER FOR CONTROLLER / MANAGER
+    // GETTER AND SETTER FOR MANAGER
     //
     // ////////////////////////////////////////
 
@@ -509,8 +512,8 @@ public class Engine {
         return debugMonitor;
     }
 
-    public final GUIController getActiveGUIController() {
-        return activeGUIController;
+    public final GUIManager getActiveGUIManager() {
+        return activeGUIManager;
     }
 
 }

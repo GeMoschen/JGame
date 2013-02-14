@@ -1,6 +1,6 @@
 package de.gemo.engine.core.debug;
 
-import de.gemo.engine.core.GUIController;
+import de.gemo.engine.manager.GUIManager;
 
 public abstract class AbstractDebugMonitor {
     private int FPS = 0;
@@ -9,7 +9,7 @@ public abstract class AbstractDebugMonitor {
     private boolean showGraphics = true;
     private boolean useVSync = true;
     private boolean showExtended = true;
-    private GUIController activeGUIController;
+    private GUIManager activeGUIManager;
 
     public final int getFPS() {
         return FPS;
@@ -59,12 +59,12 @@ public abstract class AbstractDebugMonitor {
         this.delta = delta;
     }
 
-    public GUIController getActiveGUIController() {
-        return activeGUIController;
+    public GUIManager getActiveGUIManager() {
+        return activeGUIManager;
     }
 
-    public void setActiveGUIController(GUIController activeGUIController) {
-        this.activeGUIController = activeGUIController;
+    public void setActiveGUIManager(GUIManager activeGUIManager) {
+        this.activeGUIManager = activeGUIManager;
     }
 
     public abstract void render();

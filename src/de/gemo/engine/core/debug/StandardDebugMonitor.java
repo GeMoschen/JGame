@@ -6,7 +6,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.core.Engine;
-import de.gemo.engine.core.FontManager;
+import de.gemo.engine.manager.FontManager;
 import de.gemo.game.controller.MyGUIController;
 
 public class StandardDebugMonitor extends AbstractDebugMonitor {
@@ -36,11 +36,11 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
                 font.drawString(fontX, fontY + 160, "F12: toggle hitboxes", Color.orange);
 
                 String text = "NONE";
-                if (this.getActiveGUIController() != null) {
-                    text = this.getActiveGUIController().getName();
+                if (this.getActiveGUIManager() != null) {
+                    text = this.getActiveGUIManager().getName();
 
-                    if (this.getActiveGUIController() instanceof MyGUIController) {
-                        MyGUIController controller = (MyGUIController) this.getActiveGUIController();
+                    if (this.getActiveGUIManager() instanceof MyGUIController) {
+                        MyGUIController controller = (MyGUIController) this.getActiveGUIManager();
 
                         if (controller.getHoveredElement() != null) {
                             font.drawString(fontX, fontY + 195, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);

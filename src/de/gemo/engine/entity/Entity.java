@@ -4,8 +4,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 import org.newdawn.slick.Color;
 
-import de.gemo.engine.core.FontManager;
 import de.gemo.engine.interfaces.rendering.IDebugRenderable;
+import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.units.Vector;
 
 public class Entity extends EntityLogic implements IDebugRenderable {

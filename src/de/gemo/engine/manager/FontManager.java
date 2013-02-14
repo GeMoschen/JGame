@@ -1,4 +1,4 @@
-package de.gemo.engine.core;
+package de.gemo.engine.manager;
 
 import java.awt.Font;
 import java.util.HashMap;

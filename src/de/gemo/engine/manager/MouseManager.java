@@ -1,4 +1,4 @@
-package de.gemo.engine.inputmanager;
+package de.gemo.engine.manager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +129,7 @@ public class MouseManager {
 
         boolean currentState = false;
         boolean oldState;
-        //
+
         for (int index = 0; index < 5; index++) {
             currentState = Mouse.isButtonDown(index);
             oldState = holdButtons.contains(index);

@@ -1,4 +1,4 @@
-package de.gemo.engine.inputmanager;
+package de.gemo.engine.manager;
 
 import java.util.HashMap;
 import java.util.Map;

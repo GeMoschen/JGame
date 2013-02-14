@@ -1,4 +1,4 @@
-package de.gemo.engine.sound;
+package de.gemo.engine.manager;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 

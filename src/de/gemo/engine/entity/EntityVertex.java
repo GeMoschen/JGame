@@ -3,8 +3,8 @@ package de.gemo.engine.entity;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.core.FontManager;
 import de.gemo.engine.gui.GUIElement;
+import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
