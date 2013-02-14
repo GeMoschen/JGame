@@ -7,10 +7,13 @@ import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.MouseListener;
 
-public class ButtonMoveListener implements MouseListener {
+public class VertexListener implements MouseListener {
 
     @Override
     public void onMouseClick(GUIElement element, MouseClickEvent event) {
+        if (event.isLeftButton()) {
+
+        }
     }
 
     @Override
@@ -23,7 +26,7 @@ public class ButtonMoveListener implements MouseListener {
 
     @Override
     public void onMouseDrag(GUIElement element, MouseDragEvent event) {
-        if (event.hasMoved()) {
+        if (event.isRightButton() && event.hasMoved()) {
             float newX = event.getX() + element.getXOnScreen();
             int tX = (int) (newX / 2);
             float newY = event.getY() + element.getYOnScreen();

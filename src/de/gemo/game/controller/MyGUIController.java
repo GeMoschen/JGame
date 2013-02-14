@@ -14,28 +14,46 @@ import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
 import de.gemo.engine.core.Renderer;
 import de.gemo.engine.core.TextureManager;
+import de.gemo.engine.entity.EntityVertex;
 import de.gemo.engine.events.keyboard.KeyEvent;
+import de.gemo.engine.events.mouse.MouseClickEvent;
+import de.gemo.engine.events.mouse.MouseDragEvent;
+import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.gui.GUITextfield;
 import de.gemo.engine.units.Vector;
+import de.gemo.game.events.gui.buttons.AddButtonListener;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
+import de.gemo.game.events.gui.buttons.RemoveButtonListener;
 
 public class MyGUIController extends GUIController {
 
     private GUIGraphic gui, countdown, countdown2;
+    private VertexManager vertexManager;
+
+    private GUILabel lbl_position;
+    private GUIButton btn_removeVertex;
+    private EntityVertex selectedVertex = null;
+    public boolean hotkeysActive = false;
 
     public MyGUIController(String name, Hitbox hitbox, Vector mouseVector) {
         super(name, hitbox, mouseVector);
     }
 
-    public boolean hotkeysActive = false;
+    public EntityVertex getSelectedVertex() {
+        return selectedVertex;
+    }
+
+    public void setSelectedVertex(EntityVertex selectedVertex) {
+        this.selectedVertex = selectedVertex;
+    }
 
     @Override
     protected void loadTextures() {
-
-        try { // LOAD GUI TEXTURE
+        try {
+            // LOAD GUI TEXTURE
             SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
 
@@ -68,6 +86,7 @@ public class MyGUIController extends GUIController {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void initGUI() {
         try {
@@ -76,9 +95,9 @@ public class MyGUIController extends GUIController {
             gui.setZ(0);
 
             // CREATE COUNTDOWNS
-            countdown = new GUIGraphic(1181 + 36, 850, TextureManager.getTexture("countdown"));
+            countdown = new GUIGraphic(1181 + 36, 800, TextureManager.getTexture("countdown"));
             countdown.getAnimation().setWantedFPS(10);
-            countdown2 = new GUIGraphic(1181 - 36, 850, TextureManager.getTexture("countdown"));
+            countdown2 = new GUIGraphic(1181 - 36, 800, TextureManager.getTexture("countdown"));
 
             // CREATE EXIT-BUTTON
             Animation animationButton = new Animation(TextureManager.getTexture("BTN_1"));
@@ -112,6 +131,37 @@ public class MyGUIController extends GUIController {
             textfield.setFont(FontManager.getStandardFont());
             textfield.setMouseListener(listener);
             this.add(textfield);
+
+            // ADD VERTEXMANAGER
+            vertexManager = new VertexManager(this);
+
+            // ADD "Add Vertex"-Button
+            AddButtonListener addListener = new AddButtonListener(vertexManager);
+            GUIButton addButton = new GUIButton(1181, 950, animationButton);
+            addButton.setLabel("Add Vertex");
+            addButton.setColor(normalColor);
+            addButton.setHoverColor(hoverColor);
+            addButton.setPressedColor(pressedColor);
+            addButton.setMouseListener(addListener);
+            addButton.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            this.add(addButton);
+
+            // ADD "Delete Vertex"-Button
+            RemoveButtonListener removeListener = new RemoveButtonListener(vertexManager, this);
+            btn_removeVertex = new GUIButton(1181, 910, animationButton);
+            btn_removeVertex.setLabel("Delete Vertex");
+            btn_removeVertex.setColor(normalColor);
+            btn_removeVertex.setHoverColor(hoverColor);
+            btn_removeVertex.setPressedColor(pressedColor);
+            btn_removeVertex.setMouseListener(removeListener);
+            btn_removeVertex.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            btn_removeVertex.setVisible(false);
+            this.add(btn_removeVertex);
+
+            // ADD VERTEX LABELS
+            this.lbl_position = new GUILabel(1181, 100, "Position: ___ / ___");
+            this.lbl_position.setPositionOnScreen(1100, 80);
+            this.add(lbl_position);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,6 +230,38 @@ public class MyGUIController extends GUIController {
     }
 
     @Override
+    public void onMouseClick(MouseClickEvent event) {
+        super.onMouseClick(event);
+        if (event.isDoubleClick()) {
+            if (!this.hasFocusedElement()) {
+                this.vertexManager.addVertex(event.getX(), event.getY());
+            }
+        }
+    }
+
+    @Override
+    public void onMouseRelease(MouseReleaseEvent event) {
+        super.onMouseRelease(event);
+        if (this.hasFocusedElement() && this.focusedElement instanceof EntityVertex) {
+            btn_removeVertex.setVisible(true);
+            this.lbl_position.setLabel("Position: " + this.focusedElement.getXOnScreen() + " / " + this.focusedElement.getYOnScreen());
+            this.setSelectedVertex((EntityVertex) this.getFocusedElement());
+        } else {
+            this.lbl_position.setLabel("Position: ___ / ___");
+            btn_removeVertex.setVisible(false);
+            this.setSelectedVertex(null);
+        }
+    }
+
+    @Override
+    public void onMouseDrag(MouseDragEvent event) {
+        super.onMouseDrag(event);
+        if (this.hasFocusedElement() && this.focusedElement instanceof EntityVertex) {
+            this.lbl_position.setLabel("Position: " + this.focusedElement.getXOnScreen() + " / " + this.focusedElement.getYOnScreen());
+        }
+    }
+
+    @Override
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F8) {
             this.hotkeysActive = !this.hotkeysActive;
@@ -198,7 +280,7 @@ public class MyGUIController extends GUIController {
         Renderer.render(gui);
         Renderer.render(countdown);
         Renderer.render(countdown2);
+        this.vertexManager.render();
         super.render();
     }
-
 }

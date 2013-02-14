@@ -1,10 +1,7 @@
 package de.gemo.engine.entity;
 
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3i;
+import static org.lwjgl.opengl.GL11.*;
 
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.core.FontManager;
@@ -86,17 +83,17 @@ public class Entity extends EntityLogic implements IDebugRenderable {
     }
 
     public void debugRender() {
-        GL11.glPushMatrix();
+        glPushMatrix();
         {
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
 
-            GL11.glTranslatef(getX(), getY(), getZ());
-            GL11.glRotatef(this.getAngle(), 0, 0, 1);
+            glTranslatef(getX(), getY(), getZ());
+            glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
             Color.yellow.bind();
-            glBegin(GL11.GL_LINE_LOOP);
+            glBegin(GL_LINE_LOOP);
             glVertex3i(-1, -1, 0);
             glVertex3i(1, -1, 0);
             glVertex3i(+1, +1, 0);
@@ -104,12 +101,12 @@ public class Entity extends EntityLogic implements IDebugRenderable {
             glEnd();
 
             // write entity-id
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
             FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
         }
-        GL11.glPopMatrix();
+        glPopMatrix();
     }
 }

@@ -1,6 +1,7 @@
 package de.gemo.engine.core.debug;
 
-import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.*;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
@@ -12,9 +13,9 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
 
     @Override
     public void render() {
-        GL11.glPushMatrix();
+        glPushMatrix();
         {
-            GL11.glEnable(GL11.GL_BLEND);
+            glEnable(GL_BLEND);
 
             UnicodeFont font = FontManager.getStandardFont();
             int fontX = 30;
@@ -53,9 +54,9 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
                 font.drawString(fontX, fontY + 180, "Active UI: " + text, Color.red);
             }
 
-            GL11.glDisable(GL11.GL_BLEND);
+            glDisable(GL_BLEND);
         }
-        GL11.glPopMatrix();
+        glPopMatrix();
     }
 
 }

@@ -16,8 +16,10 @@ import de.gemo.engine.units.Vector;
 
 public class MouseManager {
     private final Engine engine;
-    public HashMap<Integer, Boolean> pressedButtons = new HashMap<Integer, Boolean>();
+    private HashMap<Integer, Boolean> pressedButtons = new HashMap<Integer, Boolean>();
     private HashSet<Integer> holdButtons = new HashSet<Integer>();
+
+    private HashMap<Integer, Long> lastButtonPresses = new HashMap<Integer, Long>();
 
     private int currentX = 0, currentY = 0;
     private int dX = 0, dY = 0;
@@ -117,8 +119,17 @@ public class MouseManager {
                 holdButtons.remove(index);
             } else if (currentState && !oldState) {
                 // throw MouseDownEvent
+                Long last = lastButtonPresses.get(index);
 
-                engine.onMouseDown(new MouseClickEvent(correctedX, correctedY, MouseButton.byID(index)));
+                long time = System.currentTimeMillis();
+                if (last == null) {
+                    last = time - 300;
+                }
+                long difference = time - last;
+                lastButtonPresses.put(index, time);
+                boolean doubleclick = difference < 200;
+                engine.onMouseDown(new MouseClickEvent(correctedX, correctedY, MouseButton.byID(index), doubleclick));
+                System.out.println("doubleclick: " + doubleclick + "( " + difference + "  )");
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);

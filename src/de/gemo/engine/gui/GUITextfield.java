@@ -1,8 +1,9 @@
 package de.gemo.engine.gui;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
@@ -128,14 +129,14 @@ public class GUITextfield extends GUIElement {
     @Override
     public void render() {
         super.render();
-        GL11.glTranslatef(0f, 0f, -1f);
+        glTranslatef(0f, 0f, -1f);
         int x = (int) (-this.animation.getWidth() / 2 + 8);
         this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);
         if (this.isFocused() && this.showLine) {
             x += this.font.getWidth(this.label) - 2;
             this.font.drawString(x, (int) (-this.textHeight) - 1, "|", this.normalColor);
         }
-        GL11.glTranslatef(0f, 0f, +1f);
+        glTranslatef(0f, 0f, +1f);
     }
 
     @Override

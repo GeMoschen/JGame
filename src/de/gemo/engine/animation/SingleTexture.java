@@ -1,9 +1,10 @@
 package de.gemo.engine.animation;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
 public class SingleTexture {
@@ -14,7 +15,6 @@ public class SingleTexture {
     private float u, v, u2, v2;
 
     private boolean newList = true;
-    // private int displayList;
 
     private FloatBuffer verts;
     private FloatBuffer tex;
@@ -65,28 +65,28 @@ public class SingleTexture {
     public void render(float x, float y, float z, float r, float g, float b, float alpha) {
         // bind texture
         this.texture.bind();
-        GL11.glColor4f(r, g, b, alpha);
+        glColor3f(r, g, b);
 
         if (newList) {
             this.createVertices(z);
             // this.createDisplayList(z);
         }
 
-        // GL11.glCallList(displayList);
+        // glCallList(displayList);
 
         verts.rewind();
         tex.rewind();
 
-        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-        GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        GL11.glVertexPointer(3, 0, verts);
-        GL11.glTexCoordPointer(2, 0, tex);
+        glVertexPointer(3, 0, verts);
+        glTexCoordPointer(2, 0, tex);
 
-        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+        glDrawArrays(GL_QUADS, 0, 4);
 
-        GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 
     public SingleTexture clone() {

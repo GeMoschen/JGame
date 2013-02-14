@@ -1,10 +1,5 @@
 package de.gemo.engine.gui;
 
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3i;
-
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.Animation;
@@ -25,6 +20,8 @@ import de.gemo.engine.interfaces.listener.FocusListener;
 import de.gemo.engine.interfaces.listener.MouseListener;
 import de.gemo.engine.units.ComplexVector;
 import de.gemo.engine.units.Vector;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public abstract class GUIElement extends Entity2DClickable implements IKeyAdapter {
 
@@ -169,17 +166,17 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     @Override
     public void debugRender() {
-        GL11.glPushMatrix();
+        glPushMatrix();
         {
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
 
-            GL11.glTranslatef(getX(), getY(), getZ());
-            GL11.glRotatef(this.getAngle(), 0, 0, 1);
+            glTranslatef(getX(), getY(), getZ());
+            glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
             Color.yellow.bind();
-            glBegin(GL11.GL_LINE_LOOP);
+            glBegin(GL_LINE_LOOP);
             glVertex3i(-1, -1, 0);
             glVertex3i(1, -1, 0);
             glVertex3i(+1, +1, 0);
@@ -188,17 +185,17 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
             // write entity-id
             if (this.isFocused() || this.isHovered()) {
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
-                GL11.glEnable(GL11.GL_BLEND);
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
                 FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
             }
-            GL11.glRotatef(-this.getAngle(), 0, 0, 1);
-            GL11.glTranslatef(-getX(), -getY(), -getZ());
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            glRotatef(-this.getAngle(), 0, 0, 1);
+            glTranslatef(-getX(), -getY(), -getZ());
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
             this.getClickbox().render();
         }
-        GL11.glPopMatrix();
+        glPopMatrix();
     }
 
     public void doTick() {

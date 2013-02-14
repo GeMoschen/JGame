@@ -1,6 +1,11 @@
 package de.gemo.engine.units;
 
-public class ComplexVector extends Vector {
+import java.io.Serializable;
+
+public class ComplexVector extends Vector implements Serializable {
+
+    private static final long serialVersionUID = -5819536146967952632L;
+
     protected final Vector parent;
     protected float calcX, calcY, calcZ;
 

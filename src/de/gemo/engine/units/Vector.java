@@ -1,8 +1,13 @@
 package de.gemo.engine.units;
 
-import static org.lwjgl.opengl.GL11.glVertex3f;
+import java.io.Serializable;
 
-public class Vector {
+import static org.lwjgl.opengl.GL11.*;
+
+public class Vector implements Serializable {
+
+    private static final long serialVersionUID = 1870562186338212289L;
+
     protected float x, y, z;
 
     public static Vector FromPoint(float x, float y) {

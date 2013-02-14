@@ -1,11 +1,5 @@
 package de.gemo.engine.core;
 
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-
 import java.awt.Font;
 import java.util.HashMap;
 
@@ -14,7 +8,6 @@ import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
@@ -34,6 +27,8 @@ import de.gemo.engine.inputmanager.KeyboardManager;
 import de.gemo.engine.inputmanager.MouseManager;
 import de.gemo.engine.sound.SoundManager;
 import de.gemo.game.controller.MyGUIController;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class Engine {
 
@@ -104,8 +99,8 @@ public class Engine {
             }
 
             // clear contents
-            GL11.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
             keyManager.update();
             mouseManager.update();
 
@@ -118,17 +113,17 @@ public class Engine {
                 this.updateGUIControllers(delta);
             }
 
-            GL11.glPushMatrix();
+            glPushMatrix();
             {
                 // TODO: render gamefield-content
 
                 // RENDER GUI
                 if (this.debugMonitor.isShowGraphics()) {
-                    GL11.glEnable(GL11.GL_BLEND);
+                    glEnable(GL_BLEND);
                     for (GUIController controller : this.guiController.values()) {
                         controller.render();
                     }
-                    GL11.glDisable(GL11.GL_BLEND);
+                    glDisable(GL_BLEND);
                 }
 
                 // DEBUG RENDER
@@ -138,10 +133,10 @@ public class Engine {
                     }
                 }
             }
-            GL11.glPopMatrix();
+            glPopMatrix();
 
             // draw debug-informations
-            GL11.glEnable(GL11.GL_BLEND);
+            glEnable(GL_BLEND);
             {
                 if (!freeMouse) {
                     UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
@@ -151,7 +146,7 @@ public class Engine {
                     font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
                 }
             }
-            GL11.glDisable(GL11.GL_BLEND);
+            glDisable(GL_BLEND);
 
             // render debugmonitor
             this.debugMonitor.render();
@@ -244,25 +239,25 @@ public class Engine {
         // init OpenGL
         glMatrixMode(GL_PROJECTION);
 
-        GL11.glLoadIdentity();
+        glLoadIdentity();
         glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1, -1);
         glMatrixMode(GL_MODELVIEW);
 
-        GL11.glShadeModel(GL11.GL_SMOOTH);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        glShadeModel(GL_SMOOTH);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
+        glMatrixMode(GL_MODELVIEW);
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
 
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_FASTEST);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 
         keyManager = new KeyboardManager(this);
         mouseManager = new MouseManager(this);

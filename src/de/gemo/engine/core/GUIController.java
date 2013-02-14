@@ -148,8 +148,16 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         return hoveredElement;
     }
 
+    public final boolean hasHoveredElement() {
+        return hoveredElement != null;
+    }
+
     public final GUIElement getFocusedElement() {
         return focusedElement;
+    }
+
+    public final boolean hasFocusedElement() {
+        return focusedElement != null;
     }
 
     public final boolean isColliding() {
@@ -195,6 +203,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         if (this.focusedElement != null) {
             if (this.focusedElement.isAutoLooseFocus()) {
                 if (!this.focusedElement.isVectorInClickbox(this.mouseVector)) {
+                    this.focusedElement.setFocused(false);
                     this.focusedElement.fireFocusLostEvent();
                     this.focusedElement.setStatus(GUIElementStatus.NONE);
                     this.focusedElement = null;
@@ -295,6 +304,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
 
     public void onMouseOut() {
         if (this.focusedElement != null) {
+            this.focusedElement.setFocused(false);
             this.focusedElement.fireFocusLostEvent();
             this.focusedElement.setStatus(GUIElementStatus.NONE);
             this.focusedElement = null;

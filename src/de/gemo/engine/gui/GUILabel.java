@@ -1,6 +1,7 @@
 package de.gemo.engine.gui;
 
-import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.*;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
@@ -69,10 +70,10 @@ public class GUILabel extends GUIElement {
     @Override
     public void render() {
         if (this.label.length() > 0) {
-            GL11.glTranslatef(0f, 0f, 0f);
+            glTranslatef(0f, 0f, 0f);
             int x = (int) (this.getX() - this.getXOnScreen());
             this.font.drawString(-x, (int) (-this.textHeight), this.label, this.normalColor);
-            GL11.glTranslatef(0f, 0f, 0f);
+            glTranslatef(0f, 0f, 0f);
         }
     }
 }

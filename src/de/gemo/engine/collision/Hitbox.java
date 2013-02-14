@@ -1,11 +1,9 @@
 package de.gemo.engine.collision;
 
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glVertex3i;
+import static org.lwjgl.opengl.GL11.*;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -185,6 +183,25 @@ public class Hitbox {
             }
         }
         return result + " }";
+    }
+
+    public static Hitbox load(Vector baseVector, ArrayList<Vector> pointList) {
+        Hitbox hitbox = new Hitbox(baseVector);
+        for (Vector vector : pointList) {
+            hitbox.addPoint(vector.getX(), vector.getY());
+        }
+        return hitbox;
+    }
+
+    public void export(ObjectOutputStream outputStream) {
+        try {
+            for (Vector vector : this.points) {
+                outputStream.writeObject(vector);
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }

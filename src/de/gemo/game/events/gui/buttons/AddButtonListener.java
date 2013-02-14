@@ -6,8 +6,15 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.MouseListener;
+import de.gemo.game.controller.VertexManager;
 
-public class ButtonMoveListener implements MouseListener {
+public class AddButtonListener implements MouseListener {
+
+    private VertexManager vertexManager;
+
+    public AddButtonListener(VertexManager vertexManager) {
+        this.vertexManager = vertexManager;
+    }
 
     @Override
     public void onMouseClick(GUIElement element, MouseClickEvent event) {
@@ -15,6 +22,7 @@ public class ButtonMoveListener implements MouseListener {
 
     @Override
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
+        vertexManager.addVertex(640, 480);
     }
 
     @Override
@@ -23,12 +31,6 @@ public class ButtonMoveListener implements MouseListener {
 
     @Override
     public void onMouseDrag(GUIElement element, MouseDragEvent event) {
-        if (event.hasMoved()) {
-            float newX = event.getX() + element.getXOnScreen();
-            int tX = (int) (newX / 2);
-            float newY = event.getY() + element.getYOnScreen();
-            int tY = (int) (newY / 2);
-            element.setCenter(tX * 2, tY * 2);
-        }
     }
+
 }

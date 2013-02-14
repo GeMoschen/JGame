@@ -1,12 +1,13 @@
 package de.gemo.engine.gui;
 
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.core.FontManager;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class GUIButton extends GUIElement {
 
@@ -133,7 +134,7 @@ public class GUIButton extends GUIElement {
     public void render() {
         super.render();
         if (this.label.length() > 0) {
-            GL11.glTranslatef(0f, 0f, -1f);
+            glTranslatef(0f, 0f, -1f);
             if (this.isHovered()) {
                 this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.hoverColor);
             } else if (this.isActive()) {
@@ -141,7 +142,7 @@ public class GUIButton extends GUIElement {
             } else {
                 this.font.drawString((int) (-this.textWidth), (int) (-this.textHeight), this.label, this.normalColor);
             }
-            GL11.glTranslatef(0f, 0f, +1f);
+            glTranslatef(0f, 0f, +1f);
         }
     }
 }
