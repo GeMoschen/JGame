@@ -1,11 +1,11 @@
 package de.gemo.engine.entity;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.gui.GUIElement;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class EntityVertex extends GUIElement {
 
@@ -25,13 +25,13 @@ public class EntityVertex extends GUIElement {
             glDisable(GL_TEXTURE_2D);
             // render center
             if (this.isHovered()) {
-                Color.red.bind();
+                Color.darkGray.bind();
             } else if (this.isFocused()) {
-                Color.pink.bind();
+                Color.red.bind();
             } else {
-                Color.orange.bind();
+                Color.lightGray.bind();
             }
-            glBegin(GL_LINE_LOOP);
+            glBegin(GL_QUADS);
             glVertex3f(-pointSize, -pointSize, this.getZ());
             glVertex3f(pointSize, -pointSize, this.getZ());
             glVertex3f(+pointSize, +pointSize, this.getZ());

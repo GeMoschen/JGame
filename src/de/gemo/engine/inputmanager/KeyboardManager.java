@@ -9,12 +9,21 @@ import de.gemo.engine.core.Engine;
 import de.gemo.engine.events.keyboard.KeyEvent;
 
 public class KeyboardManager {
+    public static KeyboardManager INSTANCE = null;
 
     private final Engine engine;
     public HashMap<Integer, Boolean> pressedKeys = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Character> holdKeys = new HashMap<Integer, Character>();
 
-    public KeyboardManager(Engine engine) {
+    public static KeyboardManager getInstance(Engine engine) {
+        if (INSTANCE == null) {
+            return new KeyboardManager(engine);
+        } else {
+            throw new RuntimeException("ERROR: KeyManager is already created!");
+        }
+    }
+
+    private KeyboardManager(Engine engine) {
         this.engine = engine;
         this.holdKeys = new HashMap<Integer, Character>();
         for (int index = 0; index < 65536; index++) {

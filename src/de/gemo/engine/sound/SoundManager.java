@@ -11,6 +11,7 @@ import de.cuina.fireandfuel.CodecJLayerMP3;
 
 public class SoundManager {
 
+    public static SoundManager INSTANCE = null;
     private static int ID = 0;
 
     protected ConcurrentLinkedQueue<String> soundsPlaying = new ConcurrentLinkedQueue<String>();
@@ -19,7 +20,15 @@ public class SoundManager {
     protected SoundSystem soundSystem = null;
     private float volume = 1f;
 
-    public SoundManager() {
+    public static SoundManager getInstance() {
+        if (INSTANCE == null) {
+            return new SoundManager();
+        } else {
+            throw new RuntimeException("ERROR: SoundManager is already created!");
+        }
+    }
+
+    private SoundManager() {
         try {
             SoundSystemConfig.addLibrary(LibraryLWJGLOpenAL.class);
             SoundSystemConfig.setCodec("mp3", CodecJLayerMP3.class);

@@ -34,44 +34,128 @@ public class Engine {
 
     public static Engine INSTANCE = null;
 
+    // DELTA
     private long lastFrame;
     private int delta;
 
+    // WINDOW
     private String WIN_TITLE = "Enginetest";
-
+    private int WIN_WIDTH = 1280;
+    private int WIN_HEIGHT = 1024;
     private float win2viewRatioX = 1, win2viewRatioY = 1;
 
-    public int WIN_WIDTH = 1280;
-    public int WIN_HEIGHT = 1024;
-
+    // VIEW
     public int VIEW_WIDTH = 1280;
     public int VIEW_HEIGHT = 1024;
 
+    // IS MOUSE FREE
     private boolean freeMouse = false;
 
-    private int currentFPS = 0;
+    // TEMP-FPS
+    private int tempFPS = 0;
+
+    // MANAGER & MONITOR
     private KeyboardManager keyManager;
     private MouseManager mouseManager;
-    private AbstractDebugMonitor debugMonitor;
     private SoundManager soundManager;
+    private AbstractDebugMonitor debugMonitor;
 
+    // GUI-CONTROLLER
     private GUIController activeGUIController = null;
     private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
+
+    // ////////////////////////////////////////
+    //
+    // ENGINE-STUFF
+    //
+    // ////////////////////////////////////////
 
     public Engine() {
         INSTANCE = this;
         this.createWindow(WIN_WIDTH, WIN_HEIGHT, false);
         this.initOpenGL();
+        this.initManager();
         this.loadFonts();
         this.createGUI();
         this.run();
     }
 
-    public static void close() {
-        Engine.INSTANCE.soundManager.stopAll();
+    private final void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
+        try {
+            this.WIN_WIDTH = windowWidth;
+            this.WIN_HEIGHT = windowHeight;
+            this.win2viewRatioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
+            this.win2viewRatioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
+            DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
+            if (fullscreen) {
+                displayMode = null;
+                DisplayMode[] modes = Display.getAvailableDisplayModes();
+                for (int i = 0; i < modes.length; i++) {
+                    if (modes[i].getWidth() == WIN_WIDTH && modes[i].getHeight() == WIN_HEIGHT && modes[i].isFullscreenCapable()) {
+                        displayMode = modes[i];
+                    }
+                }
+                Display.setFullscreen(fullscreen);
+            }
+            Display.setDisplayMode(displayMode);
+            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
+            Display.setTitle(WIN_TITLE);
+            Display.create(pixelFormat);
+            // Display.create();
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+            Display.destroy();
+            System.exit(1);
+        }
+    }
 
-        Display.destroy();
-        System.exit(0);
+    private final void initOpenGL() {
+        // init OpenGL
+        glMatrixMode(GL_PROJECTION);
+
+        glLoadIdentity();
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1, -1);
+        glMatrixMode(GL_MODELVIEW);
+
+        glShadeModel(GL_SMOOTH);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
+        glMatrixMode(GL_MODELVIEW);
+
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+    }
+
+    private final void initManager() {
+        keyManager = KeyboardManager.getInstance(this);
+        mouseManager = MouseManager.getInstance(this);
+        soundManager = SoundManager.getInstance();
+        debugMonitor = new StandardDebugMonitor();
+    }
+
+    private void loadFonts() {
+        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
+    }
+
+    private final void createGUI() {
+        float halfWidth = VIEW_WIDTH / 2f;
+        float halfHeight = VIEW_HEIGHT / 2f;
+
+        Hitbox hitbox = new Hitbox(halfWidth, halfHeight);
+        hitbox.addPoint(-halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, -halfHeight);
+        hitbox.addPoint(halfWidth, halfHeight);
+        hitbox.addPoint(-halfWidth, halfHeight);
+        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
     }
 
     private final void run() {
@@ -91,7 +175,7 @@ public class Engine {
 
         while (!Display.isCloseRequested()) {
             delta = updateDelta();
-            currentFPS++;
+            tempFPS++;
 
             if (startTimer <= System.currentTimeMillis()) {
                 tick = true;
@@ -156,118 +240,20 @@ public class Engine {
 
             if (startTime < System.currentTimeMillis()) {
                 startTime = System.currentTimeMillis() + 1000;
-                this.debugMonitor.setFPS(currentFPS);
+                this.debugMonitor.setFPS(tempFPS);
                 this.debugMonitor.setDelta(delta);
-                currentFPS = 0;
+                tempFPS = 0;
             }
             tick = false;
-
         }
         Engine.close();
     }
 
-    private final void updateGUIControllers(float delta) {
-        for (GUIController controller : this.guiController.values()) {
-            controller.updateController();
-        }
-    }
+    public static void close() {
+        Engine.INSTANCE.soundManager.stopAll();
 
-    private final void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
-        try {
-            this.WIN_WIDTH = windowWidth;
-            this.WIN_HEIGHT = windowHeight;
-            this.win2viewRatioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
-            this.win2viewRatioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
-            DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
-            if (fullscreen) {
-                displayMode = null;
-                DisplayMode[] modes = Display.getAvailableDisplayModes();
-                for (int i = 0; i < modes.length; i++) {
-                    if (modes[i].getWidth() == WIN_WIDTH && modes[i].getHeight() == WIN_HEIGHT && modes[i].isFullscreenCapable()) {
-                        displayMode = modes[i];
-                    }
-                }
-                Display.setFullscreen(fullscreen);
-            }
-            Display.setDisplayMode(displayMode);
-            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
-            Display.setTitle(WIN_TITLE);
-            Display.create(pixelFormat);
-            // Display.create();
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-            Display.destroy();
-            System.exit(1);
-        }
-    }
-
-    public final void registerGUIController(GUIController controller) {
-        this.guiController.put(controller.getID(), controller);
-    }
-
-    public final GUIController getGUIController(int ID) {
-        for (GUIController controller : this.guiController.values()) {
-            if (controller.getID() == ID) {
-                return controller;
-            }
-        }
-        return null;
-    }
-
-    public final GUIController getGUIController(String name) {
-        for (GUIController controller : this.guiController.values()) {
-            if (controller.getName().equalsIgnoreCase(name)) {
-                return controller;
-            }
-        }
-        return null;
-    }
-
-    private final void createGUI() {
-        float halfWidth = VIEW_WIDTH / 2f;
-        float halfHeight = VIEW_HEIGHT / 2f;
-
-        Hitbox hitbox = new Hitbox(halfWidth, halfHeight);
-        hitbox.addPoint(-halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, halfHeight);
-        hitbox.addPoint(-halfWidth, halfHeight);
-        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
-    }
-
-    private final void initOpenGL() {
-        // init OpenGL
-        glMatrixMode(GL_PROJECTION);
-
-        glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1, -1);
-        glMatrixMode(GL_MODELVIEW);
-
-        glShadeModel(GL_SMOOTH);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
-        glMatrixMode(GL_MODELVIEW);
-
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-
-        keyManager = new KeyboardManager(this);
-        mouseManager = new MouseManager(this);
-        soundManager = new SoundManager();
-        debugMonitor = new StandardDebugMonitor();
-    }
-
-    private void loadFonts() {
-        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
+        Display.destroy();
+        System.exit(0);
     }
 
     // ////////////////////////////////////////
@@ -339,17 +325,6 @@ public class Engine {
         this.activateGUIController(null);
     }
 
-    private final void activateGUIController(GUIController controller) {
-        if (this.activeGUIController != null && this.activeGUIController != controller) {
-            this.activeGUIController.onMouseOut();
-            if (controller != null) {
-                controller.onMouseIn();
-            }
-        }
-        this.activeGUIController = controller;
-        this.debugMonitor.setActiveGUIController(this.activeGUIController);
-    }
-
     public final void onMouseDown(MouseClickEvent event) {
         if (!freeMouse) {
             this.mouseManager.ungrabMouse();
@@ -388,8 +363,18 @@ public class Engine {
         this.activateGUIController(null);
     }
 
+    // ////////////////////////////////////////
+    //
+    // METHODS TO HANDLE DELTA
+    //
+    // ////////////////////////////////////////
+
     private final long getTime() {
         return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
+
+    public final int getCurrentDelta() {
+        return delta;
     }
 
     private final int updateDelta() {
@@ -399,9 +384,56 @@ public class Engine {
         return delta;
     }
 
-    public final int getCurrentDelta() {
-        return delta;
+    // ////////////////////////////////////////
+    //
+    // METHODS TO HANDLE GUI-CONTROLLERS
+    //
+    // ////////////////////////////////////////
+
+    private final void updateGUIControllers(float delta) {
+        for (GUIController controller : this.guiController.values()) {
+            controller.updateController();
+        }
     }
+
+    private final void activateGUIController(GUIController controller) {
+        if (this.activeGUIController != null && this.activeGUIController != controller) {
+            this.activeGUIController.onMouseOut();
+            if (controller != null) {
+                controller.onMouseIn();
+            }
+        }
+        this.activeGUIController = controller;
+        this.debugMonitor.setActiveGUIController(this.activeGUIController);
+    }
+
+    public final void registerGUIController(GUIController controller) {
+        this.guiController.put(controller.getID(), controller);
+    }
+
+    public final GUIController getGUIController(int ID) {
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.getID() == ID) {
+                return controller;
+            }
+        }
+        return null;
+    }
+
+    public final GUIController getGUIController(String name) {
+        for (GUIController controller : this.guiController.values()) {
+            if (controller.getName().equalsIgnoreCase(name)) {
+                return controller;
+            }
+        }
+        return null;
+    }
+
+    // ////////////////////////////////////////
+    //
+    // GETTER AND SETTER
+    //
+    // ////////////////////////////////////////
 
     public final int getWindowWidth() {
         return WIN_WIDTH;
@@ -409,14 +441,6 @@ public class Engine {
 
     public final int getWindowHeight() {
         return WIN_HEIGHT;
-    }
-
-    public final AbstractDebugMonitor getDebugMonitor() {
-        return debugMonitor;
-    }
-
-    public final GUIController getActiveGUIController() {
-        return activeGUIController;
     }
 
     public final float getWin2viewRatioX() {
@@ -427,7 +451,30 @@ public class Engine {
         return win2viewRatioY;
     }
 
+    // ////////////////////////////////////////
+    //
+    // GETTER AND SETTER FOR CONTROLLER / MANAGER
+    //
+    // ////////////////////////////////////////
+
+    public final MouseManager getMouseManager() {
+        return mouseManager;
+    }
+
+    public final KeyboardManager getKeyManager() {
+        return keyManager;
+    }
+
     public final SoundManager getSoundManager() {
         return soundManager;
     }
+
+    public final AbstractDebugMonitor getDebugMonitor() {
+        return debugMonitor;
+    }
+
+    public final GUIController getActiveGUIController() {
+        return activeGUIController;
+    }
+
 }

@@ -15,6 +15,8 @@ import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.units.Vector;
 
 public class MouseManager {
+    public static MouseManager INSTANCE = null;
+
     private final Engine engine;
     private HashMap<Integer, Boolean> pressedButtons = new HashMap<Integer, Boolean>();
     private HashSet<Integer> holdButtons = new HashSet<Integer>();
@@ -28,25 +30,16 @@ public class MouseManager {
 
     private final Hitbox hitBox, movedHitBox;
 
-    public void grabMouse() {
-        // set the cursor
-        Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
-
-        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.getWin2viewRatioX());
-        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.getWin2viewRatioY());
-
-        // move hitbox
-        this.hitBox.setCenter(x, y);
-
-        // grab mouse
-        Mouse.setGrabbed(true);
+    public static MouseManager getInstance(Engine engine) {
+        if (INSTANCE == null) {
+            return new MouseManager(engine);
+        } else {
+            throw new RuntimeException("ERROR: MouseManager is already created!");
+        }
     }
 
-    public void ungrabMouse() {
-        Mouse.setGrabbed(false);
-    }
-
-    public MouseManager(Engine engine) {
+    private MouseManager(Engine engine) {
+        INSTANCE = this;
         this.engine = engine;
         this.holdButtons = new HashSet<Integer>();
         for (int index = 0; index < 20; index++) {
@@ -54,16 +47,14 @@ public class MouseManager {
         }
 
         // set the cursor
-        Mouse.setCursorPosition(this.engine.WIN_WIDTH / 2, this.engine.WIN_HEIGHT / 2);
+        Mouse.setCursorPosition(this.engine.getWindowWidth() / 2, this.engine.getWindowHeight() / 2);
 
-        int x = (int) (this.engine.WIN_WIDTH / 2f * this.engine.getWin2viewRatioX());
-        int y = (int) (this.engine.WIN_HEIGHT / 2f * this.engine.getWin2viewRatioY());
+        int x = (int) (this.engine.getWindowWidth() / 2f * this.engine.getWin2viewRatioX());
+        int y = (int) (this.engine.getWindowHeight() / 2f * this.engine.getWin2viewRatioY());
 
         // move hitbox
 
         // build hitbox for mouse
-        // int x = this.engine.getWindowWidth() / 2;
-        // int y = this.engine.getWindowHeight() / 2;
         hitBox = new Hitbox(x, y);
         hitBox.addPoint(0, 0);
         hitBox.addPoint(dim, 0);
@@ -79,6 +70,24 @@ public class MouseManager {
 
         // set the cursor
         Mouse.setCursorPosition(x, y);
+    }
+
+    public void grabMouse() {
+        // set the cursor
+        Mouse.setCursorPosition(this.engine.getWindowWidth() / 2, this.engine.getWindowHeight() / 2);
+
+        int x = (int) (this.engine.getWindowWidth() / 2f * this.engine.getWin2viewRatioX());
+        int y = (int) (this.engine.getWindowHeight() / 2f * this.engine.getWin2viewRatioY());
+
+        // move hitbox
+        this.hitBox.setCenter(x, y);
+
+        // grab mouse
+        Mouse.setGrabbed(true);
+    }
+
+    public void ungrabMouse() {
+        Mouse.setGrabbed(false);
     }
 
     public void move(int x, int y) {
@@ -150,6 +159,7 @@ public class MouseManager {
             currentY = correctedY;
         }
     }
+
     public Hitbox getHitBox() {
         return hitBox;
     }

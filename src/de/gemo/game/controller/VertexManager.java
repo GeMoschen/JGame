@@ -33,10 +33,6 @@ public class VertexManager {
     }
 
     public void render() {
-        for (EntityVertex vertex : this.vertexList.values()) {
-            vertex.render();
-        }
-
         glPushMatrix();
         {
             glDisable(GL_BLEND);
