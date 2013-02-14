@@ -7,17 +7,17 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.MouseListener;
-import de.gemo.game.controller.SecondGUIController;
-import de.gemo.game.controller.VertexManager;
+import de.gemo.game.manager.gui.MyGUIManager2;
+import de.gemo.game.manager.gui.VertexManager;
 
 public class RemoveButtonListener implements MouseListener {
 
     private VertexManager vertexManager;
-    private SecondGUIController guiController;
+    private MyGUIManager2 guiManager;
 
-    public RemoveButtonListener(VertexManager vertexManager, SecondGUIController guiController) {
+    public RemoveButtonListener(VertexManager vertexManager, MyGUIManager2 guiManager) {
         this.vertexManager = vertexManager;
-        this.guiController = guiController;
+        this.guiManager = guiManager;
     }
 
     @Override
@@ -26,8 +26,8 @@ public class RemoveButtonListener implements MouseListener {
 
     @Override
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
-        vertexManager.removeVertex((EntityVertex) guiController.getFocusedElement());
-        guiController.setSelectedVertex(null);
+        vertexManager.removeVertex((EntityVertex) guiManager.getFocusedElement());
+        guiManager.setSelectedVertex(null);
     }
 
     @Override

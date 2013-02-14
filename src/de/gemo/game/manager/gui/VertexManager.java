@@ -1,4 +1,4 @@
-package de.gemo.game.controller;
+package de.gemo.game.manager.gui;
 
 import java.util.HashMap;
 
@@ -11,32 +11,32 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class VertexManager {
     private HashMap<Integer, EntityVertex> vertexList;
-    private SecondGUIController controller;
-    private MyGUIController guiController;
+    private MyGUIManager2 guiManager2;
+    private MyGUIManager1 guiManager1;
     private VertexListener mouseListener;
 
-    public VertexManager(SecondGUIController controller, MyGUIController guiController) {
-        this.controller = controller;
-        this.guiController = guiController;
+    public VertexManager(MyGUIManager2 guiManager2, MyGUIManager1 guiManager1) {
+        this.guiManager2 = guiManager2;
+        this.guiManager1 = guiManager1;
         this.vertexList = new HashMap<Integer, EntityVertex>();
-        this.mouseListener = new VertexListener(guiController);
+        this.mouseListener = new VertexListener(guiManager1);
     }
 
     public void addVertex(int x, int y) {
         EntityVertex vertex = new EntityVertex(x, y);
         vertex.setMouseListener(mouseListener);
-        controller.unfocusElement();
-        controller.add(vertex);
-        guiController.getBtn_removeVertex().setVisible(false);
-        guiController.getLbl_position().setLabel("Position: " + x + " / " + y);
+        guiManager2.unfocusElement();
+        guiManager2.add(vertex);
+        guiManager1.getBtn_removeVertex().setVisible(false);
+        guiManager1.getLbl_position().setLabel("Position: " + x + " / " + y);
         vertexList.put(vertex.getEntityID(), vertex);
-        controller.focusElement(vertex);
+        guiManager2.focusElement(vertex);
     }
 
     public void removeVertex(EntityVertex vertex) {
         if (vertex != null) {
             vertexList.remove(vertex.getEntityID());
-            controller.remove(vertex);
+            guiManager2.remove(vertex);
         }
     }
 

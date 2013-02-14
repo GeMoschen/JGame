@@ -1,4 +1,4 @@
-package de.gemo.game.controller;
+package de.gemo.game.manager.gui;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
@@ -8,21 +8,21 @@ import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.units.Vector;
 
-public class SecondGUIController extends GUIManager {
+public class MyGUIManager2 extends GUIManager {
 
     private VertexManager vertexManager;
     private EntityVertex selectedVertex = null;
-    private MyGUIController controller;
+    private MyGUIManager1 guiManager;
 
-    public SecondGUIController(String name, Hitbox hitbox, Vector mouseVector, int z) {
+    public MyGUIManager2(String name, Hitbox hitbox, Vector mouseVector, int z) {
         super(name, hitbox, mouseVector, z);
     }
 
     @Override
     protected void initManager() {
-        controller = (MyGUIController) Engine.INSTANCE.getGUIManager("GUI");
+        guiManager = (MyGUIManager1) Engine.INSTANCE.getGUIManager("GUI");
         // ADD VERTEXMANAGER
-        vertexManager = new VertexManager(this, controller);
+        vertexManager = new VertexManager(this, guiManager);
     }
 
     @Override
@@ -32,22 +32,22 @@ public class SecondGUIController extends GUIManager {
                 this.vertexManager.addVertex(event.getX(), event.getY());
             }
         } else {
-            controller.getBtn_removeVertex().setVisible(this.hasFocusedElement());
+            guiManager.getBtn_removeVertex().setVisible(this.hasFocusedElement());
             if (this.hasFocusedElement()) {
-                controller.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
+                guiManager.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
             } else {
-                controller.getLbl_position().setLabel("Position: ___ / ___");
+                guiManager.getLbl_position().setLabel("Position: ___ / ___");
             }
         }
     }
 
     @Override
     public void onMouseRelease(MouseReleaseEvent event) {
-        controller.getBtn_removeVertex().setVisible(this.hasFocusedElement());
+        guiManager.getBtn_removeVertex().setVisible(this.hasFocusedElement());
         if (this.hasFocusedElement()) {
-            controller.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
+            guiManager.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
         } else {
-            controller.getLbl_position().setLabel("Position: ___ / ___");
+            guiManager.getLbl_position().setLabel("Position: ___ / ___");
         }
     }
 
@@ -58,13 +58,13 @@ public class SecondGUIController extends GUIManager {
     public void setSelectedVertex(EntityVertex selectedVertex) {
         this.selectedVertex = selectedVertex;
         if (selectedVertex == null) {
-            this.controller.getBtn_removeVertex().setVisible(false);
-            this.controller.getLbl_position().setLabel("Position: ___ / ___");
+            this.guiManager.getBtn_removeVertex().setVisible(false);
+            this.guiManager.getLbl_position().setLabel("Position: ___ / ___");
             this.unfocusElement();
 
         } else {
-            this.controller.getBtn_removeVertex().setVisible(true);
-            this.controller.getLbl_position().setLabel("Position: " + selectedVertex.getXOnScreen() + " / " + selectedVertex.getYOnScreen());
+            this.guiManager.getBtn_removeVertex().setVisible(true);
+            this.guiManager.getLbl_position().setLabel("Position: " + selectedVertex.getXOnScreen() + " / " + selectedVertex.getYOnScreen());
         }
         if (this.focusedElement != null && selectedVertex == null) {
             this.unfocusElement();

@@ -31,8 +31,8 @@ import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.KeyboardManager;
 import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.SoundManager;
-import de.gemo.game.controller.MyGUIController;
-import de.gemo.game.controller.SecondGUIController;
+import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.manager.gui.MyGUIManager2;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -165,8 +165,8 @@ public class Engine {
         hitbox.addPoint(1080, 63);
         hitbox.addPoint(1080, VIEW_HEIGHT - 20);
         hitbox.addPoint(20, VIEW_HEIGHT - 20);
-        SecondGUIController controller = new SecondGUIController("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
-        this.registerGUIManager(controller);
+        MyGUIManager2 manager = new MyGUIManager2("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
+        this.registerGUIManager(manager);
 
         halfWidth = VIEW_WIDTH / 2f;
         halfHeight = VIEW_HEIGHT / 2f;
@@ -176,7 +176,7 @@ public class Engine {
         hitbox.addPoint(halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, halfHeight);
-        this.registerGUIManager(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
+        this.registerGUIManager(new MyGUIManager1("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
 
         this.initGUIManager(this.getGUIManager("GUI2"));
         this.initGUIManager(this.getGUIManager("GUI"));

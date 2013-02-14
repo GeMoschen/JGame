@@ -1,4 +1,4 @@
-package de.gemo.game.controller;
+package de.gemo.game.manager.gui;
 
 import java.awt.Font;
 
@@ -25,16 +25,16 @@ import de.gemo.game.events.gui.buttons.AddButtonListener;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.gui.buttons.RemoveButtonListener;
 
-public class MyGUIController extends GUIManager {
+public class MyGUIManager1 extends GUIManager {
 
     private GUIGraphic gui, countdown, countdown2;
     private GUILabel lbl_position;
     private GUIButton btn_removeVertex;
     public boolean hotkeysActive = false;
 
-    private SecondGUIController controller;
+    private MyGUIManager2 guiManager;
 
-    public MyGUIController(String name, Hitbox hitbox, Vector mouseVector, int z) {
+    public MyGUIManager1(String name, Hitbox hitbox, Vector mouseVector, int z) {
         super(name, hitbox, mouseVector, z);
     }
 
@@ -48,7 +48,7 @@ public class MyGUIController extends GUIManager {
 
     @Override
     protected void initManager() {
-        controller = (SecondGUIController) Engine.INSTANCE.getGUIManager("GUI2");
+        guiManager = (MyGUIManager2) Engine.INSTANCE.getGUIManager("GUI2");
     }
 
     @Override
@@ -134,7 +134,7 @@ public class MyGUIController extends GUIManager {
             this.add(textfield);
 
             // ADD "Add Vertex"-Button
-            AddButtonListener addListener = new AddButtonListener(controller.getVertexManager());
+            AddButtonListener addListener = new AddButtonListener(guiManager.getVertexManager());
             GUIButton addButton = new GUIButton(1181, 950, animationButton);
             addButton.setLabel("Add Vertex");
             addButton.setColor(normalColor);
@@ -145,7 +145,7 @@ public class MyGUIController extends GUIManager {
             this.add(addButton);
 
             // ADD "Delete Vertex"-Button
-            RemoveButtonListener removeListener = new RemoveButtonListener(controller.getVertexManager(), controller);
+            RemoveButtonListener removeListener = new RemoveButtonListener(guiManager.getVertexManager(), guiManager);
             btn_removeVertex = new GUIButton(1181, 910, animationButton);
             btn_removeVertex.setLabel("Delete Vertex");
             btn_removeVertex.setColor(normalColor);
@@ -229,16 +229,8 @@ public class MyGUIController extends GUIManager {
 
     @Override
     public void onMouseRelease(MouseReleaseEvent event) {
-        if (this.hasHoveredElement()) {
-            if (controller.hasFocusedElement()) {
-                // this.lbl_position.setLabel("Position: " + controller.getFocusedElement().getXOnScreen() + " / " + controller.getFocusedElement().getYOnScreen());
-                // if (this.focusedElement != this.btn_removeVertex) {
-                // controller.setSelectedVertex(null);
-                // }
-                // btn_removeVertex.setVisible(false);
-            }
-        } else {
-            controller.setSelectedVertex(null);
+        if (!this.hasHoveredElement()) {
+            guiManager.setSelectedVertex(null);
         }
     }
 

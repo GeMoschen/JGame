@@ -6,7 +6,7 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.MouseListener;
-import de.gemo.game.controller.VertexManager;
+import de.gemo.game.manager.gui.VertexManager;
 
 public class AddButtonListener implements MouseListener {
 

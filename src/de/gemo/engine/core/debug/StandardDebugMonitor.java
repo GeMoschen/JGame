@@ -7,7 +7,7 @@ import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.manager.FontManager;
-import de.gemo.game.controller.MyGUIController;
+import de.gemo.game.manager.gui.MyGUIManager1;
 
 public class StandardDebugMonitor extends AbstractDebugMonitor {
 
@@ -39,16 +39,16 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
                 if (this.getActiveGUIManager() != null) {
                     text = this.getActiveGUIManager().getName();
 
-                    if (this.getActiveGUIManager() instanceof MyGUIController) {
-                        MyGUIController controller = (MyGUIController) this.getActiveGUIManager();
+                    if (this.getActiveGUIManager() instanceof MyGUIManager1) {
+                        MyGUIManager1 manager = (MyGUIManager1) this.getActiveGUIManager();
 
-                        if (controller.getHoveredElement() != null) {
-                            font.drawString(fontX, fontY + 195, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
+                        if (manager.getHoveredElement() != null) {
+                            font.drawString(fontX, fontY + 195, "Hovered: " + manager.getHoveredElement().getEntityID(), Color.yellow);
                         }
-                        if (controller.getFocusedElement() != null) {
-                            font.drawString(fontX, fontY + 210, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
+                        if (manager.getFocusedElement() != null) {
+                            font.drawString(fontX, fontY + 210, "Focused: " + manager.getFocusedElement().getEntityID(), Color.yellow);
                         }
-                        if (controller.hotkeysActive) {
+                        if (manager.hotkeysActive) {
                             font.drawString(fontX, fontY + 225, "Hotkeys active", Color.green);
                         }
                     }

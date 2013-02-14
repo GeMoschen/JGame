@@ -6,19 +6,19 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.interfaces.listener.MouseListener;
-import de.gemo.game.controller.MyGUIController;
+import de.gemo.game.manager.gui.MyGUIManager1;
 
 public class VertexListener implements MouseListener {
 
-    private MyGUIController controller;
+    private MyGUIManager1 guiManager;
 
-    public VertexListener(MyGUIController controller) {
-        this.controller = controller;
+    public VertexListener(MyGUIManager1 guiManager) {
+        this.guiManager = guiManager;
     }
 
     @Override
     public void onMouseClick(GUIElement element, MouseClickEvent event) {
-        controller.getBtn_removeVertex().setVisible(true);
+        guiManager.getBtn_removeVertex().setVisible(true);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class VertexListener implements MouseListener {
     public void onMouseDrag(GUIElement element, MouseDragEvent event) {
         if (event.hasMoved()) {
             element.move(event.getDifX(), event.getDifY());
-            controller.getLbl_position().setLabel("Position: " + (int) element.getX() + " / " + (int) element.getY());
+            guiManager.getLbl_position().setLabel("Position: " + (int) element.getX() + " / " + (int) element.getY());
         }
     }
 }
