@@ -4,32 +4,40 @@ import java.util.HashMap;
 
 import org.newdawn.slick.Color;
 
-import de.gemo.engine.core.GUIController;
 import de.gemo.engine.entity.EntityVertex;
-import de.gemo.game.events.gui.buttons.ButtonMoveListener;
+import de.gemo.game.events.gui.buttons.VertexListener;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class VertexManager {
     private HashMap<Integer, EntityVertex> vertexList;
-    private GUIController guiController;
-    private ButtonMoveListener mouseListener = new ButtonMoveListener();
+    private SecondGUIController controller;
+    private MyGUIController guiController;
+    private VertexListener mouseListener;
 
-    public VertexManager(GUIController guiController) {
+    public VertexManager(SecondGUIController controller, MyGUIController guiController) {
+        this.controller = controller;
         this.guiController = guiController;
-        vertexList = new HashMap<Integer, EntityVertex>();
+        this.vertexList = new HashMap<Integer, EntityVertex>();
+        this.mouseListener = new VertexListener(guiController);
     }
 
     public void addVertex(int x, int y) {
         EntityVertex vertex = new EntityVertex(x, y);
         vertex.setMouseListener(mouseListener);
-        guiController.add(vertex);
+        controller.unfocusElement();
+        controller.add(vertex);
+        guiController.getBtn_removeVertex().setVisible(false);
+        guiController.getLbl_position().setLabel("Position: " + x + " / " + y);
         vertexList.put(vertex.getEntityID(), vertex);
+        controller.focusElement(vertex);
     }
 
     public void removeVertex(EntityVertex vertex) {
-        vertexList.remove(vertex.getEntityID());
-        guiController.remove(vertex);
+        if (vertex != null) {
+            vertexList.remove(vertex.getEntityID());
+            controller.remove(vertex);
+        }
     }
 
     public void render() {

@@ -16,15 +16,17 @@ import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.gui.GUIElementStatus;
+import de.gemo.engine.inputmanager.MouseManager;
 import de.gemo.engine.interfaces.input.IKeyAdapter;
 import de.gemo.engine.interfaces.input.IKeyController;
 import de.gemo.engine.interfaces.input.IMouseAdapter;
 import de.gemo.engine.interfaces.input.IMouseController;
 import de.gemo.engine.units.Vector;
 
-public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyController, IMouseController {
+public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyController, IMouseController, Comparable<GUIController> {
 
     private final int ID;
+    private final int z;
     private final String name;
     private List<GUIElement> sortedList = new ArrayList<GUIElement>();
     private HashMap<Integer, GUIElement> allElements, visibleElements, invisibleElements;
@@ -33,14 +35,19 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
 
     protected GUIElement hoveredElement = null, focusedElement = null;
 
-    public GUIController(String name, Hitbox hitbox, Vector mouseVector) {
+    public GUIController(String name, Hitbox hitbox, Vector mouseVector, int z) {
         this.ID = Entity.getNextFreeID();
+        this.z = z;
         this.name = name;
         this.hitbox = hitbox;
         this.mouseVector = mouseVector;
         this.allElements = new HashMap<Integer, GUIElement>();
         this.visibleElements = new HashMap<Integer, GUIElement>();
         this.invisibleElements = new HashMap<Integer, GUIElement>();
+    }
+
+    public final void initializeController() {
+        this.initController();
         this.loadTextures();
         this.initGUI();
     }
@@ -160,8 +167,32 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
         return focusedElement != null;
     }
 
+    public final void focusElement(GUIElement elementToFocus) {
+        if (elementToFocus == null) {
+            this.unfocusElement();
+        } else {
+            if (elementToFocus != this.focusedElement) {
+                this.unfocusElement();
+            }
+            this.focusedElement = elementToFocus;
+            this.focusedElement.setFocused(true);
+            this.focusedElement.fireFocusGainedEvent();
+            System.out.println("focus");
+        }
+    }
+
+    public final void unfocusElement() {
+        if (this.focusedElement != null) {
+            this.focusedElement.setStatus(GUIElementStatus.NONE);
+            this.focusedElement.setFocused(false);
+            this.focusedElement.fireFocusLostEvent();
+            System.out.println("unfocus");
+        }
+        this.focusedElement = null;
+    }
+
     public final boolean isColliding() {
-        return CollisionHelper.isVectorInHitbox(this.mouseVector, this.hitbox);
+        return CollisionHelper.isVectorInHitbox(MouseManager.INSTANCE.getTempMouseVector(), this.hitbox) && CollisionHelper.isVectorInHitbox(this.mouseVector, this.hitbox);
     }
 
     public final Hitbox getHitbox() {
@@ -182,11 +213,17 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     //
     // //////////////////////////////////////////
 
-    protected abstract void loadTextures();
+    protected void initController() {
+    }
 
-    protected abstract void initGUI();
+    protected void loadTextures() {
+    }
 
-    public abstract void doTick(float delta);
+    protected void initGUI() {
+    }
+
+    public void doTick(float delta) {
+    }
 
     public final void updateCollisions() {
         boolean isColliding = false;
@@ -303,7 +340,7 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
     }
 
     public void onMouseOut() {
-        if (this.focusedElement != null) {
+        if (this.focusedElement != null && this.focusedElement.isAutoLooseFocus()) {
             this.focusedElement.setFocused(false);
             this.focusedElement.fireFocusLostEvent();
             this.focusedElement.setStatus(GUIElementStatus.NONE);
@@ -335,7 +372,6 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
                     this.focusedElement.fireFocusGainedEvent();
                 }
             } else {
-                System.out.println("???");
                 this.getHoveredElement().setStatus(GUIElementStatus.NONE);
             }
         } else {
@@ -453,6 +489,11 @@ public abstract class GUIController implements IKeyAdapter, IMouseAdapter, IKeyC
 
     @Override
     public void onKeyReleased(KeyEvent event) {
+    }
+
+    @Override
+    public int compareTo(GUIController o) {
+        return (int) (this.z - o.z);
     }
 
 }

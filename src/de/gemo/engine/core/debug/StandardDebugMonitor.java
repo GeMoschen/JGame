@@ -39,16 +39,18 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
                 if (this.getActiveGUIController() != null) {
                     text = this.getActiveGUIController().getName();
 
-                    MyGUIController controller = (MyGUIController) this.getActiveGUIController();
+                    if (this.getActiveGUIController() instanceof MyGUIController) {
+                        MyGUIController controller = (MyGUIController) this.getActiveGUIController();
 
-                    if (controller.getHoveredElement() != null) {
-                        font.drawString(fontX, fontY + 195, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
-                    }
-                    if (controller.getFocusedElement() != null) {
-                        font.drawString(fontX, fontY + 210, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
-                    }
-                    if (controller.hotkeysActive) {
-                        font.drawString(fontX, fontY + 225, "Hotkeys active", Color.green);
+                        if (controller.getHoveredElement() != null) {
+                            font.drawString(fontX, fontY + 195, "Hovered: " + controller.getHoveredElement().getEntityID(), Color.yellow);
+                        }
+                        if (controller.getFocusedElement() != null) {
+                            font.drawString(fontX, fontY + 210, "Focused: " + controller.getFocusedElement().getEntityID(), Color.yellow);
+                        }
+                        if (controller.hotkeysActive) {
+                            font.drawString(fontX, fontY + 225, "Hotkeys active", Color.green);
+                        }
                     }
                 }
                 font.drawString(fontX, fontY + 180, "Active UI: " + text, Color.red);

@@ -1,7 +1,10 @@
 package de.gemo.engine.core;
 
 import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -27,6 +30,7 @@ import de.gemo.engine.inputmanager.KeyboardManager;
 import de.gemo.engine.inputmanager.MouseManager;
 import de.gemo.engine.sound.SoundManager;
 import de.gemo.game.controller.MyGUIController;
+import de.gemo.game.controller.SecondGUIController;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -63,6 +67,7 @@ public class Engine {
     // GUI-CONTROLLER
     private GUIController activeGUIController = null;
     private HashMap<Integer, GUIController> guiController = new HashMap<Integer, GUIController>();
+    private List<GUIController> sortedGUIControllerList = new ArrayList<GUIController>();
 
     // ////////////////////////////////////////
     //
@@ -150,12 +155,29 @@ public class Engine {
         float halfWidth = VIEW_WIDTH / 2f;
         float halfHeight = VIEW_HEIGHT / 2f;
 
-        Hitbox hitbox = new Hitbox(halfWidth, halfHeight);
+        halfWidth = VIEW_WIDTH / 4f;
+        halfHeight = VIEW_HEIGHT / 4f;
+
+        Hitbox hitbox = new Hitbox(0, 0);
+        hitbox.addPoint(20, 63);
+        hitbox.addPoint(1080, 63);
+        hitbox.addPoint(1080, VIEW_HEIGHT - 20);
+        hitbox.addPoint(20, VIEW_HEIGHT - 20);
+        SecondGUIController controller = new SecondGUIController("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
+        this.registerGUIController(controller);
+
+        halfWidth = VIEW_WIDTH / 2f;
+        halfHeight = VIEW_HEIGHT / 2f;
+
+        hitbox = new Hitbox(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, -halfHeight);
         hitbox.addPoint(halfWidth, halfHeight);
         hitbox.addPoint(-halfWidth, halfHeight);
-        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector()));
+        this.registerGUIController(new MyGUIController("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
+
+        this.initGUIController(this.getGUIController("GUI2"));
+        this.initGUIController(this.getGUIController("GUI"));
     }
 
     private final void run() {
@@ -174,77 +196,83 @@ public class Engine {
         Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
 
         while (!Display.isCloseRequested()) {
-            delta = updateDelta();
-            tempFPS++;
+            try {
+                delta = updateDelta();
+                tempFPS++;
 
-            if (startTimer <= System.currentTimeMillis()) {
-                tick = true;
-                startTimer = System.currentTimeMillis() + tickTime;
-            }
+                if (startTimer <= System.currentTimeMillis()) {
+                    tick = true;
+                    startTimer = System.currentTimeMillis() + tickTime;
+                }
 
-            // clear contents
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-            keyManager.update();
-            mouseManager.update();
+                // clear contents
+                glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+                keyManager.update();
+                mouseManager.update();
 
-            // tick controllers
-            for (GUIController controller : this.guiController.values()) {
-                controller.doTick(delta);
-            }
+                // tick controllers
+                for (GUIController controller : this.guiController.values()) {
+                    controller.doTick(delta);
+                }
 
-            if (tick) {
-                this.updateGUIControllers(delta);
-            }
+                if (tick) {
+                    this.updateGUIControllers(delta);
+                }
 
-            glPushMatrix();
-            {
-                // TODO: render gamefield-content
+                glPushMatrix();
+                {
+                    // TODO: render gamefield-content
 
-                // RENDER GUI
-                if (this.debugMonitor.isShowGraphics()) {
-                    glEnable(GL_BLEND);
-                    for (GUIController controller : this.guiController.values()) {
-                        controller.render();
+                    // RENDER GUI
+                    if (this.debugMonitor.isShowGraphics()) {
+                        glEnable(GL_BLEND);
+                        for (GUIController controller : this.guiController.values()) {
+                            controller.render();
+                        }
+                        glDisable(GL_BLEND);
                     }
-                    glDisable(GL_BLEND);
-                }
 
-                // DEBUG RENDER
-                if (this.debugMonitor.isShowHitboxes()) {
-                    for (GUIController controller : this.guiController.values()) {
-                        controller.debugRender();
+                    // DEBUG RENDER
+                    if (this.debugMonitor.isShowHitboxes()) {
+                        for (GUIController controller : this.guiController.values()) {
+                            controller.debugRender();
+                        }
                     }
                 }
-            }
-            glPopMatrix();
+                glPopMatrix();
 
-            // draw debug-informations
-            glEnable(GL_BLEND);
-            {
-                if (!freeMouse) {
-                    UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
-                    String text = "Press Mouse to release it!".toUpperCase();
-                    int width = font.getWidth(text) / 2;
-                    int height = font.getHeight(text) / 2;
-                    font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
+                // draw debug-informations
+                glEnable(GL_BLEND);
+                {
+                    if (!freeMouse) {
+                        UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
+                        String text = "Press Mouse to release it!".toUpperCase();
+                        int width = font.getWidth(text) / 2;
+                        int height = font.getHeight(text) / 2;
+                        font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
+                    }
                 }
+                glDisable(GL_BLEND);
+
+                // render debugmonitor
+                this.debugMonitor.render();
+
+                // update and sync
+                Display.update();
+
+                if (startTime < System.currentTimeMillis()) {
+                    startTime = System.currentTimeMillis() + 1000;
+                    this.debugMonitor.setFPS(tempFPS);
+                    this.debugMonitor.setDelta(delta);
+                    tempFPS = 0;
+                }
+                tick = false;
+            } catch (Exception e) {
+                System.out.println("ERROR IN TICK! SHUTTING DOWN...");
+                e.printStackTrace();
+                Engine.close();
             }
-            glDisable(GL_BLEND);
-
-            // render debugmonitor
-            this.debugMonitor.render();
-
-            // update and sync
-            Display.update();
-
-            if (startTime < System.currentTimeMillis()) {
-                startTime = System.currentTimeMillis() + 1000;
-                this.debugMonitor.setFPS(tempFPS);
-                this.debugMonitor.setDelta(delta);
-                tempFPS = 0;
-            }
-            tick = false;
         }
         Engine.close();
     }
@@ -315,9 +343,11 @@ public class Engine {
     // ////////////////////////////////////////
 
     public final void onMouseMove(MouseMoveEvent event) {
-        for (GUIController controller : this.guiController.values()) {
+        for (GUIController controller : this.sortedGUIControllerList) {
             if (controller.isColliding()) {
-                this.activateGUIController(controller);
+                if (controller != this.activeGUIController) {
+                    this.activateGUIController(controller);
+                }
                 controller.handleMouseMove(event);
                 return;
             }
@@ -331,7 +361,7 @@ public class Engine {
             freeMouse = !freeMouse;
         }
 
-        for (GUIController controller : this.guiController.values()) {
+        for (GUIController controller : this.sortedGUIControllerList) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
                 controller.handleMouseClick(event);
@@ -342,7 +372,7 @@ public class Engine {
     }
 
     public final void onMouseUp(MouseReleaseEvent event) {
-        for (GUIController controller : this.guiController.values()) {
+        for (GUIController controller : this.sortedGUIControllerList) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
                 controller.handleMouseRelease(event);
@@ -353,7 +383,7 @@ public class Engine {
     }
 
     public final void onMouseDrag(MouseDragEvent event) {
-        for (GUIController controller : this.guiController.values()) {
+        for (GUIController controller : this.sortedGUIControllerList) {
             if (controller.isColliding()) {
                 this.activateGUIController(controller);
                 controller.handleMouseDrag(event);
@@ -409,6 +439,12 @@ public class Engine {
 
     public final void registerGUIController(GUIController controller) {
         this.guiController.put(controller.getID(), controller);
+        this.sortedGUIControllerList = new ArrayList<GUIController>(this.guiController.values());
+        Collections.sort(this.sortedGUIControllerList);
+    }
+
+    public final void initGUIController(GUIController controller) {
+        controller.initializeController();
     }
 
     public final GUIController getGUIController(int ID) {

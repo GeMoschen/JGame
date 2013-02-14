@@ -24,11 +24,10 @@ public class MouseManager {
     private HashMap<Integer, Long> lastButtonPresses = new HashMap<Integer, Long>();
 
     private int currentX = 0, currentY = 0;
+    private int correctedX = 0, correctedY = 0;
     private int dX = 0, dY = 0;
 
-    private final int dim = 1;
-
-    private final Hitbox hitBox, movedHitBox;
+    private final Hitbox hitBox, movedHitBox, tempHitBox;
 
     public static MouseManager getInstance(Engine engine) {
         if (INSTANCE == null) {
@@ -57,16 +56,23 @@ public class MouseManager {
         // build hitbox for mouse
         hitBox = new Hitbox(x, y);
         hitBox.addPoint(0, 0);
-        hitBox.addPoint(dim, 0);
-        hitBox.addPoint(dim, dim);
-        hitBox.addPoint(0, dim);
+        hitBox.addPoint(1, 0);
+        hitBox.addPoint(1, 1);
+        hitBox.addPoint(0, 1);
+
+        // build hitbox for mouse
+        tempHitBox = new Hitbox(x, y);
+        tempHitBox.addPoint(0, 0);
+        tempHitBox.addPoint(1, 0);
+        tempHitBox.addPoint(1, 1);
+        tempHitBox.addPoint(0, 1);
 
         // build hitbox for mouse
         movedHitBox = new Hitbox(x, y);
         movedHitBox.addPoint(0, 0);
-        movedHitBox.addPoint(dim, 0);
-        movedHitBox.addPoint(dim, dim);
-        movedHitBox.addPoint(0, dim);
+        movedHitBox.addPoint(1, 0);
+        movedHitBox.addPoint(1, 1);
+        movedHitBox.addPoint(0, 1);
 
         // set the cursor
         Mouse.setCursorPosition(x, y);
@@ -81,6 +87,7 @@ public class MouseManager {
 
         // move hitbox
         this.hitBox.setCenter(x, y);
+        this.tempHitBox.setCenter(x, y);
 
         // grab mouse
         Mouse.setGrabbed(true);
@@ -94,20 +101,24 @@ public class MouseManager {
         movedHitBox.move(x, y);
     }
 
-    public Hitbox getMovedHitBox() {
-        return movedHitBox;
-    }
-
     public void update() {
         // catch MouseMovement. NOTE: This can only be done ONCE, that's why we do it here
         dX = Mouse.getDX();
         dY = -Mouse.getDY();
 
-        int correctedX = (int) (Mouse.getX() * this.engine.getWin2viewRatioX());
-        int correctedY = (int) ((engine.getWindowHeight() - Mouse.getY()) * this.engine.getWin2viewRatioY());
+        correctedX = (int) (Mouse.getX() * this.engine.getWin2viewRatioX());
+        correctedY = (int) ((engine.getWindowHeight() - Mouse.getY()) * this.engine.getWin2viewRatioY());
+
+        float correctedDX = dX * this.engine.getWin2viewRatioX();
+        float correctedDY = dY * this.engine.getWin2viewRatioY();
 
         // iterate over currently pressed buttons to handle dragged buttons
         if (!Mouse.isGrabbed()) {
+            if (currentX != correctedX || currentY != correctedY) {
+                // move hitbox
+                this.tempHitBox.move(correctedDX, correctedDY);
+            }
+
             for (int currentKey : this.holdButtons) {
                 if (Mouse.isButtonDown(currentKey)) {
                     // hold button
@@ -118,7 +129,7 @@ public class MouseManager {
 
         boolean currentState = false;
         boolean oldState;
-
+        //
         for (int index = 0; index < 5; index++) {
             currentState = Mouse.isButtonDown(index);
             oldState = holdButtons.contains(index);
@@ -138,7 +149,6 @@ public class MouseManager {
                 lastButtonPresses.put(index, time);
                 boolean doubleclick = difference < 200;
                 engine.onMouseDown(new MouseClickEvent(correctedX, correctedY, MouseButton.byID(index), doubleclick));
-                System.out.println("doubleclick: " + doubleclick + "( " + difference + "  )");
                 holdButtons.add(index);
             }
             pressedButtons.put(index, currentState);
@@ -146,13 +156,9 @@ public class MouseManager {
 
         if (!Mouse.isGrabbed()) {
             if (currentX != correctedX || currentY != correctedY) {
-                // move hitbox
-                float correctedDX = dX * this.engine.getWin2viewRatioX();
-                float correctedDY = dY * this.engine.getWin2viewRatioY();
-
                 this.hitBox.move(correctedDX, correctedDY);
                 this.movedHitBox.move(correctedDX, correctedDY);
-                // throw MouseMoveEvent
+
                 engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, dX, dY));
             }
             currentX = correctedX;
@@ -164,11 +170,23 @@ public class MouseManager {
         return hitBox;
     }
 
+    public Hitbox getTempHitBox() {
+        return tempHitBox;
+    }
+
+    public Hitbox getMovedHitBox() {
+        return movedHitBox;
+    }
+
     public boolean isButtonDown(int button) {
         return pressedButtons.get(button);
     }
 
     public Vector getMouseVector() {
         return this.hitBox.getCenter();
+    }
+
+    public Vector getTempMouseVector() {
+        return this.tempHitBox.getCenter();
     }
 }

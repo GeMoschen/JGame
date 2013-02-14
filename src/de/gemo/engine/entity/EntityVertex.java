@@ -3,6 +3,7 @@ package de.gemo.engine.entity;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.MultiTexture;
+import de.gemo.engine.core.FontManager;
 import de.gemo.engine.gui.GUIElement;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -24,7 +25,7 @@ public class EntityVertex extends GUIElement {
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
             // render center
-            if (this.isHovered()) {
+            if (this.isHovered() && !this.isFocused()) {
                 Color.darkGray.bind();
             } else if (this.isFocused()) {
                 Color.red.bind();
@@ -40,6 +41,9 @@ public class EntityVertex extends GUIElement {
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
+            if (this.isHovered() || this.isFocused()) {
+                FontManager.getStandardFont().drawString(-FontManager.getStandardFont().getWidth("" + this.entityID) / 2f, pointSize + 2, "" + this.entityID);
+            }
         }
         glPopMatrix();
     }

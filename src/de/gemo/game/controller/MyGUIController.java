@@ -14,10 +14,7 @@ import de.gemo.engine.core.FontManager;
 import de.gemo.engine.core.GUIController;
 import de.gemo.engine.core.Renderer;
 import de.gemo.engine.core.TextureManager;
-import de.gemo.engine.entity.EntityVertex;
 import de.gemo.engine.events.keyboard.KeyEvent;
-import de.gemo.engine.events.mouse.MouseClickEvent;
-import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUIGraphic;
@@ -31,23 +28,27 @@ import de.gemo.game.events.gui.buttons.RemoveButtonListener;
 public class MyGUIController extends GUIController {
 
     private GUIGraphic gui, countdown, countdown2;
-    private VertexManager vertexManager;
-
     private GUILabel lbl_position;
     private GUIButton btn_removeVertex;
-    private EntityVertex selectedVertex = null;
     public boolean hotkeysActive = false;
 
-    public MyGUIController(String name, Hitbox hitbox, Vector mouseVector) {
-        super(name, hitbox, mouseVector);
+    private SecondGUIController controller;
+
+    public MyGUIController(String name, Hitbox hitbox, Vector mouseVector, int z) {
+        super(name, hitbox, mouseVector, z);
     }
 
-    public EntityVertex getSelectedVertex() {
-        return selectedVertex;
+    public GUIButton getBtn_removeVertex() {
+        return btn_removeVertex;
     }
 
-    public void setSelectedVertex(EntityVertex selectedVertex) {
-        this.selectedVertex = selectedVertex;
+    public GUILabel getLbl_position() {
+        return lbl_position;
+    }
+
+    @Override
+    protected void initController() {
+        controller = (SecondGUIController) Engine.INSTANCE.getGUIController("GUI2");
     }
 
     @Override
@@ -132,11 +133,8 @@ public class MyGUIController extends GUIController {
             textfield.setMouseListener(listener);
             this.add(textfield);
 
-            // ADD VERTEXMANAGER
-            vertexManager = new VertexManager(this);
-
             // ADD "Add Vertex"-Button
-            AddButtonListener addListener = new AddButtonListener(vertexManager);
+            AddButtonListener addListener = new AddButtonListener(controller.getVertexManager());
             GUIButton addButton = new GUIButton(1181, 950, animationButton);
             addButton.setLabel("Add Vertex");
             addButton.setColor(normalColor);
@@ -147,7 +145,7 @@ public class MyGUIController extends GUIController {
             this.add(addButton);
 
             // ADD "Delete Vertex"-Button
-            RemoveButtonListener removeListener = new RemoveButtonListener(vertexManager, this);
+            RemoveButtonListener removeListener = new RemoveButtonListener(controller.getVertexManager(), controller);
             btn_removeVertex = new GUIButton(1181, 910, animationButton);
             btn_removeVertex.setLabel("Delete Vertex");
             btn_removeVertex.setColor(normalColor);
@@ -230,34 +228,17 @@ public class MyGUIController extends GUIController {
     }
 
     @Override
-    public void onMouseClick(MouseClickEvent event) {
-        super.onMouseClick(event);
-        if (event.isDoubleClick()) {
-            if (!this.hasFocusedElement()) {
-                this.vertexManager.addVertex(event.getX(), event.getY());
-            }
-        }
-    }
-
-    @Override
     public void onMouseRelease(MouseReleaseEvent event) {
-        super.onMouseRelease(event);
-        if (this.hasFocusedElement() && this.focusedElement instanceof EntityVertex) {
-            btn_removeVertex.setVisible(true);
-            this.lbl_position.setLabel("Position: " + this.focusedElement.getXOnScreen() + " / " + this.focusedElement.getYOnScreen());
-            this.setSelectedVertex((EntityVertex) this.getFocusedElement());
+        if (this.hasHoveredElement()) {
+            if (controller.hasFocusedElement()) {
+                // this.lbl_position.setLabel("Position: " + controller.getFocusedElement().getXOnScreen() + " / " + controller.getFocusedElement().getYOnScreen());
+                // if (this.focusedElement != this.btn_removeVertex) {
+                // controller.setSelectedVertex(null);
+                // }
+                // btn_removeVertex.setVisible(false);
+            }
         } else {
-            this.lbl_position.setLabel("Position: ___ / ___");
-            btn_removeVertex.setVisible(false);
-            this.setSelectedVertex(null);
-        }
-    }
-
-    @Override
-    public void onMouseDrag(MouseDragEvent event) {
-        super.onMouseDrag(event);
-        if (this.hasFocusedElement() && this.focusedElement instanceof EntityVertex) {
-            this.lbl_position.setLabel("Position: " + this.focusedElement.getXOnScreen() + " / " + this.focusedElement.getYOnScreen());
+            controller.setSelectedVertex(null);
         }
     }
 
@@ -280,7 +261,6 @@ public class MyGUIController extends GUIController {
         Renderer.render(gui);
         Renderer.render(countdown);
         Renderer.render(countdown2);
-        this.vertexManager.render();
         super.render();
     }
 }
