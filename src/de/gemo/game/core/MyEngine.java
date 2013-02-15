@@ -26,6 +26,11 @@ public class MyEngine extends Engine {
     }
 
     @Override
+    protected void createManager() {
+        this.setDebugMonitor(new ExtendedDebugMonitor());
+    }
+
+    @Override
     protected final void createGUI() {
         Hitbox hitbox = new Hitbox(550, 535);
         hitbox.addPoint(-530, -470);
@@ -45,5 +50,4 @@ public class MyEngine extends Engine {
         this.initGUIManager(this.getGUIManager("GUI2"));
         this.initGUIManager(this.getGUIManager("GUI"));
     }
-
 }
