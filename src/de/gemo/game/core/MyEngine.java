@@ -29,33 +29,70 @@ public class MyEngine extends Engine {
 
     @Override
     protected void loadFonts() {
-        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20");
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20", 0);
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24");
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 10);
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
     }
 
-    private final void drawLoadingText(String topic, String text) {
+    private final void drawLoadingText(String topic, String text, int percent) {
         glPushMatrix();
         glClearColor(0, 0, 0, 0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         glEnable(GL_BLEND);
         UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
+
+        // draw toptex
         int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(topic) / 2f);
         int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(topic) / 2f);
         font.drawString(x, y, topic, Color.red);
+        y += font.getHeight(topic) + 10;
 
+        // draw subtext
+        font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 20);
         x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
-        font.drawString(x, y + font.getHeight(topic) + 10, text, Color.gray);
+        font.drawString(x, y, text, Color.gray);
+
+        int width = 200;
+        int height = 40;
+        x = (int) (this.VIEW_WIDTH / 2f - width / 2f);
+        y = this.VIEW_HEIGHT - 100;
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+
+        float succeeded = percent * 2;
+
+        // DRAW SUCCEEDED PERCENT
+        glBegin(GL_QUADS);
+        Color.red.bind();
+        glVertex3f(x, y, 0);
+        Color.green.bind();
+        glVertex3f(x + succeeded, y, 0);
+        Color.green.bind();
+        glVertex3f(x + succeeded, y + height, 0);
+        Color.red.bind();
+        glVertex3f(x, y + height, 0);
+        glEnd();
+
+        // DRAW OUTLINE
+        glLineWidth(3f);
+        glBegin(GL_LINE_LOOP);
+        Color.white.bind();
+        glVertex3f(x, y, 0);
+        glVertex3f(x + width, y, 0);
+        glVertex3f(x + width, y + height, 0);
+        glVertex3f(x, y + height, 0);
+        glEnd();
+
+        // draw line
         Display.update();
         glPopMatrix();
     }
-
     @Override
     protected void loadTextures() {
         try {
             // LOAD GUI TEXTURE
-            drawLoadingText("Loading Textures...", "GUI_INGAME.png");
+            drawLoadingText("Loading Textures...", "GUI_INGAME.png", 20);
             SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
 
@@ -74,7 +111,7 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("countdown", countdownMultiTexture);
 
             // LOAD TEXTURES FOR BUTTON
-            drawLoadingText("Loading Textures...", "test.jpg");
+            drawLoadingText("Loading Textures...", "test.jpg", 55);
             SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("test.jpg");
             SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
             SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
@@ -83,12 +120,12 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
             // LOAD TEXTFIELD TEXTURE
-            drawLoadingText("Loading Textures...", "edit_normal.jpg");
+            drawLoadingText("Loading Textures...", "edit_normal.jpg", 70);
             SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
 
             // LOAD CHECKBOX TEXTURE
-            drawLoadingText("Loading Textures...", "gui_checkboxradio.png");
+            drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 85);
             SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
             SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
             SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
