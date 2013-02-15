@@ -11,18 +11,21 @@ import org.newdawn.slick.font.effects.ConfigurableEffect;
 public class FontManager {
 
     public static final String DEFAULT = "Verdana";
-    public static final int DEFAULTSIZE = 12;
+    public static final int MINIMUM_DEFAULT_SIZE = 12;
+
     public static final String ANALOG = "Analog";
 
     private static UnicodeFont standardFont;
     private static HashMap<String, UnicodeFont> fontMap;
 
-    static {
+    public static void init() {
         fontMap = new HashMap<String, UnicodeFont>();
-        standardFont = loadFont(DEFAULT, Font.PLAIN, DEFAULTSIZE);
-        loadFont(DEFAULT, Font.BOLD, DEFAULTSIZE);
-        loadFont(DEFAULT, Font.ITALIC, DEFAULTSIZE);
-        loadFont(DEFAULT, Font.BOLD | Font.ITALIC, DEFAULTSIZE);
+        standardFont = loadFont(DEFAULT, Font.PLAIN, MINIMUM_DEFAULT_SIZE);
+        for (int size = MINIMUM_DEFAULT_SIZE; size < 30; size += 2) {
+            loadFont(DEFAULT, Font.BOLD, size);
+            loadFont(DEFAULT, Font.ITALIC, size);
+            loadFont(DEFAULT, Font.BOLD | Font.ITALIC, size);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -81,7 +84,7 @@ public class FontManager {
     }
 
     public static UnicodeFont getStandardFont(int style) {
-        UnicodeFont font = getFont(DEFAULT, style, DEFAULTSIZE);
+        UnicodeFont font = getFont(DEFAULT, style, MINIMUM_DEFAULT_SIZE);
         return ((font != null) ? font : standardFont);
     }
 }

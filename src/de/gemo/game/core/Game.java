@@ -1,8 +1,11 @@
-package de.gemo.engine.core;
+package de.gemo.game.core;
+
+import de.gemo.engine.core.Engine;
 
 public class Game {
 
     public static Game INSTANCE = null;
+    private final Engine engine;
 
     /**
      * @param args
@@ -15,7 +18,12 @@ public class Game {
 
     public Game() {
         INSTANCE = this;
-        new Engine();
+        this.engine = new MyEngine();
+        this.engine.startUp();
+    }
+
+    public Engine getEngine() {
+        return engine;
     }
 
 }

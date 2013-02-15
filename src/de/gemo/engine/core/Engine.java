@@ -14,11 +14,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.PixelFormat;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
-import org.newdawn.slick.font.effects.GradientEffect;
-import org.newdawn.slick.font.effects.OutlineEffect;
-import org.newdawn.slick.font.effects.ShadowEffect;
 
-import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.debug.AbstractDebugMonitor;
 import de.gemo.engine.core.debug.StandardDebugMonitor;
 import de.gemo.engine.events.keyboard.KeyEvent;
@@ -31,31 +27,27 @@ import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.KeyboardManager;
 import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.SoundManager;
-import de.gemo.game.manager.gui.MyGUIManager1;
-import de.gemo.game.manager.gui.MyGUIManager2;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Engine {
+public abstract class Engine {
 
-    public static Engine INSTANCE = null;
+    public static Engine INSTANCE;
 
     // DELTA
     private long lastFrame;
     private int delta;
 
     // WINDOW
-    private String WIN_TITLE = "Enginetest";
+    private String WIN_TITLE = "";
     private int WIN_WIDTH = 1280;
     private int WIN_HEIGHT = 1024;
+    private boolean fullscreen = false;
     private float win2viewRatioX = 1, win2viewRatioY = 1;
 
     // VIEW
     public int VIEW_WIDTH = 1280;
     public int VIEW_HEIGHT = 1024;
-
-    // IS MOUSE FREE
-    private boolean freeMouse = false;
 
     // TEMP-FPS
     private int tempFPS = 0;
@@ -64,8 +56,9 @@ public class Engine {
     private KeyboardManager keyManager = null;
     private MouseManager mouseManager = null;
     private SoundManager soundManager = null;
-    private AbstractDebugMonitor debugMonitor = null;
 
+    // DEBUG-MONITOR
+    private AbstractDebugMonitor debugMonitor = null;
     private boolean hasDebugMonitor = false;
 
     // GUI-MANAGER
@@ -79,20 +72,40 @@ public class Engine {
     //
     // ////////////////////////////////////////
 
-    public Engine() {
+    public Engine(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         INSTANCE = this;
-        this.createWindow(WIN_WIDTH, WIN_HEIGHT, false);
+        this.WIN_TITLE = windowTitle;
+        this.WIN_WIDTH = windowWidth;
+        this.WIN_HEIGHT = windowHeight;
+        this.fullscreen = fullscreen;
+    }
+
+    public void startUp() {
+        this.createWindow();
         this.initOpenGL();
         this.initManager();
-        this.loadFonts();
-        this.createGUI();
+        this.initEngine();
         this.run();
     }
 
-    private final void createWindow(int windowWidth, int windowHeight, boolean fullscreen) {
+    private final void initEngine() {
+        Display.setTitle(this.getWindowTitle());
+
+        this.drawStartupText("Loading fonts...");
+        this.loadFonts();
+
+        this.drawStartupText("Loading textures...");
+        this.loadTextures();
+
+        this.drawStartupText("Creating user-managers...");
+        this.createManager();
+
+        this.drawStartupText("Creating GUIs...");
+        this.createGUI();
+    }
+
+    private final void createWindow() {
         try {
-            this.WIN_WIDTH = windowWidth;
-            this.WIN_HEIGHT = windowHeight;
             this.win2viewRatioX = (float) ((float) VIEW_WIDTH / (float) WIN_WIDTH);
             this.win2viewRatioY = (float) ((float) VIEW_HEIGHT / (float) WIN_HEIGHT);
             DisplayMode displayMode = new DisplayMode(WIN_WIDTH, WIN_HEIGHT);
@@ -108,9 +121,8 @@ public class Engine {
             }
             Display.setDisplayMode(displayMode);
             org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
-            Display.setTitle(WIN_TITLE);
             Display.create(pixelFormat);
-            // Display.create();
+            Display.setTitle("Welcome...");
         } catch (LWJGLException e) {
             e.printStackTrace();
             Display.destroy();
@@ -144,36 +156,14 @@ public class Engine {
     }
 
     private final void initManager() {
+        Display.setTitle("Init manager...");
         keyManager = KeyboardManager.getInstance(this);
         mouseManager = MouseManager.getInstance(this);
         soundManager = SoundManager.getInstance();
+        Display.setTitle("Loading standardfonts...");
+        FontManager.init();
         this.setDebugMonitor(new StandardDebugMonitor());
         mouseManager.grabMouse();
-    }
-
-    private void loadFonts() {
-        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
-    }
-
-    private final void createGUI() {
-        Hitbox hitbox = new Hitbox(550, 535);
-        hitbox.addPoint(-530, -470);
-        hitbox.addPoint(530, -470);
-        hitbox.addPoint(530, 470);
-        hitbox.addPoint(-530, 470);
-        MyGUIManager2 manager = new MyGUIManager2("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
-        this.registerGUIManager(manager);
-
-        hitbox = new Hitbox(1185, 512);
-        hitbox.addPoint(-95, -447);
-        hitbox.addPoint(95, -447);
-        hitbox.addPoint(95, 512);
-        hitbox.addPoint(-95, 512);
-        this.registerGUIManager(new MyGUIManager1("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
-
-        this.initGUIManager(this.getGUIManager("GUI2"));
-        this.initGUIManager(this.getGUIManager("GUI"));
     }
 
     private final void run() {
@@ -185,11 +175,11 @@ public class Engine {
         long startTimer = System.currentTimeMillis() + tickTime;
         boolean tick = true;
 
-        this.mouseManager.grabMouse();
-
-        soundManager.playSound(0, 0, 0);
-
+        // enable vsync
         Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
+
+        // ungrab mouse
+        this.mouseManager.ungrabMouse();
 
         while (!Display.isCloseRequested()) {
             try {
@@ -239,19 +229,6 @@ public class Engine {
                 }
                 glPopMatrix();
 
-                // draw debug-informations
-                glEnable(GL_BLEND);
-                {
-                    if (!freeMouse) {
-                        UnicodeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 24);
-                        String text = "Press Mouse to release it!".toUpperCase();
-                        int width = font.getWidth(text) / 2;
-                        int height = font.getHeight(text) / 2;
-                        font.drawString(this.VIEW_WIDTH / 2 - width, this.VIEW_HEIGHT / 2 - height, text, Color.red);
-                    }
-                }
-                glDisable(GL_BLEND);
-
                 // render debugmonitor
                 if (this.hasDebugMonitor && this.debugMonitor.isVisible()) {
                     this.debugMonitor.render();
@@ -270,17 +247,47 @@ public class Engine {
             } catch (Exception e) {
                 System.out.println("ERROR IN TICK! SHUTTING DOWN...");
                 e.printStackTrace();
-                Engine.close();
+                Engine.close(true);
             }
         }
         Engine.close();
     }
 
-    public static void close() {
+    private final void shutdown(boolean error) {
+        this.drawStartupText("Shutting down...");
+        this.onShutdown(error);
         Engine.INSTANCE.soundManager.stopAll();
-
         Display.destroy();
+    }
+
+    public static final void close() {
+        Engine.close(false);
+    }
+
+    public static final void close(boolean error) {
+        Engine.INSTANCE.shutdown(error);
         System.exit(0);
+    }
+
+    // ////////////////////////////////////////
+    //
+    // METHODS FOR CHILDREN
+    //
+    // ////////////////////////////////////////
+
+    protected void loadTextures() {
+    }
+
+    protected void loadFonts() {
+    }
+
+    protected void createManager() {
+    }
+
+    protected void createGUI() {
+    }
+
+    protected void onShutdown(boolean error) {
     }
 
     // ////////////////////////////////////////
@@ -367,11 +374,6 @@ public class Engine {
     }
 
     public final void onMouseDown(MouseClickEvent event) {
-        if (!freeMouse) {
-            this.mouseManager.ungrabMouse();
-            freeMouse = !freeMouse;
-        }
-
         for (GUIManager manager : this.sortedGUIManagerList) {
             if (manager.isColliding()) {
                 this.activateGUIManager(manager);
@@ -423,6 +425,25 @@ public class Engine {
         int delta = (int) (currentTime - lastFrame);
         lastFrame = currentTime;
         return delta;
+    }
+
+    // ////////////////////////////////////////
+    //
+    // SOME NEEDED METHODS
+    //
+    // ////////////////////////////////////////
+
+    private void drawStartupText(String text) {
+        glPushMatrix();
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glEnable(GL_BLEND);
+        UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
+        int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
+        int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(text) / 2f);
+        font.drawString(x, y, text, Color.red);
+        Display.update();
+        glPopMatrix();
     }
 
     // ////////////////////////////////////////
@@ -496,6 +517,10 @@ public class Engine {
 
     public final float getWin2viewRatioY() {
         return win2viewRatioY;
+    }
+
+    public String getWindowTitle() {
+        return WIN_TITLE;
     }
 
     // ////////////////////////////////////////
