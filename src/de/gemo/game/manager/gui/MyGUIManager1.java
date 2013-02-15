@@ -14,6 +14,7 @@ import de.gemo.engine.core.Renderer;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
+import de.gemo.engine.gui.GUICheckbox;
 import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.gui.GUITextfield;
@@ -83,6 +84,13 @@ public class MyGUIManager1 extends GUIManager {
             // LOAD TEXTFIELD TEXTURE
             SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
+
+            // LOAD CHECKBOX/RADIOBUTTON TEXTURE
+            SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
+            SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
+            SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
+            MultiTexture checkBoxMultiTexture = new MultiTexture(21, 21, checkBoxTextureOff, checkBoxTextureOn);
+            TextureManager.addTexture("CB_1", checkBoxMultiTexture);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,6 +166,11 @@ public class MyGUIManager1 extends GUIManager {
             this.lbl_position = new GUILabel(1095, 72, "Position: N/A");
             this.lbl_position.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(lbl_position);
+
+            // ADD CHECKBOX
+            GUICheckbox checkbox = new GUICheckbox(1095, 100, TextureManager.getTexture("CB_1"), "Checkbox");
+            checkbox.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            this.add(checkbox);
         } catch (Exception e) {
             e.printStackTrace();
         }

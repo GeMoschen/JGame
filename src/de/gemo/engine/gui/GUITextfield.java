@@ -1,7 +1,5 @@
 package de.gemo.engine.gui;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.util.HashMap;
 
 import org.newdawn.slick.Color;
@@ -13,13 +11,15 @@ import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.manager.FontManager;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class GUITextfield extends GUIElement {
 
     private static String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ˆ÷‰ƒ¸‹,;.:-_#'+*~!\"ß$%&/()=?}][{\\·‡<>| ^";
 
     private String label = "";
     private String originalLabel = "";
-    private Color normalColor, shadowColor;
+    private Color normalColor;
     private UnicodeFont font;
 
     private float textWidth = 0, textHeight = 0;
@@ -50,7 +50,6 @@ public class GUITextfield extends GUIElement {
         this.setFont(FontManager.getStandardFont());
         this.setColor(Color.white);
         this.setAutoLooseFocus(false);
-        this.shadowColor = new Color(50, 50, 50);
         this.animation.goToFrame(0);
     }
 
@@ -118,12 +117,6 @@ public class GUITextfield extends GUIElement {
     public void setAlpha(float alpha) {
         super.setAlpha(alpha);
         this.normalColor.a = (float) alpha;
-        this.normalColor.a = (float) alpha;
-        this.shadowColor.a = (float) alpha;
-    }
-
-    public Animation getAnimation() {
-        return animation;
     }
 
     @Override

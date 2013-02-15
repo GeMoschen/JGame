@@ -126,10 +126,6 @@ public class GUIButton extends GUIElement {
         this.pressedColor.a = (float) alpha;
     }
 
-    public Animation getAnimation() {
-        return animation;
-    }
-
     @Override
     public void render() {
         super.render();

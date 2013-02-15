@@ -69,10 +69,7 @@ public class SingleTexture {
 
         if (newList) {
             this.createVertices(z);
-            // this.createDisplayList(z);
         }
-
-        // glCallList(displayList);
 
         verts.rewind();
         tex.rewind();
