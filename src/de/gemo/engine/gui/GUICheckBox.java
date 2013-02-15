@@ -8,7 +8,7 @@ import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class GUICheckbox extends GUIElement {
+public class GUICheckBox extends GUIElement {
 
     private String label = "";
     private Color normalColor;
@@ -17,11 +17,11 @@ public class GUICheckbox extends GUIElement {
 
     private float textHeight = 0;
 
-    public GUICheckbox(float x, float y, MultiTexture multiTexture, String label) {
+    public GUICheckBox(float x, float y, MultiTexture multiTexture, String label) {
         this(x, y, multiTexture, label, false);
     }
 
-    public GUICheckbox(float x, float y, MultiTexture multiTexture, String label, boolean checked) {
+    public GUICheckBox(float x, float y, MultiTexture multiTexture, String label, boolean checked) {
         super(x, y, multiTexture);
         initCheckbox(checked, label);
     }

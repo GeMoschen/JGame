@@ -14,10 +14,12 @@ import de.gemo.engine.core.Renderer;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
-import de.gemo.engine.gui.GUICheckbox;
+import de.gemo.engine.gui.GUICheckBox;
 import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.gui.GUILabel;
+import de.gemo.engine.gui.GUIRadioButton;
 import de.gemo.engine.gui.GUITextfield;
+import de.gemo.engine.gui.RadioGroup;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.TextureManager;
@@ -85,12 +87,18 @@ public class MyGUIManager1 extends GUIManager {
             SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
 
-            // LOAD CHECKBOX/RADIOBUTTON TEXTURE
+            // LOAD CHECKBOX TEXTURE
             SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
             SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
             SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
             MultiTexture checkBoxMultiTexture = new MultiTexture(21, 21, checkBoxTextureOff, checkBoxTextureOn);
             TextureManager.addTexture("CB_1", checkBoxMultiTexture);
+
+            // LOAD RADIOBUTTON TEXTURE
+            SingleTexture radioButtonTextureOff = checkBoxRadioTexture.crop(0, 21, 20, 20);
+            SingleTexture radioButtonTextureOn = checkBoxRadioTexture.crop(20, 21, 20, 20);
+            MultiTexture radioButtonMultiTexture = new MultiTexture(21, 21, radioButtonTextureOff, radioButtonTextureOn);
+            TextureManager.addTexture("RADIO_1", radioButtonMultiTexture);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -168,9 +176,30 @@ public class MyGUIManager1 extends GUIManager {
             this.add(lbl_position);
 
             // ADD CHECKBOX
-            GUICheckbox checkbox = new GUICheckbox(1095, 100, TextureManager.getTexture("CB_1"), "Checkbox");
+            GUICheckBox checkbox = new GUICheckBox(1095, 100, TextureManager.getTexture("CB_1"), "Checkbox");
             checkbox.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(checkbox);
+
+            // CREATE RADIO-GROUP
+            RadioGroup radioGroup = new RadioGroup();
+
+            // ADD RADIOBUTTON 1
+            GUIRadioButton radioButton1 = new GUIRadioButton(1095, 150, TextureManager.getTexture("RADIO_1"), "Radio 1");
+            radioButton1.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            radioButton1.setGroup(radioGroup);
+            this.add(radioButton1);
+
+            // ADD RADIOBUTTON 2
+            GUIRadioButton radioButton2 = new GUIRadioButton(1095, 180, TextureManager.getTexture("RADIO_1"), "Radio 2");
+            radioButton2.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            radioButton2.setGroup(radioGroup);
+            this.add(radioButton2);
+
+            // ADD RADIOBUTTON 3
+            GUIRadioButton radioButton3 = new GUIRadioButton(1095, 210, TextureManager.getTexture("RADIO_1"), "Radio 3");
+            radioButton3.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            radioButton3.setGroup(radioGroup);
+            this.add(radioButton3);
         } catch (Exception e) {
             e.printStackTrace();
         }
