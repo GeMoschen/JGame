@@ -4,6 +4,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.MultiTexture;
+import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -24,6 +25,9 @@ public class GUIRadioButton extends GUIElement {
 
     public GUIRadioButton(float x, float y, MultiTexture multiTexture, String label, boolean checked) {
         super(x, y, multiTexture);
+        if (multiTexture.getTextureCount() < 2) {
+            throw new NotEnoughTexturesException(multiTexture.getTextureCount(), 2);
+        }
         initCheckbox(checked, label);
     }
 
@@ -99,7 +103,11 @@ public class GUIRadioButton extends GUIElement {
 
     @Override
     public void render() {
-        super.render();
+        if (this.isHovered()) {
+            super.render(1f, 1f, 0f);
+        } else {
+            super.render();
+        }
         glTranslatef(0f, 0f, -1f);
         int x = (int) (this.animation.getWidth() / 2f + 2);
         this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);

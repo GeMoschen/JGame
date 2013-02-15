@@ -93,6 +93,14 @@ public class Animation {
         this.multiTextures.getTexture(this.currentFrame).render(x, y, z, r, g, b, alpha);
     }
 
+    public int getTextureCount() {
+        if (this.multiTextures != null) {
+            return this.multiTextures.getTextureCount();
+        } else {
+            return 0;
+        }
+    }
+
     public Animation clone() {
         return new Animation(this.multiTextures);
     }

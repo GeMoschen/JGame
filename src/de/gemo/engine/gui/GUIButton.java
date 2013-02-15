@@ -5,6 +5,7 @@ import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.MultiTexture;
+import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -21,11 +22,17 @@ public class GUIButton extends GUIElement {
 
     public GUIButton(float x, float y, Animation animation) {
         super(x, y, animation);
+        if (animation.getTextureCount() < 3) {
+            throw new NotEnoughTexturesException(animation.getTextureCount(), 3);
+        }
         initButton();
     }
 
     public GUIButton(float x, float y, MultiTexture multiTexture) {
         super(x, y, multiTexture);
+        if (multiTexture.getTextureCount() < 3) {
+            throw new NotEnoughTexturesException(multiTexture.getTextureCount(), 3);
+        }
         initButton();
     }
 
