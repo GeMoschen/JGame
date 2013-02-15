@@ -29,7 +29,9 @@ public class MyEngine extends Engine {
 
     @Override
     protected void loadFonts() {
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20");
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24");
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
     }
 
@@ -53,6 +55,7 @@ public class MyEngine extends Engine {
     protected void loadTextures() {
         try {
             // LOAD GUI TEXTURE
+            drawLoadingText("Loading Textures...", "GUI_INGAME.png");
             SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
 
