@@ -7,7 +7,11 @@
 	<classpathentry kind="lib" path="lib/jars/LibraryLWJGLOpenAL.jar"/>
 	<classpathentry kind="lib" path="lib/jars/CodecWav.jar"/>
 	<classpathentry kind="lib" path="lib/jars/lwjgl_util.jar"/>
-	<classpathentry kind="lib" path="lib/jars/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/jars/lwjgl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JGame/lib/natives-windows"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/jars/slick.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
