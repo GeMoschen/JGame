@@ -18,10 +18,19 @@ public class FontManager {
     private static UnicodeFont standardFont;
     private static HashMap<String, UnicodeFont> fontMap;
 
+    public static void initFirstFont() {
+        fontMap = new HashMap<String, UnicodeFont>();
+        standardFont = loadFont(DEFAULT, Font.PLAIN, MINIMUM_DEFAULT_SIZE);
+        loadFont(DEFAULT, Font.BOLD, MINIMUM_DEFAULT_SIZE);
+        loadFont(DEFAULT, Font.ITALIC, MINIMUM_DEFAULT_SIZE);
+        loadFont(DEFAULT, Font.BOLD | Font.ITALIC, MINIMUM_DEFAULT_SIZE);
+    }
+
     public static void init() {
         fontMap = new HashMap<String, UnicodeFont>();
         standardFont = loadFont(DEFAULT, Font.PLAIN, MINIMUM_DEFAULT_SIZE);
-        for (int size = MINIMUM_DEFAULT_SIZE; size < 30; size += 2) {
+        for (int size = MINIMUM_DEFAULT_SIZE + 2; size < 30; size += 2) {
+            loadFont(DEFAULT, Font.PLAIN, size);
             loadFont(DEFAULT, Font.BOLD, size);
             loadFont(DEFAULT, Font.ITALIC, size);
             loadFont(DEFAULT, Font.BOLD | Font.ITALIC, size);

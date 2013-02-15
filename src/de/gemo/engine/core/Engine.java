@@ -91,13 +91,13 @@ public abstract class Engine {
     private final void initEngine() {
         Display.setTitle(this.getWindowTitle());
 
-        this.drawStartupText("Loading fonts...");
+        this.drawStartupText("Loading userfonts...");
         this.loadFonts();
 
-        this.drawStartupText("Loading textures...");
+        this.drawStartupText("Loading usertextures...");
         this.loadTextures();
 
-        this.drawStartupText("Creating user-managers...");
+        this.drawStartupText("Creating usermanagers...");
         this.createManager();
 
         this.drawStartupText("Creating GUIs...");
@@ -161,6 +161,8 @@ public abstract class Engine {
         mouseManager = MouseManager.getInstance(this);
         soundManager = SoundManager.getInstance();
         Display.setTitle("Loading standardfonts...");
+        FontManager.initFirstFont();
+        this.drawStartupText("Loading standardfonts...");
         FontManager.init();
         this.setDebugMonitor(new StandardDebugMonitor());
         mouseManager.grabMouse();
@@ -433,7 +435,7 @@ public abstract class Engine {
     //
     // ////////////////////////////////////////
 
-    private void drawStartupText(String text) {
+    protected final void drawStartupText(String text) {
         glPushMatrix();
         glClearColor(0, 0, 0, 0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
