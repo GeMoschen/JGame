@@ -160,12 +160,12 @@ public abstract class Engine {
         keyManager = KeyboardManager.getInstance(this);
         mouseManager = MouseManager.getInstance(this);
         soundManager = SoundManager.getInstance();
+        mouseManager.grabMouse();
         Display.setTitle("Loading standardfonts...");
         FontManager.initFirstFont();
         this.drawStartupText("Loading standardfonts...");
         FontManager.init();
         this.setDebugMonitor(new StandardDebugMonitor());
-        mouseManager.grabMouse();
     }
 
     private final void run() {
@@ -473,6 +473,12 @@ public abstract class Engine {
 
     public final void registerGUIManager(GUIManager manager) {
         this.guiManager.put(manager.getID(), manager);
+        this.sortedGUIManagerList = new ArrayList<GUIManager>(this.guiManager.values());
+        Collections.sort(this.sortedGUIManagerList);
+    }
+
+    public final void unregisterGUIManager(GUIManager manager) {
+        this.guiManager.remove(manager.getID());
         this.sortedGUIManagerList = new ArrayList<GUIManager>(this.guiManager.values());
         Collections.sort(this.sortedGUIManagerList);
     }
