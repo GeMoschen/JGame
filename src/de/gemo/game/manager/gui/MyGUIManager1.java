@@ -6,8 +6,6 @@ import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.Renderer;
@@ -52,56 +50,6 @@ public class MyGUIManager1 extends GUIManager {
     @Override
     protected void initManager() {
         guiManager = (MyGUIManager2) Engine.INSTANCE.getGUIManager("GUI2");
-    }
-
-    @Override
-    protected void loadTextures() {
-        try {
-            // LOAD GUI TEXTURE
-            SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
-            TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
-
-            // LOAD COUNTDOWN TEXTURE
-            MultiTexture countdownMultiTexture = new MultiTexture(72, 104);
-            int y = 0;
-            int x = 0;
-            for (int i = 9; i >= 0; i--) {
-                if (i == 4) {
-                    y += countdownMultiTexture.getHeight();
-                    x = 0;
-                }
-                countdownMultiTexture.addTextures(guiTexture.crop(1280 + x, y, countdownMultiTexture.getWidth(), countdownMultiTexture.getHeight()));
-                x += countdownMultiTexture.getWidth();
-            }
-            TextureManager.addTexture("countdown", countdownMultiTexture);
-
-            // LOAD TEXTURES FOR BUTTON
-            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("test.jpg");
-            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
-            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
-            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 34, 175, 34);
-            MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
-            TextureManager.addTexture("BTN_1", buttonMultiTexture);
-
-            // LOAD TEXTFIELD TEXTURE
-            SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
-            TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
-
-            // LOAD CHECKBOX TEXTURE
-            SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
-            SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
-            SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
-            MultiTexture checkBoxMultiTexture = new MultiTexture(21, 21, checkBoxTextureOff, checkBoxTextureOn);
-            TextureManager.addTexture("CB_1", checkBoxMultiTexture);
-
-            // LOAD RADIOBUTTON TEXTURE
-            SingleTexture radioButtonTextureOff = checkBoxRadioTexture.crop(0, 21, 20, 20);
-            SingleTexture radioButtonTextureOn = checkBoxRadioTexture.crop(20, 21, 20, 20);
-            MultiTexture radioButtonMultiTexture = new MultiTexture(21, 21, radioButtonTextureOff, radioButtonTextureOn);
-            TextureManager.addTexture("RADIO_1", radioButtonMultiTexture);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
