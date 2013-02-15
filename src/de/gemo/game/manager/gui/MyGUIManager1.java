@@ -181,25 +181,38 @@ public class MyGUIManager1 extends GUIManager {
             this.add(checkbox);
 
             // CREATE RADIO-GROUP
-            RadioGroup radioGroup = new RadioGroup();
+            RadioGroup radioGroup1 = new RadioGroup();
+            RadioGroup radioGroup2 = new RadioGroup();
 
             // ADD RADIOBUTTON 1
-            GUIRadioButton radioButton1 = new GUIRadioButton(1095, 150, TextureManager.getTexture("RADIO_1"), "Radio 1");
+            GUIRadioButton radioButton1 = new GUIRadioButton(1095, 150, TextureManager.getTexture("RADIO_1"), "Radio 1.1");
             radioButton1.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
-            radioButton1.setGroup(radioGroup);
+            radioButton1.setGroup(radioGroup1);
             this.add(radioButton1);
 
             // ADD RADIOBUTTON 2
-            GUIRadioButton radioButton2 = new GUIRadioButton(1095, 180, TextureManager.getTexture("RADIO_1"), "Radio 2");
+            GUIRadioButton radioButton2 = new GUIRadioButton(1095, 180, TextureManager.getTexture("RADIO_1"), "Radio 1.2");
             radioButton2.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
-            radioButton2.setGroup(radioGroup);
+            radioButton2.setGroup(radioGroup1);
             this.add(radioButton2);
 
             // ADD RADIOBUTTON 3
-            GUIRadioButton radioButton3 = new GUIRadioButton(1095, 210, TextureManager.getTexture("RADIO_1"), "Radio 3");
+            GUIRadioButton radioButton3 = new GUIRadioButton(1095, 210, TextureManager.getTexture("RADIO_1"), "Radio 1.3");
             radioButton3.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
-            radioButton3.setGroup(radioGroup);
+            radioButton3.setGroup(radioGroup1);
             this.add(radioButton3);
+
+            // ADD RADIOBUTTON 4
+            GUIRadioButton radioButton4 = new GUIRadioButton(1095, 260, TextureManager.getTexture("RADIO_1"), "Radio 2.1");
+            radioButton4.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            radioButton4.setGroup(radioGroup2);
+            this.add(radioButton4);
+
+            // ADD RADIOBUTTON 5
+            GUIRadioButton radioButton5 = new GUIRadioButton(1095, 290, TextureManager.getTexture("RADIO_1"), "Radio 2.2");
+            radioButton5.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            radioButton5.setGroup(radioGroup2);
+            this.add(radioButton5);
         } catch (Exception e) {
             e.printStackTrace();
         }
