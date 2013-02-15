@@ -36,7 +36,7 @@ public class MyGUIManager2 extends GUIManager {
             if (this.hasFocusedElement()) {
                 guiManager.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
             } else {
-                guiManager.getLbl_position().setLabel("Position: ___ / ___");
+                guiManager.getLbl_position().setLabel("Position: N/A");
             }
         }
     }
@@ -47,7 +47,7 @@ public class MyGUIManager2 extends GUIManager {
         if (this.hasFocusedElement()) {
             guiManager.getLbl_position().setLabel("Position: " + getFocusedElement().getXOnScreen() + " / " + getFocusedElement().getYOnScreen());
         } else {
-            guiManager.getLbl_position().setLabel("Position: ___ / ___");
+            guiManager.getLbl_position().setLabel("Position: N/A");
         }
     }
 
@@ -59,7 +59,7 @@ public class MyGUIManager2 extends GUIManager {
         this.selectedVertex = selectedVertex;
         if (selectedVertex == null) {
             this.guiManager.getBtn_removeVertex().setVisible(false);
-            this.guiManager.getLbl_position().setLabel("Position: ___ / ___");
+            this.guiManager.getLbl_position().setLabel("Position: N/A");
             this.unfocusElement();
 
         } else {

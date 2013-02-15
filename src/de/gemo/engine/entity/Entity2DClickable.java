@@ -15,36 +15,42 @@ public class Entity2DClickable extends Entity2D implements IClickable {
         super(x, y, singleTexture);
         this.autoGenerateClickbox();
         this.setCenter(x, y);
+        this.setPositionOnScreen(x, y);
     }
 
     public Entity2DClickable(Vector center, SingleTexture singleTexture) {
         super(center, singleTexture);
         this.autoGenerateClickbox();
         this.setCenter(center);
+        this.setPositionOnScreen(center.getX(), center.getY());
     }
 
     public Entity2DClickable(float x, float y, MultiTexture multiTexture) {
         super(x, y, multiTexture);
         this.autoGenerateClickbox();
         this.setCenter(x, y);
+        this.setPositionOnScreen(x, y);
     }
 
     public Entity2DClickable(Vector center, MultiTexture multiTexture) {
         super(center, multiTexture);
         this.autoGenerateClickbox();
         this.setCenter(center);
+        this.setPositionOnScreen(center.getX(), center.getY());
     }
 
     public Entity2DClickable(float x, float y, Animation animation) {
         super(x, y, animation);
         this.autoGenerateClickbox();
         this.setCenter(x, y);
+        this.setPositionOnScreen(x, y);
     }
 
     public Entity2DClickable(Vector center, Animation animation) {
         super(center, animation);
         this.autoGenerateClickbox();
         this.setCenter(center);
+        this.setPositionOnScreen(center.getX(), center.getY());
     }
 
     @Override

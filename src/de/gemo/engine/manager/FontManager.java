@@ -10,7 +10,7 @@ import org.newdawn.slick.font.effects.ConfigurableEffect;
 
 public class FontManager {
 
-    public static final String VERDANA = "Verdana";
+    public static final String VERDANA = "Analog";
 
     private static UnicodeFont standardFont;
     private static HashMap<String, UnicodeFont> fontMap;

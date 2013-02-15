@@ -52,9 +52,12 @@ public class GUILabel extends GUIElement {
     }
 
     public void setFont(UnicodeFont font) {
+        int oldX = this.getXOnScreen();
+        int oldY = this.getYOnScreen();
         this.font = font;
         this.setLabel(this.getLabel());
         this.textHeight = (int) (this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f);
+        this.setPositionOnScreen(oldX, oldY);
     }
 
     public UnicodeFont getFont() {

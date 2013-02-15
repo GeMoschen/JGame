@@ -146,6 +146,7 @@ public class Engine {
         mouseManager = MouseManager.getInstance(this);
         soundManager = SoundManager.getInstance();
         debugMonitor = new StandardDebugMonitor();
+        mouseManager.grabMouse();
     }
 
     private void loadFonts() {
@@ -154,28 +155,19 @@ public class Engine {
     }
 
     private final void createGUI() {
-        float halfWidth = VIEW_WIDTH / 2f;
-        float halfHeight = VIEW_HEIGHT / 2f;
-
-        halfWidth = VIEW_WIDTH / 4f;
-        halfHeight = VIEW_HEIGHT / 4f;
-
-        Hitbox hitbox = new Hitbox(0, 0);
-        hitbox.addPoint(20, 63);
-        hitbox.addPoint(1080, 63);
-        hitbox.addPoint(1080, VIEW_HEIGHT - 20);
-        hitbox.addPoint(20, VIEW_HEIGHT - 20);
+        Hitbox hitbox = new Hitbox(550, 535);
+        hitbox.addPoint(-530, -470);
+        hitbox.addPoint(530, -470);
+        hitbox.addPoint(530, 470);
+        hitbox.addPoint(-530, 470);
         MyGUIManager2 manager = new MyGUIManager2("GUI2", hitbox, this.mouseManager.getMouseVector(), -1);
         this.registerGUIManager(manager);
 
-        halfWidth = VIEW_WIDTH / 2f;
-        halfHeight = VIEW_HEIGHT / 2f;
-
-        hitbox = new Hitbox(halfWidth, halfHeight);
-        hitbox.addPoint(-halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, -halfHeight);
-        hitbox.addPoint(halfWidth, halfHeight);
-        hitbox.addPoint(-halfWidth, halfHeight);
+        hitbox = new Hitbox(1185, 512);
+        hitbox.addPoint(-95, -447);
+        hitbox.addPoint(95, -447);
+        hitbox.addPoint(95, 512);
+        hitbox.addPoint(-95, 512);
         this.registerGUIManager(new MyGUIManager1("GUI", hitbox, this.mouseManager.getMouseVector(), 0));
 
         this.initGUIManager(this.getGUIManager("GUI2"));

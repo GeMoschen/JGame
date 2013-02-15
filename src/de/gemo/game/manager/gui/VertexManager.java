@@ -27,7 +27,7 @@ public class VertexManager {
         vertex.setMouseListener(mouseListener);
         guiManager2.unfocusElement();
         guiManager2.add(vertex);
-        guiManager1.getBtn_removeVertex().setVisible(false);
+        guiManager1.getBtn_removeVertex().setVisible(true);
         guiManager1.getLbl_position().setLabel("Position: " + x + " / " + y);
         vertexList.put(vertex.getEntityID(), vertex);
         guiManager2.focusElement(vertex);

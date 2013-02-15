@@ -81,7 +81,7 @@ public class MyGUIManager1 extends GUIManager {
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
             // LOAD TEXTFIELD TEXTURE
-            SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 256, 34);
+            SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,13 +92,13 @@ public class MyGUIManager1 extends GUIManager {
     protected void initGUI() {
         try {
             // CREATE GUI
-            gui = new GUIGraphic(640, 512, TextureManager.getTexture("GUI_1"));
+            gui = new GUIGraphic(0, 0, TextureManager.getTexture("GUI_1"));
             gui.setZ(0);
 
             // CREATE COUNTDOWNS
-            countdown = new GUIGraphic(1181 + 36, 800, TextureManager.getTexture("countdown"));
+            countdown = new GUIGraphic(1110 + TextureManager.getTexture("countdown").getWidth(), 710, TextureManager.getTexture("countdown"));
             countdown.getAnimation().setWantedFPS(10);
-            countdown2 = new GUIGraphic(1181 - 36, 800, TextureManager.getTexture("countdown"));
+            countdown2 = new GUIGraphic(1110, 710, TextureManager.getTexture("countdown"));
 
             // CREATE EXIT-BUTTON
             Animation animationButton = new Animation(TextureManager.getTexture("BTN_1"));
@@ -106,7 +106,7 @@ public class MyGUIManager1 extends GUIManager {
             Color hoverColor = new Color(215, 165, 0);
             Color pressedColor = new Color(64, 64, 64);
 
-            GUIButton button = new GUIButton(1181, 990, animationButton);
+            GUIButton button = new GUIButton(1095, 975, animationButton);
             button.setLabel("Exit");
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
@@ -118,15 +118,13 @@ public class MyGUIManager1 extends GUIManager {
             this.add(button);
 
             // CREATE LABEL
-            GUILabel label = new GUILabel(0, 0, "Textfeld:");
-            label.setPositionOnScreen(15, 4);
+            GUILabel label = new GUILabel(1095, 845, "Textfeld:");
             label.setColor(Color.yellow);
             label.setMouseListener(listener);
             this.add(label);
 
             // CREATE TEXT-FIELD
-            GUITextfield textfield = new GUITextfield(0, 0, TextureManager.getTexture("EDIT_1"));
-            textfield.setPositionOnScreen(15, 20);
+            GUITextfield textfield = new GUITextfield(1095, 855, TextureManager.getTexture("EDIT_1"));
             textfield.setText("^^ Label!");
             textfield.setColor(Color.yellow);
             textfield.setFont(FontManager.getStandardFont());
@@ -135,7 +133,7 @@ public class MyGUIManager1 extends GUIManager {
 
             // ADD "Add Vertex"-Button
             AddButtonListener addListener = new AddButtonListener(guiManager.getVertexManager());
-            GUIButton addButton = new GUIButton(1181, 950, animationButton);
+            GUIButton addButton = new GUIButton(1095, 935, animationButton);
             addButton.setLabel("Add Vertex");
             addButton.setColor(normalColor);
             addButton.setHoverColor(hoverColor);
@@ -146,7 +144,7 @@ public class MyGUIManager1 extends GUIManager {
 
             // ADD "Delete Vertex"-Button
             RemoveButtonListener removeListener = new RemoveButtonListener(guiManager.getVertexManager(), guiManager);
-            btn_removeVertex = new GUIButton(1181, 910, animationButton);
+            btn_removeVertex = new GUIButton(1095, 895, animationButton);
             btn_removeVertex.setLabel("Delete Vertex");
             btn_removeVertex.setColor(normalColor);
             btn_removeVertex.setHoverColor(hoverColor);
@@ -157,8 +155,8 @@ public class MyGUIManager1 extends GUIManager {
             this.add(btn_removeVertex);
 
             // ADD VERTEX LABELS
-            this.lbl_position = new GUILabel(1181, 100, "Position: ___ / ___");
-            this.lbl_position.setPositionOnScreen(1100, 80);
+            this.lbl_position = new GUILabel(1095, 72, "Position: N/A");
+            this.lbl_position.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
             this.add(lbl_position);
         } catch (Exception e) {
             e.printStackTrace();
