@@ -122,7 +122,7 @@ public abstract class Engine {
             Display.setDisplayMode(displayMode);
             org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
             Display.create(pixelFormat);
-            Display.setTitle("Welcome...");
+            Display.setTitle("Starting...");
         } catch (LWJGLException e) {
             e.printStackTrace();
             Display.destroy();
