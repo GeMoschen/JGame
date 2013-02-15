@@ -114,7 +114,7 @@ public class MyGUIManager1 extends GUIManager {
             ExitButtonListener listener = new ExitButtonListener();
             button.setMouseListener(listener);
             button.setFocusListener(listener);
-            button.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            button.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(button);
 
             // CREATE LABEL
@@ -139,7 +139,7 @@ public class MyGUIManager1 extends GUIManager {
             addButton.setHoverColor(hoverColor);
             addButton.setPressedColor(pressedColor);
             addButton.setMouseListener(addListener);
-            addButton.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            addButton.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(addButton);
 
             // ADD "Delete Vertex"-Button
@@ -150,13 +150,13 @@ public class MyGUIManager1 extends GUIManager {
             btn_removeVertex.setHoverColor(hoverColor);
             btn_removeVertex.setPressedColor(pressedColor);
             btn_removeVertex.setMouseListener(removeListener);
-            btn_removeVertex.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            btn_removeVertex.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             btn_removeVertex.setVisible(false);
             this.add(btn_removeVertex);
 
             // ADD VERTEX LABELS
             this.lbl_position = new GUILabel(1095, 72, "Position: N/A");
-            this.lbl_position.setFont(FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 20));
+            this.lbl_position.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(lbl_position);
         } catch (Exception e) {
             e.printStackTrace();

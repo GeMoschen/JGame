@@ -26,8 +26,10 @@ public class RemoveButtonListener implements MouseListener {
 
     @Override
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
-        vertexManager.removeVertex((EntityVertex) guiManager.getFocusedElement());
-        guiManager.setSelectedVertex(null);
+        if (event.isLeftButton()) {
+            vertexManager.removeVertex((EntityVertex) guiManager.getFocusedElement());
+            guiManager.setSelectedVertex(null);
+        }
     }
 
     @Override

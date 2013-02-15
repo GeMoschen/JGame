@@ -12,6 +12,8 @@ import org.newdawn.slick.opengl.TextureLoader;
 import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class TextureManager {
     private static HashMap<String, MultiTexture> textureMap = new HashMap<String, MultiTexture>();
 
@@ -32,7 +34,7 @@ public class TextureManager {
             System.out.println("ERROR: Texture '" + path + "' does not exist!");
             return null;
         }
-        Texture texture = TextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file));
+        Texture texture = TextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), false, GL_NEAREST);
         return new SingleTexture(texture, 0, 0, texture.getImageWidth(), texture.getImageHeight());
     }
 

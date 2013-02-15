@@ -9,7 +9,16 @@ public abstract class AbstractDebugMonitor {
     private boolean showGraphics = true;
     private boolean useVSync = true;
     private boolean showExtended = true;
+    private boolean visible = false;
     private GUIManager activeGUIManager;
+
+    public final void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public final boolean isVisible() {
+        return visible;
+    }
 
     public final int getFPS() {
         return FPS;

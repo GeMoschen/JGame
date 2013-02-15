@@ -22,7 +22,9 @@ public class AddButtonListener implements MouseListener {
 
     @Override
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
-        vertexManager.addVertex(640, 480);
+        if (event.isLeftButton()) {
+            vertexManager.addVertex(640, 480);
+        }
     }
 
     @Override

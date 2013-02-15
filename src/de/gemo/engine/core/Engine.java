@@ -61,10 +61,12 @@ public class Engine {
     private int tempFPS = 0;
 
     // MANAGER & MONITOR
-    private KeyboardManager keyManager;
-    private MouseManager mouseManager;
-    private SoundManager soundManager;
-    private AbstractDebugMonitor debugMonitor;
+    private KeyboardManager keyManager = null;
+    private MouseManager mouseManager = null;
+    private SoundManager soundManager = null;
+    private AbstractDebugMonitor debugMonitor = null;
+
+    private boolean hasDebugMonitor = false;
 
     // GUI-MANAGER
     private GUIManager activeGUIManager = null;
@@ -135,8 +137,8 @@ public class Engine {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
     }
@@ -145,13 +147,13 @@ public class Engine {
         keyManager = KeyboardManager.getInstance(this);
         mouseManager = MouseManager.getInstance(this);
         soundManager = SoundManager.getInstance();
-        debugMonitor = new StandardDebugMonitor();
+        this.setDebugMonitor(new StandardDebugMonitor());
         mouseManager.grabMouse();
     }
 
     private void loadFonts() {
-        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        FontManager.loadFont(FontManager.VERDANA, Font.PLAIN, 24);
+        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
     }
 
     private final void createGUI() {
@@ -220,7 +222,7 @@ public class Engine {
                     // TODO: render gamefield-content
 
                     // RENDER GUI
-                    if (this.debugMonitor.isShowGraphics()) {
+                    if (!this.hasDebugMonitor || this.debugMonitor.isShowGraphics()) {
                         glEnable(GL_BLEND);
                         for (GUIManager manager : this.guiManager.values()) {
                             manager.render();
@@ -229,7 +231,7 @@ public class Engine {
                     }
 
                     // DEBUG RENDER
-                    if (this.debugMonitor.isShowHitboxes()) {
+                    if (this.hasDebugMonitor && this.debugMonitor.isShowHitboxes()) {
                         for (GUIManager manager : this.guiManager.values()) {
                             manager.debugRender();
                         }
@@ -241,7 +243,7 @@ public class Engine {
                 glEnable(GL_BLEND);
                 {
                     if (!freeMouse) {
-                        UnicodeFont font = FontManager.getFont(FontManager.VERDANA, Font.PLAIN, 24);
+                        UnicodeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 24);
                         String text = "Press Mouse to release it!".toUpperCase();
                         int width = font.getWidth(text) / 2;
                         int height = font.getHeight(text) / 2;
@@ -251,7 +253,9 @@ public class Engine {
                 glDisable(GL_BLEND);
 
                 // render debugmonitor
-                this.debugMonitor.render();
+                if (this.hasDebugMonitor && this.debugMonitor.isVisible()) {
+                    this.debugMonitor.render();
+                }
 
                 // update and sync
                 Display.update();
@@ -309,11 +313,21 @@ public class Engine {
                 break;
             }
             case Keyboard.KEY_F2 : {
-                this.debugMonitor.setShowExtended(!this.debugMonitor.isShowExtended());
+                if (this.hasDebugMonitor) {
+                    this.debugMonitor.setVisible(!this.debugMonitor.isVisible());
+                }
+                break;
+            }
+            case Keyboard.KEY_F3 : {
+                if (this.hasDebugMonitor) {
+                    this.debugMonitor.setShowExtended(!this.debugMonitor.isShowExtended());
+                }
                 break;
             }
             case Keyboard.KEY_F11 : {
-                this.debugMonitor.setShowGraphics(!this.debugMonitor.isShowGraphics());
+                if (this.hasDebugMonitor) {
+                    this.debugMonitor.setShowGraphics(!this.debugMonitor.isShowGraphics());
+                }
                 break;
             }
             case Keyboard.KEY_F5 : {
@@ -325,7 +339,9 @@ public class Engine {
                 break;
             }
             case Keyboard.KEY_F12 : {
-                this.debugMonitor.setShowHitboxes(!this.debugMonitor.isShowHitboxes());
+                if (this.hasDebugMonitor) {
+                    this.debugMonitor.setShowHitboxes(!this.debugMonitor.isShowHitboxes());
+                }
                 break;
             }
         }
@@ -502,6 +518,11 @@ public class Engine {
 
     public final AbstractDebugMonitor getDebugMonitor() {
         return debugMonitor;
+    }
+
+    public final void setDebugMonitor(AbstractDebugMonitor debugMonitor) {
+        this.debugMonitor = debugMonitor;
+        this.hasDebugMonitor = (this.debugMonitor != null);
     }
 
     public final GUIManager getActiveGUIManager() {

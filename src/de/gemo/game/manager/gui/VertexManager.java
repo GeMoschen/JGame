@@ -58,6 +58,5 @@ public class VertexManager {
             glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
-
     }
 }
