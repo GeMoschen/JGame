@@ -31,7 +31,7 @@ public class MyEngine extends Engine {
     protected void loadFonts() {
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20", 0);
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 10);
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 30);
         FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
     }
 
@@ -92,7 +92,7 @@ public class MyEngine extends Engine {
     protected void loadTextures() {
         try {
             // LOAD GUI TEXTURE
-            drawLoadingText("Loading Textures...", "GUI_INGAME.png", 20);
+            drawLoadingText("Loading Textures...", "GUI_INGAME.png", 40);
             SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
 
@@ -111,7 +111,7 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("countdown", countdownMultiTexture);
 
             // LOAD TEXTURES FOR BUTTON
-            drawLoadingText("Loading Textures...", "test.jpg", 55);
+            drawLoadingText("Loading Textures...", "test.jpg", 60);
             SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("test.jpg");
             SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
             SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
@@ -120,12 +120,12 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
             // LOAD TEXTFIELD TEXTURE
-            drawLoadingText("Loading Textures...", "edit_normal.jpg", 70);
+            drawLoadingText("Loading Textures...", "edit_normal.jpg", 75);
             SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
 
             // LOAD CHECKBOX TEXTURE
-            drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 85);
+            drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 90);
             SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
             SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
             SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);

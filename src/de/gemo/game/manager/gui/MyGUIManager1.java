@@ -70,12 +70,13 @@ public class MyGUIManager1 extends GUIManager {
             Color hoverColor = new Color(215, 165, 0);
             Color pressedColor = new Color(64, 64, 64);
 
+            ExitButtonListener listener = new ExitButtonListener();
+
             GUIButton button = new GUIButton(1095, 975, animationButton);
             button.setLabel("Exit");
             button.setColor(normalColor);
             button.setHoverColor(hoverColor);
             button.setPressedColor(pressedColor);
-            ExitButtonListener listener = new ExitButtonListener();
             button.setMouseListener(listener);
             button.setFocusListener(listener);
             button.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
@@ -84,7 +85,6 @@ public class MyGUIManager1 extends GUIManager {
             // CREATE LABEL
             GUILabel label = new GUILabel(1095, 845, "Textfeld:");
             label.setColor(Color.yellow);
-            label.setMouseListener(listener);
             this.add(label);
 
             // CREATE TEXT-FIELD
@@ -92,7 +92,6 @@ public class MyGUIManager1 extends GUIManager {
             textfield.setText("^^ Label!");
             textfield.setColor(Color.yellow);
             textfield.setFont(FontManager.getStandardFont());
-            textfield.setMouseListener(listener);
             this.add(textfield);
 
             // ADD "Add Vertex"-Button

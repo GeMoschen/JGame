@@ -7,6 +7,8 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.newdawn.slick.opengl.Texture;
 
+import de.gemo.engine.manager.TextureManager;
+
 public class SingleTexture {
     private final Texture texture;
     private float width, height;
@@ -84,6 +86,10 @@ public class SingleTexture {
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
+    }
+
+    public MultiTexture toMultiTexture() {
+        return TextureManager.SingleToMultiTexture(this);
     }
 
     public SingleTexture clone() {
