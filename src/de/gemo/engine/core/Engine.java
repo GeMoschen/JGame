@@ -1,10 +1,17 @@
 package de.gemo.engine.core;
 
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -30,7 +37,7 @@ import de.gemo.engine.manager.SoundManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Engine {
+public class Engine implements ClipboardOwner {
 
     public static Engine INSTANCE;
 
@@ -183,10 +190,11 @@ public class Engine {
         // ungrab mouse
         this.mouseManager.ungrabMouse();
 
-        glDisable(GL_DEPTH_TEST);
-
         while (!Display.isCloseRequested()) {
             try {
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LEQUAL);
+
                 delta = updateDelta();
                 tempFPS++;
 
@@ -251,6 +259,16 @@ public class Engine {
             } catch (Exception e) {
                 System.out.println("ERROR IN TICK! SHUTTING DOWN...");
                 e.printStackTrace();
+
+                // COPY TO CLIPOBOARD
+                StringSelection stringSelection = new StringSelection(e.toString());
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(stringSelection, this);
+
+                // SHOW DIALOG
+                String ls = System.getProperty("line.separator");
+                JOptionPane.showMessageDialog(null, "ERROR:" + ls + ls + e.toString() + ls + ls + "The error has been copied to your clipboard!");
+
                 Engine.close(true);
             }
         }
@@ -562,6 +580,11 @@ public class Engine {
 
     public final GUIManager getActiveGUIManager() {
         return activeGUIManager;
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        // do nothing...
     }
 
 }

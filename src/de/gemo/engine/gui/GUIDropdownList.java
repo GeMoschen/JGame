@@ -54,18 +54,19 @@ public class GUIDropdownList extends GUIElement {
         Hitbox elementClickbox;
         this.clickboxList.clear();
         float height = (this.elementTexture.getHeight()) / 2f;
-        int index = 0;
-        float startY = this.animation.getHalfHeight() + this.elementTexture.getHalfHeight() - 2;
-        float dif = (this.animation.getWidth() - this.elementTexture.getWidth()) / 2f;
+        float startY = this.animation.getHalfHeight() + this.elementTexture.getHalfHeight();
+        float difX = (this.animation.getWidth() - this.elementTexture.getWidth()) / 2f;
+        float itemY = 0;
         for (int i = 0; i < this.itemList.size(); i++) {
             elementClickbox = new Hitbox(this.center);
-            elementClickbox.addPoint(-this.elementTexture.getHalfWidth() - dif, -height + startY * index + startY);
-            elementClickbox.addPoint(+this.elementTexture.getHalfWidth() - dif, -height + startY * index + startY);
-            elementClickbox.addPoint(+this.elementTexture.getHalfWidth() - dif, height + startY * index + startY);
-            elementClickbox.addPoint(-this.elementTexture.getHalfWidth() - dif, height + startY * index + startY);
-            elementClickbox.recalculatePositions();
+            elementClickbox.addPoint(-this.elementTexture.getHalfWidth() - difX, -height + itemY + startY);
+            elementClickbox.addPoint(+this.elementTexture.getHalfWidth() - difX, -height + itemY + startY);
+            elementClickbox.addPoint(+this.elementTexture.getHalfWidth() - difX, height + itemY + startY);
+            elementClickbox.addPoint(-this.elementTexture.getHalfWidth() - difX, height + itemY + startY);
+            elementClickbox.scaleX(this.scaleX);
+            elementClickbox.scaleY(this.scaleY);
+            itemY += (this.elementTexture.getHeight());
             this.clickboxList.add(elementClickbox);
-            index++;
         }
     }
 
@@ -199,18 +200,6 @@ public class GUIDropdownList extends GUIElement {
 
     @Override
     public void render() {
-        // draw itemlist
-        if (this.isFocused()) {
-            float myY = -10;
-            glTranslatef(0f, this.animation.getHeight() - 5, -2f);
-            for (Object object : this.itemList) {
-                this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), myY, this.getZ() - 100, 1);
-                this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (myY - this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
-                myY += this.elementTexture.getHeight();
-            }
-            glTranslatef(0f, -(this.animation.getHeight() - 5), +2f);
-        }
-
         // draw normal Dropdown-appearance
         super.render();
         if (this.label.length() > 0) {
@@ -225,12 +214,51 @@ public class GUIDropdownList extends GUIElement {
             glTranslatef(0f, 0f, +1f);
         }
 
-        this.refreshElementClickboxes();
+        // draw itemlist
+        if (this.isFocused()) {
+            this.refreshElementClickboxes();
+            glPushMatrix();
+            {
+                glTranslatef(0f, this.animation.getHeight(), +10);
+                float itemY = 0;
+                for (Object object : this.itemList) {
+                    this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), itemY, 1f);
+                    this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (itemY - this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
+                    itemY += (this.elementTexture.getHeight());
+                }
+            }
+            glPopMatrix();
+        }
+    }
+
+    @Override
+    public void debugRender() {
+        super.debugRender();
+        if (this.isFocused()) {
+            for (Hitbox box : this.clickboxList) {
+                glPushMatrix();
+                {
+                    box.render();
+                }
+                glPopMatrix();
+            }
+        }
+    }
+
+    @Override
+    public void setAngle(float angle) {
+        super.setAngle(angle);
         for (Hitbox box : this.clickboxList) {
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_BLEND);
-            box.render();
-            glEnable(GL_BLEND);
+            box.setAngle(angle);
+        }
+    }
+
+    @Override
+    public void scale(float scaleX, float scaleY) {
+        super.scale(scaleX, scaleY);
+        for (Hitbox box : this.clickboxList) {
+            box.scaleX(scaleX);
+            box.scaleY(scaleY);
         }
     }
 

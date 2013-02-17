@@ -109,22 +109,22 @@ public class Hitbox {
 
     public void render() {
         // translate to center
-        glTranslatef(this.center.getX(), this.center.getY(), 0);
+        glPushMatrix();
+        {
+            glTranslatef(this.center.getX(), this.center.getY(), 0);
 
-        // render center
-        Color.red.bind();
-        this.renderCenter();
+            // render center
+            this.renderCenter();
 
-        // render boundingbox
-        Color.green.bind();
-        glBegin(GL_LINE_LOOP);
-        for (ComplexVector vector : this.points) {
-            vector.render();
+            // render boundingbox
+            Color.green.bind();
+            glBegin(GL_LINE_LOOP);
+            for (ComplexVector vector : this.points) {
+                vector.render();
+            }
+            glEnd();
         }
-        glEnd();
-
-        // translate back
-        glTranslatef(-this.center.getX(), -this.center.getY(), 0);
+        glPopMatrix();
     }
 
     public void scale(float scale) {

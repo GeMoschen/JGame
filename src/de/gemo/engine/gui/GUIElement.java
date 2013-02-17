@@ -170,7 +170,7 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     @Override
     public void debugRender() {
-        // glPushMatrix();
+        glPushMatrix();
         {
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
@@ -193,13 +193,12 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
                 glEnable(GL_BLEND);
                 FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
             }
-            glRotatef(-this.getAngle(), 0, 0, 1);
-            glTranslatef(-getX(), -getY(), 0);
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
-            this.getClickbox().render();
         }
-        // glPopMatrix();
+        glPopMatrix();
+        this.getClickbox().render();
+
     }
 
     public void doTick() {

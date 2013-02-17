@@ -85,12 +85,14 @@ public class Animation {
         return this.multiTextures.getHeight();
     }
 
-    public void render(float x, float y, float z, float alpha) {
-        this.render(x, y, z, 1, 1, 1, alpha);
+    public void render(float x, float y, float alpha) {
+        this.render(x, y, 1, 1, 1, alpha);
     }
 
-    public void render(float x, float y, float z, float r, float g, float b, float alpha) {
-        this.multiTextures.getTexture(this.currentFrame).render(x, y, z, r, g, b, alpha);
+    public void render(float x, float y, float r, float g, float b, float alpha) {
+        if (this.currentFrame >= 0 && this.currentFrame < this.multiTextures.getTextureCount()) {
+            this.multiTextures.getTexture(this.currentFrame).render(x, y, r, g, b, alpha);
+        }
     }
 
     public int getTextureCount() {

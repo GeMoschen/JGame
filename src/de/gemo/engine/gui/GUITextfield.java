@@ -122,14 +122,18 @@ public class GUITextfield extends GUIElement {
     @Override
     public void render() {
         super.render();
-        glTranslatef(0f, 0f, -1f);
-        int x = (int) (-this.animation.getWidth() / 2 + 8);
-        this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);
-        if (this.isFocused() && this.showLine) {
-            x += this.font.getWidth(this.label) - 2;
-            this.font.drawString(x, (int) (-this.textHeight) - 1, "|", this.normalColor);
+        glPushMatrix();
+        {
+            glTranslatef(0f, 0f, +1f);
+            int x = (int) (-this.animation.getWidth() / 2 + 8);
+            this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);
+            if (this.isFocused() && this.showLine) {
+                x += this.font.getWidth(this.label) - 2;
+                this.font.drawString(x, (int) (-this.textHeight) - 1, "|", this.normalColor);
+            }
+            glTranslatef(0f, 0f, -1f);
         }
-        glTranslatef(0f, 0f, +1f);
+        glPopMatrix();
     }
 
     @Override

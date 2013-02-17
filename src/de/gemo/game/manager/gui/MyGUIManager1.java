@@ -58,7 +58,7 @@ public class MyGUIManager1 extends GUIManager {
         try {
             // CREATE GUI
             gui = new GUIGraphic(0, 0, TextureManager.getTexture("GUI_1"));
-            gui.setZ(0);
+            gui.setZ(100);
 
             // CREATE COUNTDOWNS
             countdown = new GUIGraphic(1110 + TextureManager.getTexture("countdown").getWidth(), 710, TextureManager.getTexture("countdown"));
@@ -171,6 +171,7 @@ public class MyGUIManager1 extends GUIManager {
             ddList.addItem("Element 1");
             ddList.addItem("Element 12345");
             ddList.addItem("Element 3");
+            ddList.addItem("Element 4");
             ddList.setSelectedItem(2);
             this.add(ddList);
         } catch (Exception e) {
