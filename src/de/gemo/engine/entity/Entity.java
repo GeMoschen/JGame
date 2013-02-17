@@ -89,7 +89,7 @@ public class Entity extends EntityLogic implements IDebugRenderable {
             glDisable(GL_TEXTURE_2D);
 
             glTranslatef((int) getX(), (int) getY(), 0);
-            glRotatef(this.getAngle(), 0, 0, 1);
+            // glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
             Color.yellow.bind();

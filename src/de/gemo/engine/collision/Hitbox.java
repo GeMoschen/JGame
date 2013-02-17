@@ -72,6 +72,7 @@ public class Hitbox {
 
     public final void rotate(float angle) {
         this.angle += angle;
+
         if (this.angle < 0f) {
             this.angle += 360f;
         }

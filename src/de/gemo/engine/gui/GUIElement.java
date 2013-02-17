@@ -176,7 +176,6 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
             glDisable(GL_TEXTURE_2D);
 
             glTranslatef((int) getX(), (int) getY(), -1);
-            glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
             Color.yellow.bind();
@@ -198,7 +197,6 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
         }
         glPopMatrix();
         this.getClickbox().render();
-
     }
 
     public void doTick() {

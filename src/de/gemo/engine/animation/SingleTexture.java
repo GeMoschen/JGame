@@ -60,13 +60,9 @@ public class SingleTexture {
         return height;
     }
 
-    public void render(float x, float y, float z, float angle, float scaleX, float scaleY, float r, float g, float b, float alpha) {
+    public void render(float r, float g, float b, float alpha) {
         glPushMatrix();
         {
-            glTranslatef(x, y, z);
-            glRotatef(angle, 0, 0, 1);
-            glScalef(scaleX, scaleY, 1f);
-
             this.texture.bind();
             glColor4f(r, g, b, alpha);
 

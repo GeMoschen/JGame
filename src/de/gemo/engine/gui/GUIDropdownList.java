@@ -50,6 +50,23 @@ public class GUIDropdownList extends GUIElement {
         this.refreshElementClickboxes();
     }
 
+    public boolean removeItem(Object object) {
+        boolean result = this.itemList.remove(object);
+        this.refreshElementClickboxes();
+        this.setSelectedItem(this.selectedIndex);
+        return result;
+    }
+
+    public boolean removeItem(int index) {
+        if (index >= 0 && index < this.itemList.size()) {
+            boolean result = this.itemList.remove(index) != null;
+            this.refreshElementClickboxes();
+            this.setSelectedItem(this.selectedIndex);
+            return result;
+        }
+        return false;
+    }
+
     private void refreshElementClickboxes() {
         Hitbox elementClickbox;
         this.clickboxList.clear();
@@ -65,6 +82,7 @@ public class GUIDropdownList extends GUIElement {
             elementClickbox.addPoint(-this.elementTexture.getHalfWidth() - difX, height + itemY + startY);
             elementClickbox.scaleX(this.scaleX);
             elementClickbox.scaleY(this.scaleY);
+            elementClickbox.setAngle(this.getAngle());
             itemY += (this.elementTexture.getHeight());
             this.clickboxList.add(elementClickbox);
         }
@@ -216,15 +234,13 @@ public class GUIDropdownList extends GUIElement {
 
         // draw itemlist
         if (this.isFocused()) {
-            this.refreshElementClickboxes();
             glPushMatrix();
             {
-                glTranslatef(0f, this.animation.getHeight(), +10);
-                float itemY = 0;
+                glTranslatef((int) ((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), this.animation.getHeight(), +10);
                 for (Object object : this.itemList) {
-                    this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), itemY, 1f, getAlpha());
-                    this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (itemY - this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
-                    itemY += (this.elementTexture.getHeight());
+                    this.elementTexture.render(getAlpha());
+                    this.font.drawString((int) (-this.elementTexture.getWidth() / 2f) + 4, (int) (-this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
+                    glTranslatef(0, this.elementTexture.getHeight(), 0);
                 }
             }
             glPopMatrix();
@@ -236,20 +252,16 @@ public class GUIDropdownList extends GUIElement {
         super.debugRender();
         if (this.isFocused()) {
             for (Hitbox box : this.clickboxList) {
-                glPushMatrix();
-                {
-                    box.render();
-                }
-                glPopMatrix();
+                box.render();
             }
         }
     }
 
     @Override
-    public void setAngle(float angle) {
-        super.setAngle(angle);
+    public void rotate(float angle) {
+        super.rotate(angle);
         for (Hitbox box : this.clickboxList) {
-            box.setAngle(angle);
+            box.rotate(angle);
         }
     }
 
@@ -269,9 +281,12 @@ public class GUIDropdownList extends GUIElement {
                 MouseClickEvent mcEvent = (MouseClickEvent) event;
                 if (mcEvent.isLeftButton()) {
                     int index = this.getClickedHitbox(new Vector(event.getX(), event.getY()));
-                    if (index > -1) {
+                    if (index > -1 && index != this.selectedIndex) {
+                        int oldIndex = this.selectedIndex;
+                        this.preItemChange(oldIndex, index);
                         this.selectedIndex = index;
                         this.setLabel(this.itemList.get(this.selectedIndex).toString());
+                        this.postItemChange(oldIndex, index);
                     }
                 }
             }
@@ -290,6 +305,12 @@ public class GUIDropdownList extends GUIElement {
             index++;
         }
         return -1;
+    }
+
+    public void preItemChange(int oldIndex, int newIndex) {
+    }
+
+    public void postItemChange(int oldIndex, int newIndex) {
     }
 
 }
