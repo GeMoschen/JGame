@@ -1,13 +1,14 @@
 package de.gemo.engine.animation;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 import org.lwjgl.BufferUtils;
 import org.newdawn.slick.opengl.Texture;
 
 import de.gemo.engine.manager.TextureManager;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class SingleTexture {
     private final Texture texture;
@@ -21,9 +22,16 @@ public class SingleTexture {
     private FloatBuffer verts;
     private FloatBuffer tex;
 
+    private float[] randomCols = new float[3];
+
     public SingleTexture(Texture texture, float x, float y, float width, float height) {
         this.texture = texture;
         this.setDimensions(x, y, width, height);
+
+        Random random = new Random();
+        this.randomCols[0] = random.nextFloat();
+        this.randomCols[1] = random.nextFloat();
+        this.randomCols[2] = random.nextFloat();
     }
 
     public SingleTexture crop(float x, float y, float width, float height) {
@@ -66,6 +74,7 @@ public class SingleTexture {
 
     public void render(float x, float y, float z, float r, float g, float b, float alpha) {
         // bind texture
+
         this.texture.bind();
         glColor3f(r, g, b);
 
@@ -76,7 +85,7 @@ public class SingleTexture {
         verts.rewind();
         tex.rewind();
 
-        glTranslatef(x, y, z);
+        glTranslatef(x, y, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -87,7 +96,7 @@ public class SingleTexture {
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
-        glTranslatef(-x, -y, -z);
+        glTranslatef(-x, -y, 0);
     }
 
     public MultiTexture toMultiTexture() {

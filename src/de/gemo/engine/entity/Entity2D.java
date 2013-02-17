@@ -149,7 +149,7 @@ public class Entity2D extends Entity implements IRenderable, Comparable<Entity2D
     }
 
     public void render(float r, float g, float b) {
-        this.animation.render(0, 0, 0, r, g, b, this.alpha);
+        this.animation.render(0, 0, this.getZ(), r, g, b, this.alpha);
     }
 
     @Override

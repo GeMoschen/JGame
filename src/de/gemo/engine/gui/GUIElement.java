@@ -170,12 +170,12 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     @Override
     public void debugRender() {
-        glPushMatrix();
+        // glPushMatrix();
         {
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
 
-            glTranslatef(getX(), getY(), getZ());
+            glTranslatef(getX(), getY(), 0);
             glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
@@ -194,12 +194,12 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
                 FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
             }
             glRotatef(-this.getAngle(), 0, 0, 1);
-            glTranslatef(-getX(), -getY(), -getZ());
+            glTranslatef(-getX(), -getY(), 0);
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
             this.getClickbox().render();
         }
-        glPopMatrix();
+        // glPopMatrix();
     }
 
     public void doTick() {

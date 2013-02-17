@@ -18,7 +18,7 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
         {
             int fontX = 125;
             int fontY = 5;
-            glTranslatef(20, 20, -100);
+            glTranslatef(20, 20, 0);
 
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);

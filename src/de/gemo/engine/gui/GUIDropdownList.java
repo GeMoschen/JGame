@@ -201,10 +201,10 @@ public class GUIDropdownList extends GUIElement {
     public void render() {
         // draw itemlist
         if (this.isFocused()) {
-            float myY = 0;
+            float myY = -10;
             glTranslatef(0f, this.animation.getHeight() - 5, -2f);
             for (Object object : this.itemList) {
-                this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), myY, this.getZ() - 3, 1);
+                this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), myY, this.getZ() - 100, 1);
                 this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (myY - this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
                 myY += this.elementTexture.getHeight();
             }

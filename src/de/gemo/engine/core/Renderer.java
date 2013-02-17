@@ -14,10 +14,12 @@ public class Renderer {
     public static void render(Entity2D renderable) {
         glPushMatrix();
         {
-            glTranslatef((int) renderable.getX(), (int) renderable.getY(), renderable.getZ());
+            glTranslatef((int) renderable.getX(), (int) renderable.getY(), 0);
             glRotatef(renderable.getAngle(), 0, 0, 1);
             glScalef(renderable.getScaleX(), renderable.getScaleY(), 0f);
             renderable.render();
+            glRotatef(-renderable.getAngle(), 0, 0, 1);
+            glTranslatef(-(int) renderable.getX(), -(int) renderable.getY(), 0);
         }
         glPopMatrix();
     }

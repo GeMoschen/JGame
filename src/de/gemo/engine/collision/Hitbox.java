@@ -109,7 +109,7 @@ public class Hitbox {
 
     public void render() {
         // translate to center
-        glTranslatef(this.center.getX(), this.center.getY(), this.center.getZ());
+        glTranslatef(this.center.getX(), this.center.getY(), 0);
 
         // render center
         Color.red.bind();
@@ -124,7 +124,7 @@ public class Hitbox {
         glEnd();
 
         // translate back
-        glTranslatef(-this.center.getX(), -this.center.getY(), -this.center.getZ());
+        glTranslatef(-this.center.getX(), -this.center.getY(), 0);
     }
 
     public void scale(float scale) {

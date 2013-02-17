@@ -30,7 +30,7 @@ import de.gemo.engine.manager.SoundManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public abstract class Engine {
+public class Engine {
 
     public static Engine INSTANCE;
 
@@ -135,7 +135,7 @@ public abstract class Engine {
         glMatrixMode(GL_PROJECTION);
 
         glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1, -1);
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
         glMatrixMode(GL_MODELVIEW);
 
         glShadeModel(GL_SMOOTH);
@@ -147,7 +147,7 @@ public abstract class Engine {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -182,6 +182,8 @@ public abstract class Engine {
 
         // ungrab mouse
         this.mouseManager.ungrabMouse();
+
+        glDisable(GL_DEPTH_TEST);
 
         while (!Display.isCloseRequested()) {
             try {
