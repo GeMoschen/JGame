@@ -88,7 +88,7 @@ public class Entity extends EntityLogic implements IDebugRenderable {
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
 
-            glTranslatef(getX(), getY(), 0);
+            glTranslatef((int) getX(), (int) getY(), 0);
             glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center
@@ -101,8 +101,8 @@ public class Entity extends EntityLogic implements IDebugRenderable {
             glEnd();
 
             // write entity-id
-            glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
             FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f), 3, "ID: " + this.entityID, Color.white);
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);

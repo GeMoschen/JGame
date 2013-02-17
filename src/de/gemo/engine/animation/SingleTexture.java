@@ -60,34 +60,35 @@ public class SingleTexture {
         return height;
     }
 
-    public void render(float x, float y, float alpha) {
-        this.render(x, y, 1, 1, 1, alpha);
-    }
+    public void render(float x, float y, float z, float angle, float scaleX, float scaleY, float r, float g, float b, float alpha) {
+        glPushMatrix();
+        {
+            glTranslatef(x, y, z);
+            glRotatef(angle, 0, 0, 1);
+            glScalef(scaleX, scaleY, 1f);
 
-    public void render(float x, float y, float r, float g, float b, float alpha) {
-        // bind texture and set color
-        this.texture.bind();
-        glColor4f(r, g, b, alpha);
+            this.texture.bind();
+            glColor4f(r, g, b, alpha);
 
-        if (newList) {
-            this.createVertices();
+            if (newList) {
+                this.createVertices();
+            }
+
+            verts.rewind();
+            tex.rewind();
+
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glVertexPointer(2, 0, verts);
+            glTexCoordPointer(2, 0, tex);
+
+            glDrawArrays(GL_QUADS, 0, 4);
+
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glDisableClientState(GL_VERTEX_ARRAY);
         }
-
-        verts.rewind();
-        tex.rewind();
-
-        glTranslatef(x, y, 0);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glVertexPointer(2, 0, verts);
-        glTexCoordPointer(2, 0, tex);
-
-        glDrawArrays(GL_QUADS, 0, 4);
-
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glTranslatef(-x, -y, 0);
+        glPopMatrix();
     }
 
     public MultiTexture toMultiTexture() {

@@ -175,7 +175,7 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
 
-            glTranslatef(getX(), getY(), 0);
+            glTranslatef((int) getX(), (int) getY(), -1);
             glRotatef(this.getAngle(), 0, 0, 1);
 
             // render center

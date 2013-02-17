@@ -222,7 +222,7 @@ public class GUIDropdownList extends GUIElement {
                 glTranslatef(0f, this.animation.getHeight(), +10);
                 float itemY = 0;
                 for (Object object : this.itemList) {
-                    this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), itemY, 1f);
+                    this.elementTexture.render(((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), itemY, 1f, getAlpha());
                     this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (itemY - this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
                     itemY += (this.elementTexture.getHeight());
                 }

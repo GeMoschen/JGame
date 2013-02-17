@@ -82,8 +82,12 @@ public class Engine implements ClipboardOwner {
     public Engine(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         INSTANCE = this;
         this.WIN_TITLE = windowTitle;
+        // set window-dimensions
         this.WIN_WIDTH = windowWidth;
         this.WIN_HEIGHT = windowHeight;
+        // set view-dimensions
+        this.VIEW_WIDTH = windowWidth;
+        this.VIEW_HEIGHT = windowHeight;
         this.fullscreen = fullscreen;
     }
 
@@ -222,6 +226,7 @@ public class Engine implements ClipboardOwner {
                 glPushMatrix();
                 {
                     // TODO: render gamefield-content
+                    this.renderGame();
 
                     // RENDER GUI
                     if (!this.hasDebugMonitor || this.debugMonitor.isShowGraphics()) {
@@ -307,6 +312,9 @@ public class Engine implements ClipboardOwner {
     }
 
     protected void createGUI() {
+    }
+
+    protected void renderGame() {
     }
 
     protected void onShutdown(boolean error) {
