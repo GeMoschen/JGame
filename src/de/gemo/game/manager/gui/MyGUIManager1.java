@@ -13,6 +13,7 @@ import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
 import de.gemo.engine.gui.GUICheckBox;
+import de.gemo.engine.gui.GUIDropdownList;
 import de.gemo.engine.gui.GUIGraphic;
 import de.gemo.engine.gui.GUILabel;
 import de.gemo.engine.gui.GUIRadioButton;
@@ -160,6 +161,18 @@ public class MyGUIManager1 extends GUIManager {
             radioButton5.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             radioButton5.setGroup(radioGroup2);
             this.add(radioButton5);
+
+            // ADD DROPDOWNLIST
+            GUIDropdownList ddList = new GUIDropdownList(1095, 350, TextureManager.getTexture("DROPDOWN_1"), TextureManager.getTexture("DROPDOWN_1_ELEMENT"));
+            ddList.setColor(normalColor);
+            ddList.setHoverColor(hoverColor);
+            ddList.setPressedColor(pressedColor);
+            ddList.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
+            ddList.addItem("Element 1");
+            ddList.addItem("Element 12345");
+            ddList.addItem("Element 3");
+            ddList.setSelectedItem(2);
+            this.add(ddList);
         } catch (Exception e) {
             e.printStackTrace();
         }

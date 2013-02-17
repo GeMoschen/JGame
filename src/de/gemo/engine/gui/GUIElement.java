@@ -18,7 +18,6 @@ import de.gemo.engine.interfaces.input.IKeyAdapter;
 import de.gemo.engine.interfaces.listener.FocusListener;
 import de.gemo.engine.interfaces.listener.MouseListener;
 import de.gemo.engine.manager.FontManager;
-import de.gemo.engine.units.ComplexVector;
 import de.gemo.engine.units.Vector;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -27,6 +26,7 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
 
     private boolean isFocused = false;
     private boolean autoLooseFocus = true;
+    private boolean looseFocusOnFocusClick = false;
     private GUIElementStatus status = GUIElementStatus.NONE;
 
     // LISTENERS
@@ -125,12 +125,16 @@ public abstract class GUIElement extends Entity2DClickable implements IKeyAdapte
         return CollisionHelper.isVectorInHitbox(vector, this.getClickbox());
     }
 
-    public boolean isVectorInClickbox(ComplexVector vector) {
-        return CollisionHelper.isVectorInHitbox(vector, this.getClickbox());
-    }
-
     public boolean isCollidingWithClickbox(Hitbox otherHitbox) {
         return CollisionHelper.isColliding(this.getClickbox(), otherHitbox);
+    }
+
+    public void setLooseFocusOnFocusClick(boolean looseFocusOnFocusClick) {
+        this.looseFocusOnFocusClick = looseFocusOnFocusClick;
+    }
+
+    public boolean looseFocusOnClick() {
+        return looseFocusOnFocusClick;
     }
 
     public void setAutoLooseFocus(boolean autoLooseFocus) {

@@ -177,7 +177,6 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
             this.focusedElement = elementToFocus;
             this.focusedElement.setFocused(true);
             this.focusedElement.fireFocusGainedEvent();
-            System.out.println("focus");
         }
     }
 
@@ -186,7 +185,6 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
             this.focusedElement.setStatus(GUIElementStatus.NONE);
             this.focusedElement.setFocused(false);
             this.focusedElement.fireFocusLostEvent();
-            System.out.println("unfocus");
         }
         this.focusedElement = null;
     }
@@ -355,8 +353,19 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
 
     @Override
     public final boolean handleMouseClick(MouseClickEvent event) {
+        this.onMouseClick(event);
         if (this.getHoveredElement() != null) {
             if (this.getHoveredElement().isVectorInClickbox(this.mouseVector)) {
+                if (this.focusedElement != null && this.focusedElement == this.hoveredElement) {
+                    if (this.focusedElement.looseFocusOnClick()) {
+                        this.focusedElement.fireMouseEvent(event);
+                        this.focusedElement.setFocused(false);
+                        this.focusedElement.setStatus(GUIElementStatus.HOVERING);
+                        this.focusedElement.fireFocusLostEvent();
+                        this.focusedElement = null;
+                        return true;
+                    }
+                }
                 if (this.focusedElement != null && this.focusedElement != this.getHoveredElement()) {
                     this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
                     this.getHoveredElement().fireMouseEvent(event);
@@ -365,6 +374,7 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
                     this.focusedElement = null;
                 }
                 if (this.focusedElement != this.getHoveredElement()) {
+                    this.onMouseClick(event);
                     this.getHoveredElement().setStatus(GUIElementStatus.ACTIVE);
                     this.getHoveredElement().fireMouseEvent(event);
                     this.focusedElement = this.getHoveredElement();
@@ -376,12 +386,12 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
             }
         } else {
             if (this.focusedElement != null) {
+                this.focusedElement.fireMouseEvent(event);
                 this.focusedElement.setFocused(false);
                 this.focusedElement.fireFocusLostEvent();
                 this.focusedElement = null;
             }
         }
-        this.onMouseClick(event);
         return true;
     }
 
@@ -406,7 +416,7 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
     @Override
     public final boolean handleMouseRelease(MouseReleaseEvent event) {
         if (this.focusedElement != null) {
-            if (this.focusedElement != null && this.focusedElement.isAutoLooseFocus()) {
+            if (this.focusedElement.isAutoLooseFocus()) {
                 this.focusedElement.setFocused(false);
                 this.focusedElement.fireFocusLostEvent();
                 if (this.focusedElement.isVectorInClickbox(this.mouseVector)) {

@@ -76,6 +76,7 @@ public class SingleTexture {
         verts.rewind();
         tex.rewind();
 
+        glTranslatef(x, y, z);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -86,6 +87,7 @@ public class SingleTexture {
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
+        glTranslatef(-x, -y, -z);
     }
 
     public MultiTexture toMultiTexture() {

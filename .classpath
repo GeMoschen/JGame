@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
 	<classpathentry kind="lib" path="lib/jars/CodecJLayerMP3.jar"/>
-	<classpathentry kind="lib" path="lib/SoundSystem.jar"/>
+	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/SoundSystem.jar"/>
 	<classpathentry kind="lib" path="lib/jars/LibraryLWJGLOpenAL.jar"/>
 	<classpathentry kind="lib" path="lib/jars/CodecWav.jar"/>
 	<classpathentry kind="lib" path="lib/jars/lwjgl_util.jar"/>

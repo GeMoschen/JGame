@@ -30,9 +30,9 @@ public class MyEngine extends Engine {
     @Override
     protected void loadFonts() {
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20", 0);
-        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 30);
-        FontManager.loadFont(FontManager.ANALOG, Font.PLAIN, 24);
+        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 24);
     }
 
     private final void drawLoadingText(String topic, String text, int percent) {
@@ -120,12 +120,12 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
             // LOAD TEXTFIELD TEXTURE
-            drawLoadingText("Loading Textures...", "edit_normal.jpg", 75);
+            drawLoadingText("Loading Textures...", "edit_normal.jpg", 70);
             SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
 
             // LOAD CHECKBOX TEXTURE
-            drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 90);
+            drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 80);
             SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
             SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
             SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
@@ -137,6 +137,17 @@ public class MyEngine extends Engine {
             SingleTexture radioButtonTextureOn = checkBoxRadioTexture.crop(20, 21, 20, 20);
             MultiTexture radioButtonMultiTexture = new MultiTexture(21, 21, radioButtonTextureOff, radioButtonTextureOn);
             TextureManager.addTexture("RADIO_1", radioButtonMultiTexture);
+
+            // LOAD TEXTURES FOR BUTTON
+            drawLoadingText("Loading Textures...", "gui_dropdown.png", 90);
+            SingleTexture dropdownCompleteTexture = TextureManager.loadSingleTexture("gui_dropdown.png");
+            SingleTexture dropdownNormalTexture = dropdownCompleteTexture.crop(0, 0, 175, 34);
+            SingleTexture dropdownHoverTexture = dropdownCompleteTexture.crop(0, 1 * 34, 175, 34);
+            SingleTexture dropdownPressedTexture = dropdownCompleteTexture.crop(0, 2 * 34, 175, 34);
+            SingleTexture dropdownElementTexture = dropdownCompleteTexture.crop(0, 3 * 34, 146, 32);
+            MultiTexture dropdownMultiTexture = new MultiTexture(dropdownNormalTexture.getWidth(), dropdownNormalTexture.getHeight(), dropdownNormalTexture, dropdownHoverTexture, dropdownPressedTexture);
+            TextureManager.addTexture("DROPDOWN_1", dropdownMultiTexture);
+            TextureManager.addTexture("DROPDOWN_1_ELEMENT", dropdownElementTexture.toMultiTexture());
         } catch (Exception e) {
             e.printStackTrace();
         }
