@@ -103,11 +103,7 @@ public class GUIRadioButton extends GUIElement {
 
     @Override
     public void render() {
-        if (this.isHovered()) {
-            super.render(1f, 1f, 0f);
-        } else {
-            super.render();
-        }
+        super.render();
         glTranslatef(0f, 0f, -1f);
         int x = (int) (this.animation.getWidth() / 2f + 2);
         this.font.drawString(x, (int) (-this.textHeight), this.label, this.normalColor);

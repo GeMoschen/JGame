@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
 import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
+import de.gemo.engine.animation.loader.RectangleTextureLoader;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -67,7 +67,7 @@ public class TextureManager {
             System.out.println("ERROR: Texture '" + path + "' does not exist!");
             return null;
         }
-        Texture texture = TextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), false, filter);
+        Texture texture = RectangleTextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), false, filter);
         return new SingleTexture(texture, 0, 0, texture.getImageWidth(), texture.getImageHeight());
     }
 
@@ -115,7 +115,7 @@ public class TextureManager {
             System.out.println("ERROR: Texture '" + path + "' does not exist!");
             return null;
         }
-        Texture texture = TextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), filter);
+        Texture texture = RectangleTextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), filter);
         return new SingleTexture(texture, x, y, width, height);
     }
 

@@ -268,6 +268,7 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
                     newHoveringElement.setStatus(GUIElementStatus.HOVERING);
                     newHoveringElement.fireHoverBeginEvent();
                     this.hoveredElement = newHoveringElement;
+                    return;
                 }
                 if (oldHoveringElement != null) {
                     // fire hover end event

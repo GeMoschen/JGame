@@ -16,8 +16,11 @@ public class Renderer {
         {
             glEnable(GL_BLEND);
             glTranslatef((int) renderable.getX(), (int) renderable.getY(), renderable.getZ());
-            glRotatef(renderable.getAngle(), 0, 0, 1);
-            glScalef(renderable.getScaleX(), renderable.getScaleY(), 1f);
+            if (renderable.getAngle() != 0)
+                glRotatef(renderable.getAngle(), 0, 0, 1);
+            if (renderable.getScaleX() != 0 || renderable.getScaleY() != 0)
+                glScalef(renderable.getScaleX(), renderable.getScaleY(), 1f);
+
             renderable.render();
         }
         glPopMatrix();

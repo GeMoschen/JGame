@@ -99,6 +99,10 @@ public class Animation {
         }
     }
 
+    public MultiTexture getMultiTextures() {
+        return multiTextures;
+    }
+
     public int getTextureCount() {
         if (this.multiTextures != null) {
             return this.multiTextures.getTextureCount();

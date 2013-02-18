@@ -1,17 +1,18 @@
 package de.gemo.game.core;
 
 import java.awt.Font;
+import java.io.File;
+import java.io.FileInputStream;
 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.Animation;
 import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.animation.SingleTexture;
+import de.gemo.engine.animation.loader.RectangleTexture;
+import de.gemo.engine.animation.loader.RectangleTextureLoader;
 import de.gemo.engine.core.Engine;
-import de.gemo.engine.core.Renderer;
-import de.gemo.engine.entity.Entity2D;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
 
@@ -20,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class MyEngine2 extends Engine {
 
     public MyEngine2() {
-        super("My Enginetest 2", 1024, 768, false);
+        super("My Enginetest 2", 1280, 1024, false);
     }
 
     private final void drawLoadingText(String topic, String subText, int percent) {
@@ -102,49 +103,55 @@ public class MyEngine2 extends Engine {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void createManager() {
         this.setDebugMonitor(new ExtendedDebugMonitor());
     }
 
-    Element element;
+    RectangleTexture texture;
+
     @Override
     protected final void createGUI() {
-        element = new Element(200, 200, 0, new Animation(TextureManager.getTexture("countdown")), new Animation(TextureManager.getTexture("countdown")));
+        try {
+            texture = (RectangleTexture) RectangleTextureLoader.getTexture("PNG", new FileInputStream(new File("gui_dropdown.png")), GL_NEAREST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void renderGame() {
-        Renderer.render(element);
-    }
+        glPushMatrix();
+        {
+            glEnable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
+            texture.bind();
+            int width = 175;
+            int height = 34;
 
-    private class Element extends Entity2D {
-        private Animation ani_2;
+            int texWidth = 175;
+            int texHeight = 34;
 
-        public Element(int x, int y, int z, Animation ani_1, Animation ani_2) {
-            super(x, y, ani_1);
-            this.setZ(z);
-            this.animation.goToFrame(4);
-            this.ani_2 = ani_2;
-            this.ani_2.goToFrame(6);
+            glTexParameterf(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
+            glTexParameterf(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+            glTranslatef(100, 100, 0);
+            glColor3f(1, 1, 1);
+            glBegin(GL_QUADS);
+
+            glTexCoord2f(0, 0);
+            glVertex2i(0, 0);
+
+            glTexCoord2f(texWidth, 0);
+            glVertex2i(width, 0);
+
+            glTexCoord2f(texWidth, texHeight);
+            glVertex2i(width, height);
+
+            glTexCoord2f(0, texHeight);
+            glVertex2i(0, height);
+            glEnd();
         }
-
-        public void render() {
-            super.render();
-            glPushMatrix();
-            {
-                glTranslatef(0, 40, 1);
-                glPushMatrix();
-                {
-                    glTranslatef(0, 0, -2);
-                    ani_2.render(0, 0, 0, 0.95f);
-                    glTranslatef(-30, -100, +2);
-                    glRotatef(45f, 0, 0, 1);
-                    FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 24).drawString(0, 0, "abcdefghijklmnopqrst", Color.red);
-                }
-                glPopMatrix();
-            }
-            glPopMatrix();
-        }
+        glPopMatrix();
     }
 }

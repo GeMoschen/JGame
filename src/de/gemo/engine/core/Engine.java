@@ -36,6 +36,7 @@ import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.SoundManager;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
 public class Engine implements ClipboardOwner {
 
@@ -75,21 +76,31 @@ public class Engine implements ClipboardOwner {
 
     // ////////////////////////////////////////
     //
-    // ENGINE-STUFF
+    // CONSTRUCTORS
     //
     // ////////////////////////////////////////
 
-    public Engine(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
+    public Engine(String windowTitle, int windowWidth, int windowHeight, int viewWidth, int viewHeight, boolean fullscreen) {
         INSTANCE = this;
         this.WIN_TITLE = windowTitle;
         // set window-dimensions
         this.WIN_WIDTH = windowWidth;
         this.WIN_HEIGHT = windowHeight;
         // set view-dimensions
-        this.VIEW_WIDTH = windowWidth;
-        this.VIEW_HEIGHT = windowHeight;
+        this.VIEW_WIDTH = viewWidth;
+        this.VIEW_HEIGHT = viewHeight;
         this.fullscreen = fullscreen;
     }
+
+    public Engine(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
+        this(windowTitle, windowWidth, windowHeight, windowWidth, windowHeight, fullscreen);
+    }
+
+    // ////////////////////////////////////////
+    //
+    // ENGINE-STUFF
+    //
+    // ////////////////////////////////////////
 
     public void startUp() {
         this.createWindow();
@@ -131,8 +142,9 @@ public class Engine implements ClipboardOwner {
                 Display.setFullscreen(fullscreen);
             }
             Display.setDisplayMode(displayMode);
-            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(8, 0, 0, 4);
+            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(4, 0, 0, 4);
             Display.create(pixelFormat);
+            // Display.create();
             Display.setTitle("Starting...");
         } catch (LWJGLException e) {
             e.printStackTrace();
@@ -146,13 +158,13 @@ public class Engine implements ClipboardOwner {
         glMatrixMode(GL_PROJECTION);
 
         glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
         glMatrixMode(GL_MODELVIEW);
 
         glShadeModel(GL_SMOOTH);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 1000, -1000);
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
         glMatrixMode(GL_MODELVIEW);
 
         glEnable(GL_TEXTURE_2D);
@@ -162,6 +174,9 @@ public class Engine implements ClipboardOwner {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
     }
@@ -253,6 +268,9 @@ public class Engine implements ClipboardOwner {
 
                 // update and sync
                 Display.update();
+
+                // if(this.hasDebugMonitor && this.debugMonitor.isUseVSync())
+                // Display.sync(60);
 
                 if (startTime < System.currentTimeMillis()) {
                     startTime = System.currentTimeMillis() + 1000;

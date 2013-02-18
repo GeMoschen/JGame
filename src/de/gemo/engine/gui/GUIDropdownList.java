@@ -30,6 +30,7 @@ public class GUIDropdownList extends GUIElement {
     private final ArrayList<Object> itemList;
     private final ArrayList<Hitbox> clickboxList;
 
+    private int leftX = 0, leftX2Topic = 0;
     private int selectedIndex = 0;
 
     public GUIDropdownList(float x, float y, MultiTexture multiTexture, MultiTexture elementTexture) {
@@ -39,6 +40,8 @@ public class GUIDropdownList extends GUIElement {
         }
         this.itemList = new ArrayList<Object>();
         this.elementTexture = new Animation(elementTexture);
+        this.leftX = (int) (-this.elementTexture.getWidth() / 2f) + 4;
+        this.leftX2Topic = (int) (-this.animation.getWidth() / 2f + 4);
         this.clickboxList = new ArrayList<Hitbox>();
         this.setAutoLooseFocus(false);
         this.setLooseFocusOnFocusClick(true);
@@ -223,11 +226,11 @@ public class GUIDropdownList extends GUIElement {
         if (this.label.length() > 0) {
             glTranslatef(0f, 0f, -1f);
             if (this.isFocused()) {
-                this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (-this.textHeight), this.label, this.pressedColor);
+                this.font.drawString(leftX2Topic, (int) (-this.textHeight), this.label, this.pressedColor);
             } else if (this.isHovered()) {
-                this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (-this.textHeight), this.label, this.hoverColor);
+                this.font.drawString(leftX2Topic, (int) (-this.textHeight), this.label, this.hoverColor);
             } else {
-                this.font.drawString((int) (-this.animation.getWidth() / 2f + 4), (int) (-this.textHeight), this.label, this.normalColor);
+                this.font.drawString(leftX2Topic, (int) (-this.textHeight), this.label, this.normalColor);
             }
             glTranslatef(0f, 0f, +1f);
         }
@@ -239,7 +242,7 @@ public class GUIDropdownList extends GUIElement {
                 glTranslatef((int) ((this.elementTexture.getWidth() - this.animation.getWidth()) / 2f), this.animation.getHeight(), +10);
                 for (Object object : this.itemList) {
                     this.elementTexture.render(getAlpha());
-                    this.font.drawString((int) (-this.elementTexture.getWidth() / 2f) + 4, (int) (-this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
+                    this.font.drawString(leftX, (int) (-this.textHeight + 1), this.getShortenedText(object.toString(), this.animation.getWidth() * this.maxText), this.normalColor);
                     glTranslatef(0, this.elementTexture.getHeight(), 0);
                 }
             }
