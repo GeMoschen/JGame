@@ -12,6 +12,7 @@ import de.gemo.engine.core.Renderer;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
+import de.gemo.engine.gui.GUIButtonScalable;
 import de.gemo.engine.gui.GUICheckBox;
 import de.gemo.engine.gui.GUIDropdownList;
 import de.gemo.engine.gui.GUIGraphic;
@@ -31,7 +32,7 @@ public class MyGUIManager1 extends GUIManager {
 
     private GUIGraphic gui, countdown, countdown2;
     private GUILabel lbl_position;
-    private GUIButton btn_removeVertex;
+    private GUIButtonScalable btn_removeVertex;
     public boolean hotkeysActive = false;
 
     private MyGUIManager2 guiManager;
@@ -72,15 +73,11 @@ public class MyGUIManager1 extends GUIManager {
             Color pressedColor = new Color(64, 64, 64);
 
             ExitButtonListener listener = new ExitButtonListener();
-
-            GUIButton button = new GUIButton(1095, 975, animationButton);
+            GUIButtonScalable button = new GUIButtonScalable(1110, 960, animationButton);
             button.setLabel("Exit");
-            button.setColor(normalColor);
-            button.setHoverColor(hoverColor);
-            button.setPressedColor(pressedColor);
+            button.setPressedColor(Color.gray);
             button.setMouseListener(listener);
             button.setFocusListener(listener);
-            button.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             this.add(button);
 
             // CREATE LABEL
@@ -95,28 +92,22 @@ public class MyGUIManager1 extends GUIManager {
             textfield.setFont(FontManager.getStandardFont());
             this.add(textfield);
 
-            // ADD "Add Vertex"-Button
-            AddButtonListener addListener = new AddButtonListener(guiManager.getVertexManager());
-            GUIButton addButton = new GUIButton(1095, 935, animationButton);
-            addButton.setLabel("Add Vertex");
-            addButton.setColor(normalColor);
-            addButton.setHoverColor(hoverColor);
-            addButton.setPressedColor(pressedColor);
-            addButton.setMouseListener(addListener);
-            addButton.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
-            this.add(addButton);
-
             // ADD "Delete Vertex"-Button
             RemoveButtonListener removeListener = new RemoveButtonListener(guiManager.getVertexManager(), guiManager);
-            btn_removeVertex = new GUIButton(1095, 895, animationButton);
+            btn_removeVertex = new GUIButtonScalable(1110, 900, animationButton);
             btn_removeVertex.setLabel("Delete Vertex");
-            btn_removeVertex.setColor(normalColor);
-            btn_removeVertex.setHoverColor(hoverColor);
-            btn_removeVertex.setPressedColor(pressedColor);
+            btn_removeVertex.setPressedColor(Color.gray);
             btn_removeVertex.setMouseListener(removeListener);
-            btn_removeVertex.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
             btn_removeVertex.setVisible(false);
             this.add(btn_removeVertex);
+
+            // ADD "Add Vertex"-Button
+            AddButtonListener addListener = new AddButtonListener(guiManager.getVertexManager());
+            GUIButtonScalable addButton = new GUIButtonScalable(1110, 930, animationButton);
+            addButton.setLabel("Add Vertex");
+            addButton.setPressedColor(Color.gray);
+            addButton.setMouseListener(addListener);
+            this.add(addButton);
 
             // ADD VERTEX LABELS
             this.lbl_position = new GUILabel(1095, 72, "Position: N/A");

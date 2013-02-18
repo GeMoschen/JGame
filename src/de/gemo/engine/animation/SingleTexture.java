@@ -68,14 +68,11 @@ public class SingleTexture {
     public void render(float width, float height, float r, float g, float b, float alpha) {
         glPushMatrix();
         {
+            glDisable(GL_TEXTURE_2D);
+            glEnable(GL_TEXTURE_RECTANGLE_ARB);
             this.texture.bind();
-            if (alpha != 0) {
-                glEnable(GL_BLEND);
-                glColor4f(r, g, b, alpha);
-            } else {
-                glDisable(GL_BLEND);
-                glColor3f(r, g, b);
-            }
+            glEnable(GL_BLEND);
+            glColor4f(r, g, b, alpha);
 
             width = width / 2f;
             height = height / 2f;
@@ -90,6 +87,8 @@ public class SingleTexture {
             glTexCoord2f(u, v2);
             glVertex2f(-(width), +(height));
             glEnd();
+            glDisable(GL_TEXTURE_RECTANGLE_ARB);
+            glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
     }
@@ -100,13 +99,8 @@ public class SingleTexture {
             glDisable(GL_TEXTURE_2D);
             glEnable(GL_TEXTURE_RECTANGLE_ARB);
             this.texture.bind();
-            if (alpha != 0) {
-                glEnable(GL_BLEND);
-                glColor4f(r, g, b, alpha);
-            } else {
-                glDisable(GL_BLEND);
-                glColor3f(r, g, b);
-            }
+            glEnable(GL_BLEND);
+            glColor4f(r, g, b, alpha);
 
             if (newList) {
                 this.createVertices();

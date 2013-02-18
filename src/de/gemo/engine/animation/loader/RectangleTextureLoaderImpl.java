@@ -337,15 +337,15 @@ public class RectangleTextureLoaderImpl {
 
         boolean hasAlpha;
 
-        width = imageData.getWidth();
-        height = imageData.getHeight();
+        width = imageData.getTexWidth();
+        height = imageData.getTexHeight();
         hasAlpha = imageData.getDepth() == 32;
 
         texture.setTextureWidth(imageData.getTexWidth());
         texture.setTextureHeight(imageData.getTexHeight());
 
-        texWidth = texture.getTextureWidth();
-        texHeight = texture.getTextureHeight();
+        texWidth = imageData.getTexWidth();
+        texHeight = imageData.getTexHeight();
 
         IntBuffer temp = BufferUtils.createIntBuffer(16);
         GL.glGetInteger(SGL.GL_MAX_TEXTURE_SIZE, temp);

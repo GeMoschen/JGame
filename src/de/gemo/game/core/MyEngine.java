@@ -24,7 +24,7 @@ import de.gemo.game.manager.gui.MyGUIManager2;
 public class MyEngine extends Engine {
 
     public MyEngine() {
-        super("My Enginetest", 1280, 1024, false);
+        super("My Enginetest", 800, 600, 1280, 1024, false);
     }
 
     @Override
@@ -111,17 +111,25 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("countdown", countdownMultiTexture);
 
             // LOAD TEXTURES FOR BUTTON
-            drawLoadingText("Loading Textures...", "test.jpg", 60);
-            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("test.jpg");
-            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
-            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 0, 175, 34);
-            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 34, 175, 34);
-            MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
+            drawLoadingText("Loading Textures...", "gui_button_2.png", 60);
+            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("gui_button_2.png");
+            SingleTexture buttonNormalTextureSL = buttonCompleteTexture.crop(0, 0, 7, 25);
+            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(10, 0, 1, 25);
+            SingleTexture buttonNormalTextureSR = buttonCompleteTexture.crop(103 - 7, 0, 7, 25);
+
+            SingleTexture buttonHoverTextureSL = buttonCompleteTexture.crop(0, 25, 7, 25);
+            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(10, 25, 1, 25);
+            SingleTexture buttonHoverTextureSR = buttonCompleteTexture.crop(103 - 7, 25, 7, 25);
+
+            SingleTexture buttonPressedTextureSL = buttonCompleteTexture.crop(0, 2 * 25, 7, 25);
+            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(10, 2 * 25, 1, 25);
+            SingleTexture buttonPressedTextureSR = buttonCompleteTexture.crop(103 - 7, 2 * 25, 7, 25);
+            MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture, buttonNormalTextureSL, buttonHoverTextureSL, buttonPressedTextureSL, buttonNormalTextureSR, buttonHoverTextureSR, buttonPressedTextureSR);
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
 
             // LOAD TEXTFIELD TEXTURE
-            drawLoadingText("Loading Textures...", "edit_normal.jpg", 70);
-            SingleTexture editTexture = TextureManager.loadSingleTexture("edit_normal.jpg", 0, 0, 175, 34);
+            drawLoadingText("Loading Textures...", "gui_textfield.png", 70);
+            SingleTexture editTexture = TextureManager.loadSingleTexture("gui_textfield.png", 0, 0, 175, 34);
             TextureManager.addTexture("EDIT_1", TextureManager.SingleToMultiTexture(editTexture));
 
             // LOAD CHECKBOX TEXTURE
@@ -152,6 +160,7 @@ public class MyEngine extends Engine {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void createManager() {
         this.setDebugMonitor(new ExtendedDebugMonitor());

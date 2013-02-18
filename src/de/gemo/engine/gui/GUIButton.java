@@ -12,13 +12,13 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class GUIButton extends GUIElement {
 
-    private String label = "";
-    private String originalLabel = "";
-    private Color normalColor, hoverColor, pressedColor;
-    private UnicodeFont font;
+    protected String label = "";
+    protected String originalLabel = "";
+    protected Color normalColor, hoverColor, pressedColor;
+    protected UnicodeFont font;
 
-    private float textWidth = 0, textHeight = 0;
-    private float maxText = 0.80f;
+    protected float textWidth = 0, textHeight = 0;
+    protected float maxText = 0.80f;
 
     public GUIButton(float x, float y, Animation animation) {
         super(x, y, animation);
@@ -43,9 +43,9 @@ public class GUIButton extends GUIElement {
 
     private void initButton() {
         this.setFont(FontManager.getStandardFont());
-        this.setColor(Color.white);
-        this.setHoverColor(Color.white);
-        this.setPressedColor(Color.white);
+        this.setColor(Color.black);
+        this.setHoverColor(Color.black);
+        this.setPressedColor(Color.black);
         this.animation.goToFrame(0);
     }
 
@@ -90,15 +90,15 @@ public class GUIButton extends GUIElement {
             this.label = label;
             this.textWidth = this.getFont().getWidth(this.label + "...");
             String tempLabel = this.label;
-            while (this.textWidth >= this.animation.getWidth() * maxText * 2) {
-                tempLabel = tempLabel.substring(0, tempLabel.length() - 1);
+            while (this.textWidth >= this.animation.getWidth() * maxText * 2 && tempLabel.length() > 0) {
+                tempLabel = tempLabel.substring(0, Math.max(tempLabel.length() - 1, 0));
                 this.textWidth = this.font.getWidth(tempLabel + "...");
             }
             this.label = tempLabel + "...";
         }
         this.textWidth = (this.textWidth / 2);
     }
-
+    
     public String getLabel() {
         return this.originalLabel;
     }
