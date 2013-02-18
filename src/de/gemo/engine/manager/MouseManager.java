@@ -122,7 +122,7 @@ public class MouseManager {
             for (int currentKey : this.holdButtons) {
                 if (Mouse.isButtonDown(currentKey)) {
                     // hold button
-                    engine.onMouseDrag(new MouseDragEvent(correctedX, correctedY, dX, dY, MouseButton.byID(currentKey)));
+                    engine.onMouseDrag(new MouseDragEvent(correctedX, correctedY, correctedDX, correctedDY, MouseButton.byID(currentKey)));
                 }
             }
         }
@@ -159,7 +159,7 @@ public class MouseManager {
                 this.hitBox.move(correctedDX, correctedDY);
                 this.movedHitBox.move(correctedDX, correctedDY);
 
-                engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, dX, dY));
+                engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, correctedDX, correctedDY));
             }
             currentX = correctedX;
             currentY = correctedY;
