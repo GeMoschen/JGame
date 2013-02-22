@@ -158,7 +158,6 @@ public class MouseManager {
             if (currentX != correctedX || currentY != correctedY) {
                 this.hitBox.move(correctedDX, correctedDY);
                 this.movedHitBox.move(correctedDX, correctedDY);
-
                 engine.onMouseMove(new MouseMoveEvent(correctedX, correctedY, correctedDX, correctedDY));
             }
             currentX = correctedX;

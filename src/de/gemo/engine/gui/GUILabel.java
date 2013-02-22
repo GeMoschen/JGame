@@ -3,8 +3,8 @@ package de.gemo.engine.gui;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.textures.MultiTexture;
 
 public class GUILabel extends GUIElement {
 

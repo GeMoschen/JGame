@@ -1,10 +1,10 @@
 package de.gemo.engine.entity;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.interfaces.entities.IClickable;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
 import de.gemo.engine.units.Vector;
 
 public class Entity2DClickable extends Entity2D implements IClickable {

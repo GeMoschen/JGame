@@ -8,13 +8,13 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
-import de.gemo.engine.animation.loader.RectangleTexture;
-import de.gemo.engine.animation.loader.RectangleTextureLoader;
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
+import de.gemo.engine.textures.loader.RectangleTexture;
+import de.gemo.engine.textures.loader.RectangleTextureLoader;
 
 import static org.lwjgl.opengl.GL11.*;
 

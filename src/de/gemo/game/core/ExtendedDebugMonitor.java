@@ -20,7 +20,7 @@ public class ExtendedDebugMonitor extends StandardDebugMonitor {
         {
             int fontX = 125;
             int fontY = 5;
-            glTranslatef(20, 20, 0);
+            glTranslatef(20, 40, -100);
 
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);

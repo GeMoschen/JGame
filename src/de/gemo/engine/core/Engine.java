@@ -167,10 +167,13 @@ public class Engine implements ClipboardOwner {
         glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
         glMatrixMode(GL_MODELVIEW);
 
+        glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -204,15 +207,13 @@ public class Engine implements ClipboardOwner {
         boolean tick = true;
 
         // enable vsync
-        Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
+        // Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
 
         // ungrab mouse
         this.mouseManager.ungrabMouse();
 
         while (!Display.isCloseRequested()) {
             try {
-                glEnable(GL_DEPTH_TEST);
-                glDepthFunc(GL_LEQUAL);
 
                 delta = updateDelta();
                 tempFPS++;
@@ -223,7 +224,7 @@ public class Engine implements ClipboardOwner {
                 }
 
                 // clear contents
-                glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+                glClearColor(0f, 0f, 0f, 1.0f);
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 keyManager.update();
                 mouseManager.update();
@@ -257,6 +258,9 @@ public class Engine implements ClipboardOwner {
                         for (GUIManager manager : this.guiManager.values()) {
                             manager.debugRender();
                         }
+
+                        this.mouseManager.getMovedHitBox().render();
+                        this.mouseManager.getHitBox().render();
                     }
                 }
                 glPopMatrix();
@@ -269,8 +273,8 @@ public class Engine implements ClipboardOwner {
                 // update and sync
                 Display.update();
 
-                // if(this.hasDebugMonitor && this.debugMonitor.isUseVSync())
-                // Display.sync(60);
+                if (this.hasDebugMonitor && this.debugMonitor.isUseVSync())
+                    Display.sync(60);
 
                 if (startTime < System.currentTimeMillis()) {
                     startTime = System.currentTimeMillis() + 1000;
@@ -363,8 +367,7 @@ public class Engine implements ClipboardOwner {
         switch (event.getKey()) {
             case Keyboard.KEY_F1 : {
                 this.debugMonitor.setUseVSync(!this.debugMonitor.isUseVSync());
-
-                Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
+                // Display.setVSyncEnabled(this.debugMonitor.isUseVSync());
                 break;
             }
             case Keyboard.KEY_F2 : {
@@ -485,6 +488,8 @@ public class Engine implements ClipboardOwner {
         glPushMatrix();
         glClearColor(0, 0, 0, 0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+        glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
         int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);

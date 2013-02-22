@@ -9,22 +9,21 @@ import org.newdawn.slick.font.effects.GradientEffect;
 import org.newdawn.slick.font.effects.OutlineEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
 
-import static org.lwjgl.opengl.GL11.*;
-
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.TextureManager;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.manager.gui.MyGUIManager1;
-import de.gemo.game.manager.gui.MyGUIManager2;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class MyEngine extends Engine {
 
     public MyEngine() {
-        super("My Enginetest", 800, 600, 1280, 1024, false);
+        super("My Enginetest", 800, 600, false);
     }
 
     @Override
@@ -39,6 +38,8 @@ public class MyEngine extends Engine {
         glPushMatrix();
         glClearColor(0, 0, 0, 0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glDisable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
+        glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
 
@@ -84,19 +85,27 @@ public class MyEngine extends Engine {
         glVertex3f(x, y + height, 0);
         glEnd();
 
+        glEnable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
+
         // draw line
         Display.update();
         glPopMatrix();
     }
+
     @Override
     protected void loadTextures() {
         try {
             // LOAD GUI TEXTURE
-            drawLoadingText("Loading Textures...", "GUI_INGAME.png", 40);
-            SingleTexture guiTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
-            TextureManager.addTexture("GUI_1", TextureManager.SingleToMultiTexture(guiTexture.crop(0, 0, 1280, 1024)));
+            drawLoadingText("Loading Textures...", "gui_800x600.png", 20);
+            SingleTexture guiTexture = TextureManager.loadSingleTexture("gui_800x600.png");
+            TextureManager.addTexture("GUI", guiTexture.toMultiTexture());
+
+            // LOAD TILES
+            this.loadTiles();
 
             // LOAD COUNTDOWN TEXTURE
+            drawLoadingText("Loading Textures...", "GUI_INGAME.png", 40);
+            SingleTexture countdownTexture = TextureManager.loadSingleTexture("GUI_INGAME.png");
             MultiTexture countdownMultiTexture = new MultiTexture(72, 104);
             int y = 0;
             int x = 0;
@@ -105,7 +114,7 @@ public class MyEngine extends Engine {
                     y += countdownMultiTexture.getHeight();
                     x = 0;
                 }
-                countdownMultiTexture.addTextures(guiTexture.crop(1280 + x, y, countdownMultiTexture.getWidth(), countdownMultiTexture.getHeight()));
+                countdownMultiTexture.addTextures(countdownTexture.crop(1280 + x, y, countdownMultiTexture.getWidth(), countdownMultiTexture.getHeight()));
                 x += countdownMultiTexture.getWidth();
             }
             TextureManager.addTexture("countdown", countdownMultiTexture);
@@ -114,15 +123,15 @@ public class MyEngine extends Engine {
             drawLoadingText("Loading Textures...", "gui_button_2.png", 60);
             SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("gui_button_2.png");
             SingleTexture buttonNormalTextureSL = buttonCompleteTexture.crop(0, 0, 7, 25);
-            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(10, 0, 1, 25);
+            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(7, 0, 1, 25);
             SingleTexture buttonNormalTextureSR = buttonCompleteTexture.crop(103 - 7, 0, 7, 25);
 
             SingleTexture buttonHoverTextureSL = buttonCompleteTexture.crop(0, 25, 7, 25);
-            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(10, 25, 1, 25);
+            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(7, 25, 1, 25);
             SingleTexture buttonHoverTextureSR = buttonCompleteTexture.crop(103 - 7, 25, 7, 25);
 
             SingleTexture buttonPressedTextureSL = buttonCompleteTexture.crop(0, 2 * 25, 7, 25);
-            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(10, 2 * 25, 1, 25);
+            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(7, 2 * 25, 1, 25);
             SingleTexture buttonPressedTextureSR = buttonCompleteTexture.crop(103 - 7, 2 * 25, 7, 25);
             MultiTexture buttonMultiTexture = new MultiTexture(buttonNormalTexture.getWidth(), buttonNormalTexture.getHeight(), buttonNormalTexture, buttonHoverTexture, buttonPressedTexture, buttonNormalTextureSL, buttonHoverTextureSL, buttonPressedTextureSL, buttonNormalTextureSR, buttonHoverTextureSR, buttonPressedTextureSR);
             TextureManager.addTexture("BTN_1", buttonMultiTexture);
@@ -135,15 +144,15 @@ public class MyEngine extends Engine {
             // LOAD CHECKBOX TEXTURE
             drawLoadingText("Loading Textures...", "gui_checkboxradio.png", 80);
             SingleTexture checkBoxRadioTexture = TextureManager.loadSingleTexture("gui_checkboxradio.png");
-            SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 21, 21);
-            SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(21, 0, 21, 21);
-            MultiTexture checkBoxMultiTexture = new MultiTexture(21, 21, checkBoxTextureOff, checkBoxTextureOn);
+            SingleTexture checkBoxTextureOff = checkBoxRadioTexture.crop(0, 0, 15, 15);
+            SingleTexture checkBoxTextureOn = checkBoxRadioTexture.crop(15, 0, 15, 15);
+            MultiTexture checkBoxMultiTexture = new MultiTexture(15, 15, checkBoxTextureOff, checkBoxTextureOn);
             TextureManager.addTexture("CB_1", checkBoxMultiTexture);
 
             // LOAD RADIOBUTTON TEXTURE
-            SingleTexture radioButtonTextureOff = checkBoxRadioTexture.crop(0, 21, 20, 20);
-            SingleTexture radioButtonTextureOn = checkBoxRadioTexture.crop(20, 21, 20, 20);
-            MultiTexture radioButtonMultiTexture = new MultiTexture(21, 21, radioButtonTextureOff, radioButtonTextureOn);
+            SingleTexture radioButtonTextureOff = checkBoxRadioTexture.crop(0, 15, 15, 15);
+            SingleTexture radioButtonTextureOn = checkBoxRadioTexture.crop(15, 15, 15, 15);
+            MultiTexture radioButtonMultiTexture = new MultiTexture(15, 15, radioButtonTextureOff, radioButtonTextureOn);
             TextureManager.addTexture("RADIO_1", radioButtonMultiTexture);
 
             // LOAD TEXTURES FOR BUTTON
@@ -161,6 +170,42 @@ public class MyEngine extends Engine {
         }
     }
 
+    private void loadTiles() {
+        try {
+            SingleTexture tileTexture = TextureManager.loadSingleTexture("tile_grass.png");
+            TextureManager.addTexture("tile_grass", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("tile_mouse.png");
+            TextureManager.addTexture("tile_mouse", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("tile_path.png");
+            TextureManager.addTexture("tile_path", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("tile_quarder_1.png");
+            TextureManager.addTexture("tile_quarder_1", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("tile_house_01.png");
+            TextureManager.addTexture("tile_house_01", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("bulldozer.png");
+            TextureManager.addTexture("bulldozer", tileTexture.toMultiTexture());
+
+            tileTexture = TextureManager.loadSingleTexture("tile_streets.png");
+            MultiTexture streetTextures = new MultiTexture(64, 32);
+            int c = 0;
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 4; x++) {
+                    streetTextures.addTextures(tileTexture.crop(x * 64, y * 32, 64, 32));
+                    System.out.println("LOAD  " + c + " ; " + x + " / " + y);
+                    c++;
+                }
+            }
+            TextureManager.addTexture("tile_street", streetTextures);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void createManager() {
         this.setDebugMonitor(new ExtendedDebugMonitor());
@@ -168,22 +213,16 @@ public class MyEngine extends Engine {
 
     @Override
     protected final void createGUI() {
-        Hitbox hitbox = new Hitbox(550, 535);
-        hitbox.addPoint(-530, -470);
-        hitbox.addPoint(530, -470);
-        hitbox.addPoint(530, 470);
-        hitbox.addPoint(-530, 470);
-        MyGUIManager2 manager = new MyGUIManager2("GUI2", hitbox, MouseManager.INSTANCE.getMouseVector(), -1);
-        this.registerGUIManager(manager);
-
-        hitbox = new Hitbox(1185, 512);
-        hitbox.addPoint(-95, -447);
-        hitbox.addPoint(95, -447);
-        hitbox.addPoint(95, 512);
-        hitbox.addPoint(-95, 512);
+        Hitbox hitbox = new Hitbox(400, 300);
+        hitbox.addPoint(-400, -300);
+        hitbox.addPoint(400, -300);
+        hitbox.addPoint(400, 300);
+        hitbox.addPoint(-400, 300);
         this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0));
-
-        this.initGUIManager(this.getGUIManager("GUI2"));
         this.initGUIManager(this.getGUIManager("GUI"));
+    }
+
+    @Override
+    protected void renderGame() {
     }
 }

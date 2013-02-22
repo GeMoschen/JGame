@@ -5,11 +5,11 @@ import java.util.HashMap;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
 
 import static org.lwjgl.opengl.GL11.*;
 

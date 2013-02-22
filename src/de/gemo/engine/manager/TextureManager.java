@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 import org.newdawn.slick.opengl.Texture;
 
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
-import de.gemo.engine.animation.loader.RectangleTextureLoader;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
+import de.gemo.engine.textures.loader.RectangleTextureLoader;
 
 import static org.lwjgl.opengl.GL11.*;
 

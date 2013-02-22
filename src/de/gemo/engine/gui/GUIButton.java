@@ -3,10 +3,10 @@ package de.gemo.engine.gui;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -98,7 +98,7 @@ public class GUIButton extends GUIElement {
         }
         this.textWidth = (this.textWidth / 2);
     }
-    
+
     public String getLabel() {
         return this.originalLabel;
     }

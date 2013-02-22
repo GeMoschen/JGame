@@ -2,9 +2,6 @@ package de.gemo.engine.gui;
 
 import org.newdawn.slick.Color;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.entity.Entity2DClickable;
@@ -18,6 +15,9 @@ import de.gemo.engine.interfaces.input.IKeyAdapter;
 import de.gemo.engine.interfaces.listener.FocusListener;
 import de.gemo.engine.interfaces.listener.MouseListener;
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
 import de.gemo.engine.units.Vector;
 
 import static org.lwjgl.opengl.GL11.*;

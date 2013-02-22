@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.events.mouse.AbstractMouseEvent;
 import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
 import de.gemo.engine.units.Vector;
 
 import static org.lwjgl.opengl.GL11.*;

@@ -1,8 +1,8 @@
 package de.gemo.engine.gui;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
-import de.gemo.engine.animation.SingleTexture;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
+import de.gemo.engine.textures.SingleTexture;
 
 public class GUIGraphic extends GUIElement {
 

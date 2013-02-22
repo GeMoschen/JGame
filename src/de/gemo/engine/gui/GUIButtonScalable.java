@@ -1,9 +1,9 @@
 package de.gemo.engine.gui;
 
-import de.gemo.engine.animation.Animation;
-import de.gemo.engine.animation.MultiTexture;
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
+import de.gemo.engine.textures.Animation;
+import de.gemo.engine.textures.MultiTexture;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -17,7 +17,6 @@ public class GUIButtonScalable extends GUIButton {
             throw new NotEnoughTexturesException(animation.getTextureCount(), 3);
         }
         this.setWidth(width);
-        this.generateClickbox();
     }
 
     public GUIButtonScalable(float x, float y, MultiTexture multiTexture) {
@@ -26,7 +25,6 @@ public class GUIButtonScalable extends GUIButton {
             throw new NotEnoughTexturesException(multiTexture.getTextureCount(), 3);
         }
         this.setWidth(width);
-        this.generateClickbox();
     }
 
     private void generateClickbox() {
@@ -49,6 +47,7 @@ public class GUIButtonScalable extends GUIButton {
 
     public void setWidth(float width) {
         this.width = width - 2 * sizeWidth;
+        this.generateClickbox();
     }
 
     public void setLabel(String label) {
@@ -82,7 +81,7 @@ public class GUIButtonScalable extends GUIButton {
                 glTranslatef(+(width / 2f), 0, 0);
 
                 glTranslatef(+(width / 2f), 0, 0);
-                this.animation.getMultiTextures().getTexture(this.getStatus().ordinal() + 6).render(sizeWidth, this.animation.getHeight(),1, 1, 1, getAlpha());
+                this.animation.getMultiTextures().getTexture(this.getStatus().ordinal() + 6).render(sizeWidth, this.animation.getHeight(), 1, 1, 1, getAlpha());
                 glTranslatef(-(width / 2f), 0, 0);
             }
             glPopMatrix();

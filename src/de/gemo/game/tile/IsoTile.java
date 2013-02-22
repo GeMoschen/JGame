@@ -1,0 +1,82 @@
+package de.gemo.game.tile;
+
+import de.gemo.engine.entity.Entity2D;
+import de.gemo.engine.textures.Animation;
+import de.gemo.game.tile.set.TileType;
+
+import static org.lwjgl.opengl.GL11.*;
+
+public abstract class IsoTile extends Entity2D {
+
+    private final TileType type;
+    private final boolean drawBackground;
+    protected int offsetX, offsetY;
+
+    public IsoTile(TileType type, Animation animation) {
+        this(type, animation, false);
+    }
+
+    public IsoTile(TileType type, Animation animation, boolean drawBackground) {
+        this(type, animation, drawBackground, 0, 0);
+    }
+
+    public IsoTile(TileType type, Animation animation, boolean drawBackground, int offsetX, int offsetY) {
+        super(0, 0, animation);
+        this.type = type;
+        this.animation.goToFrame(0);
+        this.drawBackground = drawBackground;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+    }
+
+    public void onPlace(int tileX, int tileY, IsoMap isoMap) {
+        isoMap.setTile(tileX, tileY, this, false);
+        this.informNeighbours(tileX, tileY, isoMap);
+    }
+
+    public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+    }
+
+    public final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
+        isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, isoMap, this);
+        isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, isoMap, this);
+        isoMap.getSouthWest(tileX, tileY).onNeighbourChange(tileX, tileY + 1, isoMap, this);
+        isoMap.getNorthWest(tileX, tileY).onNeighbourChange(tileX - 1, tileY, isoMap, this);
+    }
+
+    public void onNeighbourChange(int tileX, int tileY, IsoMap isoMap, IsoTile otherTile) {
+    }
+
+    public void select() {
+        TileDimension.setSize(1, 1);
+        TileDimension.setSelectedTile(this);
+    }
+
+    public void renderBuildPlace(int tileX, int tileY, IsoMap isoMap) {
+        glPushMatrix();
+        {
+            this.setAlpha(0.5f);
+            super.render();
+            this.setAlpha(1f);
+        }
+        glPopMatrix();
+    }
+
+    @Override
+    public void render(float r, float g, float b) {
+        glPushMatrix();
+        {
+            glTranslatef(offsetX, offsetY, 0);
+            super.render(r, g, b);
+        }
+        glPopMatrix();
+    }
+
+    public boolean isDrawBackground() {
+        return drawBackground;
+    }
+
+    public TileType getType() {
+        return type;
+    }
+}
