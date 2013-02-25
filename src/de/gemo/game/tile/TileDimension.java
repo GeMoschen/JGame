@@ -9,11 +9,21 @@ public class TileDimension {
 
     private static IsoTile selectedTile = TileManager.getTile("unknown");
     private static int sizeX = 1, sizeY = 1;
-    public static boolean isFree = false;
+    private static boolean isFree = false;
+    private static IsoMap isoMap = null;
+
+    public static void setIsoMap(IsoMap isoMap) {
+        TileDimension.isoMap = isoMap;
+    }
+
+    public static boolean isFree() {
+        return isFree;
+    }
 
     public static void setSize(int sizeX, int sizeY) {
         TileDimension.sizeX = sizeX;
         TileDimension.sizeY = sizeY;
+        isFree(MyGUIManager1.mouseTileX, MyGUIManager1.mouseTileY, isoMap);
     }
 
     public static void place(int tileX, int tileY, IsoMap isoMap) {
@@ -28,7 +38,7 @@ public class TileDimension {
             selectedTile = TileManager.getTile("unknown");
         }
         TileDimension.selectedTile = selectedTile;
-        isFree(MyGUIManager1.mouseTileX, MyGUIManager1.mouseTileY, MyGUIManager1.isoMap);
+        isFree(MyGUIManager1.mouseTileX, MyGUIManager1.mouseTileY, isoMap);
     }
 
     public static IsoTile getSelectedTile() {

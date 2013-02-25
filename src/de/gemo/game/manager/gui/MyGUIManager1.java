@@ -1,9 +1,9 @@
 package de.gemo.game.manager.gui;
 
-import java.awt.Font;
-
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.util.pathfinding.Path;
+import org.newdawn.slick.util.pathfinding.Path.Step;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
@@ -12,163 +12,100 @@ import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
+import de.gemo.engine.events.mouse.MouseReleaseEvent;
 import de.gemo.engine.gui.GUIButton;
-import de.gemo.engine.gui.GUIButtonScalable;
-import de.gemo.engine.gui.GUICheckBox;
-import de.gemo.engine.gui.GUIDropdownList;
 import de.gemo.engine.gui.GUIGraphic;
-import de.gemo.engine.gui.GUILabel;
-import de.gemo.engine.gui.GUIRadioButton;
-import de.gemo.engine.gui.GUITextfield;
-import de.gemo.engine.gui.RadioGroup;
-import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.gui.GUIImageButton;
 import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.Animation;
 import de.gemo.engine.units.Vector;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
+import de.gemo.game.events.gui.buttons.MainButtonListener;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoMap_1;
-import de.gemo.game.tile.StreetManager;
+import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileDimension;
 import de.gemo.game.tile.TileManager;
-import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class MyGUIManager1 extends GUIManager {
 
-    private GUIGraphic gui, countdown, countdown2;
-    private GUILabel lbl_position;
-    private GUIButtonScalable btn_exit, btn_removeVertex, btn_add;
+    private GUIGraphic gui;
+    private GUIButton btn_exit;
+    private GUIImageButton btn_plant, btn_police, btn_house, btn_street, btn_bulldozer;
     public boolean hotkeysActive = false;
 
-    public static IsoMap isoMap;
+    public IsoMap isoMap;
 
-    public static int mouseTileX = 0, mouseTileY = 0;
+    public static int mouseTileX = 0, mouseTileY = 0, lastTileX = -1, lastTileY = -1;
+    private boolean inDragBuild = false, updatePath = false;
+    private Path path = null;
     private float tX = 0, tY = 0;
 
-    private int minShowX = 0, maxShowX = 0, minShowY = 0, maxShowY = 0;
+    private int downMouseX, downMouseY;
 
     public MyGUIManager1(String name, Hitbox hitbox, Vector mouseVector, int z) {
         super(name, hitbox, mouseVector, z);
-    }
-
-    public GUIButton getBtn_removeVertex() {
-        return btn_removeVertex;
-    }
-
-    public GUILabel getLbl_position() {
-        return lbl_position;
     }
 
     @Override
     protected void initGUI() {
         try {
             // CREATE GUI
-            gui = new GUIGraphic(0, 0, TextureManager.getTexture("GUI"));
+            gui = new GUIGraphic(800 - 82, 0, TextureManager.getTexture("GUI"));
             gui.setZ(10);
 
-            // CREATE COUNTDOWNS
-            countdown = new GUIGraphic(1110 + TextureManager.getTexture("countdown").getWidth(), 710, TextureManager.getTexture("countdown"));
-            countdown.getAnimation().setWantedFPS(10);
-            countdown2 = new GUIGraphic(1110, 710, TextureManager.getTexture("countdown"));
-
             // CREATE EXIT-BUTTON
-            Animation animationButton = new Animation(TextureManager.getTexture("BTN_1"));
-            Color normalColor = new Color(162, 162, 162);
-            Color hoverColor = new Color(215, 165, 0);
-            Color pressedColor = new Color(64, 64, 64);
+            Animation animationButton = new Animation(TextureManager.getTexture("BTN_GAME_MAIN"));
 
             ExitButtonListener listener = new ExitButtonListener();
-            btn_exit = new GUIButtonScalable(685, 565, animationButton);
+            btn_exit = new GUIButton(727, 527, animationButton);
             btn_exit.setLabel("Exit");
+            btn_exit.setColor(Color.white);
+            btn_exit.setHoverColor(Color.lightGray);
             btn_exit.setPressedColor(Color.gray);
             btn_exit.setMouseListener(listener);
-            btn_exit.setFocusListener(listener);
             this.add(btn_exit);
 
-            // CREATE LABEL
-            GUILabel label = new GUILabel(1095, 845, "Textfeld:");
-            label.setColor(Color.yellow);
-            this.add(label);
+            // CREATE PLANT BUTTON
+            Animation animationButtonIcons = new Animation(TextureManager.getTexture("BTN_GAME_MAIN_ICONS"));
 
-            // CREATE TEXT-FIELD
-            GUITextfield textfield = new GUITextfield(1000, 565, TextureManager.getTexture("EDIT_1"));
-            textfield.setText("^^ Label!");
-            textfield.setColor(Color.yellow);
-            textfield.setFont(FontManager.getStandardFont());
-            this.add(textfield);
+            MainButtonListener buttonListener = new MainButtonListener();
+            btn_plant = new GUIImageButton(727, 8, animationButton, animationButtonIcons, 0);
+            btn_plant.setMouseListener(buttonListener);
+            btn_plant.setLabel("Power");
+            this.add(btn_plant);
 
-            // ADD "Delete Vertex"-Button
-            btn_removeVertex = new GUIButtonScalable(14 + 300 + 5, 7, animationButton);
-            btn_removeVertex.setLabel("Small button");
-            btn_removeVertex.setWidth(150);
-            btn_removeVertex.setPressedColor(Color.gray);
-            this.add(btn_removeVertex);
+            // CREATE POLICE BUTTON
+            btn_police = new GUIImageButton(727, 8 + 1 * 76, animationButton, animationButtonIcons, 1);
+            btn_police.setMouseListener(buttonListener);
+            btn_police.setLabel("Police");
+            this.add(btn_police);
 
-            // ADD "Add Vertex"-Button
-            btn_add = new GUIButtonScalable(14, 7, animationButton);
-            btn_add.setWidth(300);
-            btn_add.setLabel("Large Button");
-            btn_add.setPressedColor(Color.gray);
-            this.add(btn_add);
+            // CREATE HOUSE BUTTON
+            btn_house = new GUIImageButton(727, 8 + 2 * 76, animationButton, animationButtonIcons, 2);
+            btn_house.setMouseListener(buttonListener);
+            btn_house.setLabel("House");
+            this.add(btn_house);
 
-            // ADD VERTEX LABELS
-            this.lbl_position = new GUILabel(1095, 72, "Position: N/A");
-            this.lbl_position.setFont(FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20));
-            this.add(lbl_position);
+            // CREATE STREET BUTTON
+            btn_street = new GUIImageButton(727, 8 + 3 * 76, animationButton, animationButtonIcons, 3);
+            btn_street.setMouseListener(buttonListener);
+            btn_street.setLabel("Streets");
+            this.add(btn_street);
 
-            // ADD CHECKBOX
-            GUICheckBox checkbox = new GUICheckBox(685, 60, TextureManager.getTexture("CB_1"), "Checkbox 1");
-            this.add(checkbox);
-            checkbox = new GUICheckBox(685, 80, TextureManager.getTexture("CB_1"), "Checkbox 2");
-            this.add(checkbox);
-            checkbox = new GUICheckBox(685, 100, TextureManager.getTexture("CB_1"), "Checkbox 3");
-            this.add(checkbox);
+            // CREATE BULLDOZER BUTTON
+            btn_bulldozer = new GUIImageButton(727, 527 - 1 * 76, animationButton, animationButtonIcons, 4);
+            btn_bulldozer.setMouseListener(buttonListener);
+            btn_bulldozer.setLabel("Bulldozer");
+            this.add(btn_bulldozer);
 
-            // CREATE RADIO-GROUP
-            RadioGroup radioGroup1 = new RadioGroup();
-            RadioGroup radioGroup2 = new RadioGroup();
+            isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
+            TileDimension.setIsoMap(isoMap);
 
-            // ADD RADIOBUTTON 1
-            GUIRadioButton radioButton1 = new GUIRadioButton(685, 140, TextureManager.getTexture("RADIO_1"), "Radio 1.1");
-            radioButton1.setGroup(radioGroup1);
-            this.add(radioButton1);
-
-            // ADD RADIOBUTTON 2
-            GUIRadioButton radioButton2 = new GUIRadioButton(685, 160, TextureManager.getTexture("RADIO_1"), "Radio 1.2");
-            radioButton2.setGroup(radioGroup1);
-            this.add(radioButton2);
-
-            // ADD RADIOBUTTON 3
-            GUIRadioButton radioButton3 = new GUIRadioButton(685, 180, TextureManager.getTexture("RADIO_1"), "Radio 1.3");
-            radioButton3.setGroup(radioGroup1);
-            this.add(radioButton3);
-
-            // ADD RADIOBUTTON 4
-            GUIRadioButton radioButton4 = new GUIRadioButton(685, 220, TextureManager.getTexture("RADIO_1"), "Radio 2.1");
-            radioButton4.setGroup(radioGroup2);
-            this.add(radioButton4);
-
-            // ADD RADIOBUTTON 5
-            GUIRadioButton radioButton5 = new GUIRadioButton(685, 240, TextureManager.getTexture("RADIO_1"), "Radio 2.2");
-            radioButton5.setGroup(radioGroup2);
-            this.add(radioButton5);
-
-            // ADD DROPDOWNLIST
-            GUIDropdownList ddList = new GUIDropdownList(1095, 350, TextureManager.getTexture("DROPDOWN_1"), TextureManager.getTexture("DROPDOWN_1_ELEMENT"));
-            ddList.setColor(normalColor);
-            ddList.setHoverColor(hoverColor);
-            ddList.setPressedColor(pressedColor);
-            ddList.addItem("Element 1");
-            ddList.addItem("Element 12345");
-            ddList.addItem("Element 3");
-            ddList.addItem("Element 4");
-            ddList.setSelectedItem(2);
-            this.add(ddList);
-
-            isoMap = new IsoMap_1(100, 100, 64, 32, 20, 34, 650, 550);
+            TileManager.getTile("street_nw").select();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -240,19 +177,6 @@ public class MyGUIManager1 extends GUIManager {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F8) {
             this.hotkeysActive = !this.hotkeysActive;
-        } else if (event.getKey() == Keyboard.KEY_1) {
-            TileManager.getTile("quarder_1").select();
-        } else if (event.getKey() == Keyboard.KEY_2) {
-            TileManager.getTile("street_nw").select();
-        } else if (event.getKey() == Keyboard.KEY_3) {
-            TileManager.getTile("bulldozer").select();
-        }
-    }
-
-    @Override
-    public void doTick(float delta) {
-        if (countdown.getAnimation().step(delta)) {
-            countdown2.getAnimation().nextFrame();
         }
     }
 
@@ -260,10 +184,14 @@ public class MyGUIManager1 extends GUIManager {
     public void render() {
         glPushMatrix();
         {
-            this.isoMap.render(this.minShowX, this.maxShowX, this.minShowY, this.maxShowY);
+            this.isoMap.render();
             glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY() + this.isoMap.getHalfTileHeight(), 0);
-            glTranslatef(tX, tY, this.gui.getZ());
-            TileDimension.render(mouseTileX, mouseTileY, isoMap);
+            glPushMatrix();
+            {
+                glTranslatef(tX, tY, this.gui.getZ());
+                TileDimension.render(mouseTileX, mouseTileY, isoMap);
+            }
+            glPopMatrix();
         }
         glPopMatrix();
 
@@ -271,23 +199,107 @@ public class MyGUIManager1 extends GUIManager {
         Renderer.render(gui);
         // Renderer.render(countdown);
         // Renderer.render(countdown2);
+        this.renderPath();
         super.render();
     }
 
     @Override
     public void onMouseMove(MouseMoveEvent event) {
-        mouseTileX = this.isoMap.getTileX(this.mouseVector.getX(), this.mouseVector.getY(), false);
-        mouseTileY = this.isoMap.getTileY(this.mouseVector.getX(), this.mouseVector.getY(), false);
+        mouseTileX = this.isoMap.getTileX(this.mouseVector.getX(), this.mouseVector.getY());
+        mouseTileY = this.isoMap.getTileY(this.mouseVector.getX(), this.mouseVector.getY());
         tX = this.isoMap.getIsoX(mouseTileX, mouseTileY);
         tY = this.isoMap.getIsoY(mouseTileX, mouseTileY);
         TileDimension.isFree(mouseTileX, mouseTileY, isoMap);
+
+        if (lastTileX != mouseTileX || lastTileY != mouseTileY) {
+            this.updatePath = true;
+        }
+        lastTileX = mouseTileX;
+        lastTileY = mouseTileY;
+
+        if (!(event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600)) {
+            this.inDragBuild = false;
+        }
+    }
+
+    private void renderPath() {
+        if (inDragBuild && TileDimension.getSelectedTile().getType().isDraggable()) {
+            if (updatePath) {
+                // we have a street => calculate path and place streets
+                path = this.isoMap.getPath(downMouseX, downMouseY, mouseTileX, mouseTileY);
+            }
+            updatePath = false;
+            // TileDimension.place(downMouseX, downMouseY, isoMap);
+            IsoTile streetTile = TileManager.getTile("white");
+            if (path != null) {
+                int tX = this.isoMap.getIsoX(downMouseX, downMouseY);
+                int tY = this.isoMap.getIsoY(downMouseX, downMouseY);
+                glPushMatrix();
+                {
+                    glTranslatef(isoMap.getOffsetX(), isoMap.getOffsetY() + isoMap.getHalfTileHeight(), 0);
+                    glTranslatef(tX, tY, 0);
+                    streetTile.render();
+                }
+                glPopMatrix();
+                Step node;
+                for (int i = 0; i < path.getLength(); i++) {
+                    node = path.getStep(i);
+                    tX = this.isoMap.getIsoX(node.getX(), node.getY());
+                    tY = this.isoMap.getIsoY(node.getX(), node.getY());
+                    glPushMatrix();
+                    {
+                        glTranslatef(isoMap.getOffsetX(), isoMap.getOffsetY() + isoMap.getHalfTileHeight(), 0);
+                        glTranslatef(tX, tY, 0);
+                        streetTile.render();
+                    }
+                    glPopMatrix();
+                }
+            }
+        }
     }
 
     @Override
     public void onMouseClick(MouseClickEvent event) {
-        if (event.getX() > 12 && event.getY() > 36 && event.getX() < 675 && event.getY() < 589) {
-            if (event.isLeftButton() && (TileDimension.isFree)) {
-                TileDimension.place(mouseTileX, mouseTileY, isoMap);
+        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
+            if (event.isLeftButton()) {
+                if (TileDimension.isFree()) {
+                    downMouseX = mouseTileX;
+                    downMouseY = mouseTileY;
+                    inDragBuild = true;
+                } else {
+                    downMouseX = -1;
+                    downMouseY = -1;
+                    inDragBuild = false;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onMouseRelease(MouseReleaseEvent event) {
+        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
+            if (event.isLeftButton()) {
+                inDragBuild = false;
+                if (TileDimension.isFree() && downMouseX > 0 && downMouseY > 0) {
+                    if (!TileDimension.getSelectedTile().getType().isDraggable()) {
+                        downMouseX = mouseTileX;
+                        downMouseY = mouseTileY;
+                        TileDimension.place(mouseTileX, mouseTileY, isoMap);
+                        return;
+                    } else {
+                        // we have a street => calculate path and place streets
+                        int upMouseX = this.isoMap.getTileX(this.mouseVector.getX(), this.mouseVector.getY());
+                        int upMouseY = this.isoMap.getTileY(this.mouseVector.getX(), this.mouseVector.getY());
+                        Path path = this.isoMap.getPath(downMouseX, downMouseY, upMouseX, upMouseY);
+                        TileDimension.place(downMouseX, downMouseY, isoMap);
+                        if (path != null) {
+                            for (int i = 0; i < path.getLength(); i++) {
+                                Step node = path.getStep(i);
+                                TileDimension.place(node.getX(), node.getY(), isoMap);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -295,14 +307,10 @@ public class MyGUIManager1 extends GUIManager {
     @Override
     public void onMouseDrag(MouseDragEvent event) {
         if (event.isRightButton()) {
-            if (event.getX() > 12 && event.getY() > 36 && event.getX() < 675 && event.getY() < 589) {
+            if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
                 float offsetX = this.isoMap.getOffsetX() + event.getDifX();
                 float offsetY = this.isoMap.getOffsetY() + event.getDifY();
                 this.isoMap.setOffset(offsetX, offsetY);
-            }
-        } else if (event.isLeftButton() && TileDimension.isFree) {
-            if (event.getX() > 12 && event.getY() > 36 && event.getX() < 675 && event.getY() < 589) {
-                TileDimension.place(mouseTileX, mouseTileY, isoMap);
             }
         }
     }

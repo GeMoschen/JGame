@@ -27,7 +27,7 @@ public class MouseManager {
     private int correctedX = 0, correctedY = 0;
     private int dX = 0, dY = 0;
 
-    private final Hitbox hitBox, movedHitBox, tempHitBox;
+    private Hitbox hitBox, movedHitBox, tempHitBox;
 
     public static MouseManager getInstance(Engine engine) {
         if (INSTANCE == null) {
@@ -86,11 +86,35 @@ public class MouseManager {
         int y = (int) (this.engine.getWindowHeight() / 2f * this.engine.getWin2viewRatioY());
 
         // move hitbox
-        this.hitBox.setCenter(x, y);
-        this.tempHitBox.setCenter(x, y);
+
+        // build hitbox for mouse
+        hitBox = new Hitbox(x, y);
+        hitBox.addPoint(0, 0);
+        hitBox.addPoint(1, 0);
+        hitBox.addPoint(1, 1);
+        hitBox.addPoint(0, 1);
+
+        // build hitbox for mouse
+        tempHitBox = new Hitbox(x, y);
+        tempHitBox.addPoint(0, 0);
+        tempHitBox.addPoint(1, 0);
+        tempHitBox.addPoint(1, 1);
+        tempHitBox.addPoint(0, 1);
+
+        // build hitbox for mouse
+        movedHitBox = new Hitbox(x, y);
+        movedHitBox.addPoint(0, 0);
+        movedHitBox.addPoint(1, 0);
+        movedHitBox.addPoint(1, 1);
+        movedHitBox.addPoint(0, 1);
+
+        // set the cursor
+        Mouse.setCursorPosition(x, y);
 
         // grab mouse
         Mouse.setGrabbed(true);
+
+        org.lwjgl.input.Mouse.setClipMouseCoordinatesToWindow(false);
     }
 
     public void ungrabMouse() {

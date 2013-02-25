@@ -1,7 +1,10 @@
 package de.gemo.engine.gui;
 
+import org.newdawn.slick.Color;
+
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
+import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.textures.Animation;
 import de.gemo.engine.textures.MultiTexture;
 
@@ -105,5 +108,36 @@ public class GUIButtonScalable extends GUIButton {
             glPopMatrix();
         }
         glPopMatrix();
+    }
+
+    @Override
+    public void debugRender() {
+        glPushMatrix();
+        {
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
+
+            glTranslatef((int) getX(), (int) getY(), -1);
+
+            // render center
+            Color.yellow.bind();
+            glBegin(GL_LINE_LOOP);
+            glVertex3i(-1, -1, 0);
+            glVertex3i(1, -1, 0);
+            glVertex3i(+1, +1, 0);
+            glVertex3i(-1, +1, 0);
+            glEnd();
+
+            // write entity-id
+            if (this.isFocused() || this.isHovered()) {
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                FontManager.getStandardFont().drawString((int) (FontManager.getStandardFont().getWidth("ID: " + this.entityID) / -2f + this.width / 2f), 3, "ID: " + this.entityID, Color.white);
+            }
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
+        }
+        glPopMatrix();
+        this.getClickbox().render();
     }
 }

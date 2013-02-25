@@ -1,13 +1,15 @@
 package de.gemo.game.tile;
 
-import de.gemo.engine.manager.FontManager;
 import de.gemo.game.manager.gui.MyGUIManager1;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class IsoMap_1 extends IsoMap {
 
+    private static IsoTile whiteTile = TileManager.getTile("white");
+
     private int screenX, screenY, screenWidth, screenHeight;
+    private final int maxOffY = 6, maxOffX = 4;;
 
     public IsoMap_1(int width, int height, int tileWidth, int tileHeight, int screenX, int screenY, int screenWidth, int screenHeight) {
         super(width, height, tileWidth, tileHeight);
@@ -34,11 +36,9 @@ public class IsoMap_1 extends IsoMap {
             int startY = tlY;
             int endX = trX;
 
-            int dif = maxRows % 2;
-            maxRows += dif;
+            // int dif = maxRows % 2;
+            // maxRows += dif;
 
-            int maxOffY = 6;
-            int maxOffX = 4;
             for (int i = 0; i < maxRows; i++) {
                 // UPPER ROW
                 int thisY = startY;
@@ -53,13 +53,26 @@ public class IsoMap_1 extends IsoMap {
                                 grassTile.render();
                             }
                             if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().ordinal() > 3) {
-                                tileMap[x][thisY].setAlpha(0.15f);
-                                tileMap[x][thisY].render();
+                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
+                                    this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                }
+                                tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
+                                tileMap[x][thisY].setAlpha(0.2f);
+                                tileMap[x][thisY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[x][thisY].setAlpha(1f);
                             } else {
-                                tileMap[x][thisY].render();
+                                if (IsoMap.SHOW_SECURITY) {
+                                    if (tileMap[x][thisY].getType().ordinal() < 2) {
+                                        tileMap[x][thisY].render();
+                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    } else {
+                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                        tileMap[x][thisY].render();
+                                    }
+                                } else {
+                                    tileMap[x][thisY].render();
+                                }
                             }
-                            // FontManager.getStandardFont().drawString(-(FontManager.getStandardFont().getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
                     }
                     glPopMatrix();
@@ -81,17 +94,29 @@ public class IsoMap_1 extends IsoMap {
                                 grassTile.render();
                             }
                             if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().ordinal() > 3) {
-                                tileMap[x][thisY].setAlpha(0.15f);
-                                tileMap[x][thisY].render();
+                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
+                                    this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                }
+                                tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
+                                tileMap[x][thisY].setAlpha(0.2f);
+                                tileMap[x][thisY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[x][thisY].setAlpha(1f);
                             } else {
-                                tileMap[x][thisY].render();
+                                if (IsoMap.SHOW_SECURITY) {
+                                    if (tileMap[x][thisY].getType().ordinal() < 2) {
+                                        tileMap[x][thisY].render();
+                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    } else {
+                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                        tileMap[x][thisY].render();
+                                    }
+                                } else {
+                                    tileMap[x][thisY].render();
+                                }
                             }
-                            // FontManager.getStandardFont().drawString(-(FontManager.getStandardFont().getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
                     }
                     glPopMatrix();
-
                     thisY--;
                 }
 
@@ -101,18 +126,26 @@ public class IsoMap_1 extends IsoMap {
         }
         glPopMatrix();
         glEnable(GL_DEPTH_TEST);
-
     }
 
+    private void renderSecurityLevel(IsoTile isoTile, TileInformation tileInfo) {
+        if (tileInfo.getSecureLevel() > 0) {
+            whiteTile.setAlpha(tileInfo.getSecureLevelAlpha());
+            whiteTile.render(0f, 1f, 1f);
+            whiteTile.setAlpha(1f);
+            // UnicodeFont font = FontManager.getStandardFont();
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2f), -8, "" + (int) tileInfo.getSecureLevel());
+        }
+    }
     @Override
-    public int getTileX(float x, float y, boolean bitMask) {
+    public int getTileX(float x, float y) {
         x = x - offsetX;
         y = y - offsetY;
         return (int) (0.5f * (y / halfTileHeight + x / halfTileWidth));
     }
 
     @Override
-    public int getTileY(float x, float y, boolean bitMask) {
+    public int getTileY(float x, float y) {
         x = x - offsetX;
         y = y - offsetY;
         return (int) (0.5f * (y / halfTileHeight - x / halfTileWidth));

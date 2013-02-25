@@ -4,9 +4,12 @@ import java.util.HashMap;
 
 import de.gemo.game.tile.set.Tile_Bulldozer;
 import de.gemo.game.tile.set.Tile_Grass;
-import de.gemo.game.tile.set.Tile_House_01;
+import de.gemo.game.tile.set.Tile_House_Small_01;
 import de.gemo.game.tile.set.Tile_Mouse;
+import de.gemo.game.tile.set.Tile_Police_01;
+import de.gemo.game.tile.set.Tile_PowerPlant_01;
 import de.gemo.game.tile.set.Tile_Unknown;
+import de.gemo.game.tile.set.Tile_White;
 import de.gemo.game.tile.set.streets.Tile_Street_E;
 import de.gemo.game.tile.set.streets.Tile_Street_Intercept;
 import de.gemo.game.tile.set.streets.Tile_Street_N;
@@ -27,6 +30,7 @@ public class TileManager {
         registeredTiles.put("unknown", new Tile_Unknown());
         registeredTiles.put("bulldozer", new Tile_Bulldozer());
         registeredTiles.put("grass", new Tile_Grass());
+        registeredTiles.put("white", new Tile_White());
         registeredTiles.put("mouse", new Tile_Mouse());
         registeredTiles.put("street_nw", new Tile_Street_NW());
         registeredTiles.put("street_ne", new Tile_Street_NE());
@@ -39,7 +43,9 @@ public class TileManager {
         registeredTiles.put("street_e", new Tile_Street_E());
         registeredTiles.put("street_s", new Tile_Street_S());
         registeredTiles.put("street_w", new Tile_Street_W());
-        registeredTiles.put("quarder_1", new Tile_House_01());
+        registeredTiles.put("tile_house_small_01", new Tile_House_Small_01());
+        registeredTiles.put("powerplant_01", new Tile_PowerPlant_01());
+        registeredTiles.put("police_01", new Tile_Police_01());
     }
 
     public static IsoTile getTile(String name) {

@@ -1,13 +1,30 @@
 package de.gemo.game.tile.set;
 
 public enum TileType {
-    MOUSE,
+    MOUSE(false),
 
-    GRASS,
+    GRASS(false),
 
-    STREET,
+    STREET(true),
 
-    UNKNOWN,
+    UNKNOWN(false),
 
-    QUARDER
+    BULLDOZER(false),
+
+    HOUSE(true),
+
+    POWERPLANT_01(false),
+
+    POLICE_01(false);
+
+    private final boolean draggable;
+
+    private TileType(boolean draggable) {
+        this.draggable = draggable;
+    }
+
+    public boolean isDraggable() {
+        return draggable;
+    }
+
 }

@@ -1,5 +1,7 @@
 package de.gemo.game.tile;
 
+import org.newdawn.slick.Color;
+
 import de.gemo.engine.entity.Entity2D;
 import de.gemo.engine.textures.Animation;
 import de.gemo.game.tile.set.TileType;
@@ -29,6 +31,32 @@ public abstract class IsoTile extends Entity2D {
         this.offsetY = offsetY;
     }
 
+    public void renderOutline(int halfTileWidth, int halfTileHeight) {
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        Color.yellow.bind();
+        glLineWidth(1f);
+        glBegin(GL_LINE_LOOP);
+        glVertex2i(-halfTileWidth, 0);
+        glVertex2i(0, -halfTileHeight);
+        glVertex2i(+halfTileWidth, 0);
+        glVertex2i(0, +halfTileHeight);
+        glEnd();
+        glEnable(GL_BLEND);
+    }
+
+    public void renderFilled(int halfTileWidth, int halfTileHeight, float r, float g, float b, float alpha) {
+        // glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glColor4f(r, g, b, alpha);
+        glBegin(GL_QUADS);
+        glVertex2i(-halfTileWidth, 0);
+        glVertex2i(0, -halfTileHeight);
+        glVertex2i(+halfTileWidth, 0);
+        glVertex2i(0, +halfTileHeight);
+        glEnd();
+    }
+
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, this, false);
         this.informNeighbours(tileX, tileY, isoMap);
@@ -48,8 +76,8 @@ public abstract class IsoTile extends Entity2D {
     }
 
     public void select() {
-        TileDimension.setSize(1, 1);
         TileDimension.setSelectedTile(this);
+        TileDimension.setSize(1, 1);
     }
 
     public void renderBuildPlace(int tileX, int tileY, IsoMap isoMap) {
