@@ -15,7 +15,7 @@ public class Tile_House_Small_01 extends IsoTile {
         isoMap.setTile(tileX, tileY, this, true);
         if (isoMap.isTileConnectedToPowersource(tileX, tileY)) {
             isoMap.getTileInformation(tileX, tileY).setPowered(true);
-            this.informNeighbours(tileX, tileY, isoMap);
+            this.informAllNeighbours(tileX, tileY, isoMap);
         }
     }
 
@@ -32,13 +32,13 @@ public class Tile_House_Small_01 extends IsoTile {
             isoMap.getTileInformation(tileX, tileY).setPowered(true);
             // neighbours will only get informed, if the power wasn't there but now is
             if (!wasPowered) {
-                this.informNeighbours(tileX, tileY, isoMap);
+                this.informAllNeighbours(tileX, tileY, isoMap);
             }
         } else {
             isoMap.getTileInformation(tileX, tileY).setPowered(false);
             // neighbours will only get informed, if the power was there but isn't anymore
             if (wasPowered) {
-                this.informNeighbours(tileX, tileY, isoMap);
+                this.informAllNeighbours(tileX, tileY, isoMap);
             }
         }
     }

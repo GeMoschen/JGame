@@ -1,10 +1,10 @@
 package de.gemo.game.tile;
 
-import java.util.ArrayList;
-
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.manager.TextureManager;
+import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.set.TileType;
 
@@ -12,10 +12,15 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class IsoMap_1 extends IsoMap {
 
+    public static SingleTexture noPower;
+    static {
+        noPower = TextureManager.getTexture("icon_nopower").getTexture(0);
+    }
+
     private static IsoTile whiteTile = TileManager.getTile("white");
 
     private int screenX, screenY, screenWidth, screenHeight;
-    private final int maxOffY = 6, maxOffX = 4;;
+    private final int maxOffY = 4, maxOffX = 4;
 
     public IsoMap_1(int width, int height, int tileWidth, int tileHeight, int screenX, int screenY, int screenWidth, int screenHeight) {
         super(width, height, tileWidth, tileHeight);
@@ -27,6 +32,7 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public void render(int minX, int maxX, int minY, int maxY) {
+
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
@@ -38,16 +44,15 @@ public class IsoMap_1 extends IsoMap {
             int trX = this.getTileXBitmask(screenX + screenWidth, screenY);
 
             int maxRows = (screenHeight / this.tileHeight) + 2;
-            int startX = tlX;
+            int startX = tlX - 1;
             int startY = tlY;
-            int endX = trX;
+            int endX = trX + 1;
 
             // render normal tiles
-            // UnicodeFont font = FontManager.getStandardFont();
+            UnicodeFont font = FontManager.getStandardFont();
 
             int renderX, renderY;
 
-            ArrayList<TileInformation> tileInfos = new ArrayList<TileInformation>();
             for (int i = 0; i < maxRows; i++) {
                 // UPPER ROW
                 int thisY = startY;
@@ -57,44 +62,34 @@ public class IsoMap_1 extends IsoMap {
                         if (x > -1 && x < this.width && thisY > -1 && thisY < this.height) {
                             renderX = x;
                             renderY = thisY;
-
                             int tX = this.getIsoX(renderX, renderY);
                             int tY = this.getIsoY(renderX, renderY);
-
                             glTranslatef(tX, tY, 0);
                             if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
-                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(renderX, renderY).getSecureLevel() > 0) {
-                                    this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                }
-                                if (IsoMap.SHOW_POWER) {
-                                    this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                }
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[renderX][renderY].setAlpha(0.2f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[renderX][renderY].setAlpha(1f);
+                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
+                                        glTranslatef(offX, 0, 0);
+                                        noPower.render(1, 1, 1, 1);
+                                        glTranslatef(-offX, 0, 0);
+                                    }
+                                }
                             } else {
-                                if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[renderX][renderY].render();
-                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                    } else {
-                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                        tileMap[renderX][renderY].render();
+                                tileMap[renderX][renderY].render();
+                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
+                                        glTranslatef(offX, 0, 0);
+                                        noPower.render(1, 1, 1, 1);
+                                        glTranslatef(-offX, 0, 0);
                                     }
-                                } else if (IsoMap.SHOW_POWER) {
-                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[renderX][renderY].render();
-                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                    } else {
-                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                        tileMap[renderX][renderY].render();
-                                    }
-                                } else {
-                                    tileMap[renderX][renderY].render();
                                 }
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
@@ -121,36 +116,28 @@ public class IsoMap_1 extends IsoMap {
                             if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
-                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(renderX, renderY).getSecureLevel() > 0) {
-                                    this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                }
-                                if (IsoMap.SHOW_POWER) {
-                                    this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                }
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[renderX][renderY].setAlpha(0.2f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[renderX][renderY].setAlpha(1f);
+                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
+                                        glTranslatef(offX, 0, 0);
+                                        noPower.render(1, 1, 1, 1);
+                                        glTranslatef(-offX, 0, 0);
+                                    }
+                                }
                             } else {
-                                if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[renderX][renderY].render();
-                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                    } else {
-                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                        tileMap[renderX][renderY].render();
+                                tileMap[renderX][renderY].render();
+                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
+                                        glTranslatef(offX, 0, 0);
+                                        noPower.render(1, 1, 1, 1);
+                                        glTranslatef(-offX, 0, 0);
                                     }
-                                } else if (IsoMap.SHOW_POWER) {
-                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[renderX][renderY].render();
-                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                    } else {
-                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                                        tileMap[renderX][renderY].render();
-                                    }
-                                } else {
-                                    tileMap[renderX][renderY].render();
                                 }
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
@@ -162,14 +149,73 @@ public class IsoMap_1 extends IsoMap {
                 startX++;
                 startY++;
             }
-            for (TileInformation info : tileInfos) {
-                info.setRendered(false);
-            }
-            tileInfos.clear();
         }
         glPopMatrix();
 
         glEnable(GL_DEPTH_TEST);
+
+        if (IsoMap.SHOW_POWER) {
+            this.renderExtra(true);
+        }
+
+        if (IsoMap.SHOW_SECURITY) {
+            this.renderExtra(false);
+        }
+    }
+    public void renderExtra(boolean power) {
+        glDisable(GL_DEPTH_TEST);
+        glPushMatrix();
+        {
+            glTranslatef(offsetX, offsetY + halfTileHeight, 0);
+
+            int tlX = this.getTileXBitmask(screenX, screenY);
+            int tlY = this.getTileYBitmask(screenX, screenY);
+            int trX = this.getTileXBitmask(screenX + screenWidth, screenY);
+
+            int maxRows = (screenHeight / this.tileHeight) + 2;
+            int startX = tlX - 1;
+            int startY = tlY;
+            int endX = trX + 1;
+
+            for (int i = 0; i < maxRows; i++) {
+                // UPPER ROW
+                renderIterationExtra(startX - 1, startY, endX, power);
+
+                // LOWER ROW
+                endX++;
+                renderIterationExtra(startX, startY, endX, power);
+                startX++;
+                startY++;
+            }
+        }
+        glPopMatrix();
+
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    private void renderIterationExtra(int startX, int startY, int endX, boolean power) {
+        // UPPER ROW
+        int renderX, renderY;
+        int thisY = startY;
+        for (int x = startX; x <= endX; x++) {
+            glPushMatrix();
+            {
+                if (x > -1 && x < this.width && thisY > -1 && thisY < this.height) {
+                    renderX = x;
+                    renderY = thisY;
+                    int tX = this.getIsoX(renderX, renderY);
+                    int tY = this.getIsoY(renderX, renderY);
+                    glTranslatef(tX, tY, 0);
+                    if (power) {
+                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                    } else {
+                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                    }
+                }
+            }
+            glPopMatrix();
+            thisY--;
+        }
     }
 
     private void renderSecurityLevel(IsoTile isoTile, TileInformation tileInfo) {
@@ -177,22 +223,15 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getSecureLevelAlpha());
             whiteTile.render(0f, 1f, 1f);
             whiteTile.setAlpha(1f);
+            // UnicodeFont font = FontManager.getStandardFont();
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
         }
     }
 
     private void renderPowerLevel(IsoTile isoTile, TileInformation tileInfo) {
-        if (PowerManager.isPowersource(tileInfo.getOriginalX(), tileInfo.getOriginalY())) {
+        if (tileInfo.isPowered()) {
             whiteTile.setAlpha(1f);
             whiteTile.render(1f, 0, 0);
-            whiteTile.setAlpha(1f);
-            UnicodeFont font = FontManager.getStandardFont();
-            font.drawString(-(font.getWidth("1") / 2), -8, "2");
-        } else if (tileInfo.isPowered()) {
-            whiteTile.setAlpha(1f);
-            whiteTile.render(1f, 0, 0);
-            whiteTile.setAlpha(1f);
-            UnicodeFont font = FontManager.getStandardFont();
-            font.drawString(-(font.getWidth("1") / 2), -8, "1");
         }
     }
 

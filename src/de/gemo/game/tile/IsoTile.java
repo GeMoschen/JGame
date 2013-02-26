@@ -12,6 +12,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public abstract class IsoTile extends Entity2D {
 
+    protected int dimX = 1, dimY = 1;
     private final TileType type;
     private final boolean drawBackground;
     protected int offsetX, offsetY;
@@ -47,6 +48,14 @@ public abstract class IsoTile extends Entity2D {
         glEnable(GL_BLEND);
     }
 
+    public int getDimX() {
+        return dimX;
+    }
+
+    public int getDimY() {
+        return dimY;
+    }
+
     public void renderFilled(int halfTileWidth, int halfTileHeight, float r, float g, float b, float alpha) {
         // glDisable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
@@ -61,7 +70,7 @@ public abstract class IsoTile extends Entity2D {
 
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, this, false);
-        this.informNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(tileX, tileY, isoMap);
     }
 
     public void onRemove(int tileX, int tileY, IsoMap isoMap) {
@@ -80,7 +89,26 @@ public abstract class IsoTile extends Entity2D {
         return isoMap.getNorthEastInfo(tileX, tileY).isPowered() || isoMap.getNorthWestInfo(tileX, tileY).isPowered() || isoMap.getSouthWestInfo(tileX, tileY).isPowered() || isoMap.getNorthWestInfo(tileX, tileY).isPowered();
     }
 
-    public final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
+    protected final void setPowerOfAllTiles(int tileX, int tileY, IsoMap isoMap, boolean power) {
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+        for (int x = 0; x < dimX; x++) {
+            for (int y = 0; y < dimY; y++) {
+                isoMap.getTileInformation(tileInfo.getFatherX() + x, tileInfo.getFatherY() - y).setPowered(power);
+            }
+        }
+    }
+
+    public final void informAllNeighbours(int tileX, int tileY, IsoMap isoMap) {
+        // inform neighbours
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+        for (int x = 0; x < dimX; x++) {
+            for (int y = 0; y < dimY; y++) {
+                this.informNeighbours(tileInfo.getFatherX() + x, tileInfo.getFatherY() - y, isoMap);
+            }
+        }
+    }
+
+    private final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
         isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, tileX, tileY, isoMap);
         isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, tileX, tileY, isoMap);
         isoMap.getSouthWest(tileX, tileY).onNeighbourChange(tileX, tileY + 1, tileX, tileY, isoMap);
@@ -92,7 +120,7 @@ public abstract class IsoTile extends Entity2D {
 
     public void select() {
         TileDimension.setSelectedTile(this);
-        TileDimension.setSize(1, 1);
+        TileDimension.setSize(dimX, dimY);
     }
 
     public void renderBuildPlace(int tileX, int tileY, IsoMap isoMap) {

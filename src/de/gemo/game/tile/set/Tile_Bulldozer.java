@@ -14,6 +14,6 @@ public class Tile_Bulldozer extends IsoTile {
     @Override
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, TileManager.getTile("grass"), false);
-        this.informNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(tileX, tileY, isoMap);
     }
 }

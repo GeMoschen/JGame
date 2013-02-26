@@ -34,7 +34,7 @@ public abstract class Tile_Street extends IsoTile {
     @Override
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, StreetManager.getTile(tileX, tileY, isoMap), true);
-        this.informNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(tileX, tileY, isoMap);
     }
 
     @Override

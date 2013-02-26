@@ -67,10 +67,10 @@ public class TileDimension {
         glPushMatrix();
         {
             glTranslatef(0, offsetY, 0);
-            for (int x = 0; x > -sizeX; x--) {
-                for (int y = 0; y > -sizeY; y--) {
-                    int tX = isoMap.getIsoX(x, y);
-                    int tY = isoMap.getIsoY(x, y);
+            for (int x = 0; x < sizeX; x++) {
+                for (int y = 0; y < sizeY; y++) {
+                    int tX = isoMap.getIsoX(x, -y);
+                    int tY = isoMap.getIsoY(x, -y);
                     glPushMatrix();
                     {
                         glTranslatef(tX, tY, 0);
@@ -101,12 +101,12 @@ public class TileDimension {
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
                 if (!selectedTile.getType().equals(TileType.GRASS)) {
-                    if (isoMap.isTileUsed(tileX - x, tileY - y)) {
+                    if (isoMap.isTileUsed(tileX + x, tileY - y)) {
                         isFree = false;
                         return false;
                     }
                 } else {
-                    if (!isoMap.isTileUsed(tileX - x, tileY - y)) {
+                    if (!isoMap.isTileUsed(tileX + x, tileY - y)) {
                         isFree = false;
                         return false;
                     }

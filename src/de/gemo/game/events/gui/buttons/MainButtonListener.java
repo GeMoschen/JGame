@@ -32,7 +32,7 @@ public class MainButtonListener implements MouseListener {
         GUIImageButton button = (GUIImageButton) element;
         if (button.getLabel().equalsIgnoreCase("House")) {
             IsoMap.SHOW_SECURITY = false;
-            IsoMap.SHOW_POWER = true;
+            IsoMap.SHOW_POWER = false;
             this.select("tile_house_small_01", button);
         } else if (button.getLabel().equalsIgnoreCase("Streets")) {
             IsoMap.SHOW_SECURITY = false;
@@ -40,7 +40,7 @@ public class MainButtonListener implements MouseListener {
             this.select("street_nw", button);
         } else if (button.getLabel().equalsIgnoreCase("Bulldozer")) {
             IsoMap.SHOW_SECURITY = false;
-            IsoMap.SHOW_POWER = true;
+            IsoMap.SHOW_POWER = false;
             this.select("bulldozer", button);
         } else if (button.getLabel().equalsIgnoreCase("Power")) {
             IsoMap.SHOW_SECURITY = false;
@@ -48,7 +48,7 @@ public class MainButtonListener implements MouseListener {
             this.select("powerplant_01", button);
         } else if (button.getLabel().equalsIgnoreCase("Police")) {
             IsoMap.SHOW_SECURITY = true;
-            IsoMap.SHOW_POWER = true;
+            IsoMap.SHOW_POWER = false;
             this.select("police_01", button);
         }
     }

@@ -129,6 +129,10 @@ public class MyEngine extends Engine {
 
     private void loadTiles() {
         try {
+
+            SingleTexture powerTexture = TextureManager.loadSingleTexture("textures\\ui\\icon_nopower.png");
+            TextureManager.addTexture("icon_nopower", powerTexture.toMultiTexture());
+
             SingleTexture tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tilesheet_01.png");
             TextureManager.addTexture("tilesheet_01", tileTexture.toMultiTexture());
 

@@ -6,6 +6,7 @@ import de.gemo.game.tile.set.Tile_Bulldozer;
 import de.gemo.game.tile.set.Tile_Grass;
 import de.gemo.game.tile.set.Tile_House_Small_01;
 import de.gemo.game.tile.set.Tile_Mouse;
+import de.gemo.game.tile.set.Tile_None;
 import de.gemo.game.tile.set.Tile_Police_01;
 import de.gemo.game.tile.set.Tile_PowerPlant_01;
 import de.gemo.game.tile.set.Tile_Unknown;
@@ -28,6 +29,7 @@ public class TileManager {
     static {
         registeredTiles = new HashMap<String, IsoTile>();
         registeredTiles.put("unknown", new Tile_Unknown());
+        registeredTiles.put("none", new Tile_None());
         registeredTiles.put("bulldozer", new Tile_Bulldozer());
         registeredTiles.put("grass", new Tile_Grass());
         registeredTiles.put("white", new Tile_White());
