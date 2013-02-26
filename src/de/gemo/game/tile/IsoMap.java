@@ -134,11 +134,15 @@ public abstract class IsoMap implements TileBasedMap {
             int fatherX = obst.getFatherX();
             int fatherY = obst.getFatherY();
             if (obst.isUsed()) {
-                tileMap[fatherX][fatherY].onRemove(obst.getFatherX(), obst.getFatherY(), this);
+                IsoTile removal = tileMap[fatherX][fatherY];
                 tileMap[fatherX][fatherY] = tile;
+                removal.onRemove(obst.getFatherX(), obst.getFatherY(), this);
             }
-            tileMap[tileX][tileY].onRemove(tileY, tileY, this);
+
+            IsoTile removal = tileMap[fatherX][fatherY];
             tileMap[tileX][tileY] = tile;
+            removal.onRemove(obst.getFatherX(), obst.getFatherY(), this);
+
             if (isTileUsed) {
                 this.setTileUsed(tileX, tileY, tileX, tileY);
             } else {
@@ -169,6 +173,7 @@ public abstract class IsoMap implements TileBasedMap {
             this.tileInfos[tileX][tileY].setUnused();
         }
     }
+
     public boolean isTileUsed(int tileX, int tileY) {
         if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             return this.tileInfos[tileX][tileY].isUsed();

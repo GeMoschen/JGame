@@ -26,7 +26,6 @@ import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoMap_1;
 import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileDimension;
-import de.gemo.game.tile.TileInformation;
 import de.gemo.game.tile.TileManager;
 import de.gemo.game.tile.set.TileType;
 

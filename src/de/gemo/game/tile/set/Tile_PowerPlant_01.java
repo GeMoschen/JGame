@@ -32,7 +32,12 @@ public class Tile_PowerPlant_01 extends IsoTile {
                 }
             }
         }
-        this.informNeighbours(tileX, tileY, isoMap);
+        // inform neighbours
+        for (int x = 0; x > dimX; x--) {
+            for (int y = 0; y > dimY; y--) {
+                this.informNeighbours(tileX + x, tileY + y, isoMap);
+            }
+        }
     }
 
     @Override
@@ -57,6 +62,13 @@ public class Tile_PowerPlant_01 extends IsoTile {
                 isoMap.setTileUnused(tileX + x, tileY + y);
                 isoMap.getTileInformation(tileX + x, tileY + y).setPowered(false);
                 PowerManager.removePowersource(tileX + x, tileY + y);
+            }
+        }
+
+        // inform neighbours
+        for (int x = 0; x > dimX; x--) {
+            for (int y = 0; y > dimY; y--) {
+                this.informNeighbours(tileX + x, tileY + y, isoMap);
             }
         }
     }

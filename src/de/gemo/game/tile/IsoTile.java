@@ -81,7 +81,6 @@ public abstract class IsoTile extends Entity2D {
     }
 
     public final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
-        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
         isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, tileX, tileY, isoMap);
         isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, tileX, tileY, isoMap);
         isoMap.getSouthWest(tileX, tileY).onNeighbourChange(tileX, tileY + 1, tileX, tileY, isoMap);

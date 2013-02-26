@@ -1,9 +1,10 @@
 package de.gemo.game.tile;
 
+import java.util.ArrayList;
+
 import org.newdawn.slick.UnicodeFont;
 
 import de.gemo.engine.manager.FontManager;
-import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.set.TileType;
 
@@ -42,53 +43,58 @@ public class IsoMap_1 extends IsoMap {
             int endX = trX;
 
             // render normal tiles
+            // UnicodeFont font = FontManager.getStandardFont();
 
-            UnicodeFont font = FontManager.getStandardFont();
+            int renderX, renderY;
 
-            TextureManager.getTexture("tilesheet_01").getTexture(0).startUse();
+            ArrayList<TileInformation> tileInfos = new ArrayList<TileInformation>();
             for (int i = 0; i < maxRows; i++) {
                 // UPPER ROW
                 int thisY = startY;
                 for (int x = startX - 1; x <= endX; x++) {
-                    int tX = this.getIsoX(x, thisY);
-                    int tY = this.getIsoY(x, thisY);
                     glPushMatrix();
                     {
-                        glTranslatef(tX, tY, 0);
                         if (x > -1 && x < this.width && thisY > -1 && thisY < this.height) {
-                            if (tileMap[x][thisY].isDrawBackground()) {
+                            renderX = x;
+                            renderY = thisY;
+
+                            int tX = this.getIsoX(renderX, renderY);
+                            int tY = this.getIsoY(renderX, renderY);
+
+                            glTranslatef(tX, tY, 0);
+                            if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().getIndex() >= TileType.OVERLAY_START) {
-                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
-                                    this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
+                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(renderX, renderY).getSecureLevel() > 0) {
+                                    this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                 }
                                 if (IsoMap.SHOW_POWER) {
-                                    this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                 }
-                                tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
-                                tileMap[x][thisY].setAlpha(0.2f);
-                                tileMap[x][thisY].render(0.5f, 0.5f, 0.5f);
-                                tileMap[x][thisY].setAlpha(1f);
+                                tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
+                                tileMap[renderX][renderY].setAlpha(0.2f);
+                                tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
+                                tileMap[renderX][renderY].setAlpha(1f);
                             } else {
                                 if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[x][thisY].render();
-                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[renderX][renderY].render();
+                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                     } else {
-                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
-                                        tileMap[x][thisY].render();
+                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                                        tileMap[renderX][renderY].render();
                                     }
                                 } else if (IsoMap.SHOW_POWER) {
-                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[x][thisY].render();
-                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[renderX][renderY].render();
+                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                     } else {
-                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
-                                        tileMap[x][thisY].render();
+                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                                        tileMap[renderX][renderY].render();
                                     }
                                 } else {
-                                    tileMap[x][thisY].render();
+                                    tileMap[renderX][renderY].render();
                                 }
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
@@ -102,45 +108,49 @@ public class IsoMap_1 extends IsoMap {
                 thisY = startY;
                 endX++;
                 for (int x = startX; x <= endX; x++) {
-                    int tX = this.getIsoX(x, thisY);
-                    int tY = this.getIsoY(x, thisY);
                     glPushMatrix();
                     {
-                        glTranslatef(tX, tY, 0);
                         if (x > -1 && x < this.width && thisY > -1 && thisY < this.height) {
-                            if (tileMap[x][thisY].isDrawBackground()) {
+                            renderX = x;
+                            renderY = thisY;
+
+                            int tX = this.getIsoX(renderX, renderY);
+                            int tY = this.getIsoY(renderX, renderY);
+
+                            glTranslatef(tX, tY, 0);
+                            if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().getIndex() >= TileType.OVERLAY_START) {
-                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
-                                    this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
+                                if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(renderX, renderY).getSecureLevel() > 0) {
+                                    this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                 }
                                 if (IsoMap.SHOW_POWER) {
-                                    this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                 }
-                                tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
-                                tileMap[x][thisY].setAlpha(0.2f);
-                                tileMap[x][thisY].render(0.5f, 0.5f, 0.5f);
-                                tileMap[x][thisY].setAlpha(1f);
+                                tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
+                                tileMap[renderX][renderY].setAlpha(0.2f);
+                                tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
+                                tileMap[renderX][renderY].setAlpha(1f);
                             } else {
                                 if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[x][thisY].render();
-                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[renderX][renderY].render();
+                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                     } else {
-                                        this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
-                                        tileMap[x][thisY].render();
+                                        this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                                        tileMap[renderX][renderY].render();
                                     }
                                 } else if (IsoMap.SHOW_POWER) {
-                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
-                                        tileMap[x][thisY].render();
-                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    if (tileMap[renderX][renderY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[renderX][renderY].render();
+                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                                     } else {
-                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
-                                        tileMap[x][thisY].render();
+                                        this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                                        tileMap[renderX][renderY].render();
                                     }
                                 } else {
-                                    tileMap[x][thisY].render();
+                                    tileMap[renderX][renderY].render();
                                 }
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
@@ -152,6 +162,10 @@ public class IsoMap_1 extends IsoMap {
                 startX++;
                 startY++;
             }
+            for (TileInformation info : tileInfos) {
+                info.setRendered(false);
+            }
+            tileInfos.clear();
         }
         glPopMatrix();
 

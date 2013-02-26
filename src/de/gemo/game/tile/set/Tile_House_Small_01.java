@@ -3,7 +3,6 @@ package de.gemo.game.tile.set;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
-import de.gemo.game.tile.TileInformation;
 
 public class Tile_House_Small_01 extends IsoTile {
 

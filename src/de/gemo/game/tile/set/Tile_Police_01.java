@@ -59,12 +59,17 @@ public class Tile_Police_01 extends IsoTile {
 
     @Override
     public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+
+        // unpower and set unused
         for (int x = 0; x > dimX; x--) {
             for (int y = 0; y > dimY; y--) {
-                isoMap.setTileUnused(tileX + x, tileY + y);
-                isoMap.getTileInformation(tileX + x, tileY + y).setPowered(false);
+                isoMap.setTileUnused(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y);
+                isoMap.getTileInformation(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y).setPowered(false);
             }
         }
+
+        // inform neighbours
         for (int x = 0; x > dimX; x--) {
             for (int y = 0; y > dimY; y--) {
                 this.informNeighbours(tileX + x, tileY + y, isoMap);

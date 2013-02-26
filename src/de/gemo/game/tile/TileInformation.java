@@ -8,10 +8,19 @@ public class TileInformation {
 
     private float secureLevel = 0, secureLevelAlpha = 0;
     private boolean powered = false;
+    private boolean rendered = false;
 
     public TileInformation(int x, int y) {
         this.originalX = x;
         this.originalY = y;
+    }
+
+    public void setRendered(boolean rendered) {
+        this.rendered = rendered;
+    }
+
+    public boolean isRendered() {
+        return rendered;
     }
 
     public void setUsed(int fatherX, int fatherY) {
