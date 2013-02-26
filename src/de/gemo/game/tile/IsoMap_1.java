@@ -1,6 +1,11 @@
 package de.gemo.game.tile;
 
+import org.newdawn.slick.UnicodeFont;
+
+import de.gemo.engine.manager.FontManager;
+import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -36,9 +41,11 @@ public class IsoMap_1 extends IsoMap {
             int startY = tlY;
             int endX = trX;
 
-            // int dif = maxRows % 2;
-            // maxRows += dif;
+            // render normal tiles
 
+            UnicodeFont font = FontManager.getStandardFont();
+
+            TextureManager.getTexture("tilesheet_01").getTexture(0).startUse();
             for (int i = 0; i < maxRows; i++) {
                 // UPPER ROW
                 int thisY = startY;
@@ -52,9 +59,12 @@ public class IsoMap_1 extends IsoMap {
                             if (tileMap[x][thisY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().ordinal() > 3) {
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
                                     this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                }
+                                if (IsoMap.SHOW_POWER) {
+                                    this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                 }
                                 tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[x][thisY].setAlpha(0.2f);
@@ -62,21 +72,29 @@ public class IsoMap_1 extends IsoMap {
                                 tileMap[x][thisY].setAlpha(1f);
                             } else {
                                 if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[x][thisY].getType().ordinal() < 2) {
+                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
                                         tileMap[x][thisY].render();
                                         this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                     } else {
                                         this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                         tileMap[x][thisY].render();
                                     }
+                                } else if (IsoMap.SHOW_POWER) {
+                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[x][thisY].render();
+                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    } else {
+                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                        tileMap[x][thisY].render();
+                                    }
                                 } else {
                                     tileMap[x][thisY].render();
                                 }
                             }
+                            // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
                     }
                     glPopMatrix();
-
                     thisY--;
                 }
 
@@ -93,9 +111,12 @@ public class IsoMap_1 extends IsoMap {
                             if (tileMap[x][thisY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().ordinal() > 3) {
+                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX <= x && MyGUIManager1.mouseTileY >= thisY - maxOffY && MyGUIManager1.mouseTileY <= thisY && tileMap[x][thisY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 if (IsoMap.SHOW_SECURITY && this.getUnsafeTileInformation(x, thisY).getSecureLevel() > 0) {
                                     this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                }
+                                if (IsoMap.SHOW_POWER) {
+                                    this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                 }
                                 tileMap[x][thisY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[x][thisY].setAlpha(0.2f);
@@ -103,28 +124,37 @@ public class IsoMap_1 extends IsoMap {
                                 tileMap[x][thisY].setAlpha(1f);
                             } else {
                                 if (IsoMap.SHOW_SECURITY) {
-                                    if (tileMap[x][thisY].getType().ordinal() < 2) {
+                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
                                         tileMap[x][thisY].render();
                                         this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                     } else {
                                         this.renderSecurityLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
                                         tileMap[x][thisY].render();
                                     }
+                                } else if (IsoMap.SHOW_POWER) {
+                                    if (tileMap[x][thisY].getType().getIndex() < TileType.OVERLAY_START) {
+                                        tileMap[x][thisY].render();
+                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                    } else {
+                                        this.renderPowerLevel(tileMap[x][thisY], this.getUnsafeTileInformation(x, thisY));
+                                        tileMap[x][thisY].render();
+                                    }
                                 } else {
                                     tileMap[x][thisY].render();
                                 }
                             }
+                            // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
                     }
                     glPopMatrix();
                     thisY--;
                 }
-
                 startX++;
                 startY++;
             }
         }
         glPopMatrix();
+
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -133,10 +163,25 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getSecureLevelAlpha());
             whiteTile.render(0f, 1f, 1f);
             whiteTile.setAlpha(1f);
-            // UnicodeFont font = FontManager.getStandardFont();
-            // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2f), -8, "" + (int) tileInfo.getSecureLevel());
         }
     }
+
+    private void renderPowerLevel(IsoTile isoTile, TileInformation tileInfo) {
+        if (PowerManager.isPowersource(tileInfo.getOriginalX(), tileInfo.getOriginalY())) {
+            whiteTile.setAlpha(1f);
+            whiteTile.render(1f, 0, 0);
+            whiteTile.setAlpha(1f);
+            UnicodeFont font = FontManager.getStandardFont();
+            font.drawString(-(font.getWidth("1") / 2), -8, "2");
+        } else if (tileInfo.isPowered()) {
+            whiteTile.setAlpha(1f);
+            whiteTile.render(1f, 0, 0);
+            whiteTile.setAlpha(1f);
+            UnicodeFont font = FontManager.getStandardFont();
+            font.drawString(-(font.getWidth("1") / 2), -8, "1");
+        }
+    }
+
     @Override
     public int getTileX(float x, float y) {
         x = x - offsetX;
@@ -179,21 +224,44 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public IsoTile getNorthEast(int tileX, int tileY) {
-        return this.getTile(tileX, tileY - 1);
+        TileInformation tileInfo = this.getTileInformation(tileX, tileY - 1);
+        return this.getTile(tileInfo.getFatherX(), tileInfo.getFatherY());
     }
 
     @Override
     public IsoTile getSouthEast(int tileX, int tileY) {
-        return this.getTile(tileX + 1, tileY);
+        TileInformation tileInfo = this.getTileInformation(tileX + 1, tileY);
+        return this.getTile(tileInfo.getFatherX(), tileInfo.getFatherY());
     }
-
     @Override
     public IsoTile getSouthWest(int tileX, int tileY) {
-        return this.getTile(tileX, tileY + 1);
+        TileInformation tileInfo = this.getTileInformation(tileX, tileY + 1);
+        return this.getTile(tileInfo.getFatherX(), tileInfo.getFatherY());
     }
 
     @Override
     public IsoTile getNorthWest(int tileX, int tileY) {
-        return this.getTile(tileX - 1, tileY);
+        TileInformation tileInfo = this.getTileInformation(tileX - 1, tileY);
+        return this.getTile(tileInfo.getFatherX(), tileInfo.getFatherY());
+    }
+
+    @Override
+    public TileInformation getNorthEastInfo(int tileX, int tileY) {
+        return this.getTileInformation(tileX, tileY - 1);
+    }
+
+    @Override
+    public TileInformation getSouthEastInfo(int tileX, int tileY) {
+        return this.getTileInformation(tileX + 1, tileY);
+    }
+
+    @Override
+    public TileInformation getSouthWestInfo(int tileX, int tileY) {
+        return this.getTileInformation(tileX, tileY + 1);
+    }
+
+    @Override
+    public TileInformation getNorthWestInfo(int tileX, int tileY) {
+        return this.getTileInformation(tileX - 1, tileY);
     }
 }

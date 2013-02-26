@@ -26,7 +26,9 @@ import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoMap_1;
 import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileDimension;
+import de.gemo.game.tile.TileInformation;
 import de.gemo.game.tile.TileManager;
+import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -211,6 +213,9 @@ public class MyGUIManager1 extends GUIManager {
         tY = this.isoMap.getIsoY(mouseTileX, mouseTileY);
         TileDimension.isFree(mouseTileX, mouseTileY, isoMap);
 
+        mouseTileX = Math.min(Math.max(0, mouseTileX), this.isoMap.getWidth() - 1);
+        mouseTileY = Math.min(Math.max(0, mouseTileY), this.isoMap.getHeight() - 1);
+
         if (lastTileX != mouseTileX || lastTileY != mouseTileY) {
             this.updatePath = true;
         }
@@ -221,12 +226,11 @@ public class MyGUIManager1 extends GUIManager {
             this.inDragBuild = false;
         }
     }
-
     private void renderPath() {
         if (inDragBuild && TileDimension.getSelectedTile().getType().isDraggable()) {
             if (updatePath) {
                 // we have a street => calculate path and place streets
-                path = this.isoMap.getPath(downMouseX, downMouseY, mouseTileX, mouseTileY);
+                path = this.isoMap.getBuildingPath(downMouseX, downMouseY, mouseTileX, mouseTileY);
             }
             updatePath = false;
             // TileDimension.place(downMouseX, downMouseY, isoMap);
@@ -262,7 +266,7 @@ public class MyGUIManager1 extends GUIManager {
     public void onMouseClick(MouseClickEvent event) {
         if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
             if (event.isLeftButton()) {
-                if (TileDimension.isFree()) {
+                if (TileDimension.isFree() || (!TileDimension.isFree() && TileDimension.getSelectedTile().getType().equals(TileType.BULLDOZER))) {
                     downMouseX = mouseTileX;
                     downMouseY = mouseTileY;
                     inDragBuild = true;
@@ -280,7 +284,7 @@ public class MyGUIManager1 extends GUIManager {
         if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
             if (event.isLeftButton()) {
                 inDragBuild = false;
-                if (TileDimension.isFree() && downMouseX > 0 && downMouseY > 0) {
+                if ((TileDimension.isFree() || (!TileDimension.isFree() && TileDimension.getSelectedTile().getType().equals(TileType.BULLDOZER))) && downMouseX > -1 && downMouseY > -1) {
                     if (!TileDimension.getSelectedTile().getType().isDraggable()) {
                         downMouseX = mouseTileX;
                         downMouseY = mouseTileY;
@@ -290,9 +294,11 @@ public class MyGUIManager1 extends GUIManager {
                         // we have a street => calculate path and place streets
                         int upMouseX = this.isoMap.getTileX(this.mouseVector.getX(), this.mouseVector.getY());
                         int upMouseY = this.isoMap.getTileY(this.mouseVector.getX(), this.mouseVector.getY());
-                        Path path = this.isoMap.getPath(downMouseX, downMouseY, upMouseX, upMouseY);
-                        TileDimension.place(downMouseX, downMouseY, isoMap);
+                        if (upMouseX == downMouseX && upMouseY == downMouseY && path == null) {
+                            TileDimension.place(downMouseX, downMouseY, isoMap);
+                        }
                         if (path != null) {
+                            TileDimension.place(downMouseX, downMouseY, isoMap);
                             for (int i = 0; i < path.getLength(); i++) {
                                 Step node = path.getStep(i);
                                 TileDimension.place(node.getX(), node.getY(), isoMap);

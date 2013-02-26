@@ -1,5 +1,7 @@
 package de.gemo.game.tile;
 
+import java.awt.Point;
+
 import org.newdawn.slick.Color;
 
 import de.gemo.engine.entity.Entity2D;
@@ -40,7 +42,7 @@ public abstract class IsoTile extends Entity2D {
         glVertex2i(-halfTileWidth, 0);
         glVertex2i(0, -halfTileHeight);
         glVertex2i(+halfTileWidth, 0);
-        glVertex2i(0, +halfTileHeight);
+        glVertex2i(0, +halfTileHeight - 1);
         glEnd();
         glEnable(GL_BLEND);
     }
@@ -65,14 +67,28 @@ public abstract class IsoTile extends Entity2D {
     public void onRemove(int tileX, int tileY, IsoMap isoMap) {
     }
 
-    public final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
-        isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, isoMap, this);
-        isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, isoMap, this);
-        isoMap.getSouthWest(tileX, tileY).onNeighbourChange(tileX, tileY + 1, isoMap, this);
-        isoMap.getNorthWest(tileX, tileY).onNeighbourChange(tileX - 1, tileY, isoMap, this);
+    public final boolean isGettingPowered(int tileX, int tileY, IsoMap isoMap) {
+        for (Point tile : PowerManager.getPowersourceTiles()) {
+            if (isoMap.getPowerPath(tileX, tileY, tile.x, tile.y) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void onNeighbourChange(int tileX, int tileY, IsoMap isoMap, IsoTile otherTile) {
+    public final boolean isGettingPoweredByNeighbour(int tileX, int tileY, IsoMap isoMap) {
+        return isoMap.getNorthEastInfo(tileX, tileY).isPowered() || isoMap.getNorthWestInfo(tileX, tileY).isPowered() || isoMap.getSouthWestInfo(tileX, tileY).isPowered() || isoMap.getNorthWestInfo(tileX, tileY).isPowered();
+    }
+
+    public final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+        isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, tileX, tileY, isoMap);
+        isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, tileX, tileY, isoMap);
+        isoMap.getSouthWest(tileX, tileY).onNeighbourChange(tileX, tileY + 1, tileX, tileY, isoMap);
+        isoMap.getNorthWest(tileX, tileY).onNeighbourChange(tileX - 1, tileY, tileX, tileY, isoMap);
+    }
+
+    public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
     }
 
     public void select() {

@@ -61,7 +61,7 @@ public class GUIDropdownList extends GUIElement {
     }
 
     public boolean removeItem(int index) {
-        if (index >= 0 && index < this.itemList.size()) {
+        if (index > -1 && index < this.itemList.size()) {
             boolean result = this.itemList.remove(index) != null;
             this.refreshElementClickboxes();
             this.setSelectedItem(this.selectedIndex);

@@ -94,7 +94,7 @@ public class Animation {
     }
 
     public void render(float r, float g, float b, float alpha) {
-        if (this.currentFrame >= 0 && this.currentFrame < this.multiTextures.getTextureCount()) {
+        if (this.currentFrame > -1 && this.currentFrame < this.multiTextures.getTextureCount()) {
             this.multiTextures.getTexture(this.currentFrame).render(r, g, b, alpha);
         }
     }

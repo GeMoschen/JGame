@@ -1,5 +1,7 @@
 package de.gemo.game.tile;
 
+import java.awt.Point;
+
 import org.newdawn.slick.util.pathfinding.AStarPathFinder;
 import org.newdawn.slick.util.pathfinding.Path;
 import org.newdawn.slick.util.pathfinding.PathFindingContext;
@@ -12,13 +14,16 @@ public abstract class IsoMap implements TileBasedMap {
     protected TileInformation[][] tileInfos;
 
     public static boolean SHOW_SECURITY = false;
+    public static boolean SHOW_POWER = false;
 
     protected int width, height;
     protected int tileWidth, tileHeight, halfTileWidth, halfTileHeight;
 
     protected float offsetX, offsetY;
 
+    // vars for pathfinding
     private AStarPathFinder aStar;
+    private int pathMode = 0;
 
     public IsoMap(int width, int height, int tileWidth, int tileHeight) {
         this.width = width;
@@ -42,16 +47,30 @@ public abstract class IsoMap implements TileBasedMap {
     }
 
     private void initAStar() {
-        this.aStar = new AStarPathFinder(this, this.width * 2, false, new ManhattanHeuristic(0));
+        this.aStar = new AStarPathFinder(this, this.width * 3, false, new ManhattanHeuristic(0));
     }
 
-    public Path getPath(int startX, int startY, int goalX, int goalY) {
+    public Path getBuildingPath(int startX, int startY, int goalX, int goalY) {
+        // BUILDINGS = 0
+        this.pathMode = 0;
+        return this.aStar.findPath(null, startX, startY, goalX, goalY);
+    }
+
+    public Path getPowerPath(int startX, int startY, int goalX, int goalY) {
+        // POWER = 1
+        this.pathMode = 1;
         return this.aStar.findPath(null, startX, startY, goalX, goalY);
     }
 
     @Override
-    public float getCost(PathFindingContext arg0, int arg1, int arg2) {
-        return 1.0f;
+    public boolean blocked(PathFindingContext arg0, int tileX, int tileY) {
+        // powerpath
+        if (this.pathMode == 1) {
+            TileInformation tileInfo = this.getTileInformation(tileX, tileY);
+            return !this.getTileInformation(tileInfo.getFatherX(), tileInfo.getFatherY()).isPowered();
+        }
+        // by default, we return the buildingpath
+        return this.getTileInformation(tileX, tileY).isUsed();
     }
 
     @Override
@@ -62,6 +81,22 @@ public abstract class IsoMap implements TileBasedMap {
     @Override
     public int getWidthInTiles() {
         return this.width;
+    }
+
+    public boolean isTileConnectedToPowersource(int tileX, int tileY) {
+        for (Point tile : PowerManager.getPowersourceTiles()) {
+            if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
+                if (this.getPowerPath(tileX, tileY, tile.x, tile.y) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public float getCost(PathFindingContext arg0, int arg1, int arg2) {
+        return 1.0f;
     }
 
     @Override
@@ -87,14 +122,14 @@ public abstract class IsoMap implements TileBasedMap {
     }
 
     public IsoTile getTile(int tileX, int tileY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             return tileMap[tileX][tileY];
         }
         return TileManager.getTile("unknown");
     }
 
     public void setTile(int tileX, int tileY, IsoTile tile, boolean isTileUsed) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             TileInformation obst = this.tileInfos[tileX][tileY];
             int fatherX = obst.getFatherX();
             int fatherY = obst.getFatherY();
@@ -102,6 +137,7 @@ public abstract class IsoMap implements TileBasedMap {
                 tileMap[fatherX][fatherY].onRemove(obst.getFatherX(), obst.getFatherY(), this);
                 tileMap[fatherX][fatherY] = tile;
             }
+            tileMap[tileX][tileY].onRemove(tileY, tileY, this);
             tileMap[tileX][tileY] = tile;
             if (isTileUsed) {
                 this.setTileUsed(tileX, tileY, tileX, tileY);
@@ -112,13 +148,13 @@ public abstract class IsoMap implements TileBasedMap {
     }
 
     public void setTileUsed(int tileX, int tileY, int fatherX, int fatherY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             this.tileInfos[tileX][tileY].setUsed(fatherX, fatherY);
         }
     }
 
     public TileInformation getTileInformation(int tileX, int tileY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             return this.tileInfos[tileX][tileY];
         }
         return new TileInformation(-1, -1);
@@ -129,27 +165,22 @@ public abstract class IsoMap implements TileBasedMap {
     }
 
     public void setTileUnused(int tileX, int tileY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             this.tileInfos[tileX][tileY].setUnused();
         }
     }
     public boolean isTileUsed(int tileX, int tileY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             return this.tileInfos[tileX][tileY].isUsed();
         }
         return true;
     }
 
     public IsoTile getFatherTile(int tileX, int tileY) {
-        if (tileX >= 0 && tileX < this.width && tileY >= 0 && tileY < this.height) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
             return this.tileInfos[tileX][tileY].getFather(this);
         }
         return TileManager.getTile("unknown");
-    }
-
-    @Override
-    public boolean blocked(PathFindingContext arg0, int tileX, int tileY) {
-        return this.getTileInformation(tileX, tileY).isUsed();
     }
 
     public void render() {
@@ -173,6 +204,14 @@ public abstract class IsoMap implements TileBasedMap {
     public abstract IsoTile getSouthWest(int tileX, int tileY);
 
     public abstract IsoTile getNorthWest(int tileX, int tileY);
+
+    public abstract TileInformation getNorthEastInfo(int tileX, int tileY);
+
+    public abstract TileInformation getSouthEastInfo(int tileX, int tileY);
+
+    public abstract TileInformation getSouthWestInfo(int tileX, int tileY);
+
+    public abstract TileInformation getNorthWestInfo(int tileX, int tileY);
 
     public IsoTile[][] getTileMap() {
         return tileMap;

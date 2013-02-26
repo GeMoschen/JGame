@@ -130,6 +130,8 @@ public class MyEngine extends Engine {
     private void loadTiles() {
         try {
             SingleTexture tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tilesheet_01.png");
+            TextureManager.addTexture("tilesheet_01", tileTexture.toMultiTexture());
+
             TextureManager.addTexture("tile_mouse", tileTexture.crop(0 * 64, 0 * 32, 64, 32).toMultiTexture());
             TextureManager.addTexture("tile_path", tileTexture.crop(1 * 64, 0 * 32, 64, 32).toMultiTexture());
             TextureManager.addTexture("tile_white", tileTexture.crop(2 * 64, 0 * 32, 64, 32).toMultiTexture());
@@ -165,6 +167,7 @@ public class MyEngine extends Engine {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void createManager() {
         this.setDebugMonitor(new ExtendedDebugMonitor());

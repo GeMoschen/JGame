@@ -53,6 +53,17 @@ public class TileDimension {
             mouseTile = TileManager.getTile("unknown");
             offsetY = isoMap.getHalfTileHeight();
         }
+
+        if (selectedTile.getType().equals(TileType.BULLDOZER)) {
+            if (isFree) {
+                mouseTile = TileManager.getTile("unknown");
+                offsetY = isoMap.getHalfTileHeight();
+            } else {
+                mouseTile = TileManager.getTile("mouse");
+                offsetY = 0;
+            }
+        }
+
         glPushMatrix();
         {
             glTranslatef(0, offsetY, 0);
@@ -69,7 +80,7 @@ public class TileDimension {
                 }
             }
 
-            if (isFree && !selectedTile.getType().equals(TileType.UNKNOWN)) {
+            if ((isFree && !selectedTile.getType().equals(TileType.UNKNOWN) && !selectedTile.getType().equals(TileType.BULLDOZER)) || (!isFree && selectedTile.getType().equals(TileType.BULLDOZER))) {
                 glTranslatef(0, isoMap.getHalfTileHeight(), 0);
                 selectedTile.renderBuildPlace(tileX, tileY, isoMap);
                 glTranslatef(0, -isoMap.getHalfTileHeight(), 0);

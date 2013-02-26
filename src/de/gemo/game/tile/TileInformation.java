@@ -7,7 +7,7 @@ public class TileInformation {
     public boolean used = false;
 
     private float secureLevel = 0, secureLevelAlpha = 0;
-    private boolean isPowered = false;
+    private boolean powered = false;
 
     public TileInformation(int x, int y) {
         this.originalX = x;
@@ -52,15 +52,19 @@ public class TileInformation {
     }
 
     public boolean isPowered() {
-        return isPowered;
+        return this.powered;
     }
 
-    public void setPowered(boolean isPowered) {
-        this.isPowered = isPowered;
+    public boolean isPowerSource() {
+        return PowerManager.isPowersource(this.getFatherX(), this.getFatherY());
+    }
+
+    public void setPowered(boolean powered) {
+        this.powered = powered;
     }
 
     public IsoTile getFather(IsoMap isoMap) {
-        return isoMap.getTile(fatherX, fatherY);
+        return isoMap.getTile(this.getFatherX(), this.getFatherY());
     }
 
     public int getFatherX() {
@@ -77,6 +81,14 @@ public class TileInformation {
         } else {
             return this.originalY;
         }
+    }
+
+    public int getOriginalX() {
+        return originalX;
+    }
+
+    public int getOriginalY() {
+        return originalY;
     }
 
     public boolean isUsed() {

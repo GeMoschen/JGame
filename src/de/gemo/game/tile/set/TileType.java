@@ -1,26 +1,38 @@
 package de.gemo.game.tile.set;
 
 public enum TileType {
-    MOUSE(false),
 
-    GRASS(false),
+    // TILES ON ONE TEXTURE : INDEX < 100
+    UNKNOWN(-1, false),
 
-    STREET(true),
+    MOUSE(0, false),
 
-    UNKNOWN(false),
+    GRASS(1, false),
 
-    BULLDOZER(false),
+    STREET(2, true),
 
-    HOUSE(true),
+    // OVERLAYS : INDEX >= 100
 
-    POWERPLANT_01(false),
+    BULLDOZER(100, false),
 
-    POLICE_01(false);
+    HOUSE(101, true),
 
+    POWERPLANT_01(102, false),
+
+    POLICE_01(103, false);
+
+    public static int OVERLAY_START = 100;
+
+    private final int index;
     private final boolean draggable;
 
-    private TileType(boolean draggable) {
+    private TileType(int index, boolean draggable) {
+        this.index = index;
         this.draggable = draggable;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public boolean isDraggable() {

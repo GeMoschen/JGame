@@ -1,7 +1,5 @@
 package de.gemo.game.tile.set;
 
-import org.newdawn.slick.Color;
-
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
@@ -21,14 +19,24 @@ public class Tile_Police_01 extends IsoTile {
     @Override
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, this, true);
+        boolean isConnected = isoMap.isTileConnectedToPowersource(tileX, tileY);
         for (int x = 0; x > dimX; x--) {
             for (int y = 0; y > dimY; y--) {
                 if (x != 0 || y != 0) {
                     isoMap.setTileUsed(tileX + x, tileY + y, tileX, tileY);
+                    isConnected = isConnected || isoMap.isTileConnectedToPowersource(tileX + x, tileY + y);
                 }
             }
         }
-        this.informNeighbours(tileX, tileY, isoMap);
+
+        if (isConnected) {
+            for (int x = 0; x > dimX; x--) {
+                for (int y = 0; y > dimY; y--) {
+                    isoMap.getTileInformation(tileX + x, tileY + y).setPowered(true);
+                    this.informNeighbours(tileX + x, tileY + y, isoMap);
+                }
+            }
+        }
 
         // add securitylevel
         updateSecurityLevel(isoMap, tileX, tileY, 10, true);
@@ -38,13 +46,13 @@ public class Tile_Police_01 extends IsoTile {
     public void renderOutline(int halfTileWidth, int halfTileHeight) {
         glDisable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
-        Color.yellow.bind();
-        glLineWidth(1f);
+        glColor3f(0, 1, 1);
+        glLineWidth(2f);
         glBegin(GL_LINE_LOOP);
         glVertex2i(-2 * halfTileWidth, -1 * halfTileHeight);
         glVertex2i(0, -3 * halfTileHeight);
         glVertex2i(+2 * halfTileWidth, -1 * halfTileHeight);
-        glVertex2i(0, +halfTileHeight);
+        glVertex2i(0, +halfTileHeight - 1);
         glEnd();
         glEnable(GL_BLEND);
     }
@@ -54,6 +62,12 @@ public class Tile_Police_01 extends IsoTile {
         for (int x = 0; x > dimX; x--) {
             for (int y = 0; y > dimY; y--) {
                 isoMap.setTileUnused(tileX + x, tileY + y);
+                isoMap.getTileInformation(tileX + x, tileY + y).setPowered(false);
+            }
+        }
+        for (int x = 0; x > dimX; x--) {
+            for (int y = 0; y > dimY; y--) {
+                this.informNeighbours(tileX + x, tileY + y, isoMap);
             }
         }
 
@@ -92,6 +106,44 @@ public class Tile_Police_01 extends IsoTile {
     public void select() {
         super.select();
         TileDimension.setSize(-dimX, -dimY);
+    }
+
+    @Override
+    public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+        boolean isNowPowered = isoMap.isTileConnectedToPowersource(tileX, tileY);
+        boolean wasPowered = isoMap.getTileInformation(tileX, tileY).isPowered();
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+        if (isNowPowered) {
+            // power up
+            for (int x = 0; x > dimX; x--) {
+                for (int y = 0; y > dimY; y--) {
+                    isoMap.getTileInformation(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y).setPowered(true);
+                }
+            }
+            // neighbours will only get informed, if the power wasn't there but now is
+            if (!wasPowered) {
+                for (int x = 0; x > dimX; x--) {
+                    for (int y = 0; y > dimY; y--) {
+                        this.informNeighbours(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y, isoMap);
+                    }
+                }
+            }
+        } else {
+            // power down
+            for (int x = 0; x > dimX; x--) {
+                for (int y = 0; y > dimY; y--) {
+                    isoMap.getTileInformation(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y).setPowered(false);
+                }
+            }
+            // neighbours will only get informed, if the power was there but isn't anymore
+            if (wasPowered) {
+                for (int x = 0; x > dimX; x--) {
+                    for (int y = 0; y > dimY; y--) {
+                        this.informNeighbours(tileInfo.getFatherX() + x, tileInfo.getFatherY() + y, isoMap);
+                    }
+                }
+            }
+        }
     }
 
 }
