@@ -185,7 +185,7 @@ public class MyGUIManager1 extends GUIManager {
         glPushMatrix();
         {
             this.isoMap.render();
-            glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY() + this.isoMap.getHalfTileHeight(), 0);
+            glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY(), 0);
             glPushMatrix();
             {
                 glTranslatef(tX, tY, this.gui.getZ());

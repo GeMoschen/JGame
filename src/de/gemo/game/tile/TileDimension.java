@@ -47,25 +47,35 @@ public class TileDimension {
 
     public static void render(int tileX, int tileY, IsoMap isoMap) {
         IsoTile mouseTile = TileManager.getTile("mouse");
+
+        int offsetY = 0;
         if (!isFree) {
             mouseTile = TileManager.getTile("unknown");
+            offsetY = isoMap.getHalfTileHeight();
         }
-        for (int x = 0; x > -sizeX; x--) {
-            for (int y = 0; y > -sizeY; y--) {
-                int tX = isoMap.getIsoX(x, y);
-                int tY = isoMap.getIsoY(x, y);
-                glPushMatrix();
-                {
-                    glTranslatef(tX, tY, 0);
-                    mouseTile.render();
+        glPushMatrix();
+        {
+            glTranslatef(0, offsetY, 0);
+            for (int x = 0; x > -sizeX; x--) {
+                for (int y = 0; y > -sizeY; y--) {
+                    int tX = isoMap.getIsoX(x, y);
+                    int tY = isoMap.getIsoY(x, y);
+                    glPushMatrix();
+                    {
+                        glTranslatef(tX, tY, 0);
+                        mouseTile.render();
+                    }
+                    glPopMatrix();
                 }
-                glPopMatrix();
+            }
+
+            if (isFree && !selectedTile.getType().equals(TileType.UNKNOWN)) {
+                glTranslatef(0, isoMap.getHalfTileHeight(), 0);
+                selectedTile.renderBuildPlace(tileX, tileY, isoMap);
+                glTranslatef(0, -isoMap.getHalfTileHeight(), 0);
             }
         }
-
-        if (isFree && !selectedTile.getType().equals(TileType.UNKNOWN)) {
-            selectedTile.renderBuildPlace(tileX, tileY, isoMap);
-        }
+        glPopMatrix();
     }
 
     public static int getSizeX() {

@@ -129,17 +129,25 @@ public class MyEngine extends Engine {
 
     private void loadTiles() {
         try {
-            SingleTexture tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_grass.png");
-            TextureManager.addTexture("tile_grass", tileTexture.toMultiTexture());
+            SingleTexture tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tilesheet_01.png");
+            TextureManager.addTexture("tile_mouse", tileTexture.crop(0 * 64, 0 * 32, 64, 32).toMultiTexture());
+            TextureManager.addTexture("tile_path", tileTexture.crop(1 * 64, 0 * 32, 64, 32).toMultiTexture());
+            TextureManager.addTexture("tile_white", tileTexture.crop(2 * 64, 0 * 32, 64, 32).toMultiTexture());
+            TextureManager.addTexture("tile_grass", tileTexture.crop(3 * 64, 0 * 32, 64, 32).toMultiTexture());
 
-            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_white.png");
-            TextureManager.addTexture("tile_white", tileTexture.toMultiTexture());
-
-            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_mouse.png");
-            TextureManager.addTexture("tile_mouse", tileTexture.toMultiTexture());
-
-            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_path.png");
-            TextureManager.addTexture("tile_path", tileTexture.toMultiTexture());
+            MultiTexture streetTextures = new MultiTexture(64, 32);
+            streetTextures.addTextures(tileTexture.crop(4 * 64, 0 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(5 * 64, 0 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(6 * 64, 0 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(7 * 64, 0 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(0 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(1 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(2 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(3 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(4 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(5 * 64, 1 * 32, 64, 32));
+            streetTextures.addTextures(tileTexture.crop(6 * 64, 1 * 32, 64, 32));
+            TextureManager.addTexture("tile_street", streetTextures);
 
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_house_small_01.png");
             TextureManager.addTexture("tile_house_small_01", tileTexture.toMultiTexture());
@@ -153,19 +161,10 @@ public class MyEngine extends Engine {
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\bulldozer.png");
             TextureManager.addTexture("bulldozer", tileTexture.toMultiTexture());
 
-            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_streets.png");
-            MultiTexture streetTextures = new MultiTexture(64, 32);
-            for (int y = 0; y < 3; y++) {
-                for (int x = 0; x < 4; x++) {
-                    streetTextures.addTextures(tileTexture.crop(x * 64, y * 32, 64, 32));
-                }
-            }
-            TextureManager.addTexture("tile_street", streetTextures);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     @Override
     protected void createManager() {
         this.setDebugMonitor(new ExtendedDebugMonitor());
