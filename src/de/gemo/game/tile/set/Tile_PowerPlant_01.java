@@ -13,6 +13,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Tile_PowerPlant_01 extends IsoTile {
 
+    private int POLLUTION_RADIUS = 6, JOB_RADIUS = 6;
+
     public Tile_PowerPlant_01() {
         super(TileType.POWERPLANT_01, TextureManager.getTexture("powerplant_01").toAnimation(), false, 96, 0);
         this.dimX = 3;
@@ -39,6 +41,9 @@ public class Tile_PowerPlant_01 extends IsoTile {
         this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
 
         this.informAllNeighbours(tileX, tileY, isoMap);
+
+        updatePollutionLevel(isoMap, tileX, tileY, POLLUTION_RADIUS, true);
+        updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, true);
     }
 
     @Override
@@ -68,8 +73,65 @@ public class Tile_PowerPlant_01 extends IsoTile {
             }
         }
 
+        updatePollutionLevel(isoMap, tileX, tileY, POLLUTION_RADIUS, false);
+        updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, false);
+
         // inform neighbours
         this.informAllNeighbours(tileX, tileY, isoMap);
         this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+    }
+
+    private void updatePollutionLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
+        float distance = 0;
+        int sqrRad = radius * radius;
+        float level;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                distance = (float) Math.abs((x) * (x) + (y + 1f) * (y + 1f));
+                distance = (float) Math.sqrt(distance);
+                if (distance * 0.9f <= sqrRad) {
+                    TileInformation tileInfo = isoMap.getTileInformation(tileX + x + 1, tileY + y);
+                    if (!tileInfo.isValid()) {
+                        continue;
+                    }
+                    level = radius + 1 - distance;
+                    if (level > 0) {
+                        level *= 13;
+                        if (add) {
+                            tileInfo.addPollutionLevel(level);
+                        } else {
+                            tileInfo.addPollutionLevel(-level);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateJobLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
+        float distance = 0;
+        int sqrRad = radius * radius;
+        float level;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                distance = (float) Math.abs((x) * (x) + (y + 1f) * (y + 1f));
+                distance = (float) Math.sqrt(distance);
+                if (distance * 0.9f <= sqrRad) {
+                    TileInformation tileInfo = isoMap.getTileInformation(tileX + x + 1, tileY + y);
+                    if (!tileInfo.isValid()) {
+                        continue;
+                    }
+                    level = radius + 1 - distance;
+                    if (level > 0) {
+                        level *= 8;
+                        if (add) {
+                            tileInfo.addJobLevel(level);
+                        } else {
+                            tileInfo.addJobLevel(-level);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

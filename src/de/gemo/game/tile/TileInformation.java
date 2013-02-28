@@ -7,21 +7,21 @@ public class TileInformation {
     public boolean used = false;
 
     private float secureLevel = 0, secureLevelAlpha = 0;
+    private float pollutionLevel = 0, pollutionLevelAlpha = 0;
+    private float jobLevel = 0, jobLevelAlpha = 0;
+
     private boolean powered = false;
-    private boolean rendered = false;
 
     public TileInformation(int x, int y) {
         this.originalX = x;
         this.originalY = y;
     }
 
-    public void setRendered(boolean rendered) {
-        this.rendered = rendered;
-    }
-
-    public boolean isRendered() {
-        return rendered;
-    }
+    // /////////////////////////
+    //
+    // USED
+    //
+    // /////////////////////////
 
     public void setUsed(int fatherX, int fatherY) {
         this.fatherX = fatherX;
@@ -34,6 +34,12 @@ public class TileInformation {
         this.fatherY = -1;
         this.used = false;
     }
+
+    // /////////////////////////
+    //
+    // SECURITY
+    //
+    // /////////////////////////
 
     public float getSecureLevel() {
         return secureLevel;
@@ -51,7 +57,7 @@ public class TileInformation {
         } else {
             float lvlCap = this.secureLevel / 10f * 0.2f;
             if (lvlCap < 0.5f) {
-                lvlCap += 0.2f;
+                lvlCap += 0.1f;
             }
             if (lvlCap > 1) {
                 lvlCap = 1;
@@ -59,6 +65,74 @@ public class TileInformation {
             this.secureLevelAlpha = lvlCap;
         }
     }
+
+    // /////////////////////////
+    //
+    // POLLUTION
+    //
+    // /////////////////////////
+
+    public float getPollutionLevel() {
+        return pollutionLevel;
+    }
+
+    public float getPollutionLevelAlpha() {
+        return pollutionLevelAlpha;
+    }
+
+    public void addPollutionLevel(float pollutionLevel) {
+        this.pollutionLevel += pollutionLevel;
+        if (this.pollutionLevel <= 1) {
+            this.pollutionLevel = 0;
+            this.pollutionLevelAlpha = 0f;
+        } else {
+            float lvlCap = this.pollutionLevel * 2.5f / 255f * 2.5f;
+            if (lvlCap < 0.2f) {
+                lvlCap += 0.1f;
+            }
+            if (lvlCap > 1) {
+                lvlCap = 1;
+            }
+            this.pollutionLevelAlpha = lvlCap;
+        }
+    }
+
+    // /////////////////////////
+    //
+    // JOBS
+    //
+    // /////////////////////////
+
+    public float getJobLevel() {
+        return jobLevel;
+    }
+
+    public float getJobLevelAlpha() {
+        return jobLevelAlpha;
+    }
+
+    public void addJobLevel(float jobLevel) {
+        this.jobLevel += jobLevel;
+        if (this.jobLevel <= 1) {
+            this.jobLevel = 0;
+            this.jobLevelAlpha = 0f;
+        } else {
+            float lvlCap = this.jobLevel * 2f / 255f * 2.5f;
+            if (lvlCap < 0.2f) {
+                lvlCap += 0.1f;
+            }
+            if (lvlCap > 1) {
+                lvlCap = 1;
+            }
+            this.jobLevelAlpha = lvlCap;
+        }
+    }
+
+    // /////////////////////////
+    //
+    // POWER
+    //
+    // /////////////////////////
 
     public boolean isPowered() {
         return this.powered;
@@ -71,6 +145,12 @@ public class TileInformation {
     public void setPowered(boolean powered) {
         this.powered = powered;
     }
+
+    // /////////////////////////
+    //
+    // FATHER
+    //
+    // /////////////////////////
 
     public IsoTile getFather(IsoMap isoMap) {
         return isoMap.getTile(this.getFatherX(), this.getFatherY());

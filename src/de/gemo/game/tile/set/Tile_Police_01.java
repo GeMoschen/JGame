@@ -10,6 +10,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Tile_Police_01 extends IsoTile {
 
+    private final int SEC_RADIUS = 8, JOB_RADIUS = 4;
+
     public Tile_Police_01() {
         super(TileType.POLICE_01, TextureManager.getTexture("tile_police_01").toAnimation(), false, 94, -12);
         this.dimX = 2;
@@ -32,8 +34,6 @@ public class Tile_Police_01 extends IsoTile {
 
         if (isConnected) {
             this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
-            // add securitylevel
-            updateSecurityLevel(isoMap, tileX, tileY, 8, true);
         }
 
         this.informAllNeighbours(tileX, tileY, isoMap);
@@ -72,30 +72,8 @@ public class Tile_Police_01 extends IsoTile {
         this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
 
         // remove securitylevel
-        updateSecurityLevel(isoMap, tileX, tileY, 8, false);
-    }
-
-    private void updateSecurityLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
-        // remove securitylevel
-        float distance = 0;
-        int sqrRad = radius * radius;
-        int t = 10 * radius - 10;
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                distance = (float) Math.abs((x + 0.5f) * (x + 0.5f) + (y + 0.5f) * (y + 0.5f));
-                if (distance * 0.9f <= sqrRad) {
-                    TileInformation tileInfo = isoMap.getTileInformation(tileX + x + 1, tileY + y);
-                    if (!tileInfo.isValid()) {
-                        continue;
-                    }
-                    if (add) {
-                        tileInfo.addSecureLevel(t - distance * 0.9f);
-                    } else {
-                        tileInfo.addSecureLevel(-(t - distance * 0.9f));
-                    }
-                }
-            }
-        }
+        this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, false);
+        this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, false);
     }
 
     @Override
@@ -108,7 +86,8 @@ public class Tile_Police_01 extends IsoTile {
             // neighbours will only get informed, if the power wasn't there but now is
             if (!wasPowered) {
                 // add securitylevel
-                updateSecurityLevel(isoMap, tileX, tileY, 8, true);
+                this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, true);
+                this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, true);
                 this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
             }
         } else {
@@ -118,8 +97,64 @@ public class Tile_Police_01 extends IsoTile {
             // neighbours will only get informed, if the power was there but isn't anymore
             if (wasPowered) {
                 // add securitylevel
-                updateSecurityLevel(isoMap, tileX, tileY, 8, false);
+                this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, false);
+                this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, false);
                 this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+            }
+        }
+    }
+
+    private void updateSecurityLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
+        // remove securitylevel
+        float distance = 0;
+        int sqrRad = radius * radius;
+        float level;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                distance = (float) Math.abs((x + 0.5f) * (x + 0.5f) + (y + 0.5f) * (y + 0.5f));
+                distance = (float) Math.sqrt(distance);
+                if (distance * 0.9f <= sqrRad) {
+                    TileInformation tileInfo = isoMap.getTileInformation(tileX + x + 1, tileY + y);
+                    if (!tileInfo.isValid()) {
+                        continue;
+                    }
+                    level = radius + 1 - distance;
+                    if (level > 0) {
+                        level *= 10;
+                        if (add) {
+                            tileInfo.addSecureLevel(level);
+                        } else {
+                            tileInfo.addSecureLevel(-level);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateJobLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
+        float distance = 0;
+        int sqrRad = radius * radius;
+        float level;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                distance = (float) Math.abs((x) * (x) + (y + 1f) * (y + 1f));
+                distance = (float) Math.sqrt(distance);
+                if (distance * 0.9f <= sqrRad) {
+                    TileInformation tileInfo = isoMap.getTileInformation(tileX + x + 1, tileY + y);
+                    if (!tileInfo.isValid()) {
+                        continue;
+                    }
+                    level = radius + 1 - distance;
+                    if (level > 0) {
+                        level *= 4;
+                        if (add) {
+                            tileInfo.addJobLevel(level);
+                        } else {
+                            tileInfo.addJobLevel(-level);
+                        }
+                    }
+                }
             }
         }
     }

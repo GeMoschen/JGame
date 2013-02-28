@@ -25,8 +25,10 @@ public abstract class IsoMap implements TileBasedMap {
 
     protected TileInformation[][] tileInfos;
 
+    public static boolean SHOW_POLLUTION = false;
     public static boolean SHOW_SECURITY = false;
     public static boolean SHOW_POWER = false;
+    public static boolean SHOW_JOBS = false;
 
     protected int width, height;
     protected int tileWidth, tileHeight, halfTileWidth, halfTileHeight;

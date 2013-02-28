@@ -22,8 +22,6 @@ public class IsoMap_1 extends IsoMap {
     private int screenX, screenY, screenWidth, screenHeight;
     private final int maxOffY = 4, maxOffX = 4;
 
-    int c = 0;
-
     public IsoMap_1(int width, int height, int tileWidth, int tileHeight, int screenX, int screenY, int screenWidth, int screenHeight) {
         super(width, height, tileWidth, tileHeight);
         this.screenX = screenX;
@@ -34,8 +32,6 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public void render(int minX, int maxX, int minY, int maxY) {
-        c++;
-
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
@@ -186,18 +182,28 @@ public class IsoMap_1 extends IsoMap {
 
         glEnable(GL_DEPTH_TEST);
 
+        SHOW_JOBS = true;
+        SHOW_POLLUTION = false;
+
         if (IsoMap.SHOW_POWER) {
-            this.renderExtra(true);
+            this.renderExtra(0);
         }
 
         if (IsoMap.SHOW_SECURITY) {
-            this.renderExtra(false);
+            this.renderExtra(1);
         }
+        if (IsoMap.SHOW_POLLUTION) {
+            this.renderExtra(2);
+        }
+        if (IsoMap.SHOW_JOBS) {
+            this.renderExtra(3);
+        }
+        // this.renderExtra(3);
 
         IsoMap.smokeEmitter.updateParticles();
     }
 
-    public void renderExtra(boolean power) {
+    public void renderExtra(int mode) {
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
@@ -214,11 +220,11 @@ public class IsoMap_1 extends IsoMap {
 
             for (int i = 0; i < maxRows; i++) {
                 // UPPER ROW
-                renderIterationExtra(startX - 1, startY, endX, power);
+                renderIterationExtra(startX - 1, startY, endX, mode);
 
                 // LOWER ROW
                 endX++;
-                renderIterationExtra(startX, startY, endX, power);
+                renderIterationExtra(startX, startY, endX, mode);
                 startX++;
                 startY++;
             }
@@ -228,7 +234,7 @@ public class IsoMap_1 extends IsoMap {
         glEnable(GL_DEPTH_TEST);
     }
 
-    private void renderIterationExtra(int startX, int startY, int endX, boolean power) {
+    private void renderIterationExtra(int startX, int startY, int endX, int mode) {
         // UPPER ROW
         int renderX, renderY;
         int thisY = startY;
@@ -241,10 +247,14 @@ public class IsoMap_1 extends IsoMap {
                     int tX = this.getIsoX(renderX, renderY);
                     int tY = this.getIsoY(renderX, renderY);
                     glTranslatef(tX, tY, 0);
-                    if (power) {
+                    if (mode == 0) {
                         this.renderPowerLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
-                    } else {
+                    } else if (mode == 1) {
                         this.renderSecurityLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                    } else if (mode == 2) {
+                        this.renderPollutionLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
+                    } else if (mode == 3) {
+                        this.renderJobLevel(tileMap[renderX][renderY], this.getUnsafeTileInformation(renderX, renderY));
                     }
                 }
             }
@@ -263,9 +273,29 @@ public class IsoMap_1 extends IsoMap {
         }
     }
 
+    private void renderPollutionLevel(IsoTile isoTile, TileInformation tileInfo) {
+        if (tileInfo.getPollutionLevel() > 0) {
+            whiteTile.setAlpha(tileInfo.getPollutionLevelAlpha());
+            whiteTile.render(0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha());
+            whiteTile.setAlpha(1f);
+            // UnicodeFont font = FontManager.getStandardFont();
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
+        }
+    }
+
+    private void renderJobLevel(IsoTile isoTile, TileInformation tileInfo) {
+        if (tileInfo.getJobLevel() > 0) {
+            whiteTile.setAlpha(tileInfo.getJobLevelAlpha());
+            whiteTile.render(1f - tileInfo.getJobLevelAlpha() * 0.5f, 1f - tileInfo.getJobLevelAlpha() * 0.5f, 0f);
+            whiteTile.setAlpha(1f);
+            // UnicodeFont font = FontManager.getStandardFont();
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
+        }
+    }
+
     private void renderPowerLevel(IsoTile isoTile, TileInformation tileInfo) {
         if (tileInfo.isPowered()) {
-            whiteTile.setAlpha(1f);
+            whiteTile.setAlpha(0.7f);
             whiteTile.render(1f, 0, 0);
         }
     }
