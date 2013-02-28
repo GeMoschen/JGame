@@ -50,6 +50,10 @@ public class MainButtonListener implements MouseListener {
             IsoMap.SHOW_SECURITY = true;
             IsoMap.SHOW_POWER = false;
             this.select("police_01", button);
+        } else if (button.getLabel().equalsIgnoreCase("Powerline")) {
+            IsoMap.SHOW_SECURITY = false;
+            IsoMap.SHOW_POWER = true;
+            this.select("powerline_nw", button);
         }
     }
 

@@ -13,7 +13,19 @@ public class Tile_Bulldozer extends IsoTile {
 
     @Override
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
+        if (isoMap.hasOverlay(tileX, tileY)) {
+            IsoTile removal = isoMap.getOverlay(tileX, tileY);
+            isoMap.removeOverlay(tileX, tileY);
+            removal.onRemove(tileX, tileY, isoMap);
+            this.informAllNeighbours(tileX, tileY, isoMap);
+            return;
+        }
         isoMap.setTile(tileX, tileY, TileManager.getTile("grass"), false);
         this.informAllNeighbours(tileX, tileY, isoMap);
+    }
+
+    @Override
+    public boolean canBePlacedAt(int tileX, int tileY, IsoMap isoMap) {
+        return !super.canBePlacedAt(tileX, tileY, isoMap);
     }
 }

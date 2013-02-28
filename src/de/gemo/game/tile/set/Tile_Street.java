@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
+import de.gemo.game.tile.PowerlineManager;
 import de.gemo.game.tile.StreetManager;
 
 public abstract class Tile_Street extends IsoTile {
@@ -32,14 +33,37 @@ public abstract class Tile_Street extends IsoTile {
     }
 
     @Override
+    public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+        if (isoMap.hasOverlay(tileX, tileY)) {
+            isoMap.getOverlay(tileX, tileY).onRemove(tileX, tileY, isoMap);
+        }
+    }
+
+    @Override
     public void onPlace(int tileX, int tileY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, StreetManager.getTile(tileX, tileY, isoMap), true);
         this.informAllNeighbours(tileX, tileY, isoMap);
     }
 
     @Override
+    public boolean canBePlacedAt(int tileX, int tileY, IsoMap isoMap) {
+        return super.canBePlacedAt(tileX, tileY, isoMap) && PowerlineManager.getPowerlinesAroundForOverlay(tileX, tileY, isoMap) < 4;
+    }
+
+    @Override
     public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
         isoMap.setTile(tileX, tileY, StreetManager.getTile(tileX, tileY, isoMap), true);
+        if (isoMap.hasOverlay(tileX, tileY)) {
+            isoMap.getOverlay(tileX, tileY).onNeighbourChange(tileX, tileY, neighbourX, neighbourY, isoMap);
+            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(tileX, tileY, neighbourX, neighbourY, isoMap);
+        }
+    }
+
+    @Override
+    public void onNeighbourPowerChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+        if (isoMap.hasOverlay(tileX, tileY)) {
+            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(tileX, tileY, neighbourX, neighbourY, isoMap);
+        }
     }
 
 }

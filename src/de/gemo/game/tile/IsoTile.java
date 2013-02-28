@@ -39,12 +39,12 @@ public abstract class IsoTile extends Entity2D {
         glDisable(GL_TEXTURE_2D);
         Color.yellow.bind();
         glLineWidth(1f);
-        glBegin(GL_LINE_LOOP);
+        // glBegin(GL_LINE_LOOP);
         glVertex2i(-halfTileWidth, 0);
         glVertex2i(0, -halfTileHeight);
         glVertex2i(+halfTileWidth, 0);
         glVertex2i(0, +halfTileHeight - 1);
-        glEnd();
+        // glEnd();
         glEnable(GL_BLEND);
     }
 
@@ -108,6 +108,16 @@ public abstract class IsoTile extends Entity2D {
         }
     }
 
+    public final void informAllNeighboursAboutPowerchange(int tileX, int tileY, IsoMap isoMap) {
+        // inform neighbours
+        TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
+        for (int x = 0; x < dimX; x++) {
+            for (int y = 0; y < dimY; y++) {
+                this.informNeighboursAboutPowerchange(tileInfo.getFatherX() + x, tileInfo.getFatherY() - y, isoMap);
+            }
+        }
+    }
+
     private final void informNeighbours(int tileX, int tileY, IsoMap isoMap) {
         isoMap.getNorthEast(tileX, tileY).onNeighbourChange(tileX, tileY - 1, tileX, tileY, isoMap);
         isoMap.getSouthEast(tileX, tileY).onNeighbourChange(tileX + 1, tileY, tileX, tileY, isoMap);
@@ -115,7 +125,17 @@ public abstract class IsoTile extends Entity2D {
         isoMap.getNorthWest(tileX, tileY).onNeighbourChange(tileX - 1, tileY, tileX, tileY, isoMap);
     }
 
+    private final void informNeighboursAboutPowerchange(int tileX, int tileY, IsoMap isoMap) {
+        isoMap.getNorthEast(tileX, tileY).onNeighbourPowerChange(tileX, tileY - 1, tileX, tileY, isoMap);
+        isoMap.getSouthEast(tileX, tileY).onNeighbourPowerChange(tileX + 1, tileY, tileX, tileY, isoMap);
+        isoMap.getSouthWest(tileX, tileY).onNeighbourPowerChange(tileX, tileY + 1, tileX, tileY, isoMap);
+        isoMap.getNorthWest(tileX, tileY).onNeighbourPowerChange(tileX - 1, tileY, tileX, tileY, isoMap);
+    }
+
     public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+    }
+
+    public void onNeighbourPowerChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
     }
 
     public void select() {
@@ -141,6 +161,17 @@ public abstract class IsoTile extends Entity2D {
             super.render(r, g, b);
         }
         glPopMatrix();
+    }
+
+    public boolean canBePlacedAt(int tileX, int tileY, IsoMap isoMap) {
+        for (int x = 0; x < this.dimX; x++) {
+            for (int y = 0; y < this.dimY; y++) {
+                if (isoMap.isTileUsed(tileX + x, tileY - y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean isDrawBackground() {

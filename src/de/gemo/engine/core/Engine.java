@@ -224,7 +224,8 @@ public class Engine implements ClipboardOwner {
                 }
 
                 // clear contents
-                glClearColor(0f, 0f, 0f, 1.0f);
+                // glClearColor(0f, 0f, 0f, 1.0f);
+                glClearColor(0f, 0.3f, 0f, 1.0f);
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 keyManager.update();
                 mouseManager.update();

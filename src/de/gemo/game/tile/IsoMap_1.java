@@ -22,6 +22,8 @@ public class IsoMap_1 extends IsoMap {
     private int screenX, screenY, screenWidth, screenHeight;
     private final int maxOffY = 4, maxOffX = 4;
 
+    int c = 0;
+
     public IsoMap_1(int width, int height, int tileWidth, int tileHeight, int screenX, int screenY, int screenWidth, int screenHeight) {
         super(width, height, tileWidth, tileHeight);
         this.screenX = screenX;
@@ -32,10 +34,12 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public void render(int minX, int maxX, int minY, int maxY) {
+        c++;
 
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
+
             glTranslatef(offsetX, offsetY + halfTileHeight, 0);
             IsoTile grassTile = TileManager.getTile("grass");
 
@@ -70,10 +74,15 @@ public class IsoMap_1 extends IsoMap {
                             }
                             if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
-                                tileMap[renderX][renderY].setAlpha(0.2f);
+                                tileMap[renderX][renderY].setAlpha(0.4f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[renderX][renderY].setAlpha(1f);
-                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                if (overlayMap[renderX][renderY] != null) {
+                                    overlayMap[renderX][renderY].setAlpha(0.4f);
+                                    overlayMap[renderX][renderY].render();
+                                    overlayMap[renderX][renderY].setAlpha(1f);
+                                }
+                                if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
                                         glTranslatef(offX, 0, 0);
@@ -83,7 +92,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                             } else {
                                 tileMap[renderX][renderY].render();
-                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                if (overlayMap[renderX][renderY] != null) {
+                                    overlayMap[renderX][renderY].render();
+                                }
+                                if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
                                         glTranslatef(offX, 0, 0);
@@ -91,6 +103,11 @@ public class IsoMap_1 extends IsoMap {
                                         glTranslatef(-offX, 0, 0);
                                     }
                                 }
+                            }
+                            if (tileMap[renderX][renderY].getType().getIndex() == 102) {
+                                IsoMap.smokeEmitter.createParticles(1, tX + 50, tY - 115);
+                                IsoMap.smokeEmitter.createParticles(1, tX + 74, tY - 105);
+                                IsoMap.smokeEmitter.createParticles(1, tX + 98, tY - 93);
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
@@ -118,10 +135,15 @@ public class IsoMap_1 extends IsoMap {
                             }
                             if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
-                                tileMap[renderX][renderY].setAlpha(0.2f);
+                                tileMap[renderX][renderY].setAlpha(0.4f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
                                 tileMap[renderX][renderY].setAlpha(1f);
-                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                if (overlayMap[renderX][renderY] != null) {
+                                    overlayMap[renderX][renderY].setAlpha(0.4f);
+                                    overlayMap[renderX][renderY].render();
+                                    overlayMap[renderX][renderY].setAlpha(1f);
+                                }
+                                if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
                                         glTranslatef(offX, 0, 0);
@@ -131,7 +153,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                             } else {
                                 tileMap[renderX][renderY].render();
-                                if (tileMap[renderX][renderY].getType().needsPower()) {
+                                if (overlayMap[renderX][renderY] != null) {
+                                    overlayMap[renderX][renderY].render();
+                                }
+                                if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
                                         glTranslatef(offX, 0, 0);
@@ -139,6 +164,12 @@ public class IsoMap_1 extends IsoMap {
                                         glTranslatef(-offX, 0, 0);
                                     }
                                 }
+                            }
+
+                            if (tileMap[renderX][renderY].getType().getIndex() == 102) {
+                                IsoMap.smokeEmitter.createParticles(1, tX + 50, tY - 115);
+                                IsoMap.smokeEmitter.createParticles(1, tX + 74, tY - 105);
+                                IsoMap.smokeEmitter.createParticles(1, tX + 98, tY - 93);
                             }
                             // font.drawString(-(font.getWidth(x + "/" + thisY) / 2), -8, x + "/" + thisY);
                         }
@@ -149,6 +180,7 @@ public class IsoMap_1 extends IsoMap {
                 startX++;
                 startY++;
             }
+            IsoMap.smokeEmitter.render();
         }
         glPopMatrix();
 
@@ -161,7 +193,10 @@ public class IsoMap_1 extends IsoMap {
         if (IsoMap.SHOW_SECURITY) {
             this.renderExtra(false);
         }
+
+        IsoMap.smokeEmitter.updateParticles();
     }
+
     public void renderExtra(boolean power) {
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
@@ -296,6 +331,29 @@ public class IsoMap_1 extends IsoMap {
     public IsoTile getNorthWest(int tileX, int tileY) {
         TileInformation tileInfo = this.getTileInformation(tileX - 1, tileY);
         return this.getTile(tileInfo.getFatherX(), tileInfo.getFatherY());
+    }
+
+    @Override
+    public IsoTile getNorthEastOverlay(int tileX, int tileY) {
+        TileInformation tileInfo = this.getTileInformation(tileX, tileY - 1);
+        return this.getOverlayNotNull(tileInfo.getFatherX(), tileInfo.getFatherY());
+    }
+
+    @Override
+    public IsoTile getSouthEastOverlay(int tileX, int tileY) {
+        TileInformation tileInfo = this.getTileInformation(tileX + 1, tileY);
+        return this.getOverlayNotNull(tileInfo.getFatherX(), tileInfo.getFatherY());
+    }
+    @Override
+    public IsoTile getSouthWestOverlay(int tileX, int tileY) {
+        TileInformation tileInfo = this.getTileInformation(tileX, tileY + 1);
+        return this.getOverlayNotNull(tileInfo.getFatherX(), tileInfo.getFatherY());
+    }
+
+    @Override
+    public IsoTile getNorthWestOverlay(int tileX, int tileY) {
+        TileInformation tileInfo = this.getTileInformation(tileX - 1, tileY);
+        return this.getOverlayNotNull(tileInfo.getFatherX(), tileInfo.getFatherY());
     }
 
     @Override

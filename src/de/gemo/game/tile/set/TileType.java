@@ -11,7 +11,9 @@ public enum TileType {
 
     GRASS(1, false, false),
 
-    STREET(2, true, false),
+    STREET(2, true, false, true),
+
+    POWERLINE(3, true, true),
 
     // OVERLAYS : INDEX >= 100
 
@@ -28,11 +30,17 @@ public enum TileType {
     private final int index;
     private final boolean draggable;
     private final boolean needsPower;
+    private final boolean canHaveOverlay;
 
     private TileType(int index, boolean draggable, boolean needsPower) {
+        this(index, draggable, needsPower, false);
+    }
+
+    private TileType(int index, boolean draggable, boolean needsPower, boolean canHaveOverlay) {
         this.index = index;
         this.draggable = draggable;
         this.needsPower = needsPower;
+        this.canHaveOverlay = canHaveOverlay;
     }
 
     public int getIndex() {
@@ -45,6 +53,10 @@ public enum TileType {
 
     public boolean needsPower() {
         return needsPower;
+    }
+
+    public boolean canHaveOverlay() {
+        return canHaveOverlay;
     }
 
 }

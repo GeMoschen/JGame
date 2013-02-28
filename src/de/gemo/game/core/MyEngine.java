@@ -36,59 +36,61 @@ public class MyEngine extends Engine {
 
     private final void drawLoadingText(String topic, String text, int percent) {
         glPushMatrix();
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        glDisable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
+        {
+            glClearColor(0, 0, 0, 0);
+            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+            glDisable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
 
-        // draw toptex
-        int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(topic) / 2f);
-        int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(topic) / 2f);
-        font.drawString(x, y, topic, Color.red);
-        y += font.getHeight(topic) + 10;
+            // draw toptex
+            int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(topic) / 2f);
+            int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(topic) / 2f);
+            font.drawString(x, y, topic, Color.red);
+            y += font.getHeight(topic) + 10;
 
-        // draw subtext
-        font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 20);
-        x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
-        font.drawString(x, y, text, Color.gray);
+            // draw subtext
+            font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 20);
+            x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
+            font.drawString(x, y, text, Color.gray);
 
-        int width = 200;
-        int height = 40;
-        x = (int) (this.VIEW_WIDTH / 2f - width / 2f);
-        y = this.VIEW_HEIGHT - 100;
-        glDisable(GL_BLEND);
-        glDisable(GL_TEXTURE_2D);
+            int width = 200;
+            int height = 40;
+            x = (int) (this.VIEW_WIDTH / 2f - width / 2f);
+            y = this.VIEW_HEIGHT - 100;
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
 
-        float succeeded = percent * 2;
+            float succeeded = percent * 2;
 
-        // DRAW SUCCEEDED PERCENT
-        glBegin(GL_QUADS);
-        Color.red.bind();
-        glVertex3f(x, y, 0);
-        Color.green.bind();
-        glVertex3f(x + succeeded, y, 0);
-        Color.green.bind();
-        glVertex3f(x + succeeded, y + height, 0);
-        Color.red.bind();
-        glVertex3f(x, y + height, 0);
-        glEnd();
+            // DRAW SUCCEEDED PERCENT
+            glBegin(GL_QUADS);
+            Color.red.bind();
+            glVertex3f(x, y, 0);
+            Color.green.bind();
+            glVertex3f(x + succeeded, y, 0);
+            Color.green.bind();
+            glVertex3f(x + succeeded, y + height, 0);
+            Color.red.bind();
+            glVertex3f(x, y + height, 0);
+            glEnd();
 
-        // DRAW OUTLINE
-        glLineWidth(3f);
-        glBegin(GL_LINE_LOOP);
-        Color.white.bind();
-        glVertex3f(x, y, 0);
-        glVertex3f(x + width, y, 0);
-        glVertex3f(x + width, y + height, 0);
-        glVertex3f(x, y + height, 0);
-        glEnd();
+            // DRAW OUTLINE
+            glLineWidth(3f);
+            glBegin(GL_LINE_LOOP);
+            Color.white.bind();
+            glVertex3f(x, y, 0);
+            glVertex3f(x + width, y, 0);
+            glVertex3f(x + width, y + height, 0);
+            glVertex3f(x, y + height, 0);
+            glEnd();
 
-        glEnable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
+            glEnable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
 
-        // draw line
-        Display.update();
+            // draw line
+            Display.update();
+        }
         glPopMatrix();
     }
 
@@ -112,7 +114,7 @@ public class MyEngine extends Engine {
             MultiTexture buttonMultiTexture = new MultiTexture(66, 66, buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
             TextureManager.addTexture("BTN_GAME_MAIN", buttonMultiTexture);
 
-            // LOAD TEXTURES FOR BUTTON 2
+            // LOAD TEXTURES FOR ICONS
             drawLoadingText("Loading Textures...", "btn_main_icons.png", 60);
             SingleTexture buttonIconsCompleteTexture = TextureManager.loadSingleTexture("textures\\ui\\btn_main_icons.png");
             SingleTexture iconPowerPlant = buttonIconsCompleteTexture.crop(0, 0, 64, 64);
@@ -120,7 +122,8 @@ public class MyEngine extends Engine {
             SingleTexture iconHouse = buttonIconsCompleteTexture.crop(0, 2 * 64, 64, 64);
             SingleTexture iconStreets = buttonIconsCompleteTexture.crop(0, 3 * 64, 64, 64);
             SingleTexture iconBulldozer = buttonIconsCompleteTexture.crop(0, 4 * 64, 64, 64);
-            MultiTexture buttonIconsMultiTexture = new MultiTexture(64, 64, iconPowerPlant, iconPoliceStation, iconHouse, iconStreets, iconBulldozer);
+            SingleTexture iconPowerline = buttonIconsCompleteTexture.crop(0, 5 * 64, 64, 64);
+            MultiTexture buttonIconsMultiTexture = new MultiTexture(64, 64, iconPowerPlant, iconPoliceStation, iconHouse, iconStreets, iconBulldozer, iconPowerline);
             TextureManager.addTexture("BTN_GAME_MAIN_ICONS", buttonIconsMultiTexture);
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,9 +132,10 @@ public class MyEngine extends Engine {
 
     private void loadTiles() {
         try {
-
             SingleTexture powerTexture = TextureManager.loadSingleTexture("textures\\ui\\icon_nopower.png");
             TextureManager.addTexture("icon_nopower", powerTexture.toMultiTexture());
+
+            // /////////// BEGIN TILESHEET
 
             SingleTexture tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tilesheet_01.png");
             TextureManager.addTexture("tilesheet_01", tileTexture.toMultiTexture());
@@ -154,6 +158,25 @@ public class MyEngine extends Engine {
             streetTextures.addTextures(tileTexture.crop(5 * 64, 1 * 32, 64, 32));
             streetTextures.addTextures(tileTexture.crop(6 * 64, 1 * 32, 64, 32));
             TextureManager.addTexture("tile_street", streetTextures);
+
+            // power
+            MultiTexture powerlineTextures = new MultiTexture(64, 64);
+            powerlineTextures.addTextures(tileTexture.crop(0 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(1 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(2 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(3 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(4 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(5 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(6 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(7 * 64, 2 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(0 * 64, 4 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(1 * 64, 4 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(2 * 64, 4 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(3 * 64, 4 * 32, 64, 64));
+            powerlineTextures.addTextures(tileTexture.crop(4 * 64, 4 * 32, 64, 64));
+            TextureManager.addTexture("tile_powerline", powerlineTextures);
+
+            // /////////// END TILESHEET
 
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_house_small_01.png");
             TextureManager.addTexture("tile_house_small_01", tileTexture.toMultiTexture());

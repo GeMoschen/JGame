@@ -141,10 +141,10 @@ public class TextureManager {
      */
     public static boolean addTexture(String name, MultiTexture multiTexture) {
         name = name.toLowerCase();
-        if (textureMap.containsKey(name)) {
-            System.out.println("WARNING: Texture '" + name + "' is already registered!");
-            return false;
-        }
+        // if (textureMap.containsKey(name)) {
+        // System.out.println("WARNING: Texture '" + name + "' is already registered!");
+        // return false;
+        // }
         textureMap.put(name, multiTexture);
         return true;
     }

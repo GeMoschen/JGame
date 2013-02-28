@@ -7,12 +7,11 @@ import org.lwjgl.util.Color;
 import org.newdawn.slick.opengl.Texture;
 
 import de.gemo.engine.manager.TextureManager;
-import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
-public class SingleTexture {
+public class SingleTextureVertexArray extends SingleTexture {
     private final Texture texture;
     private float width, height;
     private float x;
@@ -26,10 +25,8 @@ public class SingleTexture {
     private FloatBuffer verts;
     private FloatBuffer tex;
 
-    private int vboVertexHandle;
-    private int vboTextureHandle;
-
-    public SingleTexture(Texture texture, float x, float y, float width, float height) {
+    public SingleTextureVertexArray(Texture texture, float x, float y, float width, float height) {
+        super(texture, x, y, width, height);
         this.texture = texture;
         this.setDimensions(x, y, width, height);
     }
@@ -59,20 +56,6 @@ public class SingleTexture {
         tex = BufferUtils.createFloatBuffer(2 * 4);
         verts.put(new float[]{-halfWidth, -halfHeight, halfWidth, -halfHeight, halfWidth, halfHeight, -halfWidth, halfHeight});
         tex.put(new float[]{u, v, u2, v, u2, v2, u, v2});
-
-        verts.flip();
-        tex.flip();
-
-        vboVertexHandle = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
-        glBufferData(GL_ARRAY_BUFFER, verts, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        vboTextureHandle = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboTextureHandle);
-        glBufferData(GL_ARRAY_BUFFER, tex, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
         newList = false;
     }
 
@@ -141,23 +124,21 @@ public class SingleTexture {
                 this.createVertices();
             }
 
-            glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
-            glVertexPointer(2, GL_FLOAT, 0, 0L);
-
-            glBindBuffer(GL_ARRAY_BUFFER, vboTextureHandle);
-            glTexCoordPointer(2, GL_FLOAT, 0, 0L);
+            verts.rewind();
+            tex.rewind();
 
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glVertexPointer(2, 0, verts);
+            glTexCoordPointer(2, 0, tex);
+
             glDrawArrays(GL_QUADS, 0, 4);
+
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             glDisableClientState(GL_VERTEX_ARRAY);
         }
         glPopMatrix();
-    }
-
-    public Texture getTexture() {
-        return texture;
     }
 
     public MultiTexture toMultiTexture() {

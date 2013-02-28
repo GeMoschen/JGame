@@ -36,6 +36,8 @@ public class Tile_PowerPlant_01 extends IsoTile {
             }
         }
         // inform neighbours
+        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+
         this.informAllNeighbours(tileX, tileY, isoMap);
     }
 
@@ -68,5 +70,6 @@ public class Tile_PowerPlant_01 extends IsoTile {
 
         // inform neighbours
         this.informAllNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
     }
 }

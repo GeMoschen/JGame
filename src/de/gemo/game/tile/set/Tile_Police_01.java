@@ -31,11 +31,12 @@ public class Tile_Police_01 extends IsoTile {
         }
 
         if (isConnected) {
-            this.informAllNeighbours(tileX, tileY, isoMap);
+            this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+            // add securitylevel
+            updateSecurityLevel(isoMap, tileX, tileY, 8, true);
         }
 
-        // add securitylevel
-        updateSecurityLevel(isoMap, tileX, tileY, 8, true);
+        this.informAllNeighbours(tileX, tileY, isoMap);
     }
 
     @Override
@@ -68,6 +69,7 @@ public class Tile_Police_01 extends IsoTile {
 
         // inform neighbours
         this.informAllNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
 
         // remove securitylevel
         updateSecurityLevel(isoMap, tileX, tileY, 8, false);
@@ -97,7 +99,7 @@ public class Tile_Police_01 extends IsoTile {
     }
 
     @Override
-    public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+    public void onNeighbourPowerChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
         boolean isNowPowered = isoMap.isTileConnectedToPowersource(tileX, tileY);
         boolean wasPowered = isoMap.getTileInformation(tileX, tileY).isPowered();
         if (isNowPowered) {
@@ -105,7 +107,9 @@ public class Tile_Police_01 extends IsoTile {
             this.setPowerOfAllTiles(tileX, tileY, isoMap, true);
             // neighbours will only get informed, if the power wasn't there but now is
             if (!wasPowered) {
-                this.informAllNeighbours(tileX, tileY, isoMap);
+                // add securitylevel
+                updateSecurityLevel(isoMap, tileX, tileY, 8, true);
+                this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
             }
         } else {
             // power down
@@ -113,7 +117,9 @@ public class Tile_Police_01 extends IsoTile {
 
             // neighbours will only get informed, if the power was there but isn't anymore
             if (wasPowered) {
-                this.informAllNeighbours(tileX, tileY, isoMap);
+                // add securitylevel
+                updateSecurityLevel(isoMap, tileX, tileY, 8, false);
+                this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
             }
         }
     }

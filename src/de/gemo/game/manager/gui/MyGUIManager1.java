@@ -35,7 +35,7 @@ public class MyGUIManager1 extends GUIManager {
 
     private GUIGraphic gui;
     private GUIButton btn_exit;
-    private GUIImageButton btn_plant, btn_police, btn_house, btn_street, btn_bulldozer;
+    private GUIImageButton btn_plant, btn_police, btn_house, btn_street, btn_powerline, btn_bulldozer;
     public boolean hotkeysActive = false;
 
     public IsoMap isoMap;
@@ -96,6 +96,12 @@ public class MyGUIManager1 extends GUIManager {
             btn_street.setMouseListener(buttonListener);
             btn_street.setLabel("Streets");
             this.add(btn_street);
+
+            // CREATE POWERLINE BUTTON
+            btn_powerline = new GUIImageButton(727, 8 + 4 * 76, animationButton, animationButtonIcons, 5);
+            btn_powerline.setMouseListener(buttonListener);
+            btn_powerline.setLabel("Powerline");
+            this.add(btn_powerline);
 
             // CREATE BULLDOZER BUTTON
             btn_bulldozer = new GUIImageButton(727, 527 - 1 * 76, animationButton, animationButtonIcons, 4);
@@ -198,8 +204,6 @@ public class MyGUIManager1 extends GUIManager {
 
         gui.setAlpha(1f);
         Renderer.render(gui);
-        // Renderer.render(countdown);
-        // Renderer.render(countdown2);
         this.renderPath();
         super.render();
     }
@@ -225,11 +229,16 @@ public class MyGUIManager1 extends GUIManager {
             this.inDragBuild = false;
         }
     }
+
     private void renderPath() {
         if (inDragBuild && TileDimension.getSelectedTile().getType().isDraggable()) {
             if (updatePath) {
                 // we have a street => calculate path and place streets
-                path = this.isoMap.getBuildingPath(downMouseX, downMouseY, mouseTileX, mouseTileY);
+                if (TileDimension.getSelectedTile().getType().equals(TileType.POWERLINE)) {
+                    path = this.isoMap.getBuildingPath(downMouseX, downMouseY, mouseTileX, mouseTileY, TileDimension.getSelectedTile().getType(), TileType.STREET);
+                } else {
+                    path = this.isoMap.getBuildingPath(downMouseX, downMouseY, mouseTileX, mouseTileY, TileDimension.getSelectedTile().getType());
+                }
             }
             updatePath = false;
             // TileDimension.place(downMouseX, downMouseY, isoMap);
@@ -281,7 +290,7 @@ public class MyGUIManager1 extends GUIManager {
     @Override
     public void onMouseRelease(MouseReleaseEvent event) {
         if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
-            if (event.isLeftButton()) {
+            if (event.isLeftButton() && inDragBuild) {
                 inDragBuild = false;
                 if ((TileDimension.isFree() || (!TileDimension.isFree() && TileDimension.getSelectedTile().getType().equals(TileType.BULLDOZER))) && downMouseX > -1 && downMouseY > -1) {
                     if (!TileDimension.getSelectedTile().getType().isDraggable()) {

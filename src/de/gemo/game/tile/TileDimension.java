@@ -27,7 +27,7 @@ public class TileDimension {
     }
 
     public static void place(int tileX, int tileY, IsoMap isoMap) {
-        if (selectedTile != null) {
+        if (selectedTile != null && isFree(tileX, tileY, isoMap)) {
             selectedTile.onPlace(tileX, tileY, isoMap);
         }
         isFree = false;
@@ -54,16 +54,6 @@ public class TileDimension {
             offsetY = isoMap.getHalfTileHeight();
         }
 
-        if (selectedTile.getType().equals(TileType.BULLDOZER)) {
-            if (isFree) {
-                mouseTile = TileManager.getTile("unknown");
-                offsetY = isoMap.getHalfTileHeight();
-            } else {
-                mouseTile = TileManager.getTile("mouse");
-                offsetY = 0;
-            }
-        }
-
         glPushMatrix();
         {
             glTranslatef(0, offsetY, 0);
@@ -80,7 +70,7 @@ public class TileDimension {
                 }
             }
 
-            if ((isFree && !selectedTile.getType().equals(TileType.UNKNOWN) && !selectedTile.getType().equals(TileType.BULLDOZER)) || (!isFree && selectedTile.getType().equals(TileType.BULLDOZER))) {
+            if (isFree && !selectedTile.getType().equals(TileType.UNKNOWN)) {
                 glTranslatef(0, isoMap.getHalfTileHeight(), 0);
                 selectedTile.renderBuildPlace(tileX, tileY, isoMap);
                 glTranslatef(0, -isoMap.getHalfTileHeight(), 0);
@@ -98,22 +88,7 @@ public class TileDimension {
     }
 
     public static boolean isFree(int tileX, int tileY, IsoMap isoMap) {
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
-                if (!selectedTile.getType().equals(TileType.GRASS)) {
-                    if (isoMap.isTileUsed(tileX + x, tileY - y)) {
-                        isFree = false;
-                        return false;
-                    }
-                } else {
-                    if (!isoMap.isTileUsed(tileX + x, tileY - y)) {
-                        isFree = false;
-                        return false;
-                    }
-                }
-            }
-        }
-        isFree = true;
-        return true;
+        isFree = selectedTile.canBePlacedAt(tileX, tileY, isoMap);
+        return isFree;
     }
 }
