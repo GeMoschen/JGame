@@ -11,8 +11,8 @@ public class Tile_Unknown extends IsoTile {
     }
 
     @Override
-    public void onPlace(int tileX, int tileY, IsoMap isoMap) {
-        super.onPlace(tileX, tileY, isoMap);
+    public void onPlace(IsoMap isoMap, int tileX, int tileY) {
+        super.onPlace(isoMap, tileX, tileY);
     }
 
 }

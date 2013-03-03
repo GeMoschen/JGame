@@ -5,8 +5,8 @@ import static org.lwjgl.opengl.GL11.*;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
-import de.gemo.game.tile.PowerlineManager;
-import de.gemo.game.tile.StreetManager;
+import de.gemo.game.tile.manager.PowerlineManager;
+import de.gemo.game.tile.manager.StreetManager;
 
 public abstract class Tile_Street extends IsoTile {
 
@@ -21,7 +21,7 @@ public abstract class Tile_Street extends IsoTile {
     }
 
     @Override
-    public void renderBuildPlace(int tileX, int tileY, IsoMap isoMap) {
+    public void renderBuildPlace(IsoMap isoMap, int tileX, int tileY) {
         glPushMatrix();
         {
             IsoTile tile = StreetManager.getTile(tileX, tileY, isoMap);
@@ -33,36 +33,36 @@ public abstract class Tile_Street extends IsoTile {
     }
 
     @Override
-    public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+    public void onRemove(IsoMap isoMap, int tileX, int tileY) {
         if (isoMap.hasOverlay(tileX, tileY)) {
-            isoMap.getOverlay(tileX, tileY).onRemove(tileX, tileY, isoMap);
+            isoMap.getOverlay(tileX, tileY).onRemove(isoMap, tileX, tileY);
         }
     }
 
     @Override
-    public void onPlace(int tileX, int tileY, IsoMap isoMap) {
+    public void onPlace(IsoMap isoMap, int tileX, int tileY) {
         isoMap.setTile(tileX, tileY, StreetManager.getTile(tileX, tileY, isoMap), true);
-        this.informAllNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(isoMap, tileX, tileY);
     }
 
     @Override
-    public boolean canBePlacedAt(int tileX, int tileY, IsoMap isoMap) {
-        return super.canBePlacedAt(tileX, tileY, isoMap) && PowerlineManager.getPowerlinesAroundForOverlay(tileX, tileY, isoMap) < 4;
+    public boolean canBePlacedAt(IsoMap isoMap, int tileX, int tileY) {
+        return super.canBePlacedAt(isoMap, tileX, tileY) && PowerlineManager.getPowerlinesAroundForOverlay(tileX, tileY, isoMap) < 4;
     }
 
     @Override
-    public void onNeighbourChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+    public void onNeighbourChange(IsoMap isoMap, int tileX, int tileY, int neighbourX, int neighbourY) {
         isoMap.setTile(tileX, tileY, StreetManager.getTile(tileX, tileY, isoMap), true);
         if (isoMap.hasOverlay(tileX, tileY)) {
-            isoMap.getOverlay(tileX, tileY).onNeighbourChange(tileX, tileY, neighbourX, neighbourY, isoMap);
-            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(tileX, tileY, neighbourX, neighbourY, isoMap);
+            isoMap.getOverlay(tileX, tileY).onNeighbourChange(isoMap, tileX, tileY, neighbourX, neighbourY);
+            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(isoMap, tileX, tileY, neighbourX, neighbourY);
         }
     }
 
     @Override
-    public void onNeighbourPowerChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+    public void onNeighbourPowerChange(IsoMap isoMap, int tileX, int tileY, int neighbourX, int neighbourY) {
         if (isoMap.hasOverlay(tileX, tileY)) {
-            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(tileX, tileY, neighbourX, neighbourY, isoMap);
+            isoMap.getOverlay(tileX, tileY).onNeighbourPowerChange(isoMap, tileX, tileY, neighbourX, neighbourY);
         }
     }
 

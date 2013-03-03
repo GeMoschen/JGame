@@ -13,6 +13,9 @@ import de.gemo.engine.particles.Emitter;
 import de.gemo.engine.particles.FireEmitter;
 import de.gemo.engine.particles.ParticleSystem;
 import de.gemo.engine.particles.SmokeEmitter;
+import de.gemo.game.tile.manager.HouseManager;
+import de.gemo.game.tile.manager.PowerManager;
+import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
 public abstract class IsoMap implements TileBasedMap {
@@ -41,6 +44,8 @@ public abstract class IsoMap implements TileBasedMap {
     private ArrayList<TileType> ignoredSearchTypes = new ArrayList<TileType>();
 
     public IsoMap(int width, int height, int tileWidth, int tileHeight) {
+        PowerManager.clearAll();
+        HouseManager.clearAll();
         this.width = width;
         this.height = height;
         this.tileWidth = tileWidth;
@@ -207,13 +212,13 @@ public abstract class IsoMap implements TileBasedMap {
             if (obst.isUsed()) {
                 IsoTile removal = tileMap[fatherX][fatherY];
                 tileMap[fatherX][fatherY] = tile;
-                removal.onRemove(obst.getFatherX(), obst.getFatherY(), this);
+                removal.onRemove(this, obst.getFatherX(), obst.getFatherY());
             }
 
             IsoTile removal = tileMap[fatherX][fatherY];
             tileMap[tileX][tileY] = tile;
 
-            removal.onRemove(obst.getFatherX(), obst.getFatherY(), this);
+            removal.onRemove(this, obst.getFatherX(), obst.getFatherY());
 
             if (isTileUsed) {
                 this.setTileUsed(tileX, tileY, tileX, tileY);

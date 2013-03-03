@@ -4,7 +4,7 @@ import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileInformation;
-import de.gemo.game.tile.TileManager;
+import de.gemo.game.tile.manager.TileManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -19,7 +19,7 @@ public class Tile_Police_01 extends IsoTile {
     }
 
     @Override
-    public void onPlace(int tileX, int tileY, IsoMap isoMap) {
+    public void onPlace(IsoMap isoMap, int tileX, int tileY) {
         isoMap.setTile(tileX, tileY, this, true);
         boolean isConnected = isoMap.isTileConnectedToPowersource(tileX, tileY);
         for (int x = 0; x < dimX; x++) {
@@ -33,10 +33,10 @@ public class Tile_Police_01 extends IsoTile {
         }
 
         if (isConnected) {
-            this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+            this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
         }
 
-        this.informAllNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(isoMap, tileX, tileY);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class Tile_Police_01 extends IsoTile {
     }
 
     @Override
-    public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+    public void onRemove(IsoMap isoMap, int tileX, int tileY) {
         TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
 
         // unpower and set unused
@@ -68,8 +68,8 @@ public class Tile_Police_01 extends IsoTile {
         }
 
         // inform neighbours
-        this.informAllNeighbours(tileX, tileY, isoMap);
-        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+        this.informAllNeighbours(isoMap, tileX, tileY);
+        this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
 
         // remove securitylevel
         this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, false);
@@ -77,29 +77,29 @@ public class Tile_Police_01 extends IsoTile {
     }
 
     @Override
-    public void onNeighbourPowerChange(int tileX, int tileY, int neighbourX, int neighbourY, IsoMap isoMap) {
+    public void onNeighbourPowerChange(IsoMap isoMap, int tileX, int tileY, int neighbourX, int neighbourY) {
         boolean isNowPowered = isoMap.isTileConnectedToPowersource(tileX, tileY);
         boolean wasPowered = isoMap.getTileInformation(tileX, tileY).isPowered();
         if (isNowPowered) {
             // power up
-            this.setPowerOfAllTiles(tileX, tileY, isoMap, true);
+            this.setPowerOfAllTiles(isoMap, tileX, tileY, true);
             // neighbours will only get informed, if the power wasn't there but now is
             if (!wasPowered) {
                 // add securitylevel
                 this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, true);
                 this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, true);
-                this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+                this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
             }
         } else {
             // power down
-            this.setPowerOfAllTiles(tileX, tileY, isoMap, false);
+            this.setPowerOfAllTiles(isoMap, tileX, tileY, false);
 
             // neighbours will only get informed, if the power was there but isn't anymore
             if (wasPowered) {
                 // add securitylevel
                 this.updateSecurityLevel(isoMap, tileX, tileY, SEC_RADIUS, false);
                 this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, false);
-                this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+                this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
             }
         }
     }

@@ -8,7 +8,7 @@ import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.gui.GUIImageButton;
 import de.gemo.engine.interfaces.listener.MouseListener;
 import de.gemo.game.tile.IsoMap;
-import de.gemo.game.tile.TileManager;
+import de.gemo.game.tile.manager.TileManager;
 
 public class MainButtonListener implements MouseListener {
 

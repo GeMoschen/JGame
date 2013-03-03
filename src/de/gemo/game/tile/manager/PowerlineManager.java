@@ -1,4 +1,7 @@
-package de.gemo.game.tile;
+package de.gemo.game.tile.manager;
+
+import de.gemo.game.tile.IsoMap;
+import de.gemo.game.tile.IsoTile;
 
 public abstract class PowerlineManager {
 

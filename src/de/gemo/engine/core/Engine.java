@@ -34,9 +34,9 @@ import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.KeyboardManager;
 import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.SoundManager;
+import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
 public class Engine implements ClipboardOwner {
 
@@ -238,6 +238,7 @@ public class Engine implements ClipboardOwner {
                 // update GUI-Managers
                 if (tick) {
                     this.updateGUIManagers(delta);
+                    this.tickGame();
                 }
 
                 glPushMatrix();
@@ -335,6 +336,9 @@ public class Engine implements ClipboardOwner {
     }
 
     protected void createGUI() {
+    }
+
+    protected void tickGame() {
     }
 
     protected void renderGame() {

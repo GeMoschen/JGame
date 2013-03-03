@@ -5,15 +5,15 @@ import org.newdawn.slick.Color;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
-import de.gemo.game.tile.PowerManager;
 import de.gemo.game.tile.TileInformation;
-import de.gemo.game.tile.TileManager;
+import de.gemo.game.tile.manager.PowerManager;
+import de.gemo.game.tile.manager.TileManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Tile_PowerPlant_01 extends IsoTile {
 
-    private int POLLUTION_RADIUS = 6, JOB_RADIUS = 6;
+    private int POLLUTION_RADIUS = 10, JOB_RADIUS = 10;
 
     public Tile_PowerPlant_01() {
         super(TileType.POWERPLANT_01, TextureManager.getTexture("powerplant_01").toAnimation(), false, 96, 0);
@@ -22,7 +22,7 @@ public class Tile_PowerPlant_01 extends IsoTile {
     }
 
     @Override
-    public void onPlace(int tileX, int tileY, IsoMap isoMap) {
+    public void onPlace(IsoMap isoMap, int tileX, int tileY) {
         isoMap.setTile(tileX, tileY, this, true);
         PowerManager.addPowersource(tileX, tileY);
         isoMap.getTileInformation(tileX, tileY).setPowered(true);
@@ -38,12 +38,12 @@ public class Tile_PowerPlant_01 extends IsoTile {
             }
         }
         // inform neighbours
-        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+        this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
 
-        this.informAllNeighbours(tileX, tileY, isoMap);
+        this.informAllNeighbours(isoMap, tileX, tileY);
 
-        updatePollutionLevel(isoMap, tileX, tileY, POLLUTION_RADIUS, true);
-        updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, true);
+        this.updatePollutionLevel(isoMap, tileX, tileY, POLLUTION_RADIUS, true);
+        this.updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, true);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class Tile_PowerPlant_01 extends IsoTile {
     }
 
     @Override
-    public void onRemove(int tileX, int tileY, IsoMap isoMap) {
+    public void onRemove(IsoMap isoMap, int tileX, int tileY) {
         TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
         for (int x = 0; x < dimX; x++) {
             for (int y = 0; y < dimY; y++) {
@@ -77,8 +77,8 @@ public class Tile_PowerPlant_01 extends IsoTile {
         updateJobLevel(isoMap, tileX, tileY, JOB_RADIUS, false);
 
         // inform neighbours
-        this.informAllNeighbours(tileX, tileY, isoMap);
-        this.informAllNeighboursAboutPowerchange(tileX, tileY, isoMap);
+        this.informAllNeighbours(isoMap, tileX, tileY);
+        this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
     }
 
     private void updatePollutionLevel(IsoMap isoMap, int tileX, int tileY, int radius, boolean add) {
@@ -96,7 +96,7 @@ public class Tile_PowerPlant_01 extends IsoTile {
                     }
                     level = radius + 1 - distance;
                     if (level > 0) {
-                        level *= 13;
+                        level *= 15;
                         if (add) {
                             tileInfo.addPollutionLevel(level);
                         } else {
@@ -123,7 +123,7 @@ public class Tile_PowerPlant_01 extends IsoTile {
                     }
                     level = radius + 1 - distance;
                     if (level > 0) {
-                        level *= 8;
+                        level *= 12;
                         if (add) {
                             tileInfo.addJobLevel(level);
                         } else {

@@ -9,18 +9,15 @@ import static org.lwjgl.opengl.GL11.*;
 public class FireParticle extends Particle {
 
     private int maxlife;
-    private float alpha;
 
     public FireParticle(SingleTexture texture, float x, float y, float dx, float dy, float size, int life, Color color) {
         super(texture, x, y, dx, dy, size, life, color);
         this.maxlife = life;
-        this.alpha = 1f;
         this.color = new Color(0.6f + Math.min(generator.nextFloat(), 0.4f), 0.3f + Math.min(generator.nextFloat(), 0.6f), 0);
     }
 
     public void update() {
         super.update();
-        alpha -= 0.015;
     }
 
     public void render() {

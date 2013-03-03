@@ -23,10 +23,9 @@ import de.gemo.engine.units.Vector;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.gui.buttons.MainButtonListener;
 import de.gemo.game.tile.IsoMap;
-import de.gemo.game.tile.IsoMap_1;
 import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileDimension;
-import de.gemo.game.tile.TileManager;
+import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -38,7 +37,7 @@ public class MyGUIManager1 extends GUIManager {
     private GUIImageButton btn_plant, btn_police, btn_house, btn_street, btn_powerline, btn_bulldozer;
     public boolean hotkeysActive = false;
 
-    public IsoMap isoMap;
+    public final IsoMap isoMap;
 
     public static int mouseTileX = 0, mouseTileY = 0, lastTileX = -1, lastTileY = -1;
     private boolean inDragBuild = false, updatePath = false;
@@ -47,8 +46,9 @@ public class MyGUIManager1 extends GUIManager {
 
     private int downMouseX, downMouseY;
 
-    public MyGUIManager1(String name, Hitbox hitbox, Vector mouseVector, int z) {
+    public MyGUIManager1(String name, Hitbox hitbox, Vector mouseVector, int z, IsoMap isoMap) {
         super(name, hitbox, mouseVector, z);
+        this.isoMap = isoMap;
     }
 
     @Override
@@ -109,9 +109,7 @@ public class MyGUIManager1 extends GUIManager {
             btn_bulldozer.setLabel("Bulldozer");
             this.add(btn_bulldozer);
 
-            isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
             TileDimension.setIsoMap(isoMap);
-
             TileManager.getTile("street_nw").select();
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +189,6 @@ public class MyGUIManager1 extends GUIManager {
     public void render() {
         glPushMatrix();
         {
-            this.isoMap.render();
             glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY(), 0);
             glPushMatrix();
             {

@@ -6,6 +6,7 @@ import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -182,7 +183,7 @@ public class IsoMap_1 extends IsoMap {
 
         glEnable(GL_DEPTH_TEST);
 
-        SHOW_JOBS = true;
+        SHOW_JOBS = false;
         SHOW_POLLUTION = false;
 
         if (IsoMap.SHOW_POWER) {
@@ -198,7 +199,6 @@ public class IsoMap_1 extends IsoMap {
         if (IsoMap.SHOW_JOBS) {
             this.renderExtra(3);
         }
-        // this.renderExtra(3);
 
         IsoMap.smokeEmitter.updateParticles();
     }
@@ -268,8 +268,8 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getSecureLevelAlpha());
             whiteTile.render(0f, 1f, 1f);
             whiteTile.setAlpha(1f);
-            // UnicodeFont font = FontManager.getStandardFont();
-            // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
+            UnicodeFont font = FontManager.getStandardFont();
+            font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
         }
     }
 
@@ -278,8 +278,8 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getPollutionLevelAlpha());
             whiteTile.render(0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha());
             whiteTile.setAlpha(1f);
-            // UnicodeFont font = FontManager.getStandardFont();
-            // font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
+            UnicodeFont font = FontManager.getStandardFont();
+            font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
         }
     }
 
@@ -288,8 +288,8 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getJobLevelAlpha());
             whiteTile.render(1f - tileInfo.getJobLevelAlpha() * 0.5f, 1f - tileInfo.getJobLevelAlpha() * 0.5f, 0f);
             whiteTile.setAlpha(1f);
-            // UnicodeFont font = FontManager.getStandardFont();
-            // font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
+            UnicodeFont font = FontManager.getStandardFont();
+            font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
         }
     }
 

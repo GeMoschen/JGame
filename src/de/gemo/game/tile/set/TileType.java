@@ -19,7 +19,9 @@ public enum TileType {
 
     BULLDOZER(100, false, false),
 
-    HOUSE(101, true, true),
+    HOUSE_SMALL(101, true, true),
+
+    HOUSE_MID_01(101, false, true),
 
     POWERPLANT_01(102, false, false),
 

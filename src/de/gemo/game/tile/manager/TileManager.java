@@ -1,9 +1,11 @@
-package de.gemo.game.tile;
+package de.gemo.game.tile.manager;
 
 import java.util.HashMap;
 
+import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.set.Tile_Bulldozer;
 import de.gemo.game.tile.set.Tile_Grass;
+import de.gemo.game.tile.set.Tile_House_Mid_01;
 import de.gemo.game.tile.set.Tile_House_Small_01;
 import de.gemo.game.tile.set.Tile_Mouse;
 import de.gemo.game.tile.set.Tile_None;
@@ -65,6 +67,7 @@ public class TileManager {
 
         // buildings
         registeredTiles.put("tile_house_small_01", new Tile_House_Small_01());
+        registeredTiles.put("tile_house_mid_01", new Tile_House_Mid_01());
         registeredTiles.put("powerplant_01", new Tile_PowerPlant_01());
         registeredTiles.put("police_01", new Tile_Police_01());
 

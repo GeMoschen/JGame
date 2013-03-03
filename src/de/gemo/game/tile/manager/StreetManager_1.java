@@ -1,5 +1,7 @@
-package de.gemo.game.tile;
+package de.gemo.game.tile.manager;
 
+import de.gemo.game.tile.IsoMap;
+import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.set.TileType;
 
 public class StreetManager_1 extends StreetManager {

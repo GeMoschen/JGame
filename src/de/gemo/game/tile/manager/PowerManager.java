@@ -1,4 +1,4 @@
-package de.gemo.game.tile;
+package de.gemo.game.tile.manager;
 
 import java.awt.Point;
 import java.util.HashSet;
@@ -20,5 +20,9 @@ public class PowerManager {
 
     public static HashSet<Point> getPowersourceTiles() {
         return powersourceTiles;
+    }
+
+    public static void clearAll() {
+        powersourceTiles.clear();
     }
 }

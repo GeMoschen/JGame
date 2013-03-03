@@ -16,11 +16,19 @@ import de.gemo.engine.manager.MouseManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.MultiTexture;
 import de.gemo.engine.textures.SingleTexture;
+import de.gemo.game.gamestates.GameState;
 import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.tile.IsoMap;
+import de.gemo.game.tile.IsoMap_1;
+import de.gemo.game.tile.manager.HouseManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class MyEngine extends Engine {
+
+    private GameState gameState = GameState.GAME;
+    private IsoMap isoMap;
+    private int tickCounter = 0;
 
     public MyEngine() {
         super("My Enginetest", 800, 600, false);
@@ -181,6 +189,9 @@ public class MyEngine extends Engine {
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_house_small_01.png");
             TextureManager.addTexture("tile_house_small_01", tileTexture.toMultiTexture());
 
+            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_house_mid_01.png");
+            TextureManager.addTexture("tile_house_mid_01", tileTexture.toMultiTexture());
+
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_police_01.png");
             TextureManager.addTexture("tile_police_01", tileTexture.toMultiTexture());
 
@@ -202,16 +213,38 @@ public class MyEngine extends Engine {
 
     @Override
     protected final void createGUI() {
+        this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
         Hitbox hitbox = new Hitbox(400, 300);
         hitbox.addPoint(-400, -300);
         hitbox.addPoint(400, -300);
         hitbox.addPoint(400, 300);
         hitbox.addPoint(-400, 300);
-        this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0));
+        this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
         this.initGUIManager(this.getGUIManager("GUI"));
     }
 
     @Override
     protected void renderGame() {
+        switch (this.gameState) {
+            case GAME : {
+                this.isoMap.render();
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void tickGame() {
+        switch (this.gameState) {
+            case GAME : {
+                tickCounter++;
+                if (tickCounter % 20 == 0) {
+                    HouseManager.doRandomTicks(this.isoMap, 30);
+                    tickCounter = 0;
+                }
+                break;
+            }
+        }
+
     }
 }

@@ -1,5 +1,7 @@
 package de.gemo.game.tile;
 
+import de.gemo.game.tile.manager.PowerManager;
+
 public class TileInformation {
     private final int originalX, originalY;
 
@@ -9,6 +11,9 @@ public class TileInformation {
     private float secureLevel = 0, secureLevelAlpha = 0;
     private float pollutionLevel = 0, pollutionLevelAlpha = 0;
     private float jobLevel = 0, jobLevelAlpha = 0;
+
+    private float satisfactionLevel = 0;
+    private float tickLevel = 0;
 
     private boolean powered = false;
 
@@ -143,7 +148,46 @@ public class TileInformation {
     }
 
     public void setPowered(boolean powered) {
+        System.out.println("power set " + this.originalX + " / " + this.originalY + " : " + powered);
         this.powered = powered;
+    }
+
+    // /////////////////////////
+    //
+    // OTHER THINGS
+    //
+    // /////////////////////////
+
+    public void addSatisfaction(float satisfaction) {
+        this.satisfactionLevel += satisfaction;
+        if (this.satisfactionLevel < -100) {
+            this.satisfactionLevel = -100;
+        }
+        if (this.satisfactionLevel > 100) {
+            this.satisfactionLevel = 100;
+        }
+    }
+
+    public float getSatisfactionLevel() {
+        return satisfactionLevel;
+    }
+
+    public void addTickLevel(float tickLevel) {
+        this.tickLevel += tickLevel;
+        if (this.tickLevel < -15) {
+            this.tickLevel = -15;
+        } else if (this.tickLevel > 15) {
+            this.tickLevel = 15;
+        }
+    }
+
+    public float getTickLevel() {
+        return tickLevel;
+    }
+
+    public void resetStatistics() {
+        this.satisfactionLevel = 0;
+        this.tickLevel = 0;
     }
 
     // /////////////////////////

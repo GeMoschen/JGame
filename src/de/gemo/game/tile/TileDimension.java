@@ -1,6 +1,7 @@
 package de.gemo.game.tile;
 
 import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -28,7 +29,7 @@ public class TileDimension {
 
     public static void place(int tileX, int tileY, IsoMap isoMap) {
         if (selectedTile != null && isFree(tileX, tileY, isoMap)) {
-            selectedTile.onPlace(tileX, tileY, isoMap);
+            selectedTile.onPlace(isoMap, tileX, tileY);
         }
         isFree = false;
     }
@@ -72,7 +73,7 @@ public class TileDimension {
 
             if (isFree && !selectedTile.getType().equals(TileType.UNKNOWN)) {
                 glTranslatef(0, isoMap.getHalfTileHeight(), 0);
-                selectedTile.renderBuildPlace(tileX, tileY, isoMap);
+                selectedTile.renderBuildPlace(isoMap, tileX, tileY);
                 glTranslatef(0, -isoMap.getHalfTileHeight(), 0);
             }
         }
@@ -88,7 +89,7 @@ public class TileDimension {
     }
 
     public static boolean isFree(int tileX, int tileY, IsoMap isoMap) {
-        isFree = selectedTile.canBePlacedAt(tileX, tileY, isoMap);
+        isFree = selectedTile.canBePlacedAt(isoMap, tileX, tileY);
         return isFree;
     }
 }
