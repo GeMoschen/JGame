@@ -2,14 +2,15 @@ package de.gemo.game.tile.manager;
 
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
+import de.gemo.game.tile.set.TileType;
 
 public class PowerlineManager_1 extends PowerlineManager {
 
     public final int getAmountPowerlinesAround(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > 2 || isoMap.getNorthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > 2 || isoMap.getSouthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > 2 || isoMap.getSouthWestOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > 2 || isoMap.getNorthWestOverlay(tileX, tileY).getType().getIndex() > 2;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getNorthEastOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getSouthEastOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getSouthWestOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getNorthWestOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
 
         int powerlinesAround = 0;
         if (NE)
@@ -25,10 +26,10 @@ public class PowerlineManager_1 extends PowerlineManager {
     }
 
     public final IsoTile getIsoTile(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > 2 || isoMap.getNorthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > 2 || isoMap.getSouthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > 2 || isoMap.getSouthWestOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > 2 || isoMap.getNorthWestOverlay(tileX, tileY).getType().getIndex() > 2;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getNorthEastOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getSouthEastOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getSouthWestOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1 || isoMap.getNorthWestOverlay(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
 
         int powerlinesAround = getPowerlinesAround(tileX, tileY, isoMap);
         if (powerlinesAround < 2) {
@@ -72,10 +73,10 @@ public class PowerlineManager_1 extends PowerlineManager {
 
     @Override
     public int getAmountPowerlinesAroundForOverlay(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > 2;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > 2;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > 2;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > 2;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
 
         int powerlinesAround = 0;
         if (NE)
@@ -92,10 +93,10 @@ public class PowerlineManager_1 extends PowerlineManager {
 
     @Override
     public IsoTile getIsoTileForOverlay(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > 2;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > 2;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > 2;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > 2;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().getIndex() > TileType.POWERLINE.getIndex() - 1;
 
         int powerlinesAround = getPowerlinesAround(tileX, tileY, isoMap);
         if (powerlinesAround < 2) {
@@ -115,12 +116,12 @@ public class PowerlineManager_1 extends PowerlineManager {
 
     @Override
     public boolean canIsoOverlayBePlaced(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SE = isoMap.getSouthEastOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean SW = isoMap.getSouthWestOverlay(tileX, tileY).getType().getIndex() > 2;
-        boolean NW = isoMap.getNorthWestOverlay(tileX, tileY).getType().getIndex() > 2;
-        if (!NE && !SW && !SE && !NW) {
-            return true && StreetManager.getStreetsAround(tileX, tileY, isoMap) < 3;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType().canHaveOverlay();
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType().canHaveOverlay();
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType().canHaveOverlay();
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType().canHaveOverlay();
+        if (NE || SW || SE || NW) {
+            return StreetManager.getStreetsAround(tileX, tileY, isoMap) < 3;
         }
         return false;
     }

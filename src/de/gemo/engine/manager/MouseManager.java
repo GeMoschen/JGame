@@ -12,6 +12,7 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.events.mouse.MouseWheelEvent;
 import de.gemo.engine.units.Vector;
 
 public class MouseManager {
@@ -126,6 +127,7 @@ public class MouseManager {
     }
 
     public void update() {
+
         // catch MouseMovement. NOTE: This can only be done ONCE, that's why we do it here
         dX = Mouse.getDX();
         dY = -Mouse.getDY();
@@ -135,6 +137,12 @@ public class MouseManager {
 
         float correctedDX = dX * this.engine.getWin2viewRatioX();
         float correctedDY = dY * this.engine.getWin2viewRatioY();
+
+        // catch mousewheel
+        int wheel = Mouse.getDWheel();
+        if (wheel != 0) {
+            engine.onMouseWheel(new MouseWheelEvent(correctedX, correctedY, wheel > 0));
+        }
 
         // iterate over currently pressed buttons to handle dragged buttons
         if (!Mouse.isGrabbed()) {

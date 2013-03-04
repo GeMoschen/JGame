@@ -15,6 +15,7 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.events.mouse.MouseWheelEvent;
 import de.gemo.engine.gui.GUIElement;
 import de.gemo.engine.gui.GUIElementStatus;
 import de.gemo.engine.interfaces.input.IKeyAdapter;
@@ -415,6 +416,15 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
     }
 
     @Override
+    public final boolean handleMouseWheel(MouseWheelEvent event) {
+        if (this.focusedElement != null && this.focusedElement.isVectorInClickbox(this.mouseVector)) {
+            this.focusedElement.fireMouseEvent(new MouseWheelEvent((int) (event.getX() - this.focusedElement.getX() + (this.focusedElement.getWidth() / 2)), (int) (event.getY() - this.focusedElement.getY() + (this.focusedElement.getHeight() / 2)), event.isUp()));
+        }
+        this.onMouseWheel(event);
+        return true;
+    }
+
+    @Override
     public final boolean handleMouseRelease(MouseReleaseEvent event) {
         if (this.focusedElement != null) {
             if (this.focusedElement.isAutoLooseFocus()) {
@@ -449,6 +459,10 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
 
     @Override
     public void onMouseRelease(MouseReleaseEvent event) {
+    }
+
+    @Override
+    public void onMouseWheel(MouseWheelEvent event) {
     }
 
     // //////////////////////////////////////////

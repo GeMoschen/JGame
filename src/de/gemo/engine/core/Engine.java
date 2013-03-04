@@ -29,6 +29,7 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.events.mouse.MouseWheelEvent;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.KeyboardManager;
@@ -243,7 +244,7 @@ public class Engine implements ClipboardOwner {
 
                 glPushMatrix();
                 {
-                    // TODO: render gamefield-content
+                    // render gamefield-content
                     this.renderGame();
 
                     // RENDER GUI
@@ -445,6 +446,17 @@ public class Engine implements ClipboardOwner {
             if (manager.isColliding()) {
                 this.activateGUIManager(manager);
                 manager.handleMouseRelease(event);
+                return;
+            }
+        }
+        this.activateGUIManager(null);
+    }
+
+    public final void onMouseWheel(MouseWheelEvent event) {
+        for (GUIManager manager : this.sortedGUIManagerList) {
+            if (manager.isColliding()) {
+                this.activateGUIManager(manager);
+                manager.handleMouseWheel(event);
                 return;
             }
         }

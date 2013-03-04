@@ -12,6 +12,8 @@ public abstract class Tile_Powerline extends IsoTile {
     public Tile_Powerline(int frame) {
         super(TileType.POWERLINE, TextureManager.getTexture("tile_powerline").toAnimation(), true, 0, -16);
         this.animation.goToFrame(frame);
+        this.buildPrice = 75;
+        this.removalPrice = 50;
     }
 
     @Override
@@ -33,9 +35,9 @@ public abstract class Tile_Powerline extends IsoTile {
 
     @Override
     public void onRemove(IsoMap isoMap, int tileX, int tileY) {
-        isoMap.getTileInformation(tileX, tileY).setPowered(false);
-        this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
-        // this.informAllNeighbours(isoMap, tileX, tileY);
+        if (isoMap.getTileInformation(tileX, tileY).setPowered(false)) {
+            this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
+        }
     }
 
     @Override
@@ -46,62 +48,39 @@ public abstract class Tile_Powerline extends IsoTile {
             isoMap.setOverlay(tileX, tileY, PowerlineManager.getTileForOverlay(tileX, tileY, isoMap));
         }
         if (isoMap.isTileConnectedToPowersource(tileX, tileY)) {
-            isoMap.getTileInformation(tileX, tileY).setPowered(true);
-            // this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
+            if (isoMap.getTileInformation(tileX, tileY).setPowered(true)) {
+                this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
+            }
         }
         this.informAllNeighbours(isoMap, tileX, tileY);
     }
 
     @Override
     public void onNeighbourChange(IsoMap isoMap, int tileX, int tileY, int neighbourX, int neighbourY) {
-        System.out.println("neighbour of " + tileX + " / " + tileY + " changed!");
         if (isoMap.hasOverlay(tileX, tileY)) {
             isoMap.setOverlay(tileX, tileY, PowerlineManager.getTileForOverlay(tileX, tileY, isoMap));
         } else {
-            isoMap.setTile(tileX, tileY, PowerlineManager.getTile(tileX, tileY, isoMap), true);
+            isoMap.setTileWithoutInformation(tileX, tileY, PowerlineManager.getTile(tileX, tileY, isoMap), true);
         }
-
         boolean isNowPowered = isoMap.isTileConnectedToPowersource(tileX, tileY);
-        boolean wasPowered = isoMap.getTileInformation(tileX, tileY).isPowered();
-        System.out.println("now: " + isNowPowered);
-        System.out.println("was: " + wasPowered);
         if (isNowPowered) {
-            System.out.println("power");
             isoMap.getTileInformation(tileX, tileY).setPowered(true);
-            // neighbours will only get informed, if the power wasn't there but now is
-            if (!wasPowered) {
-                this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
-            }
         } else {
-            System.out.println("no power");
             isoMap.getTileInformation(tileX, tileY).setPowered(false);
-            // neighbours will only get informed, if the power was there but isn't anymore
-            if (wasPowered) {
-                this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
-            }
         }
     }
 
     @Override
     public void onNeighbourPowerChange(IsoMap isoMap, int tileX, int tileY, int neighbourX, int neighbourY) {
-
-        System.out.println("neighbour of " + tileX + " / " + tileY + " changed power!");
         boolean isNowPowered = isoMap.isTileConnectedToPowersource(tileX, tileY);
-        boolean wasPowered = isoMap.getTileInformation(tileX, tileY).isPowered();
-        System.out.println("now: " + isNowPowered);
-        System.out.println("was: " + wasPowered);
         if (isNowPowered) {
-            System.out.println("power");
-            isoMap.getTileInformation(tileX, tileY).setPowered(true);
             // neighbours will only get informed, if the power wasn't there but now is
-            if (!wasPowered) {
+            if (isoMap.getTileInformation(tileX, tileY).setPowered(true)) {
                 this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
             }
         } else {
-            System.out.println("no power");
-            isoMap.getTileInformation(tileX, tileY).setPowered(false);
             // neighbours will only get informed, if the power was there but isn't anymore
-            if (wasPowered) {
+            if (isoMap.getTileInformation(tileX, tileY).setPowered(false)) {
                 this.informAllNeighboursAboutPowerchange(isoMap, tileX, tileY);
             }
         }

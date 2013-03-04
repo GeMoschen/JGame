@@ -5,6 +5,7 @@ import org.newdawn.slick.UnicodeFont;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.SingleTexture;
+import de.gemo.game.core.MyEngine;
 import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
@@ -33,6 +34,7 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public void render(int minX, int maxX, int minY, int maxY) {
+
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
@@ -42,9 +44,9 @@ public class IsoMap_1 extends IsoMap {
 
             int tlX = this.getTileXBitmask(screenX, screenY);
             int tlY = this.getTileYBitmask(screenX, screenY);
-            int trX = this.getTileXBitmask(screenX + screenWidth, screenY);
+            int trX = this.getTileXBitmask((screenX + screenWidth) / MyEngine.SCALE, screenY);
 
-            int maxRows = (screenHeight / this.tileHeight) + 2;
+            int maxRows = (int) ((screenHeight / MyEngine.SCALE) / this.tileHeight) + 2;
             int startX = tlX - 1;
             int startY = tlY;
             int endX = trX + 1;
@@ -101,7 +103,7 @@ public class IsoMap_1 extends IsoMap {
                                     }
                                 }
                             }
-                            if (tileMap[renderX][renderY].getType().getIndex() == 102) {
+                            if (tileMap[renderX][renderY].getType().getIndex() == TileType.POWERPLANT_01.getIndex()) {
                                 IsoMap.smokeEmitter.createParticles(1, tX + 50, tY - 115);
                                 IsoMap.smokeEmitter.createParticles(1, tX + 74, tY - 105);
                                 IsoMap.smokeEmitter.createParticles(1, tX + 98, tY - 93);
@@ -163,7 +165,7 @@ public class IsoMap_1 extends IsoMap {
                                 }
                             }
 
-                            if (tileMap[renderX][renderY].getType().getIndex() == 102) {
+                            if (tileMap[renderX][renderY].getType().getIndex() == TileType.POWERPLANT_01.getIndex()) {
                                 IsoMap.smokeEmitter.createParticles(1, tX + 50, tY - 115);
                                 IsoMap.smokeEmitter.createParticles(1, tX + 74, tY - 105);
                                 IsoMap.smokeEmitter.createParticles(1, tX + 98, tY - 93);
@@ -211,9 +213,9 @@ public class IsoMap_1 extends IsoMap {
 
             int tlX = this.getTileXBitmask(screenX, screenY);
             int tlY = this.getTileYBitmask(screenX, screenY);
-            int trX = this.getTileXBitmask(screenX + screenWidth, screenY);
+            int trX = this.getTileXBitmask((screenX + screenWidth) / MyEngine.SCALE, screenY);
 
-            int maxRows = (screenHeight / this.tileHeight) + 2;
+            int maxRows = (int) ((screenHeight / MyEngine.SCALE) / this.tileHeight) + 2;
             int startX = tlX - 1;
             int startY = tlY;
             int endX = trX + 1;
@@ -269,7 +271,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.render(0f, 1f, 1f);
             whiteTile.setAlpha(1f);
             UnicodeFont font = FontManager.getStandardFont();
-            font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
         }
     }
 
@@ -279,7 +281,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.render(0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha());
             whiteTile.setAlpha(1f);
             UnicodeFont font = FontManager.getStandardFont();
-            font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
         }
     }
 
@@ -289,7 +291,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.render(1f - tileInfo.getJobLevelAlpha() * 0.5f, 1f - tileInfo.getJobLevelAlpha() * 0.5f, 0f);
             whiteTile.setAlpha(1f);
             UnicodeFont font = FontManager.getStandardFont();
-            font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
+            // font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
         }
     }
 

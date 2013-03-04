@@ -19,6 +19,8 @@ public class Tile_PowerPlant_01 extends IsoTile {
         super(TileType.POWERPLANT_01, TextureManager.getTexture("powerplant_01").toAnimation(), false, 96, 0);
         this.dimX = 3;
         this.dimY = 3;
+        this.buildPrice = 1000;
+        this.removalPrice = 450;
     }
 
     @Override

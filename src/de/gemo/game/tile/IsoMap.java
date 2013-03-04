@@ -2,6 +2,7 @@ package de.gemo.game.tile;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.newdawn.slick.util.pathfinding.AStarPathFinder;
 import org.newdawn.slick.util.pathfinding.Path;
@@ -20,12 +21,12 @@ import de.gemo.game.tile.set.TileType;
 
 public abstract class IsoMap implements TileBasedMap {
 
+    private Random generator = new Random();
     public static ParticleSystem particleSystem;
     public static Emitter smokeEmitter, fireEmitter;
 
     protected IsoTile[][] tileMap;
     protected IsoTile[][] overlayMap;
-
     protected TileInformation[][] tileInfos;
 
     public static boolean SHOW_POLLUTION = false;
@@ -37,6 +38,8 @@ public abstract class IsoMap implements TileBasedMap {
     protected int tileWidth, tileHeight, halfTileWidth, halfTileHeight;
 
     protected float offsetX, offsetY;
+
+    protected int money = 50000;
 
     // vars for pathfinding
     private AStarPathFinder aStar;
@@ -71,6 +74,29 @@ public abstract class IsoMap implements TileBasedMap {
         particleSystem = new ParticleSystem();
         smokeEmitter = new SmokeEmitter(particleSystem, 0, 0);
         fireEmitter = new FireEmitter(particleSystem, 0, 0);
+
+        // create random trees
+        this.createRandomTrees(10);
+    }
+
+    private void createRandomTrees(int amount) {
+        HeightMap h = new HeightMap(width, height, generator.nextInt(Integer.MAX_VALUE));
+        h.AddPerlinNoise(6.0f);
+        h.Perturb(32.0f, 32.0f);
+        for (int i = 0; i < 10; i++)
+            h.Erode(16.0f);
+        h.Smoothen();
+
+        h.printForest(this);
+    }
+
+    public void addMoney(int money) {
+        this.money += money;
+        System.out.println("adding " + money + " => " + this.money);
+    }
+
+    public int getMoney() {
+        return money;
     }
 
     private void initAStar() {
@@ -217,8 +243,26 @@ public abstract class IsoMap implements TileBasedMap {
 
             IsoTile removal = tileMap[fatherX][fatherY];
             tileMap[tileX][tileY] = tile;
-
             removal.onRemove(this, obst.getFatherX(), obst.getFatherY());
+
+            if (isTileUsed) {
+                this.setTileUsed(tileX, tileY, tileX, tileY);
+            } else {
+                this.setTileUnused(tileX, tileY);
+            }
+        }
+    }
+
+    public void setTileWithoutInformation(int tileX, int tileY, IsoTile tile, boolean isTileUsed) {
+        if (tileX > -1 && tileX < this.width && tileY > -1 && tileY < this.height) {
+            TileInformation obst = this.tileInfos[tileX][tileY];
+            int fatherX = obst.getFatherX();
+            int fatherY = obst.getFatherY();
+            if (obst.isUsed()) {
+                tileMap[fatherX][fatherY] = tile;
+            }
+
+            tileMap[tileX][tileY] = tile;
 
             if (isTileUsed) {
                 this.setTileUsed(tileX, tileY, tileX, tileY);

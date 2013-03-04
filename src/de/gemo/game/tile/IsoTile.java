@@ -18,6 +18,8 @@ public abstract class IsoTile extends Entity2D {
     private final TileType type;
     private final boolean drawBackground;
     protected int offsetX, offsetY;
+    protected int buildPrice = 0;
+    protected int removalPrice = 0;
 
     public IsoTile(TileType type, Animation animation) {
         this(type, animation, false);
@@ -126,6 +128,7 @@ public abstract class IsoTile extends Entity2D {
         isoMap.getSouthWest(tileX, tileY).onNeighbourChange(isoMap, tileX, tileY + 1, tileX, tileY);
         isoMap.getNorthWest(tileX, tileY).onNeighbourChange(isoMap, tileX - 1, tileY, tileX, tileY);
     }
+
     private final void informNeighboursAboutPowerchange(IsoMap isoMap, int tileX, int tileY) {
         isoMap.getNorthEast(tileX, tileY).onNeighbourPowerChange(isoMap, tileX, tileY - 1, tileX, tileY);
         isoMap.getSouthEast(tileX, tileY).onNeighbourPowerChange(isoMap, tileX + 1, tileY, tileX, tileY);
@@ -181,6 +184,14 @@ public abstract class IsoTile extends Entity2D {
 
     public TileType getType() {
         return type;
+    }
+
+    public int getBuildPrice() {
+        return buildPrice;
+    }
+
+    public int getRemovalPrice() {
+        return removalPrice;
     }
 
     public void doTick(IsoMap isoMap, int tileX, int tileY) {

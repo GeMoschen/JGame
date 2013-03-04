@@ -11,9 +11,13 @@ public enum TileType {
 
     GRASS(1, false, false),
 
-    STREET(2, true, false, true),
+    TREE_01(2, false, false),
 
-    POWERLINE(3, true, true),
+    WATER(3, false, false),
+
+    STREET(10, true, false, true),
+
+    POWERLINE(20, true, true),
 
     // OVERLAYS : INDEX >= 100
 
@@ -21,11 +25,11 @@ public enum TileType {
 
     HOUSE_SMALL(101, true, true),
 
-    HOUSE_MID_01(101, false, true),
+    HOUSE_MID_01(102, false, true),
 
-    POWERPLANT_01(102, false, false),
+    POWERPLANT_01(120, false, false),
 
-    POLICE_01(103, false, true);
+    POLICE_01(130, false, true);
 
     public static int OVERLAY_START = 100;
 

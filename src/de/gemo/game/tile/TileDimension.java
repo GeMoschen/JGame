@@ -29,7 +29,12 @@ public class TileDimension {
 
     public static void place(int tileX, int tileY, IsoMap isoMap) {
         if (selectedTile != null && isFree(tileX, tileY, isoMap)) {
-            selectedTile.onPlace(isoMap, tileX, tileY);
+            int money = -selectedTile.getBuildPrice() - isoMap.getTile(tileX, tileY).getRemovalPrice();
+            isoMap.addMoney(2000);
+            if (isoMap.getMoney() >= selectedTile.getBuildPrice()) {
+                selectedTile.onPlace(isoMap, tileX, tileY);
+                isoMap.addMoney(money);
+            }
         }
         isFree = false;
     }

@@ -13,6 +13,8 @@ public class Tile_House_Small_01 extends IsoTile {
 
     public Tile_House_Small_01() {
         super(TileType.HOUSE_SMALL, TextureManager.getTexture("tile_house_small_01").toAnimation(), true, 0, 2);
+        this.buildPrice = 250;
+        this.removalPrice = 75;
     }
 
     @Override
@@ -59,29 +61,19 @@ public class Tile_House_Small_01 extends IsoTile {
     public void doTick(IsoMap isoMap, int tileX, int tileY) {
         TileInformation tileInfo = isoMap.getTileInformation(tileX, tileY);
 
-        // System.out.println("-----------------------------------");
-        // System.out.println("Ticking House @ " + tileX + " / " + tileY);
-        // System.out.println("Pollution: " + tileInfo.getPollutionLevel());
-        // System.out.println("Security: " + tileInfo.getSecureLevel());
-        // System.out.println("Job: " + tileInfo.getJobLevel());
-        // System.out.println("Power: " + tileInfo.isPowered());
-
         int secLevel = generator.nextInt(10);
         if (tileInfo.getSecureLevel() >= secLevel && tileInfo.isPowered()) {
-            tileInfo.addTickLevel(0.05f + tileInfo.getSecureLevel() / 50f);
-
-            if (tileInfo.getTickLevel() > 10 && generator.nextFloat() > 0.825f) {
+            float grow = Math.abs(0.05f + tileInfo.getSecureLevel() / 60f);
+            tileInfo.addTickLevel(grow);
+            if (tileInfo.getTickLevel() > 10 && generator.nextGaussian() > 0.92f) {
                 this.grow(isoMap, tileX, tileY);
             }
         } else {
-            System.out.println("old Ticklevel: " + tileInfo.getTickLevel());
             tileInfo.addTickLevel(-1.5f + tileInfo.getSecureLevel() / 60f);
-            System.out.println("new Ticklevel: " + tileInfo.getTickLevel());
             if (tileInfo.getTickLevel() < -5 && generator.nextFloat() > 0.6f) {
                 System.out.println("want to ungrow!");
             }
         }
-
     }
 
     private void grow(IsoMap isoMap, int tileX, int tileY) {
@@ -124,6 +116,17 @@ public class Tile_House_Small_01 extends IsoTile {
         boolean HOUSE_1 = isoMap.getTile(p1.x, p1.y).getType().equals(TileType.HOUSE_SMALL);
         boolean HOUSE_2 = isoMap.getTile(p2.x, p2.y).getType().equals(TileType.HOUSE_SMALL);
         boolean HOUSE_3 = isoMap.getTile(p3.x, p3.y).getType().equals(TileType.HOUSE_SMALL);
+
+        int housesAround = 0;
+        if (HOUSE_1) {
+            housesAround++;
+        }
+        if (HOUSE_2) {
+            housesAround++;
+        }
+        if (HOUSE_3) {
+            housesAround++;
+        }
 
         // check for small houses
         if (!HOUSE_1 || !HOUSE_2 || !HOUSE_3) {

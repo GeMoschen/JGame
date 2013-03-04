@@ -11,7 +11,9 @@ import de.gemo.game.tile.set.Tile_Mouse;
 import de.gemo.game.tile.set.Tile_None;
 import de.gemo.game.tile.set.Tile_Police_01;
 import de.gemo.game.tile.set.Tile_PowerPlant_01;
+import de.gemo.game.tile.set.Tile_Tree_01;
 import de.gemo.game.tile.set.Tile_Unknown;
+import de.gemo.game.tile.set.Tile_Water;
 import de.gemo.game.tile.set.Tile_White;
 import de.gemo.game.tile.set.powerline.Tile_Powerline_E;
 import de.gemo.game.tile.set.powerline.Tile_Powerline_Intercept;
@@ -51,6 +53,7 @@ public class TileManager {
         registeredTiles.put("grass", new Tile_Grass());
         registeredTiles.put("white", new Tile_White());
         registeredTiles.put("mouse", new Tile_Mouse());
+        registeredTiles.put("water", new Tile_Water());
 
         // streets
         registeredTiles.put("street_nw", new Tile_Street_NW());
@@ -68,6 +71,8 @@ public class TileManager {
         // buildings
         registeredTiles.put("tile_house_small_01", new Tile_House_Small_01());
         registeredTiles.put("tile_house_mid_01", new Tile_House_Mid_01());
+
+        // industry
         registeredTiles.put("powerplant_01", new Tile_PowerPlant_01());
         registeredTiles.put("police_01", new Tile_Police_01());
 
@@ -85,6 +90,9 @@ public class TileManager {
         registeredTiles.put("powerline_w", new Tile_Powerline_W());
         registeredTiles.put("powerline_nw_overlay", new Tile_Powerline_NW_Overlay());
         registeredTiles.put("powerline_ne_overlay", new Tile_Powerline_NE_Overlay());
+
+        // trees
+        registeredTiles.put("tree_01", new Tile_Tree_01());
     }
 
     public static IsoTile getTile(String name) {

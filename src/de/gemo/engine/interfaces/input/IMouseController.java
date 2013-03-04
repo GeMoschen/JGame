@@ -4,6 +4,7 @@ import de.gemo.engine.events.mouse.MouseClickEvent;
 import de.gemo.engine.events.mouse.MouseDragEvent;
 import de.gemo.engine.events.mouse.MouseMoveEvent;
 import de.gemo.engine.events.mouse.MouseReleaseEvent;
+import de.gemo.engine.events.mouse.MouseWheelEvent;
 
 public interface IMouseController {
 
@@ -14,5 +15,7 @@ public interface IMouseController {
     public void onMouseDrag(MouseDragEvent event);
 
     public void onMouseRelease(MouseReleaseEvent event);
+
+    public void onMouseWheel(MouseWheelEvent event);
 
 }

@@ -13,6 +13,8 @@ public abstract class Tile_Street extends IsoTile {
     public Tile_Street(int frame) {
         super(TileType.STREET, TextureManager.getTexture("tile_street").toAnimation(), true);
         this.animation.goToFrame(frame);
+        this.buildPrice = 75;
+        this.removalPrice = 25;
     }
 
     @Override

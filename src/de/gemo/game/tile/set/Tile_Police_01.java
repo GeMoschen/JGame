@@ -16,6 +16,8 @@ public class Tile_Police_01 extends IsoTile {
         super(TileType.POLICE_01, TextureManager.getTexture("tile_police_01").toAnimation(), false, 94, -12);
         this.dimX = 2;
         this.dimY = 2;
+        this.buildPrice = 500;
+        this.removalPrice = 250;
     }
 
     @Override

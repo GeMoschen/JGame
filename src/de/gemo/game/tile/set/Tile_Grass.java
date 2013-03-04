@@ -7,5 +7,6 @@ public class Tile_Grass extends IsoTile {
 
     public Tile_Grass() {
         super(TileType.GRASS, TextureManager.getTexture("tile_grass").toAnimation());
+        this.buildPrice = 150;
     }
 }

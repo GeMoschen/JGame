@@ -30,6 +30,8 @@ public class MyEngine extends Engine {
     private IsoMap isoMap;
     private int tickCounter = 0;
 
+    public static float SCALE = 1f;
+
     public MyEngine() {
         super("My Enginetest", 800, 600, false);
     }
@@ -152,6 +154,7 @@ public class MyEngine extends Engine {
             TextureManager.addTexture("tile_path", tileTexture.crop(1 * 64, 0 * 32, 64, 32).toMultiTexture());
             TextureManager.addTexture("tile_white", tileTexture.crop(2 * 64, 0 * 32, 64, 32).toMultiTexture());
             TextureManager.addTexture("tile_grass", tileTexture.crop(3 * 64, 0 * 32, 64, 32).toMultiTexture());
+            TextureManager.addTexture("tile_water", tileTexture.crop(7 * 64, 1 * 32, 64, 32).toMultiTexture());
 
             MultiTexture streetTextures = new MultiTexture(64, 32);
             streetTextures.addTextures(tileTexture.crop(4 * 64, 0 * 32, 64, 32));
@@ -201,6 +204,9 @@ public class MyEngine extends Engine {
             tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\bulldozer.png");
             TextureManager.addTexture("bulldozer", tileTexture.toMultiTexture());
 
+            tileTexture = TextureManager.loadSingleTexture("textures\\tiles\\tile_tree_01.png");
+            TextureManager.addTexture("tile_tree_01", tileTexture.toMultiTexture());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -227,7 +233,10 @@ public class MyEngine extends Engine {
     protected void renderGame() {
         switch (this.gameState) {
             case GAME : {
+                glPushMatrix();
+                glScalef(SCALE, SCALE, 1);
                 this.isoMap.render();
+                glPopMatrix();
                 break;
             }
         }
@@ -239,7 +248,7 @@ public class MyEngine extends Engine {
             case GAME : {
                 tickCounter++;
                 if (tickCounter % 20 == 0) {
-                    HouseManager.doRandomTicks(this.isoMap, 30);
+                    HouseManager.doRandomTicks(this.isoMap, 10);
                     tickCounter = 0;
                 }
                 break;

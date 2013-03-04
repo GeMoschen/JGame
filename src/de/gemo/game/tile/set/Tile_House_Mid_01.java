@@ -12,6 +12,8 @@ public class Tile_House_Mid_01 extends IsoTile {
         super(TileType.HOUSE_MID_01, TextureManager.getTexture("tile_house_mid_01").toAnimation(), false, 95, 18);
         this.dimX = 2;
         this.dimY = 2;
+        this.buildPrice = 250;
+        this.removalPrice = 150;
     }
 
     @Override

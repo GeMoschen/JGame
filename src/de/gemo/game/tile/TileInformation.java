@@ -147,9 +147,12 @@ public class TileInformation {
         return PowerManager.isPowersource(this.getFatherX(), this.getFatherY());
     }
 
-    public void setPowered(boolean powered) {
-        System.out.println("power set " + this.originalX + " / " + this.originalY + " : " + powered);
-        this.powered = powered;
+    public boolean setPowered(boolean powered) {
+        if (powered != this.powered) {
+            this.powered = powered;
+            return true;
+        }
+        return false;
     }
 
     // /////////////////////////

@@ -30,6 +30,10 @@ public abstract class AbstractMouseEvent {
         return eventType == 3;
     }
 
+    public boolean isMouseWheel() {
+        return eventType == 4;
+    }
+
     public int getX() {
         return x;
     }
