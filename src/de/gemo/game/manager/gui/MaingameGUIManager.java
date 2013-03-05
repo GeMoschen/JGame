@@ -24,6 +24,7 @@ import de.gemo.engine.units.Vector;
 import de.gemo.game.core.Minetown;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.gui.buttons.MainButtonListener;
+import de.gemo.game.gamestates.GameState;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoTile;
 import de.gemo.game.tile.TileDimension;
@@ -32,7 +33,7 @@ import de.gemo.game.tile.set.TileType;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class MyGUIManager1 extends GUIManager {
+public class MaingameGUIManager extends GUIManager {
 
     private GUIGraphic gui;
     private GUIButton btn_exit;
@@ -40,6 +41,7 @@ public class MyGUIManager1 extends GUIManager {
     public boolean hotkeysActive = false;
 
     public final IsoMap isoMap;
+    private Minetown minetown;
 
     public static int mouseTileX = 0, mouseTileY = 0, lastTileX = -1, lastTileY = -1;
     private boolean inDragBuild = false, updatePath = false;
@@ -48,13 +50,15 @@ public class MyGUIManager1 extends GUIManager {
 
     private int downMouseX, downMouseY;
 
-    public MyGUIManager1(String name, Hitbox hitbox, Vector mouseVector, int z, IsoMap isoMap) {
+    public MaingameGUIManager(String name, Hitbox hitbox, Vector mouseVector, int z, IsoMap isoMap) {
         super(name, hitbox, mouseVector, z);
         this.isoMap = isoMap;
+
     }
 
     @Override
     protected void initGUI() {
+        this.minetown = (Minetown) Engine.INSTANCE;
         try {
             // CREATE GUI
             gui = new GUIGraphic(800 - 82, 0, TextureManager.getTexture("GUI"));
@@ -184,28 +188,32 @@ public class MyGUIManager1 extends GUIManager {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F8) {
             this.hotkeysActive = !this.hotkeysActive;
+        } else if (event.getKey() == Keyboard.KEY_ESCAPE) {
+            Minetown.setGameState(GameState.GAME_PAUSED);
         }
     }
 
     @Override
     public void render() {
-        glPushMatrix();
-        {
-            glScalef(Minetown.SCALE, Minetown.SCALE, 1);
-            glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY(), 0);
+        if (minetown.getGameState().equals(GameState.GAME)) {
             glPushMatrix();
             {
-                glTranslatef(tX, tY, this.gui.getZ());
-                TileDimension.render(mouseTileX, mouseTileY, isoMap);
+                glScalef(Minetown.SCALE, Minetown.SCALE, 1);
+                glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY(), 0);
+                glPushMatrix();
+                {
+                    glTranslatef(tX, tY, this.gui.getZ());
+                    TileDimension.render(mouseTileX, mouseTileY, isoMap);
+                }
+                glPopMatrix();
             }
             glPopMatrix();
-        }
-        glPopMatrix();
 
-        gui.setAlpha(1f);
-        Renderer.render(gui);
-        this.renderPath();
-        super.render();
+            gui.setAlpha(1f);
+            Renderer.render(gui);
+            this.renderPath();
+            super.render();
+        }
     }
 
     @Override

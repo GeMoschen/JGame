@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
+import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.Renderer;
 import de.gemo.engine.entity.Entity;
 import de.gemo.engine.events.keyboard.KeyEvent;
@@ -299,7 +300,7 @@ public abstract class GUIManager implements IKeyAdapter, IMouseAdapter, IKeyCont
         }
 
         // check collisions
-        if (this.isColliding()) {
+        if (this.isColliding() && Engine.INSTANCE.getActiveGUIManager() == this) {
             this.updateCollisions();
         }
 

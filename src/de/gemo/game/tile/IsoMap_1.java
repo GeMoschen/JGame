@@ -6,7 +6,7 @@ import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.core.Minetown;
-import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.manager.gui.MaingameGUIManager;
 import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
@@ -71,7 +71,7 @@ public class IsoMap_1 extends IsoMap {
                             if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
+                            if (MaingameGUIManager.mouseTileX >= x - maxOffX && MaingameGUIManager.mouseTileX < x + maxOffX && MaingameGUIManager.mouseTileY <= thisY && MaingameGUIManager.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[renderX][renderY].setAlpha(0.4f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);
@@ -132,7 +132,7 @@ public class IsoMap_1 extends IsoMap {
                             if (tileMap[renderX][renderY].isDrawBackground()) {
                                 grassTile.render();
                             }
-                            if (MyGUIManager1.mouseTileX >= x - maxOffX && MyGUIManager1.mouseTileX < x + maxOffX && MyGUIManager1.mouseTileY <= thisY && MyGUIManager1.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
+                            if (MaingameGUIManager.mouseTileX >= x - maxOffX && MaingameGUIManager.mouseTileX < x + maxOffX && MaingameGUIManager.mouseTileY <= thisY && MaingameGUIManager.mouseTileY >= thisY - maxOffY && tileMap[renderX][renderY].getType().getIndex() >= TileType.OVERLAY_START) {
                                 tileMap[renderX][renderY].renderOutline(this.halfTileWidth, this.halfTileHeight);
                                 tileMap[renderX][renderY].setAlpha(0.4f);
                                 tileMap[renderX][renderY].render(0.5f, 0.5f, 0.5f);

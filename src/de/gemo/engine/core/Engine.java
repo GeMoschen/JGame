@@ -429,7 +429,9 @@ public class Engine implements ClipboardOwner {
                 if (manager != this.activeGUIManager) {
                     this.activateGUIManager(manager);
                 }
-                manager.handleMouseMove(event);
+                if (this.activeGUIManager != null) {
+                    this.activeGUIManager.handleMouseMove(event);
+                }
                 return;
             }
         }
@@ -536,7 +538,6 @@ public class Engine implements ClipboardOwner {
         boolean wasActive = false;
         for (GUIManager manager : this.guiManagersToRemove) {
             if (!this.guiManager.containsKey(manager.getID())) {
-                System.out.println("manager not in list");
                 continue;
             }
             if (this.activeGUIManager.getID() == manager.getID()) {
@@ -581,6 +582,9 @@ public class Engine implements ClipboardOwner {
     }
 
     public final void unregisterGUIManager(GUIManager manager) {
+        if (manager == null) {
+            return;
+        }
         this.removeGUIManagers = true;
         this.guiManagersToRemove.add(manager);
     }

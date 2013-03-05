@@ -18,8 +18,9 @@ import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.MultiTexture;
 import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.gamestates.GameState;
+import de.gemo.game.manager.gui.GamePausedMenu;
+import de.gemo.game.manager.gui.MaingameGUIManager;
 import de.gemo.game.manager.gui.Mainmenu;
-import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoMap_1;
 import de.gemo.game.tile.manager.HouseManager;
@@ -29,7 +30,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class Minetown extends Engine {
 
     private GameState gameState = GameState.STARTUP;
-    private IsoMap isoMap;
+    private IsoMap isoMap = null;
     private int tickCounter = 0;
 
     public static float SCALE = 1f;
@@ -242,6 +243,10 @@ public class Minetown extends Engine {
         instance.setState(gameState);
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public void setState(GameState gameState) {
         if (gameState.equals(this.gameState)) {
             return;
@@ -257,16 +262,28 @@ public class Minetown extends Engine {
             hitbox.addPoint(-400, 300);
             this.registerGUIManager(new Mainmenu("MAINMENU", hitbox, MouseManager.INSTANCE.getMouseVector(), 0));
             this.initGUIManager(this.getGUIManager("MAINMENU"));
+            this.isoMap = null;
         } else if (gameState.equals(GameState.GAME)) {
-            this.unregisterAllGUIManagers();
-            this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
+            this.unregisterGUIManager(this.getGUIManager("GAME_PAUSED"));
+            if (this.isoMap == null) {
+                this.unregisterAllGUIManagers();
+                this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
+                Hitbox hitbox = new Hitbox(400, 300);
+                hitbox.addPoint(-400, -300);
+                hitbox.addPoint(400, -300);
+                hitbox.addPoint(400, 300);
+                hitbox.addPoint(-400, 300);
+                this.registerGUIManager(new MaingameGUIManager("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
+                this.initGUIManager(this.getGUIManager("GUI"));
+            }
+        } else if (gameState.equals(GameState.GAME_PAUSED)) {
             Hitbox hitbox = new Hitbox(400, 300);
             hitbox.addPoint(-400, -300);
             hitbox.addPoint(400, -300);
             hitbox.addPoint(400, 300);
             hitbox.addPoint(-400, 300);
-            this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
-            this.initGUIManager(this.getGUIManager("GUI"));
+            this.registerGUIManager(new GamePausedMenu("GAME_PAUSED", hitbox, MouseManager.INSTANCE.getMouseVector(), -1));
+            this.initGUIManager(this.getGUIManager("GAME_PAUSED"));
         }
     }
 
@@ -274,6 +291,13 @@ public class Minetown extends Engine {
     protected void renderGame() {
         switch (this.gameState) {
             case GAME : {
+                glPushMatrix();
+                glScalef(SCALE, SCALE, 1);
+                this.isoMap.render();
+                glPopMatrix();
+                break;
+            }
+            case GAME_PAUSED : {
                 glPushMatrix();
                 glScalef(SCALE, SCALE, 1);
                 this.isoMap.render();

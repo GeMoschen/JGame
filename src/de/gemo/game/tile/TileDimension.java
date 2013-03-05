@@ -1,6 +1,6 @@
 package de.gemo.game.tile;
 
-import de.gemo.game.manager.gui.MyGUIManager1;
+import de.gemo.game.manager.gui.MaingameGUIManager;
 import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
 
@@ -24,7 +24,7 @@ public class TileDimension {
     public static void setSize(int sizeX, int sizeY) {
         TileDimension.sizeX = sizeX;
         TileDimension.sizeY = sizeY;
-        isFree(MyGUIManager1.mouseTileX, MyGUIManager1.mouseTileY, isoMap);
+        isFree(MaingameGUIManager.mouseTileX, MaingameGUIManager.mouseTileY, isoMap);
     }
 
     public static void place(int tileX, int tileY, IsoMap isoMap) {
@@ -44,7 +44,7 @@ public class TileDimension {
             selectedTile = TileManager.getTile("unknown");
         }
         TileDimension.selectedTile = selectedTile;
-        isFree(MyGUIManager1.mouseTileX, MyGUIManager1.mouseTileY, isoMap);
+        isFree(MaingameGUIManager.mouseTileX, MaingameGUIManager.mouseTileY, isoMap);
     }
 
     public static IsoTile getSelectedTile() {

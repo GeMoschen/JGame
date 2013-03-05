@@ -13,6 +13,12 @@ import de.gemo.game.gamestates.GameState;
 
 public class MainmenuButtonListener implements MouseListener {
 
+    private Minetown minetown;
+
+    public MainmenuButtonListener() {
+        this.minetown = (Minetown) Engine.INSTANCE;
+    }
+
     @Override
     public void onMouseClick(GUIElement element, MouseClickEvent event) {
     }
@@ -25,8 +31,12 @@ public class MainmenuButtonListener implements MouseListener {
 
         GUIButton button = (GUIButton) element;
         if (button.getLabel().equals("Beenden")) {
-            Engine.close();
-        } else if (button.getLabel().equals("Neues Spiel")) {
+            if (this.minetown.getGameState().equals(GameState.MAIN_MENU)) {
+                Engine.close();
+            } else if (this.minetown.getGameState().equals(GameState.GAME_PAUSED)) {
+                Minetown.setGameState(GameState.MAIN_MENU);
+            }
+        } else if (button.getLabel().equals("Neues Spiel") || button.getLabel().equalsIgnoreCase("Fortfahren")) {
             Minetown.setGameState(GameState.GAME);
         }
     }

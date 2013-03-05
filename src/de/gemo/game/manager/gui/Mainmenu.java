@@ -18,7 +18,6 @@ import de.gemo.game.events.gui.buttons.MainmenuButtonListener;
 public class Mainmenu extends GUIManager {
 
     private GUIGraphic background;
-
     public Mainmenu(String name, Hitbox hitbox, Vector mouseVector, int z) {
         super(name, hitbox, mouseVector, z);
     }
