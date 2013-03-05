@@ -16,7 +16,7 @@ public class Tile_PowerPlant_01 extends IsoTile {
     private int POLLUTION_RADIUS = 10, JOB_RADIUS = 10;
 
     public Tile_PowerPlant_01() {
-        super(TileType.POWERPLANT_01, TextureManager.getTexture("powerplant_01").toAnimation(), false, 96, 0);
+        super(TileType.POWERPLANT_01, TextureManager.getTexture("powerplant_01").toAnimation(), false, 64, -40);
         this.dimX = 3;
         this.dimY = 3;
         this.buildPrice = 1000;

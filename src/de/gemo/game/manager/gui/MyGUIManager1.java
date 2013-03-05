@@ -21,7 +21,7 @@ import de.gemo.engine.manager.GUIManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.Animation;
 import de.gemo.engine.units.Vector;
-import de.gemo.game.core.MyEngine;
+import de.gemo.game.core.Minetown;
 import de.gemo.game.events.gui.buttons.ExitButtonListener;
 import de.gemo.game.events.gui.buttons.MainButtonListener;
 import de.gemo.game.tile.IsoMap;
@@ -191,7 +191,7 @@ public class MyGUIManager1 extends GUIManager {
     public void render() {
         glPushMatrix();
         {
-            glScalef(MyEngine.SCALE, MyEngine.SCALE, 1);
+            glScalef(Minetown.SCALE, Minetown.SCALE, 1);
             glTranslatef(this.isoMap.getOffsetX(), this.isoMap.getOffsetY(), 0);
             glPushMatrix();
             {
@@ -210,8 +210,8 @@ public class MyGUIManager1 extends GUIManager {
 
     @Override
     public void onMouseMove(MouseMoveEvent event) {
-        mouseTileX = this.isoMap.getTileX(this.mouseVector.getX() / MyEngine.SCALE, this.mouseVector.getY() / MyEngine.SCALE);
-        mouseTileY = this.isoMap.getTileY(this.mouseVector.getX() / MyEngine.SCALE, this.mouseVector.getY() / MyEngine.SCALE);
+        mouseTileX = this.isoMap.getTileX(this.mouseVector.getX() / Minetown.SCALE, this.mouseVector.getY() / Minetown.SCALE);
+        mouseTileY = this.isoMap.getTileY(this.mouseVector.getX() / Minetown.SCALE, this.mouseVector.getY() / Minetown.SCALE);
         tX = this.isoMap.getIsoX(mouseTileX, mouseTileY);
         tY = this.isoMap.getIsoY(mouseTileX, mouseTileY);
         TileDimension.isFree(mouseTileX, mouseTileY, isoMap);
@@ -248,7 +248,7 @@ public class MyGUIManager1 extends GUIManager {
                 int tY = this.isoMap.getIsoY(downMouseX, downMouseY);
                 glPushMatrix();
                 {
-                    glScalef(MyEngine.SCALE, MyEngine.SCALE, 1);
+                    glScalef(Minetown.SCALE, Minetown.SCALE, 1);
                     glPushMatrix();
                     {
 
@@ -306,8 +306,8 @@ public class MyGUIManager1 extends GUIManager {
                         return;
                     } else {
                         // we have a street => calculate path and place streets
-                        int upMouseX = this.isoMap.getTileX(this.mouseVector.getX() / MyEngine.SCALE, this.mouseVector.getY() / MyEngine.SCALE);
-                        int upMouseY = this.isoMap.getTileY(this.mouseVector.getX() / MyEngine.SCALE, this.mouseVector.getY() / MyEngine.SCALE);
+                        int upMouseX = this.isoMap.getTileX(this.mouseVector.getX() / Minetown.SCALE, this.mouseVector.getY() / Minetown.SCALE);
+                        int upMouseY = this.isoMap.getTileY(this.mouseVector.getX() / Minetown.SCALE, this.mouseVector.getY() / Minetown.SCALE);
                         if (upMouseX == downMouseX && upMouseY == downMouseY && path == null) {
                             TileDimension.place(downMouseX, downMouseY, isoMap);
                         }
@@ -326,15 +326,15 @@ public class MyGUIManager1 extends GUIManager {
 
     @Override
     public void onMouseWheel(MouseWheelEvent event) {
-        if (event.isUp() && MyEngine.SCALE < 1.45f) {
-            MyEngine.SCALE += 0.1f;
-            float newOffX = event.getX() / MyEngine.SCALE;
-            float newOffY = event.getY() / MyEngine.SCALE;
+        if (event.isUp() && Minetown.SCALE < 1.45f) {
+            Minetown.SCALE += 0.1f;
+            float newOffX = event.getX() / Minetown.SCALE;
+            float newOffY = event.getY() / Minetown.SCALE;
             this.isoMap.addOffset(-newOffX / 10f, -newOffY / 10f);
-        } else if (event.isDown() && MyEngine.SCALE > 0.55f) {
-            MyEngine.SCALE -= 0.1f;
-            float newOffX = event.getX() / MyEngine.SCALE;
-            float newOffY = event.getY() / MyEngine.SCALE;
+        } else if (event.isDown() && Minetown.SCALE > 0.55f) {
+            Minetown.SCALE -= 0.1f;
+            float newOffX = event.getX() / Minetown.SCALE;
+            float newOffY = event.getY() / Minetown.SCALE;
             this.isoMap.addOffset(newOffX / 10f, newOffY / 10f);
         }
     }

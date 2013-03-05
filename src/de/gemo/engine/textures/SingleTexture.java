@@ -35,7 +35,7 @@ public class SingleTexture {
     }
 
     public SingleTexture crop(float x, float y, float width, float height) {
-        return new SingleTexture(texture, x, y, width, height);
+        return new SingleTexture(texture, x, y, width - 1, height - 1);
     }
 
     public void setDimensions(float x, float y, float width, float height) {

@@ -9,7 +9,7 @@ import de.gemo.game.tile.manager.TileManager;
 public class Tile_House_Mid_01 extends IsoTile {
 
     public Tile_House_Mid_01() {
-        super(TileType.HOUSE_MID_01, TextureManager.getTexture("tile_house_mid_01").toAnimation(), false, 95, 18);
+        super(TileType.HOUSE_MID_01, TextureManager.getTexture("tile_house_mid_01").toAnimation(), false, 32, -6);
         this.dimX = 2;
         this.dimY = 2;
         this.buildPrice = 250;
@@ -38,6 +38,7 @@ public class Tile_House_Mid_01 extends IsoTile {
 
     @Override
     public void renderBuildPlace(IsoMap isoMap, int tileX, int tileY) {
+
         super.renderBuildPlace(isoMap, tileX, tileY);
     }
 

@@ -13,7 +13,7 @@ public class Tile_Police_01 extends IsoTile {
     private final int SEC_RADIUS = 8, JOB_RADIUS = 4;
 
     public Tile_Police_01() {
-        super(TileType.POLICE_01, TextureManager.getTexture("tile_police_01").toAnimation(), false, 94, -12);
+        super(TileType.POLICE_01, TextureManager.getTexture("tile_police_01").toAnimation(), false, 32, -20);
         this.dimX = 2;
         this.dimY = 2;
         this.buildPrice = 500;

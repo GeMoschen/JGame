@@ -5,7 +5,7 @@ import org.newdawn.slick.UnicodeFont;
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.SingleTexture;
-import de.gemo.game.core.MyEngine;
+import de.gemo.game.core.Minetown;
 import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.manager.TileManager;
 import de.gemo.game.tile.set.TileType;
@@ -44,9 +44,9 @@ public class IsoMap_1 extends IsoMap {
 
             int tlX = this.getTileXBitmask(screenX, screenY);
             int tlY = this.getTileYBitmask(screenX, screenY);
-            int trX = this.getTileXBitmask((screenX + screenWidth) / MyEngine.SCALE, screenY);
+            int trX = this.getTileXBitmask((screenX + screenWidth) / Minetown.SCALE, screenY);
 
-            int maxRows = (int) ((screenHeight / MyEngine.SCALE) / this.tileHeight) + 2;
+            int maxRows = (int) ((screenHeight / Minetown.SCALE) / this.tileHeight) + 2;
             int startX = tlX - 1;
             int startY = tlY;
             int endX = trX + 1;
@@ -83,10 +83,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
-                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
-                                        glTranslatef(offX, 0, 0);
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
+                                        glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
-                                        glTranslatef(-offX, 0, 0);
+                                        glTranslatef(-offX, 10, 0);
                                     }
                                 }
                             } else {
@@ -96,10 +96,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
-                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
-                                        glTranslatef(offX, 0, 0);
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
+                                        glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
-                                        glTranslatef(-offX, 0, 0);
+                                        glTranslatef(-offX, 10, 0);
                                     }
                                 }
                             }
@@ -144,10 +144,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
-                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
-                                        glTranslatef(offX, 0, 0);
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
+                                        glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
-                                        glTranslatef(-offX, 0, 0);
+                                        glTranslatef(-offX, 10, 0);
                                     }
                                 }
                             } else {
@@ -157,10 +157,10 @@ public class IsoMap_1 extends IsoMap {
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
                                     if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
-                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1) + 10;
-                                        glTranslatef(offX, 0, 0);
+                                        float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
+                                        glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
-                                        glTranslatef(-offX, 0, 0);
+                                        glTranslatef(-offX, 10, 0);
                                     }
                                 }
                             }
@@ -213,9 +213,9 @@ public class IsoMap_1 extends IsoMap {
 
             int tlX = this.getTileXBitmask(screenX, screenY);
             int tlY = this.getTileYBitmask(screenX, screenY);
-            int trX = this.getTileXBitmask((screenX + screenWidth) / MyEngine.SCALE, screenY);
+            int trX = this.getTileXBitmask((screenX + screenWidth) / Minetown.SCALE, screenY);
 
-            int maxRows = (int) ((screenHeight / MyEngine.SCALE) / this.tileHeight) + 2;
+            int maxRows = (int) ((screenHeight / Minetown.SCALE) / this.tileHeight) + 2;
             int startX = tlX - 1;
             int startY = tlY;
             int endX = trX + 1;

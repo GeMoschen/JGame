@@ -12,7 +12,7 @@ import de.gemo.game.tile.manager.TileManager;
 public class Tile_House_Small_01 extends IsoTile {
 
     public Tile_House_Small_01() {
-        super(TileType.HOUSE_SMALL, TextureManager.getTexture("tile_house_small_01").toAnimation(), true, 0, 2);
+        super(TileType.HOUSE_SMALL, TextureManager.getTexture("tile_house_small_01").toAnimation(), true, 0, -5);
         this.buildPrice = 250;
         this.removalPrice = 75;
     }

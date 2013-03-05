@@ -179,11 +179,11 @@ public class PNGImageData implements LoadableImageData {
      * @return The power of 2
      */
     private int get2Fold(int fold) {
-        int ret = 2;
-        while (ret < fold) {
-            ret *= 2;
-        }
-        return ret;
+        // int ret = 2;
+        // while (ret < fold) {
+        // ret *= 2;
+        // }
+        return fold;
     }
 
     /**

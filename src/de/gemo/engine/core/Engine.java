@@ -9,6 +9,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -74,6 +75,8 @@ public class Engine implements ClipboardOwner {
     private GUIManager activeGUIManager = null;
     private HashMap<Integer, GUIManager> guiManager = new HashMap<Integer, GUIManager>();
     private List<GUIManager> sortedGUIManagerList = new ArrayList<GUIManager>();
+    private boolean removeGUIManagers = false;
+    private HashSet<GUIManager> guiManagersToRemove = new HashSet<GUIManager>();
 
     // ////////////////////////////////////////
     //
@@ -223,6 +226,9 @@ public class Engine implements ClipboardOwner {
                     tick = true;
                     startTimer = System.currentTimeMillis() + tickTime;
                 }
+
+                // clear queued managers
+                this.clearGUIManagers();
 
                 // clear contents
                 // glClearColor(0f, 0f, 0f, 1.0f);
@@ -522,6 +528,30 @@ public class Engine implements ClipboardOwner {
     //
     // ////////////////////////////////////////
 
+    private final void clearGUIManagers() {
+        if (!this.removeGUIManagers) {
+            return;
+        }
+
+        boolean wasActive = false;
+        for (GUIManager manager : this.guiManagersToRemove) {
+            if (!this.guiManager.containsKey(manager.getID())) {
+                System.out.println("manager not in list");
+                continue;
+            }
+            if (this.activeGUIManager.getID() == manager.getID()) {
+                wasActive = true;
+            }
+            this.guiManager.remove(manager.getID());
+        }
+        if (wasActive) {
+            this.activateGUIManager(null);
+        }
+        this.removeGUIManagers = false;
+        this.sortedGUIManagerList = new ArrayList<GUIManager>(this.guiManager.values());
+        Collections.sort(this.sortedGUIManagerList);
+    }
+
     private final void updateGUIManagers(float delta) {
         for (GUIManager manager : this.guiManager.values()) {
             manager.updateManager();
@@ -545,10 +575,14 @@ public class Engine implements ClipboardOwner {
         Collections.sort(this.sortedGUIManagerList);
     }
 
+    public final void unregisterAllGUIManagers() {
+        this.removeGUIManagers = true;
+        this.guiManagersToRemove.addAll(this.guiManager.values());
+    }
+
     public final void unregisterGUIManager(GUIManager manager) {
-        this.guiManager.remove(manager.getID());
-        this.sortedGUIManagerList = new ArrayList<GUIManager>(this.guiManager.values());
-        Collections.sort(this.sortedGUIManagerList);
+        this.removeGUIManagers = true;
+        this.guiManagersToRemove.add(manager);
     }
 
     public final void initGUIManager(GUIManager manager) {

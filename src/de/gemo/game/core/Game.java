@@ -18,7 +18,7 @@ public class Game {
 
     public Game() {
         INSTANCE = this;
-        this.engine = new MyEngine();
+        this.engine = new Minetown();
         this.engine.startUp();
     }
 

@@ -5,6 +5,7 @@ import java.awt.Font;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.font.effects.ColorEffect;
 import org.newdawn.slick.font.effects.GradientEffect;
 import org.newdawn.slick.font.effects.OutlineEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
@@ -17,6 +18,7 @@ import de.gemo.engine.manager.TextureManager;
 import de.gemo.engine.textures.MultiTexture;
 import de.gemo.engine.textures.SingleTexture;
 import de.gemo.game.gamestates.GameState;
+import de.gemo.game.manager.gui.Mainmenu;
 import de.gemo.game.manager.gui.MyGUIManager1;
 import de.gemo.game.tile.IsoMap;
 import de.gemo.game.tile.IsoMap_1;
@@ -24,26 +26,25 @@ import de.gemo.game.tile.manager.HouseManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class MyEngine extends Engine {
+public class Minetown extends Engine {
 
-    private GameState gameState = GameState.GAME;
+    private GameState gameState = GameState.STARTUP;
     private IsoMap isoMap;
     private int tickCounter = 0;
 
     public static float SCALE = 1f;
 
-    public MyEngine() {
-        super("My Enginetest", 800, 600, false);
+    public Minetown() {
+        super("Minetown", 800, 600, false);
     }
 
     @Override
     protected void loadFonts() {
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20", 0);
         FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
-        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 30);
-        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 24);
+        drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 10);
+        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 26, new OutlineEffect(4, java.awt.Color.black), new ColorEffect(java.awt.Color.WHITE), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
     }
-
     private final void drawLoadingText(String topic, String text, int percent) {
         glPushMatrix();
         {
@@ -107,8 +108,22 @@ public class MyEngine extends Engine {
     @Override
     protected void loadTextures() {
         try {
+            // LOAD MAINMENU TEXTURE
+            drawLoadingText("Loading Textures...", "mainmenu.png", 20);
+            SingleTexture mainMenuTexture = TextureManager.loadSingleTexture("textures\\ui\\mainmenu.png");
+            TextureManager.addTexture("MAINMENU_BG", mainMenuTexture.toMultiTexture());
+
+            // LOAD TEXTURES FOR MAINMENU-BUTTON
+            drawLoadingText("Loading Textures...", "btn_mainmenu.png", 30);
+            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("textures\\ui\\btn_mainmenu.png");
+            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0 * 54, 276, 54);
+            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 1 * 54, 276, 54);
+            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 54, 276, 54);
+            MultiTexture buttonMultiTexture = new MultiTexture(276, 54, buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
+            TextureManager.addTexture("MAINMENU_BTN", buttonMultiTexture);
+
             // LOAD GUI TEXTURE
-            drawLoadingText("Loading Textures...", "game_main_right.png", 20);
+            drawLoadingText("Loading Textures...", "game_main_right.png", 40);
             SingleTexture guiTexture = TextureManager.loadSingleTexture("textures\\ui\\game_main_right.png");
             TextureManager.addTexture("GUI", guiTexture.toMultiTexture());
 
@@ -116,12 +131,12 @@ public class MyEngine extends Engine {
             this.loadTiles();
 
             // LOAD TEXTURES FOR BUTTON 1
-            drawLoadingText("Loading Textures...", "btn_main.png", 60);
-            SingleTexture buttonCompleteTexture = TextureManager.loadSingleTexture("textures\\ui\\btn_main.png");
-            SingleTexture buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 66, 66);
-            SingleTexture buttonHoverTexture = buttonCompleteTexture.crop(0, 2 * 66, 66, 66);
-            SingleTexture buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 66, 66, 66);
-            MultiTexture buttonMultiTexture = new MultiTexture(66, 66, buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
+            drawLoadingText("Loading Textures...", "btn_main.png", 50);
+            buttonCompleteTexture = TextureManager.loadSingleTexture("textures\\ui\\btn_main.png");
+            buttonNormalTexture = buttonCompleteTexture.crop(0, 0, 66, 66);
+            buttonHoverTexture = buttonCompleteTexture.crop(0, 2 * 66, 66, 66);
+            buttonPressedTexture = buttonCompleteTexture.crop(0, 2 * 66, 66, 66);
+            buttonMultiTexture = new MultiTexture(66, 66, buttonNormalTexture, buttonHoverTexture, buttonPressedTexture);
             TextureManager.addTexture("BTN_GAME_MAIN", buttonMultiTexture);
 
             // LOAD TEXTURES FOR ICONS
@@ -219,14 +234,40 @@ public class MyEngine extends Engine {
 
     @Override
     protected final void createGUI() {
-        this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
-        Hitbox hitbox = new Hitbox(400, 300);
-        hitbox.addPoint(-400, -300);
-        hitbox.addPoint(400, -300);
-        hitbox.addPoint(400, 300);
-        hitbox.addPoint(-400, 300);
-        this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
-        this.initGUIManager(this.getGUIManager("GUI"));
+        this.setState(GameState.MAIN_MENU);
+    }
+
+    public static void setGameState(GameState gameState) {
+        Minetown instance = (Minetown) Engine.INSTANCE;
+        instance.setState(gameState);
+    }
+
+    public void setState(GameState gameState) {
+        if (gameState.equals(this.gameState)) {
+            return;
+        }
+
+        this.gameState = gameState;
+        if (gameState.equals(GameState.MAIN_MENU)) {
+            this.unregisterAllGUIManagers();
+            Hitbox hitbox = new Hitbox(400, 300);
+            hitbox.addPoint(-400, -300);
+            hitbox.addPoint(400, -300);
+            hitbox.addPoint(400, 300);
+            hitbox.addPoint(-400, 300);
+            this.registerGUIManager(new Mainmenu("MAINMENU", hitbox, MouseManager.INSTANCE.getMouseVector(), 0));
+            this.initGUIManager(this.getGUIManager("MAINMENU"));
+        } else if (gameState.equals(GameState.GAME)) {
+            this.unregisterAllGUIManagers();
+            this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
+            Hitbox hitbox = new Hitbox(400, 300);
+            hitbox.addPoint(-400, -300);
+            hitbox.addPoint(400, -300);
+            hitbox.addPoint(400, 300);
+            hitbox.addPoint(-400, 300);
+            this.registerGUIManager(new MyGUIManager1("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
+            this.initGUIManager(this.getGUIManager("GUI"));
+        }
     }
 
     @Override
@@ -239,6 +280,8 @@ public class MyEngine extends Engine {
                 glPopMatrix();
                 break;
             }
+            default :
+                break;
         }
     }
 
@@ -253,6 +296,8 @@ public class MyEngine extends Engine {
                 }
                 break;
             }
+            default :
+                break;
         }
 
     }
