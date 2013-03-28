@@ -3,7 +3,7 @@ package de.gemo.engine.gui;
 import java.util.HashMap;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.events.keyboard.KeyEvent;
 import de.gemo.engine.manager.FontManager;
@@ -20,7 +20,7 @@ public class GUITextfield extends GUIElement {
     private String label = "";
     private String originalLabel = "";
     private Color normalColor;
-    private UnicodeFont font;
+    private TrueTypeFont font;
 
     private float textWidth = 0, textHeight = 0;
     private float maxText = 0.92f;
@@ -103,13 +103,13 @@ public class GUITextfield extends GUIElement {
         return this.originalLabel;
     }
 
-    public void setFont(UnicodeFont font) {
+    public void setFont(TrueTypeFont font) {
         this.font = font;
         this.setText(this.getText());
-        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
+        this.textHeight = this.font.getHeight("Z") / 2f;
     }
 
-    public UnicodeFont getFont() {
+    public TrueTypeFont getFont() {
         return font;
     }
 

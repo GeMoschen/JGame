@@ -3,7 +3,7 @@ package de.gemo.game.core;
 import java.awt.Font;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.core.Engine;
 import de.gemo.engine.core.debug.StandardDebugMonitor;
@@ -72,7 +72,7 @@ public class ExtendedDebugMonitor extends StandardDebugMonitor {
 
             glEnable(GL_BLEND);
 
-            UnicodeFont font = FontManager.getStandardFont(Font.BOLD);
+            TrueTypeFont font = FontManager.getStandardFont(Font.BOLD);
 
             font.drawString((int) (fontX - font.getWidth("DebugMonitor") / 2f), fontY, "DebugMonitor", Color.red);
 

@@ -1,7 +1,7 @@
 package de.gemo.engine.gui;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.textures.MultiTexture;
@@ -10,7 +10,7 @@ public class GUILabel extends GUIElement {
 
     private String label = "";
     private Color normalColor;
-    private UnicodeFont font;
+    private TrueTypeFont font;
 
     private float textHeight = 0f;
 
@@ -49,16 +49,16 @@ public class GUILabel extends GUIElement {
         return this.label;
     }
 
-    public void setFont(UnicodeFont font) {
+    public void setFont(TrueTypeFont font) {
         int oldX = this.getXOnScreen();
         int oldY = this.getYOnScreen();
         this.font = font;
         this.setLabel(this.getLabel());
-        this.textHeight = (int) (this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f);
+        this.textHeight = (int) (this.font.getHeight("Z") / 2f);
         this.setPositionOnScreen(oldX, oldY);
     }
 
-    public UnicodeFont getFont() {
+    public TrueTypeFont getFont() {
         return font;
     }
 

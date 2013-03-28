@@ -3,7 +3,7 @@ package de.gemo.engine.gui;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.collision.CollisionHelper;
 import de.gemo.engine.collision.Hitbox;
@@ -21,7 +21,7 @@ public class GUIDropdownList extends GUIElement {
 
     private String label = "";
     private Color normalColor, hoverColor, pressedColor;
-    private UnicodeFont font;
+    private TrueTypeFont font;
 
     private float textHeight = 0;
     private float maxText = 0.78f;
@@ -172,13 +172,13 @@ public class GUIDropdownList extends GUIElement {
         }
     }
 
-    public void setFont(UnicodeFont font) {
+    public void setFont(TrueTypeFont font) {
         this.font = font;
         this.setLabel(this.getLabel());
-        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
+        this.textHeight = this.font.getHeight("Z") / 2f;
     }
 
-    public UnicodeFont getFont() {
+    public TrueTypeFont getFont() {
         return font;
     }
 

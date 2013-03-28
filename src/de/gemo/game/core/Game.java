@@ -1,8 +1,9 @@
 package de.gemo.game.core;
 
 import de.gemo.engine.core.Engine;
+import de.gemo.game.jbox2d.JBox2D;
 
-public class Game {
+public class Game extends Thread {
 
     public static Game INSTANCE = null;
     private final Engine engine;
@@ -12,18 +13,18 @@ public class Game {
      */
     public static void main(String[] args) {
         if (INSTANCE == null) {
-            new Game();
+            Game game = new Game(new JBox2D());
         }
     }
 
-    public Game() {
+    public Game(Engine engine) {
         INSTANCE = this;
-        this.engine = new Minetown();
+        this.engine = engine;
         this.engine.startUp();
+        this.engine.run();
     }
 
     public Engine getEngine() {
         return engine;
     }
-
 }

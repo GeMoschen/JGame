@@ -69,7 +69,7 @@ public class MaingameGUIManager extends GUIManager {
 
             ExitButtonListener listener = new ExitButtonListener();
             btn_exit = new GUIButton(727, 527, animationButton);
-            btn_exit.setLabel("Exit");
+            btn_exit.setLabel("Pause");
             btn_exit.setColor(Color.white);
             btn_exit.setHoverColor(Color.lightGray);
             btn_exit.setPressedColor(Color.gray);

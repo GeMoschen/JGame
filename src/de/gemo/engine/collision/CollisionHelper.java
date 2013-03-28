@@ -1,7 +1,6 @@
 package de.gemo.engine.collision;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.gemo.engine.units.Vector;
 
@@ -9,7 +8,17 @@ public class CollisionHelper {
 
     // /////////////////////////////////////////////
     //
-    // WIT INHETIRANCE
+    // RECTANGLE COLLISION
+    //
+    // /////////////////////////////////////////////
+
+    public static boolean isPointInRectangle(float x, float y, float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+        return (x >= topLeftX && x <= bottomRightX && y >= topLeftY && y <= bottomRightY);
+    }
+
+    // /////////////////////////////////////////////
+    //
+    // WITH INHETIRANCE
     //
     // /////////////////////////////////////////////
 
@@ -56,8 +65,8 @@ public class CollisionHelper {
     }
 
     // find intersections
-    public static List<Vector> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
-        List<Vector> result = null;
+    public static ArrayList<Vector> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
+        ArrayList<Vector> result = null;
 
         Vector a1 = null, a2 = null;
         Vector b1 = null, b2 = null;

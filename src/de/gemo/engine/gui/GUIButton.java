@@ -1,7 +1,7 @@
 package de.gemo.engine.gui;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
@@ -15,7 +15,7 @@ public class GUIButton extends GUIElement {
     protected String label = "";
     protected String originalLabel = "";
     protected Color normalColor, hoverColor, pressedColor;
-    protected UnicodeFont font;
+    protected TrueTypeFont font;
 
     protected float textWidth = 0, textHeight = 0;
     protected float maxText = 0.80f;
@@ -103,13 +103,13 @@ public class GUIButton extends GUIElement {
         return this.originalLabel;
     }
 
-    public void setFont(UnicodeFont font) {
+    public void setFont(TrueTypeFont font) {
         this.font = font;
         this.setLabel(this.getLabel());
-        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f;
+        this.textHeight = this.font.getHeight("Z") / 2f;
     }
 
-    public UnicodeFont getFont() {
+    public TrueTypeFont getFont() {
         return font;
     }
 

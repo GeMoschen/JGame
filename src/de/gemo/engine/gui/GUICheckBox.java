@@ -1,7 +1,7 @@
 package de.gemo.engine.gui;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.exceptions.NotEnoughTexturesException;
 import de.gemo.engine.manager.FontManager;
@@ -14,7 +14,7 @@ public class GUICheckBox extends GUIElement {
     private String label = "";
     private Color normalColor;
     private boolean checked;
-    private UnicodeFont font;
+    private TrueTypeFont font;
 
     private float textHeight = 0;
 
@@ -66,13 +66,13 @@ public class GUICheckBox extends GUIElement {
         return this.label;
     }
 
-    public void setFont(UnicodeFont font) {
+    public void setFont(TrueTypeFont font) {
         this.font = font;
         this.setLabel(this.getLabel());
-        this.textHeight = this.font.getHeight("Z") / 2f + this.font.getYOffset("Z") / 2f + 1;
+        this.textHeight = this.font.getHeight("Z") / 2f;
     }
 
-    public UnicodeFont getFont() {
+    public TrueTypeFont getFont() {
         return font;
     }
 

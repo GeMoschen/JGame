@@ -6,11 +6,13 @@ import de.gemo.game.tile.set.TileType;
 
 public class StreetManager_1 extends StreetManager {
 
+    private TileType tileType = TileType.STREET;
+
     public final int getAmountStreetsAround(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType() == TileType.STREET;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType() == TileType.STREET;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType() == TileType.STREET;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType() == TileType.STREET;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType() == tileType;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType() == tileType;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType() == tileType;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType() == tileType;
 
         int streetsAround = 0;
         if (NE)
@@ -26,10 +28,10 @@ public class StreetManager_1 extends StreetManager {
     }
 
     public final IsoTile getIsoTile(int tileX, int tileY, IsoMap isoMap) {
-        boolean NE = isoMap.getNorthEast(tileX, tileY).getType() == TileType.STREET;
-        boolean SE = isoMap.getSouthEast(tileX, tileY).getType() == TileType.STREET;
-        boolean SW = isoMap.getSouthWest(tileX, tileY).getType() == TileType.STREET;
-        boolean NW = isoMap.getNorthWest(tileX, tileY).getType() == TileType.STREET;
+        boolean NE = isoMap.getNorthEast(tileX, tileY).getType() == tileType;
+        boolean SE = isoMap.getSouthEast(tileX, tileY).getType() == tileType;
+        boolean SW = isoMap.getSouthWest(tileX, tileY).getType() == tileType;
+        boolean NW = isoMap.getNorthWest(tileX, tileY).getType() == tileType;
 
         int streetsAround = getStreetsAround(tileX, tileY, isoMap);
         if (streetsAround < 2) {

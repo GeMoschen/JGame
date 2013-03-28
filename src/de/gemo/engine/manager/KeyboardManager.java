@@ -24,11 +24,13 @@ public class KeyboardManager {
     }
 
     private KeyboardManager(Engine engine) {
+        INSTANCE = this;
         this.engine = engine;
         this.holdKeys = new HashMap<Integer, Character>();
         for (int index = 0; index < 65536; index++) {
             pressedKeys.put(index, false);
         }
+        Keyboard.enableRepeatEvents(false);
     }
 
     public void update() {
@@ -45,10 +47,12 @@ public class KeyboardManager {
             char character = Keyboard.getEventCharacter();
             int key = Keyboard.getEventKey();
             boolean oldState = holdKeys.containsKey(key);
+
             if (!currentState && oldState) {
                 // released key
                 engine.onKeyReleased(new KeyEvent(key, holdKeys.remove(key), false));
-            } else if (currentState && !oldState) {
+            }
+            if (currentState && !oldState) {
                 // newly pressed key
                 engine.onKeyPressed(new KeyEvent(key, character, true));
                 holdKeys.put(key, character);

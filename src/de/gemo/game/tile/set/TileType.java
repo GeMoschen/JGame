@@ -15,6 +15,8 @@ public enum TileType {
 
     WATER(3, false, false),
 
+    WATERTUBE(4, true, false, false),
+
     STREET(10, true, false, true),
 
     POWERLINE(20, true, true),

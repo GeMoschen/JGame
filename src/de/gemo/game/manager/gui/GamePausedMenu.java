@@ -3,7 +3,7 @@ package de.gemo.game.manager.gui;
 import java.awt.Font;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.gui.GUIButton;
@@ -34,12 +34,12 @@ public class GamePausedMenu extends GUIManager {
         this.add(newGameButton);
 
         // init savegame-button
-        GUIButton saveGameButton = this.createButton(startY + 1 * distance, "Spiel speichern");
+        GUIButton saveGameButton = this.createButton(startY + 1 * distance, "Speichern");
         saveGameButton.setMouseListener(listener);
         this.add(saveGameButton);
 
         // init settings-button
-        GUIButton loadGameButton = this.createButton(startY + 2 * distance, "Spiel laden");
+        GUIButton loadGameButton = this.createButton(startY + 2 * distance, "Laden");
         loadGameButton.setMouseListener(listener);
         this.add(loadGameButton);
 
@@ -55,7 +55,7 @@ public class GamePausedMenu extends GUIManager {
     }
 
     private GUIButton createButton(int y, String label) {
-        UnicodeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 26);
+        TrueTypeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 26);
         GUIButton button = new GUIButton(262, y, TextureManager.getTexture("MAINMENU_BTN"));
         button.setLabel(label);
         button.setFont(font);

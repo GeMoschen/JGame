@@ -1,6 +1,6 @@
 package de.gemo.game.tile;
 
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.manager.FontManager;
 import de.gemo.engine.manager.TextureManager;
@@ -52,7 +52,7 @@ public class IsoMap_1 extends IsoMap {
             int endX = trX + 1;
 
             // render normal tiles
-            UnicodeFont font = FontManager.getStandardFont();
+            TrueTypeFont font = FontManager.getStandardFont();
 
             int renderX, renderY;
 
@@ -270,7 +270,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getSecureLevelAlpha());
             whiteTile.render(0f, 1f, 1f);
             whiteTile.setAlpha(1f);
-            UnicodeFont font = FontManager.getStandardFont();
+            TrueTypeFont font = FontManager.getStandardFont();
             // font.drawString(-(font.getWidth("" + (int) tileInfo.getSecureLevel()) / 2), -8, "" + (int) tileInfo.getSecureLevel());
         }
     }
@@ -280,7 +280,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getPollutionLevelAlpha());
             whiteTile.render(0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha(), 0.2f - tileInfo.getPollutionLevelAlpha());
             whiteTile.setAlpha(1f);
-            UnicodeFont font = FontManager.getStandardFont();
+            TrueTypeFont font = FontManager.getStandardFont();
             // font.drawString(-(font.getWidth("" + (int) tileInfo.getPollutionLevel()) / 2), -8, "" + (int) tileInfo.getPollutionLevel());
         }
     }
@@ -290,7 +290,7 @@ public class IsoMap_1 extends IsoMap {
             whiteTile.setAlpha(tileInfo.getJobLevelAlpha());
             whiteTile.render(1f - tileInfo.getJobLevelAlpha() * 0.5f, 1f - tileInfo.getJobLevelAlpha() * 0.5f, 0f);
             whiteTile.setAlpha(1f);
-            UnicodeFont font = FontManager.getStandardFont();
+            TrueTypeFont font = FontManager.getStandardFont();
             // font.drawString(-(font.getWidth("" + (int) tileInfo.getJobLevel()) / 2), -8, "" + (int) tileInfo.getJobLevel());
         }
     }

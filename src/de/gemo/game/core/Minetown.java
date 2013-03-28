@@ -4,11 +4,7 @@ import java.awt.Font;
 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
-import org.newdawn.slick.font.effects.ColorEffect;
-import org.newdawn.slick.font.effects.GradientEffect;
-import org.newdawn.slick.font.effects.OutlineEffect;
-import org.newdawn.slick.font.effects.ShadowEffect;
+import org.newdawn.slick.TrueTypeFont;
 
 import de.gemo.engine.collision.Hitbox;
 import de.gemo.engine.core.Engine;
@@ -42,10 +38,11 @@ public class Minetown extends Engine {
     @Override
     protected void loadFonts() {
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 20", 0);
-        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 20, new OutlineEffect(2, java.awt.Color.black), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 20);
         drawLoadingText("Loading fonts...", "ANALOG, PLAIN, 24", 10);
-        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 26, new OutlineEffect(4, java.awt.Color.black), new ColorEffect(java.awt.Color.WHITE), new ShadowEffect(java.awt.Color.black, 2, 2, 0.5f), new GradientEffect(new java.awt.Color(255, 255, 255), new java.awt.Color(150, 150, 150), 1f));
+        FontManager.loadFontFromJar("fonts\\analog.ttf", FontManager.ANALOG, Font.PLAIN, 26);
     }
+
     private final void drawLoadingText(String topic, String text, int percent) {
         glPushMatrix();
         {
@@ -54,7 +51,7 @@ public class Minetown extends Engine {
             glDisable(org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
-            UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
+            TrueTypeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
 
             // draw toptex
             int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(topic) / 2f);
@@ -172,6 +169,7 @@ public class Minetown extends Engine {
             TextureManager.addTexture("tile_grass", tileTexture.crop(3 * 64, 0 * 32, 64, 32).toMultiTexture());
             TextureManager.addTexture("tile_water", tileTexture.crop(7 * 64, 1 * 32, 64, 32).toMultiTexture());
 
+            // streets
             MultiTexture streetTextures = new MultiTexture(64, 32);
             streetTextures.addTextures(tileTexture.crop(4 * 64, 0 * 32, 64, 32));
             streetTextures.addTextures(tileTexture.crop(5 * 64, 0 * 32, 64, 32));
@@ -202,6 +200,21 @@ public class Minetown extends Engine {
             powerlineTextures.addTextures(tileTexture.crop(3 * 64, 4 * 32, 64, 64));
             powerlineTextures.addTextures(tileTexture.crop(4 * 64, 4 * 32, 64, 64));
             TextureManager.addTexture("tile_powerline", powerlineTextures);
+
+            // watertubes
+            MultiTexture watertubeTextures = new MultiTexture(64, 64);
+            watertubeTextures.addTextures(tileTexture.crop(5 * 64, 4 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(6 * 64, 4 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(7 * 64, 4 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(5 * 64, 5 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(6 * 64, 5 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(7 * 64, 5 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(0 * 64, 6 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(1 * 64, 6 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(2 * 64, 6 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(3 * 64, 6 * 32, 64, 32));
+            watertubeTextures.addTextures(tileTexture.crop(4 * 64, 6 * 32, 64, 32));
+            TextureManager.addTexture("tile_watertube", watertubeTextures);
 
             // /////////// END TILESHEET
 
@@ -288,7 +301,7 @@ public class Minetown extends Engine {
     }
 
     @Override
-    protected void renderGame() {
+    protected void renderGame2D() {
         switch (this.gameState) {
             case GAME : {
                 glPushMatrix();

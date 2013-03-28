@@ -19,9 +19,12 @@ import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
 
 import de.gemo.engine.core.debug.AbstractDebugMonitor;
 import de.gemo.engine.core.debug.StandardDebugMonitor;
@@ -39,6 +42,8 @@ import de.gemo.engine.manager.SoundManager;
 import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
 import static org.lwjgl.opengl.GL11.*;
+
+import static org.lwjgl.util.glu.GLU.*;
 
 public class Engine implements ClipboardOwner {
 
@@ -111,7 +116,7 @@ public class Engine implements ClipboardOwner {
         this.initOpenGL();
         this.initManager();
         this.initEngine();
-        this.run();
+        // this.run();
     }
 
     private final void initEngine() {
@@ -159,12 +164,6 @@ public class Engine implements ClipboardOwner {
 
     private final void initOpenGL() {
         // init OpenGL
-        glMatrixMode(GL_PROJECTION);
-
-        glLoadIdentity();
-        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
-        glMatrixMode(GL_MODELVIEW);
-
         glShadeModel(GL_SMOOTH);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -174,6 +173,7 @@ public class Engine implements ClipboardOwner {
         glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
+
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glEnable(GL_DEPTH_TEST);
@@ -186,6 +186,26 @@ public class Engine implements ClipboardOwner {
         glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+
+        // Depth test setup
+        GL11.glEnable(GL11.GL_DEPTH_TEST); // Enables Depth Testing
+        GL11.glDepthFunc(GL11.GL_LEQUAL); // The Type Of Depth Testing To Do
+
+        // Some basic settings
+        GL11.glClearColor(0f, 0f, 0f, 1f); // Black Background
+        GL11.glEnable(GL11.GL_NORMALIZE); // force normal lengths to 1
+        GL11.glEnable(GL11.GL_CULL_FACE); // don't render hidden faces
+        GL11.glEnable(GL11.GL_TEXTURE_2D); // use textures
+        GL11.glEnable(GL11.GL_BLEND); // enable transparency
+
+        // How to handle transparency: average colors together
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        // Enable alpha test so the transparent backgrounds in texture images don't draw.
+        // This prevents transparent areas from affecting the depth or stencil buffer.
+        // alpha func will accept only fragments with alpha greater than 0
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
     }
 
     private final void initManager() {
@@ -201,7 +221,7 @@ public class Engine implements ClipboardOwner {
         this.setDebugMonitor(new StandardDebugMonitor());
     }
 
-    private final void run() {
+    public final void run() {
         lastFrame = this.getTime();
         delta = this.updateDelta();
 
@@ -216,7 +236,12 @@ public class Engine implements ClipboardOwner {
         // ungrab mouse
         this.mouseManager.ungrabMouse();
 
+        glClearColor(0f, 0f, 0f, 1.0f);
         while (!Display.isCloseRequested()) {
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
             try {
 
                 delta = updateDelta();
@@ -230,12 +255,11 @@ public class Engine implements ClipboardOwner {
                 // clear queued managers
                 this.clearGUIManagers();
 
-                // clear contents
-                // glClearColor(0f, 0f, 0f, 1.0f);
-                glClearColor(0f, 0.3f, 0f, 1.0f);
-                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 keyManager.update();
                 mouseManager.update();
+
+                // update game
+                this.updateGame(this.delta);
 
                 // tick GUI-Managers
                 for (GUIManager manager : this.guiManager.values()) {
@@ -248,10 +272,14 @@ public class Engine implements ClipboardOwner {
                     this.tickGame();
                 }
 
+                // render gamefield-content
+                this.setPerspective();
+                this.renderGame3D();
+
+                this.setOrtho();
                 glPushMatrix();
                 {
-                    // render gamefield-content
-                    this.renderGame();
+                    this.renderGame2D();
 
                     // RENDER GUI
                     if (!this.hasDebugMonitor || this.debugMonitor.isShowGraphics()) {
@@ -271,13 +299,18 @@ public class Engine implements ClipboardOwner {
                         this.mouseManager.getMovedHitBox().render();
                         this.mouseManager.getHitBox().render();
                     }
+
+                    glPushMatrix();
+                    {
+                        // render debugmonitor
+                        if (this.hasDebugMonitor && this.debugMonitor.isVisible()) {
+                            // this.setup2DSpace();
+                            this.debugMonitor.render();
+                        }
+                    }
+                    glPopMatrix();
                 }
                 glPopMatrix();
-
-                // render debugmonitor
-                if (this.hasDebugMonitor && this.debugMonitor.isVisible()) {
-                    this.debugMonitor.render();
-                }
 
                 // update and sync
                 Display.update();
@@ -292,6 +325,8 @@ public class Engine implements ClipboardOwner {
                     tempFPS = 0;
                 }
                 tick = false;
+
+                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             } catch (Exception e) {
                 System.out.println("ERROR IN TICK! SHUTTING DOWN...");
                 e.printStackTrace();
@@ -309,6 +344,58 @@ public class Engine implements ClipboardOwner {
             }
         }
         Engine.close();
+    }
+
+    /**
+     * Set OpenGL to render in 3D perspective. Set the projection matrix using GLU.gluPerspective(). The projection matrix controls how the scene is "projected" onto the screen. Think of it as the lens on a camera, which defines how wide the field of vision is, how deep the scene is, and how what the aspect ratio will be.
+     */
+    public void setPerspective() {
+        // select projection matrix (controls perspective)
+        glViewport(0, 0, Display.getWidth(), Display.getHeight());
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadIdentity();
+        GLU.gluPerspective(68f, (float) Display.getWidth() / (float) Display.getHeight(), 0.3f, 400);
+        // return to modelview matrix
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+    }
+
+    public void setOrtho() {
+        glViewport(0, 0, Display.getWidth(), Display.getHeight());
+        // select projection matrix (controls view on screen)
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadIdentity();
+        // set ortho to same size as viewport, positioned at 0,0
+        GL11.glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, -500, 500);
+        // return to modelview matrix
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        glLoadIdentity();
+    }
+
+    public final void setup3DSpace2() {
+        glLoadIdentity();
+        glViewport(0, 0, Display.getWidth(), Display.getHeight());
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(68, (float) Display.getWidth() / (float) Display.getHeight(), 0.03f, 400);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        TextureImpl.bindNone();
+        glLoadIdentity();
+    }
+
+    public final void setup2DSpace2() {
+        glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+
+        glEnable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     private final void shutdown(boolean error) {
@@ -348,7 +435,13 @@ public class Engine implements ClipboardOwner {
     protected void tickGame() {
     }
 
-    protected void renderGame() {
+    protected void updateGame(int delta) {
+    }
+
+    protected void renderGame3D() {
+    }
+
+    protected void renderGame2D() {
     }
 
     protected void onShutdown(boolean error) {
@@ -385,6 +478,7 @@ public class Engine implements ClipboardOwner {
             case Keyboard.KEY_F2 : {
                 if (this.hasDebugMonitor) {
                     this.debugMonitor.setVisible(!this.debugMonitor.isVisible());
+                    System.out.println("vis: " + this.debugMonitor.isVisible());
                 }
                 break;
             }
@@ -509,19 +603,30 @@ public class Engine implements ClipboardOwner {
     //
     // ////////////////////////////////////////
 
-    protected final void drawStartupText(String text) {
-        glPushMatrix();
-        glClearColor(0, 0, 0, 0);
+    protected void drawStartupText(String text) {
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        glDisable(GL_TEXTURE_RECTANGLE_ARB);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        UnicodeFont font = FontManager.getFont(FontManager.DEFAULT, Font.BOLD, 26);
-        int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
-        int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(text) / 2f);
-        font.drawString(x, y, text, Color.red);
-        Display.update();
+
+        glPushMatrix();
+        {
+            glDisable(GL_TEXTURE_RECTANGLE_ARB);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_LIGHT0);
+
+            glEnable(GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
+
+            TrueTypeFont font = FontManager.getFont(FontManager.DEFAULT, Font.PLAIN, 12);
+            int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
+            int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(text) / 2f);
+            font.drawString(x, y, text, Color.red);
+
+            glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHT0);
+        }
         glPopMatrix();
+
+        Display.update();
     }
 
     // ////////////////////////////////////////

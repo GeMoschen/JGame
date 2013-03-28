@@ -18,7 +18,7 @@ public class ExitButtonListener implements MouseListener {
     @Override
     public void onMouseRelease(GUIElement element, MouseReleaseEvent event) {
         if (event.isLeftButton()) {
-            Minetown.setGameState(GameState.MAIN_MENU);
+            Minetown.setGameState(GameState.GAME_PAUSED);
         }
     }
 

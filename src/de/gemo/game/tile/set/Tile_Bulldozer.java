@@ -8,7 +8,7 @@ import de.gemo.game.tile.manager.TileManager;
 public class Tile_Bulldozer extends IsoTile {
 
     public Tile_Bulldozer() {
-        super(TileType.BULLDOZER, TextureManager.getTexture("bulldozer").toAnimation(), false, 5, 4);
+        super(TileType.BULLDOZER, TextureManager.getTexture("bulldozer").toAnimation(), false, 0, -2);
     }
 
     @Override
