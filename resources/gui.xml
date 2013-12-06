@@ -1,0 +1,15 @@
+<GUI PicSize="1024">
+	<Element>
+		<GraphicTop X="0" Y="0" Width="1024" Height="96"></GraphicTop>
+		<Button X="15" Y="96" Width="11" Height="24">
+			<Left X="15" Y="96" Width="5" Height="24"></Left>
+			<Middle X="20" Y="96" Width="1" Height="24"></Middle>
+			<Right X="25" Y="96" Width="5" Height="24"></Right>
+		</Button>
+		<Textfield>
+			<Left X="0" Y="96" Width="5" Height="25"></Left>
+			<Middle X="5" Y="96" Width="1" Height="25"></Middle>
+			<Right X="10" Y="96" Width="5" Height="25"></Right>
+		</Textfield>
+	</Element>
+</GUI>
