@@ -4,7 +4,11 @@ import static org.lwjgl.opengl.GL11.GL_QUADS;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2i;
+
+import org.lwjgl.input.Keyboard;
+
 import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.events.keyboard.KeyEvent;
 
 public class GLSL extends GameEngine {
 
@@ -18,6 +22,13 @@ public class GLSL extends GameEngine {
 	protected void createManager() {
 		this.shader = new Shader();
 		shader.loadPixelShader("resources\\shader\\pixelshader.frag");
+	}
+
+	@Override
+	public void onKeyReleased(KeyEvent event) {
+		if (event.getKey() == Keyboard.KEY_F1) {
+			shader.loadPixelShader("resources\\shader\\pixelshader.frag");
+		}
 	}
 
 	@Override

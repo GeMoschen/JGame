@@ -1,6 +1,6 @@
 package de.gemo.gameengine.core;
 
-import de.gemo.game.physics.GLSL;
+import de.gemo.game.physics.Pathfind;
 
 public class StartUp extends Thread {
 
@@ -13,7 +13,7 @@ public class StartUp extends Thread {
 	public static void main(String[] args) {
 		if (INSTANCE == null) {
 			// StartUp game =
-			new StartUp(new GLSL("Shadertest", 1024, 768, false));
+			new StartUp(new Pathfind("Pathfind", 1024, 768, false));
 		}
 	}
 
