@@ -1,44 +1,44 @@
 package de.gemo.gameengine.events.mouse;
 
 public abstract class AbstractMouseEvent {
-	private final int x, y;
-	private final int eventType;
+    private final int x, y;
+    private final int eventType;
 
-	public AbstractMouseEvent(int x, int y, int eventType) {
-		this.x = x;
-		this.y = y;
-		this.eventType = eventType;
-	}
+    public AbstractMouseEvent(int x, int y, int eventType) {
+        this.x = x;
+        this.y = y;
+        this.eventType = eventType;
+    }
 
-	public int getEventType() {
-		return eventType;
-	}
+    public int getEventType() {
+        return eventType;
+    }
 
-	public boolean isMouseMove() {
-		return eventType == 0;
-	}
+    public boolean isMouseMove() {
+        return eventType == 0;
+    }
 
-	public boolean isMouseClick() {
-		return eventType == 1;
-	}
+    public boolean isMouseClick() {
+        return eventType == 1;
+    }
 
-	public boolean isMouseRelease() {
-		return eventType == 2;
-	}
+    public boolean isMouseRelease() {
+        return eventType == 2;
+    }
 
-	public boolean isMouseDrag() {
-		return eventType == 3;
-	}
+    public boolean isMouseDrag() {
+        return eventType == 3;
+    }
 
-	public boolean isMouseWheel() {
-		return eventType == 4;
-	}
+    public boolean isMouseWheel() {
+        return eventType == 4;
+    }
 
-	public int getX() {
-		return x;
-	}
+    public int getX() {
+        return x;
+    }
 
-	public int getY() {
-		return y;
-	}
+    public int getY() {
+        return y;
+    }
 }

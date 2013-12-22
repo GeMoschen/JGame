@@ -4,27 +4,27 @@ import de.gemo.game.sim.core.*;
 
 public class StartUp extends Thread {
 
-	public static StartUp INSTANCE = null;
-	private final GameEngine gameEngine;
+    public static StartUp INSTANCE = null;
+    private final GameEngine gameEngine;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		if (INSTANCE == null) {
-			// StartUp game =
-			new StartUp(new Pathfind("Pathfind", 1024, 768, false));
-		}
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        if (INSTANCE == null) {
+            // StartUp game =
+            new StartUp(new Pathfind("Pathfind", 1024, 768, false));
+        }
+    }
 
-	public StartUp(GameEngine engine) {
-		INSTANCE = this;
-		this.gameEngine = engine;
-		this.gameEngine.startUp();
-		this.gameEngine.run();
-	}
+    public StartUp(GameEngine engine) {
+        INSTANCE = this;
+        this.gameEngine = engine;
+        this.gameEngine.startUp();
+        this.gameEngine.run();
+    }
 
-	public GameEngine getEngine() {
-		return gameEngine;
-	}
+    public GameEngine getEngine() {
+        return gameEngine;
+    }
 }

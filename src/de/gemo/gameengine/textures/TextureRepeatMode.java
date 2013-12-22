@@ -1,12 +1,12 @@
 package de.gemo.gameengine.textures;
 
 public enum TextureRepeatMode {
-	REPEAT,
+    REPEAT,
 
-	REPEAT_X,
+    REPEAT_X,
 
-	REPEAT_Y,
+    REPEAT_Y,
 
-	STRETCH
+    STRETCH
 
 }

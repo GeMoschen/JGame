@@ -8,11 +8,11 @@ import java.awt.Point;
  */
 public class ManhattanHeuristic implements AStarHeuristic {
 
-	public float getEstimatedDistanceToGoal(Point start, Point goal) {
-		float dist = Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y);
-		// float p = (1 / 10000);
-		// dist *= (1.0 + p);
-		return dist;
-	}
+    public float getEstimatedDistanceToGoal(Point start, Point goal) {
+        float dist = Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y);
+        // float p = (1 / 10000);
+        // dist *= (1.0 + p);
+        return dist;
+    }
 
 }
