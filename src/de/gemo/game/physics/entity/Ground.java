@@ -25,85 +25,85 @@ import de.gemo.game.physics.Physics2D;
 
 public class Ground extends EntityCollidable {
 
-    private float halfWidth, halfHeight;
-    private boolean down;
+	private float halfWidth, halfHeight;
+	private boolean down;
 
-    public Ground(float x, float y, float width, float height, boolean down) {
-        this(x, y, width, height, down, 1.0f);
-    }
+	public Ground(float x, float y, float width, float height, boolean down) {
+		this(x, y, width, height, down, 1.0f);
+	}
 
-    public Ground(float x, float y, float width, float height, boolean down, float friction) {
-        halfWidth = width / 2f;
-        halfHeight = height / 2f;
+	public Ground(float x, float y, float width, float height, boolean down, float friction) {
+		halfWidth = width / 2f;
+		halfHeight = height / 2f;
 
-        this.down = down;
+		this.down = down;
 
-        // box
-        BodyDef def = new BodyDef();
-        def.type = BodyType.STATIC;
-        def.position.set(x / Physics2D.pxPerM, y / Physics2D.pxPerM);
-        def.angle = 0;
+		// box
+		BodyDef def = new BodyDef();
+		def.type = BodyType.STATIC;
+		def.position.set(x / Physics2D.pxPerM, y / Physics2D.pxPerM);
+		def.angle = 0;
 
-        Body body = Physics2D.world.createBody(def);
+		Body body = Physics2D.world.createBody(def);
 
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(halfWidth / Physics2D.pxPerM, halfHeight / Physics2D.pxPerM);
-        FixtureDef fDef = new FixtureDef();
-        fDef.shape = shape;
-        fDef.density = 1;
-        fDef.friction = friction;
-        body.createFixture(fDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(halfWidth / Physics2D.pxPerM, halfHeight / Physics2D.pxPerM);
+		FixtureDef fDef = new FixtureDef();
+		fDef.shape = shape;
+		fDef.density = 1;
+		fDef.friction = friction;
+		body.createFixture(fDef);
 
-        super.init(body, x, y);
-    }
+		super.init(body, x, y);
+	}
 
-    public float getHalfHeight() {
-        return halfHeight;
-    }
+	public float getHalfHeight() {
+		return halfHeight;
+	}
 
-    public float getHalfWidth() {
-        return halfWidth;
-    }
+	public float getHalfWidth() {
+		return halfWidth;
+	}
 
-    @Override
-    public void debugRender() {
-        glLineWidth(1);
-        Vec2 pos = this.body.getPosition();
+	@Override
+	public void debugRender() {
+		glLineWidth(1);
+		Vec2 pos = this.body.getPosition();
 
-        glPushMatrix();
-        {
-            // translate to center
-            glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
-            glRotatef(this.getAngle(), 0, 0, 1);
-            Color.black.bind();
+		glPushMatrix();
+		{
+			// translate to center
+			glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
+			glRotatef(this.getAngle(), 0, 0, 1);
+			Color.black.bind();
 
-            // render center
-            glBegin(GL_POLYGON);
-            glVertex3f(-halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, +halfHeight, 0f);
-            glVertex3f(-halfWidth, +halfHeight, 0f);
-            glEnd();
+			// render center
+			glBegin(GL_POLYGON);
+			glVertex3f(-halfWidth, -halfHeight, 0f);
+			glVertex3f(+halfWidth, -halfHeight, 0f);
+			glVertex3f(+halfWidth, +halfHeight, 0f);
+			glVertex3f(-halfWidth, +halfHeight, 0f);
+			glEnd();
 
-            // render down
-            if (down) {
-                glLineWidth(2);
-                glDisable(GL_LINE_STIPPLE);
-                Color.white.bind();
-                glBegin(GL_LINES);
-                glVertex3f(-halfWidth, +halfHeight, 0f);
-                glVertex3f(+halfWidth, +halfHeight, 0f);
-                glEnd();
-            }
-        }
-        glPopMatrix();
-    }
+			// render down
+			if (down) {
+				glLineWidth(2);
+				glDisable(GL_LINE_STIPPLE);
+				Color.white.bind();
+				glBegin(GL_LINES);
+				glVertex3f(-halfWidth, +halfHeight, 0f);
+				glVertex3f(+halfWidth, +halfHeight, 0f);
+				glEnd();
+			}
+		}
+		glPopMatrix();
+	}
 
-    public void render() {
-        this.debugRender();
-    }
+	public void render() {
+		this.debugRender();
+	}
 
-    public boolean isDown() {
-        return down;
-    }
+	public boolean isDown() {
+		return down;
+	}
 }

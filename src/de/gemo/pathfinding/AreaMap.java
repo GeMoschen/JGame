@@ -3,7 +3,7 @@ package de.gemo.pathfinding;
 import java.awt.*;
 import java.util.*;
 
-import de.gemo.game.physics.*;
+import de.gemo.game.sim.core.*;
 
 /**
  * The AreaMap holds information about the With, Height, Start position, Goal
@@ -13,6 +13,7 @@ import de.gemo.game.physics.*;
  */
 public class AreaMap {
 
+	private int maxEdgeLength;
 	private int mapWidth;
 	private int mapHeight;
 	private ArrayList<ArrayList<Node>> map;
@@ -41,9 +42,10 @@ public class AreaMap {
 		this.obstacleMap = new boolean[mapWidth][mapHeight];
 		for (int y = 0; y < this.mapHeight; y++) {
 			for (int x = 0; x < this.mapWidth; x++) {
-				this.obstacleMap[x][y] = level.getRectangle(x, y).isBlocked();
+				this.obstacleMap[x][y] = level.getTile(x, y).isBlockingPath();
 			}
 		}
+		this.maxEdgeLength = Math.max(this.mapWidth, this.mapHeight);
 		createMap();
 	}
 
@@ -152,6 +154,10 @@ public class AreaMap {
 
 	public int getMapHeight() {
 		return mapHeight;
+	}
+
+	public int getMaxEdgeLength() {
+		return maxEdgeLength;
 	}
 
 	/**

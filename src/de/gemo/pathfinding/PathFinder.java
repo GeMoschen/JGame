@@ -14,7 +14,7 @@ public class PathFinder {
 
 		AStarHeuristic heuristic = new DiagonalHeuristic();
 
-		AStar aStar = new AStar(map, heuristic);
+		AStar aStar = new AStar(map, heuristic, false);
 
 		ArrayList<Point> shortestPath = aStar.calcShortestPath(map.getStartLocationX(), map.getStartLocationY(), map.getGoalLocationX(), map.getGoalLocationY());
 

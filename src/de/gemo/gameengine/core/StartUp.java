@@ -1,6 +1,6 @@
 package de.gemo.gameengine.core;
 
-import de.gemo.game.physics.Pathfind;
+import de.gemo.game.sim.core.*;
 
 public class StartUp extends Thread {
 

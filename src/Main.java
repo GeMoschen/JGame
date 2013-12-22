@@ -83,7 +83,7 @@ public class Main {
 			float minDistance = Integer.MAX_VALUE;
 			for (Light light : lights) {
 				if (light.location.distanceTo(block.getVertices()[0]) / light.brightness < minDistance) {
-					minDistance = (float) light.location.distanceTo(block.getVertices()[0]) / light.brightness ;
+					minDistance = (float) light.location.distanceTo(block.getVertices()[0]) / light.brightness;
 				}
 			}
 

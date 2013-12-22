@@ -9,13 +9,13 @@ import de.gemo.gameengine.gui.GUIElement;
 
 public interface MouseListener {
 
-    public void onMouseClick(GUIElement element, MouseClickEvent event);
+	public void onMouseClick(GUIElement element, MouseClickEvent event);
 
-    public void onMouseRelease(GUIElement element, MouseReleaseEvent event);
+	public void onMouseRelease(GUIElement element, MouseReleaseEvent event);
 
-    public void onMouseMove(GUIElement element, MouseMoveEvent event);
+	public void onMouseMove(GUIElement element, MouseMoveEvent event);
 
-    public void onMouseDrag(GUIElement element, MouseDragEvent event);
+	public void onMouseDrag(GUIElement element, MouseDragEvent event);
 
-    public void onMouseWheel(GUIElement element, MouseWheelEvent event);
+	public void onMouseWheel(GUIElement element, MouseWheelEvent event);
 }

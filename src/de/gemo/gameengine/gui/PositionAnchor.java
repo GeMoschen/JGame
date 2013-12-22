@@ -1,21 +1,21 @@
 package de.gemo.gameengine.gui;
 
 public enum PositionAnchor {
-    LEFT_TOP,
+	LEFT_TOP,
 
-    LEFT_CENTER,
+	LEFT_CENTER,
 
-    LEFT_BOTTOM,
+	LEFT_BOTTOM,
 
-    CENTER_TOP,
+	CENTER_TOP,
 
-    CENTER,
+	CENTER,
 
-    CENTER_BOTTOM,
+	CENTER_BOTTOM,
 
-    RIGHT_TOP,
+	RIGHT_TOP,
 
-    RIGHT_CENTER,
+	RIGHT_CENTER,
 
-    RIGHT_BOTTOM;
+	RIGHT_BOTTOM;
 }

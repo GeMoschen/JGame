@@ -6,21 +6,21 @@ import org.newdawn.slick.Font;
 import de.gemo.gameengine.gui.GUIElementLabeled.TextAlignment;
 
 public interface IFontRenderable {
-    public void setText(String text);
+	public void setText(String text);
 
-    public String getText();
+	public String getText();
 
-    public void setFontColor(Color fontColor);
+	public void setFontColor(Color fontColor);
 
-    public Color getFontColor();
+	public Color getFontColor();
 
-    public void setFont(Font font);
+	public void setFont(Font font);
 
-    public Font getFont();
+	public Font getFont();
 
-    public TextAlignment getTextAlignment();
+	public TextAlignment getTextAlignment();
 
-    public void setTextAlignment(TextAlignment alignment);
+	public void setTextAlignment(TextAlignment alignment);
 
-    public void renderFont();
+	public void renderFont();
 }

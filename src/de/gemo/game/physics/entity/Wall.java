@@ -26,102 +26,103 @@ import de.gemo.game.physics.Physics2D;
 
 public class Wall extends EntityCollidable {
 
-    private static Color color = new Color(0, 0, 0);
+	private static Color color = new Color(0, 0, 0);
 
-    private float halfWidth, halfHeight;
-    private boolean left = false;
-    private boolean right = false;
+	private float halfWidth, halfHeight;
+	private boolean left = false;
+	private boolean right = false;
 
-    public Wall(float x, float y, float width, float height, boolean left, boolean right) {
-        halfWidth = width / 2f;
-        halfHeight = height / 2f;
+	public Wall(float x, float y, float width, float height, boolean left, boolean right) {
+		halfWidth = width / 2f;
+		halfHeight = height / 2f;
 
-        // box
-        BodyDef def = new BodyDef();
-        def.type = BodyType.STATIC;
-        def.position.set(x / Physics2D.pxPerM, y / Physics2D.pxPerM);
-        def.angle = 0;
+		// box
+		BodyDef def = new BodyDef();
+		def.type = BodyType.STATIC;
+		def.position.set(x / Physics2D.pxPerM, y / Physics2D.pxPerM);
+		def.angle = 0;
 
-        Body body = Physics2D.world.createBody(def);
+		Body body = Physics2D.world.createBody(def);
 
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(halfWidth / Physics2D.pxPerM, halfHeight / Physics2D.pxPerM);
-        FixtureDef fDef = new FixtureDef();
-        fDef.shape = shape;
-        fDef.density = 1;
-        body.createFixture(fDef);
-        this.left = left;
-        this.right = right;
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(halfWidth / Physics2D.pxPerM, halfHeight / Physics2D.pxPerM);
+		FixtureDef fDef = new FixtureDef();
+		fDef.shape = shape;
+		fDef.density = 1;
+		body.createFixture(fDef);
+		this.left = left;
+		this.right = right;
 
-        this.init(body, x, y);
-    }
+		this.init(body, x, y);
+	}
 
-    public void update(int delta) {
-    }
+	public void update(int delta) {
+	}
 
-    @Override
-    public void debugRender() {
-        glLineWidth(1);
-        Vec2 pos = this.body.getPosition();
+	@Override
+	public void debugRender() {
+		glLineWidth(1);
+		Vec2 pos = this.body.getPosition();
 
-        glPushMatrix();
-        {
-            // translate to center
-            glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
-            glRotatef(this.getAngle(), 0, 0, 1);
+		glPushMatrix();
+		{
+			// translate to center
+			glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
+			glRotatef(this.getAngle(), 0, 0, 1);
 
-            // bind color
-            Wall.color.bind();
+			// bind color
+			Wall.color.bind();
 
-            // render
-            glBegin(GL_POLYGON);
-            glVertex3f(-halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, +halfHeight, 0f);
-            glVertex3f(-halfWidth, +halfHeight, 0f);
-            glEnd();
+			// render
+			glBegin(GL_POLYGON);
+			glVertex3f(-halfWidth, -halfHeight, 0f);
+			glVertex3f(+halfWidth, -halfHeight, 0f);
+			glVertex3f(+halfWidth, +halfHeight, 0f);
+			glVertex3f(-halfWidth, +halfHeight, 0f);
+			glEnd();
 
-            // render outline
-            Color.white.bind();
-            short stipplePattern = (short) 0xAAAA; // 0xAAAA = 1010 1010 1010 1010
-            glEnable(GL_LINE_STIPPLE); // enable stippling
-            glLineStipple(5, stipplePattern);
+			// render outline
+			Color.white.bind();
+			short stipplePattern = (short) 0xAAAA; // 0xAAAA = 1010 1010 1010
+													// 1010
+			glEnable(GL_LINE_STIPPLE); // enable stippling
+			glLineStipple(5, stipplePattern);
 
-            if (left) {
-                glBegin(GL_LINES);
-                glVertex3f(-halfWidth, -halfHeight, 0f);
-                glVertex3f(-halfWidth, +halfHeight, 0f);
-                glEnd();
-            }
+			if (left) {
+				glBegin(GL_LINES);
+				glVertex3f(-halfWidth, -halfHeight, 0f);
+				glVertex3f(-halfWidth, +halfHeight, 0f);
+				glEnd();
+			}
 
-            if (right) {
-                glBegin(GL_LINES);
-                glVertex3f(+halfWidth, -halfHeight, 0f);
-                glVertex3f(+halfWidth, +halfHeight, 0f);
-                glEnd();
-            }
-        }
-        glPopMatrix();
-    }
+			if (right) {
+				glBegin(GL_LINES);
+				glVertex3f(+halfWidth, -halfHeight, 0f);
+				glVertex3f(+halfWidth, +halfHeight, 0f);
+				glEnd();
+			}
+		}
+		glPopMatrix();
+	}
 
-    @Override
-    public void render() {
-        this.debugRender();
-    }
+	@Override
+	public void render() {
+		this.debugRender();
+	}
 
-    public float getHalfWidth() {
-        return halfWidth;
-    }
+	public float getHalfWidth() {
+		return halfWidth;
+	}
 
-    public float getHalfHeight() {
-        return halfHeight;
-    }
+	public float getHalfHeight() {
+		return halfHeight;
+	}
 
-    public boolean isLeft() {
-        return left;
-    }
+	public boolean isLeft() {
+		return left;
+	}
 
-    public boolean isRight() {
-        return right;
-    }
+	public boolean isRight() {
+		return right;
+	}
 }

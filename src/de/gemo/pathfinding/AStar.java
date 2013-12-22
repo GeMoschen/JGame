@@ -12,50 +12,51 @@ public class AStar {
 	 */
 	private Set<Node> closedList;
 	private PriorityQueue<Node> openList;
+	private boolean allowDiagonal;
 
-	public AStar(AreaMap map, AStarHeuristic heuristic) {
+	public AStar(AreaMap map, AStarHeuristic heuristic, boolean allowDiagonal) {
 		this.map = map;
 		this.heuristic = heuristic;
-		closedList = new HashSet<Node>(35 * 5 * 2);
-		openList = new PriorityQueue<Node>();
+		this.allowDiagonal = allowDiagonal;
+		this.closedList = new HashSet<Node>(this.map.getMaxEdgeLength() * 2);
+		this.openList = new PriorityQueue<Node>(this.map.getMaxEdgeLength() * 2);
 	}
 
 	public ArrayList<Point> calcShortestPath(int startX, int startY, int goalX, int goalY) {
 		// mark start and goal node
-		map.setStartLocation(startX, startY);
-		map.setGoalLocation(goalX, goalY);
+		this.map.setStartLocation(startX, startY);
+		this.map.setGoalLocation(goalX, goalY);
 
 		// Check if the goal node is also an obstacle (if it is, it is
 		// impossible to find a path there)
-		if (map.getNode(goalX, goalY).isObstacle) {
+		if (this.map.getNode(goalX, goalY).isObstacle) {
 			return null;
 		}
 
-		map.getStartNode().setDistanceFromStart(0);
-		closedList.clear();
-		openList.clear();
-		openList.add(map.getStartNode());
+		this.map.getStartNode().setDistanceFromStart(0);
+		this.closedList.clear();
+		this.openList.clear();
+		this.openList.add(map.getStartNode());
 
 		// while we haven't reached the goal yet
-		while (!openList.isEmpty()) {
+		while (!this.openList.isEmpty()) {
 
 			// get the first Node from non-searched Node list, sorted by lowest
 			// distance from our goal as guessed by our heuristic
-			Node current = openList.poll();
+			Node current = this.openList.poll();
 
 			// check if our current Node location is the goal Node. If it is, we
 			// are done.
-			if (current.getX() == map.getGoalLocationX() && current.getY() == map.getGoalLocationY()) {
+			if (current.getX() == this.map.getGoalLocationX() && current.getY() == this.map.getGoalLocationY()) {
 				return reconstructPath(current);
 			}
 
 			// move current Node to the closed (already searched) list
-			openList.remove(current);
-			closedList.add(current);
+			this.closedList.add(current);
 
 			// go through all the current Nodes neighbors and calculate if one
 			// should be our next step
-			for (Node neighbor : current.getNeighborList()) {
+			for (Node neighbor : current.getNeighborList(this.allowDiagonal)) {
 				boolean neighborIsBetter;
 
 				// if we have already searched this Node, don't bother and
@@ -83,7 +84,7 @@ public class AStar {
 					}
 					// set neighbors parameters if it is better
 					if (neighborIsBetter) {
-						// remove neighbor
+						// remove from openlist
 						openList.remove(neighbor);
 
 						// update neighbor
@@ -91,7 +92,7 @@ public class AStar {
 						neighbor.setDistanceFromStart(neighborDistanceFromStart);
 						neighbor.setHeuristicDistanceFromGoal(heuristic.getEstimatedDistanceToGoal(neighbor.getPoint(), map.getGoalPoint()));
 
-						// add neighbor
+						// add to openlist
 						openList.add(neighbor);
 					}
 				}
