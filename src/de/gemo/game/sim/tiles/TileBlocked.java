@@ -19,11 +19,10 @@ public class TileBlocked extends AbstractTile {
         glPushMatrix();
         {
             glTranslatef(x * AbstractTile.TILE_SIZE + x, y * AbstractTile.TILE_SIZE + y, 0);
-            glPopMatrix();
             glLineWidth(1);
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
-            glColor3f(0f, 0f, 0f);
+            glColor4f(1f, 0f, 0f, 0.3f);
             glBegin(GL_LINE_LOOP);
             {
                 glVertex2i(0, 0);

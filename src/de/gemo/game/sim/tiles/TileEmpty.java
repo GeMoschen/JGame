@@ -22,7 +22,7 @@ public class TileEmpty extends AbstractTile {
             glLineWidth(1);
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
-            glColor3f(0.1f, 0.1f, 0.1f);
+            glColor4f(1f, 1f, 1f, 0.1f);
             glBegin(GL_LINE_LOOP);
             {
                 glVertex2i(0, 0);

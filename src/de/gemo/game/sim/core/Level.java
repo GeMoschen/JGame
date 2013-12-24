@@ -63,13 +63,24 @@ public class Level {
         // CREATE NODES
         this.createArrays();
 
+        Random random = new Random();
+
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                AbstractTile tile = TileManager.getTileByName("Empty");
-                if (tile != null) {
-                    this.tiles[x][y] = tile;
-                    this.tileIDs[x][y] = tile.getID();
-                    this.blocked[x][y] = tile.isBlockingPath();
+                if (random.nextFloat() > 0.05f) {
+                    AbstractTile tile = TileManager.getTileByName("Empty");
+                    if (tile != null) {
+                        this.tiles[x][y] = tile;
+                        this.tileIDs[x][y] = tile.getID();
+                        this.blocked[x][y] = tile.isBlockingPath();
+                    }
+                } else {
+                    AbstractTile tile = TileManager.getTileByName("Blocked");
+                    if (tile != null) {
+                        this.tiles[x][y] = tile;
+                        this.tileIDs[x][y] = tile.getID();
+                        this.blocked[x][y] = tile.isBlockingPath();
+                    }
                 }
             }
         }
@@ -109,16 +120,6 @@ public class Level {
         AStar star = new AStar(areaMap, new ClosestHeuristic(), false);
         ArrayList<Point> list = star.calcShortestPath(start.x, start.y, goal.x, goal.y);
         return list;
-        // if (list != null) {
-        // ArrayList<AbstractTile> path = new ArrayList<AbstractTile>();
-        // for (Point point : list) {
-        // if (point.x != goal.getX() || point.y != goal.getY()) {
-        // path.add(this.getTile(point.x, point.y));
-        // }
-        // }
-        // return path;
-        // }
-        // return null;
     }
 
     public int getDimX() {

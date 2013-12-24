@@ -13,7 +13,7 @@ public class StartUp extends Thread {
     public static void main(String[] args) {
         if (INSTANCE == null) {
             // StartUp game =
-            new StartUp(new Pathfind("Pathfind", 1024, 768, false));
+            new StartUp(new SimCore("Pathfind", 1024, 768, false));
         }
     }
 
