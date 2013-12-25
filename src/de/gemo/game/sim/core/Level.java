@@ -41,16 +41,12 @@ public class Level {
                 Color color = new Color(rgb);
                 AbstractTile tile = TileManager.getTile(color);
                 if (tile != null) {
-                    this.tiles[x][y] = tile;
-                    this.tileIDs[x][y] = tile.getID();
-                    this.blocked[x][y] = tile.isBlockingPath();
+                    this.setTile(x, y, tile);
                 } else {
                     // Tile invalid = set blocked
                     tile = TileManager.getTileByName("Blocked");
                     if (tile != null) {
-                        this.tiles[x][y] = tile;
-                        this.tileIDs[x][y] = tile.getID();
-                        this.blocked[x][y] = tile.isBlockingPath();
+                        this.setTile(x, y, tile);
                     }
                 }
             }
@@ -67,19 +63,15 @@ public class Level {
 
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                if (random.nextFloat() > 0.05f) {
+                if (random.nextFloat() > 0.10f) {
                     AbstractTile tile = TileManager.getTileByName("Empty");
                     if (tile != null) {
-                        this.tiles[x][y] = tile;
-                        this.tileIDs[x][y] = tile.getID();
-                        this.blocked[x][y] = tile.isBlockingPath();
+                        this.setTile(x, y, tile);
                     }
                 } else {
                     AbstractTile tile = TileManager.getTileByName("Blocked");
                     if (tile != null) {
-                        this.tiles[x][y] = tile;
-                        this.tileIDs[x][y] = tile.getID();
-                        this.blocked[x][y] = tile.isBlockingPath();
+                        this.setTile(x, y, tile);
                     }
                 }
             }
@@ -128,6 +120,12 @@ public class Level {
 
     public int getDimY() {
         return dimY;
+    }
+
+    public void setTile(int x, int y, AbstractTile tile) {
+        this.tiles[x][y] = tile;
+        this.tileIDs[x][y] = tile.getID();
+        this.blocked[x][y] = tile.isBlockingPath();
     }
 
 }

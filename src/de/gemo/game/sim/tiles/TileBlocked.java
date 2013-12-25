@@ -22,7 +22,7 @@ public class TileBlocked extends AbstractTile {
             glLineWidth(1);
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
-            glColor4f(1f, 0f, 0f, 0.3f);
+            glColor4f(1f, 0f, 0f, 0.5f);
             glBegin(GL_LINE_LOOP);
             {
                 glVertex2i(0, 0);

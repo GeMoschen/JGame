@@ -34,6 +34,14 @@ public class SimCore extends GameEngine {
             int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
             this.person.setTarget(new Point(tileX, tileY));
             this.person.updatePath();
+        } else if (event.isMiddleButton()) {
+            int tileX = (int) (event.getX() / (float) (AbstractTile.TILE_SIZE + 1));
+            int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
+            if (level.getTile(tileX, tileY).isBlockingPath()) {
+                level.setTile(tileX, tileY, TileManager.getTileByName("Empty"));
+            } else {
+                level.setTile(tileX, tileY, TileManager.getTileByName("Blocked"));
+            }
         }
     }
 
@@ -53,6 +61,6 @@ public class SimCore extends GameEngine {
 
     @Override
     protected void tickGame(int delta) {
-        this.person.update();
+        // this.person.update();
     }
 }
