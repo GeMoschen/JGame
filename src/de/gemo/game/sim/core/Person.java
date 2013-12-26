@@ -209,47 +209,42 @@ public class Person {
         return this.walkPath.size() > 0;
     }
 
-    private int getWalkDirection(Point p1, Point p2) {
+    private EnumDir getWalkDirection(Point p1, Point p2) {
         // top-right
         if (p1.x < p2.x && p1.y > p2.y) {
-            return 1;
-        }
-        // top-left
-        if (p1.x > p2.x && p1.y > p2.y) {
-            return 9;
+            return EnumDir.TOP_RIGHT;
         }
         // bottom-right
         if (p1.x < p2.x && p1.y < p2.y) {
-            return 7;
+            return EnumDir.BOTTOM_RIGHT;
         }
         // bottom-left
         if (p1.x > p2.x && p1.y < p2.y) {
-            return 3;
+            return EnumDir.BOTTOM_LEFT;
+        }// top-left
+        if (p1.x > p2.x && p1.y > p2.y) {
+            return EnumDir.TOP_LEFT;
         }
 
         // top
         if (p1.x == p2.x && p1.y > p2.y) {
-            return 0;
+            return EnumDir.TOP;
         }
         // right
         if (p1.x < p2.x && p1.y == p2.y) {
-            return 6;
+            return EnumDir.RIGHT;
         }
         // bottom
         if (p1.x == p2.x && p1.y < p2.y) {
-            return 2;
+            return EnumDir.BOTTOM;
         }
         // left
         if (p1.x > p2.x && p1.y == p2.y) {
-            return 8;
+            return EnumDir.LEFT;
         }
 
         // default
-        return -21;
-    }
-
-    private int getDirectionDifference(int directionA, int directionB) {
-        return Math.max(directionA, directionB) - Math.min(directionA, directionB);
+        return EnumDir.UNKNOWN;
     }
 
     private void updateWalkPath(Point start, Point goal, ArrayList<Point> tilePath) {
@@ -277,12 +272,14 @@ public class Person {
 
         // optimize the path 2 times
         this.optimizeWalkPath();
-        this.optimizeWalkPath();
         System.out.println("optimized: " + this.walkPath.size());
 
         // round the corners
         this.roundWalkPath(2);
         System.out.println("smoothed: " + this.walkPath.size());
+
+        // round diagonals
+        // this.roundDiagonalWalkPath(1);
 
         // update the waypoint
         this.currentWaypoint = this.walkPath.get(0);
@@ -290,43 +287,43 @@ public class Person {
 
     private void smoothWalkPath() {
         for (int index = 1; index < walkPath.size() - 1; index++) {
-            final int lastDir = this.getWalkDirection(walkPath.get(index - 1), walkPath.get(index));
-            final int currentDir = this.getWalkDirection(walkPath.get(index), walkPath.get(index + 1));
+            EnumDir lastDir = this.getWalkDirection(walkPath.get(index - 1), walkPath.get(index));
+            EnumDir currentDir = this.getWalkDirection(walkPath.get(index), walkPath.get(index + 1));
             boolean hadDirChange = (lastDir != currentDir);
 
             if (hadDirChange) {
                 Point newPoint = new Point(walkPath.get(index));
                 // top
-                if (lastDir == 0) {
+                if (lastDir.equals(EnumDir.TOP)) {
                     walkPath.get(index).y += (AbstractTile.TILE_SIZE / 2);
                 }
                 // right
-                if (lastDir == 6) {
+                if (lastDir.equals(EnumDir.RIGHT)) {
                     walkPath.get(index).x -= (AbstractTile.TILE_SIZE / 2);
                 }
                 // bottom
-                if (lastDir == 2) {
+                if (lastDir.equals(EnumDir.BOTTOM)) {
                     walkPath.get(index).y -= (AbstractTile.TILE_SIZE / 2);
                 }
                 // left
-                if (lastDir == 8) {
+                if (lastDir.equals(EnumDir.LEFT)) {
                     walkPath.get(index).x += (AbstractTile.TILE_SIZE / 2);
                 }
 
                 // top
-                if (currentDir == 0) {
+                if (currentDir.equals(EnumDir.TOP)) {
                     newPoint.y -= (AbstractTile.TILE_SIZE / 2);
                 }
                 // right
-                if (currentDir == 6) {
+                if (currentDir.equals(EnumDir.RIGHT)) {
                     newPoint.x += (AbstractTile.TILE_SIZE / 2);
                 }
                 // bottom
-                if (currentDir == 2) {
+                if (currentDir.equals(EnumDir.BOTTOM)) {
                     newPoint.y += (AbstractTile.TILE_SIZE / 2);
                 }
                 // left
-                if (currentDir == 8) {
+                if (currentDir.equals(EnumDir.LEFT)) {
                     newPoint.x -= (AbstractTile.TILE_SIZE / 2);
                 }
                 walkPath.add(index + 1, newPoint);
@@ -335,72 +332,169 @@ public class Person {
         }
     }
 
+    /**
+     * This method will reduce the total number of waypoints for this path. If
+     * the waypoint before AND after the current waypoint are heading into the
+     * same direction, we can remove it! We will also remove Waypoints who are
+     * too close to each other!
+     */
     private void optimizeWalkPath() {
+        // we need at least 3 waypoints, if we want something to optimize...
+        if (this.walkPath.size() < 3) {
+            return;
+        }
+
         for (int index = 1; index < this.walkPath.size() - 1; index++) {
-            int lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
-            int currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
+            // if the path is short enough and we optimize it, it MAY occur that
+            // the index is < 1. To avoid this, just set the minimum to 1...
+            if (index < 1)
+                index = 1;
+
+            // get the current and the last direction
+            EnumDir lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
+            EnumDir currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
+
+            // get the last and the current point, and the distance between them
             Point lastPoint = this.walkPath.get(index - 1);
             Point currentPoint = this.walkPath.get(index);
             double distance = Math.abs(Math.sqrt(Math.pow(currentPoint.x - lastPoint.x, 2) + Math.pow(currentPoint.y - lastPoint.y, 2)));
-            if (lastDir == currentDir || this.getDirectionDifference(lastDir, currentDir) == 2 || distance < AbstractTile.TILE_SIZE / 10d) {
+
+            /*
+             * ---------------------------------------------------------------
+             * THE HEART OF THE METHOD ---------------------------------------
+             * ---------------------------------------------------------------
+             * If the directions are equal or the waypoints are too close, we
+             * can remove the current waypoint.
+             */
+
+            if (lastDir == currentDir || distance < AbstractTile.TILE_SIZE / 10d) {
+                // remove the current waypoint
                 this.walkPath.remove(index);
-                index -= 1;
+
+                // decrement by 2, because we want to look at this waypoint
+                // again. Decrementing by 2 means that we only need to call this
+                // method once, because otherwise diagonals aren't correctly
+                // optmized...
+                index -= 2;
+            }
+
+            // we need at least 3 waypoints, if we want something to optimize...
+            if (this.walkPath.size() < 3) {
+                return;
             }
         }
     }
 
-    private void roundWalkPath(int count) {
+    private void roundWalkPath(int smoothCount) {
+        // only smooth, if the count is bigger 0
+        if (smoothCount < 1) {
+            return;
+        }
+
+        // iterate over the points, but DON'T smooth the first and the last
+        // line. (just time optimization, cause the first and the last lines are
+        // always non diagonal)
         for (int index = 1; index < this.walkPath.size() - 1; index++) {
-            int lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
-            int currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
-            if (currentDir % 2 == 0) {
+            // get the last and the current direction
+            EnumDir lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
+            EnumDir currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
+
+            // we only smooth if the current direction is a diagonal and the
+            // last direction isn't a diagonal
+            if (currentDir.isLine() || lastDir.isDiagonal()) {
                 continue;
             }
+
+            // get the points, and the distance between them
             Point currentPoint = this.walkPath.get(index);
             Point nextPoint = this.walkPath.get(index + 1);
             double distance = Math.abs(Math.sqrt(Math.pow(currentPoint.x - nextPoint.x, 2) + Math.pow(currentPoint.y - nextPoint.y, 2)));
+
+            // if the distance is bigger than the TILE_SIZE, the corner isn't a
+            // corner, it is a diagonal over multiple tiles (which we don't
+            // smooth!).
             if (distance > AbstractTile.TILE_SIZE) {
                 continue;
             }
 
+            // determine the values for the calculation of the rotational center
             float dX = (nextPoint.x - currentPoint.x);
             float dY = (nextPoint.y - currentPoint.y);
             float offX = 0f;
             float offY = 0f;
-            if ((lastDir == 6 || lastDir == 8) && (currentDir == 7 || currentDir == 3)) {
+            if (lastDir.isHorizontal() && currentDir.isDiagonal()) {
                 offY = dY;
-            } else if ((lastDir == 6 || lastDir == 8) && (currentDir == 1 || currentDir == 9)) {
-                offY = dY;
-            } else if ((lastDir == 0 || lastDir == 2) && (currentDir == 1 || currentDir == 7)) {
-                offX = dX;
-            } else if ((lastDir == 0 || lastDir == 2) && (currentDir == 3 || currentDir == 9)) {
+            } else if (lastDir.isVertical() && currentDir.isDiagonal()) {
                 offX = dX;
             }
 
+            // create the rotational center
             Vector center = new Vector(currentPoint.x + offX, currentPoint.y + offY);
-            float angle = 0;
-            float dAngle = 90 / (count + 1);
-            if ((lastDir == 6 && currentDir == 7) || (lastDir == 8 && currentDir == 9)) {
-                angle = 90;
-                dAngle = -dAngle;
-            } else if ((lastDir == 8 && currentDir == 3) || (lastDir == 6 && currentDir == 1)) {
-                angle = 270;
-            } else if ((lastDir == 2 && currentDir == 7) || (lastDir == 0 && currentDir == 9)) {
-                angle = 270;
-            } else if ((lastDir == 2 && currentDir == 3) || (lastDir == 0 && currentDir == 1)) {
-                angle = 90;
-                dAngle = -dAngle;
+
+            // determine the needed values
+            float startAngle = 0;
+            float angleStep = 90 / (smoothCount + 1);
+
+            if ((lastDir.isHorizontal() && currentDir.isNWToSE()) || (lastDir.isVertical() && currentDir.isNEToSW())) {
+                startAngle = 90;
+                angleStep = -angleStep;
+            } else if ((lastDir.isHorizontal() && currentDir.isNEToSW()) || (lastDir.isVertical() && currentDir.isNWToSE())) {
+                startAngle = 270;
             }
 
-            float currentAngle = dAngle;
-            for (int i = 0; i < count; i++) {
+            // add new points and rotate them around the rotational center
+            float currentAngle = angleStep;
+            for (int i = 0; i < smoothCount; i++) {
                 Vector newPoint = new Vector(center.getX() - offX, center.getY() - offY);
-                newPoint.rotateAround(center, angle + currentAngle);
+                newPoint.rotateAround(center, startAngle + currentAngle);
                 this.walkPath.add(index + 1, new Point((int) newPoint.getX(), (int) newPoint.getY()));
-                currentAngle += dAngle;
+                currentAngle += angleStep;
             }
-            index += 1 + (count);
+
+            // increment the index, so the currently added points are not
+            // smoothed again
+            index += (1 + (smoothCount));
         }
     }
 
+    private void roundDiagonalWalkPath(int count) {
+        if (count < 1) {
+            return;
+        }
+
+        float radius = AbstractTile.TILE_SIZE * 2.5f;
+        float radOffX = -radius / (5 + 1 / 3);
+        float radOffY = radius;
+
+        for (int index = 1; index < this.walkPath.size() - 1; index++) {
+            EnumDir lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
+            EnumDir currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
+
+            boolean startDiagonal = (currentDir.isDiagonal() && lastDir.isLine());
+            boolean endDiagonal = (currentDir.isLine() && lastDir.isDiagonal());
+
+            System.out.println("dir: " + lastDir + " - " + currentDir);
+
+            if (!startDiagonal && !endDiagonal) {
+                continue;
+            }
+            Point lastPoint = this.walkPath.get(index - 1);
+            Point currentPoint = this.walkPath.get(index);
+            Point nextPoint = this.walkPath.get(index + 1);
+
+            double distance = Math.abs(Math.sqrt(Math.pow(currentPoint.x - nextPoint.x, 2) + Math.pow(currentPoint.y - nextPoint.y, 2)));
+            if (distance < AbstractTile.TILE_SIZE) {
+                continue;
+            }
+
+            Vector center = new Vector(currentPoint.x + radOffX, currentPoint.y + radOffY);
+            int offX = 0;
+            int offY = 0;
+            if (startDiagonal) {
+            } else {
+
+            }
+
+        }
+    }
 }

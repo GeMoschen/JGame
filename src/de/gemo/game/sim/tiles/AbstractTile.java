@@ -4,7 +4,7 @@ import java.awt.*;
 
 public abstract class AbstractTile {
 
-    public static final int TILE_SIZE = 16;
+    public static final int TILE_SIZE = 64;
 
     private final String name;
     private final Color imgColor;
