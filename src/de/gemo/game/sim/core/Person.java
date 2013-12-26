@@ -61,8 +61,8 @@ public class Person {
 
         this.angle = this.getAngle(this.currentWaypoint);
 
-        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * 1);
-        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * 1);
+        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * 5);
+        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * 5);
 
         float movedX = this.x + mX;
         float movedY = this.y + mY;
@@ -77,7 +77,7 @@ public class Person {
         // reached current waypoint, so update
         float distance = (float) Math.abs(Math.sqrt(Math.pow(this.currentWaypoint.x - x, 2) + Math.pow(this.currentWaypoint.y - y, 2)));
 
-        if (distance <= AbstractTile.TENTH_TILE_SIZE) {
+        if (distance <= AbstractTile.TENTH_TILE_SIZE || distance < Math.max(mX, mY)) {
             this.waypointIndex++;
             if (this.waypointIndex < this.walkPath.size()) {
                 this.currentWaypoint = this.walkPath.get(this.waypointIndex);
