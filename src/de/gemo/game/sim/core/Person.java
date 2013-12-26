@@ -61,8 +61,8 @@ public class Person {
 
         this.angle = this.getAngle(this.currentWaypoint);
 
-        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * 5);
-        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * 5);
+        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * 3);
+        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * 3);
 
         float movedX = this.x + mX;
         float movedY = this.y + mY;
@@ -291,22 +291,16 @@ public class Person {
         this.walkPath = newWalkPath;
 
         // smooth the corners
-        System.out.println("-------------");
-        System.out.println("before smooth: " + this.walkPath.size());
         this.smoothWalkPath();
-        System.out.println("after smooth: " + this.walkPath.size());
 
         // optimize the path
         this.optimizeWalkPath();
 
         // round the corners
-        this.roundWalkPath(4);
-        System.out.println("smoothed: " + this.walkPath.size());
+        this.roundWalkPath(1);
 
-        // TODO: round diagonals
-        // this.roundDiagonalWalkPath(1);
-
-        System.out.println("optimized: " + this.walkPath.size());
+        // round diagonals
+        this.roundDiagonalWalkPath(1);
 
         // update the waypoint
         this.currentWaypoint = this.walkPath.get(0);
@@ -394,7 +388,7 @@ public class Person {
              * can remove the current waypoint.
              */
 
-            if ((lastDir == currentDir && distance >= AbstractTile.HALF_TILE_SIZE) || distance < AbstractTile.TENTH_TILE_SIZE) {
+            if ((lastDir == currentDir && distance >= AbstractTile.HALF_TILE_SIZE) || distance < AbstractTile.QUARTER_TILE_SIZE) {
                 // remove the current waypoint
                 this.walkPath.remove(index);
 
@@ -485,43 +479,87 @@ public class Person {
     }
 
     private void roundDiagonalWalkPath(int count) {
-        if (count < 1) {
-            return;
-        }
-
-        float radius = AbstractTile.TILE_SIZE * 2.5f;
-        float radOffX = -radius / (5 + 1 / 3);
-        float radOffY = radius;
-
-        for (int index = 1; index < this.walkPath.size() - 1; index++) {
-            EnumDir lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
+        for (int index = 1; index < this.walkPath.size() - 2; index++) {
             EnumDir currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
 
-            boolean startDiagonal = (currentDir.isDiagonal() && lastDir.isLine());
-            boolean endDiagonal = (currentDir.isLine() && lastDir.isDiagonal());
-
-            System.out.println("dir: " + lastDir + " - " + currentDir);
-
-            if (!startDiagonal && !endDiagonal) {
+            if (!currentDir.isDiagonal()) {
                 continue;
             }
-            Point lastPoint = this.walkPath.get(index - 1);
+
             Point currentPoint = this.walkPath.get(index);
             Point nextPoint = this.walkPath.get(index + 1);
 
             double distance = Math.abs(Math.sqrt(Math.pow(currentPoint.x - nextPoint.x, 2) + Math.pow(currentPoint.y - nextPoint.y, 2)));
-            if (distance < AbstractTile.TILE_SIZE) {
+            if (distance <= AbstractTile.HALF_TILE_SIZE) {
                 continue;
             }
 
-            Vector center = new Vector(currentPoint.x + radOffX, currentPoint.y + radOffY);
-            int offX = 0;
-            int offY = 0;
-            if (startDiagonal) {
-            } else {
+            EnumDir lastDir = this.getWalkDirection(this.walkPath.get(index - 1), this.walkPath.get(index));
+            EnumDir nextDir = this.getWalkDirection(this.walkPath.get(index + 1), this.walkPath.get(index + 2));
 
+            int newPoints = 0;
+            int MOVEMENT = AbstractTile.HALF_TILE_SIZE;
+
+            if (lastDir.isLine()) {
+                Point actualCurrent = new Point(currentPoint);
+                int dX = 0;
+                int dY = 0;
+                if (lastDir.equals(EnumDir.TOP)) {
+                    dY += MOVEMENT;
+                } else if (lastDir.equals(EnumDir.BOTTOM)) {
+                    dY -= MOVEMENT;
+                } else if (lastDir.equals(EnumDir.LEFT)) {
+                    dX += MOVEMENT;
+                } else if (lastDir.equals(EnumDir.RIGHT)) {
+                    dX -= MOVEMENT;
+                }
+                actualCurrent.x += dX;
+                actualCurrent.y += dY;
+                this.walkPath.add(index, actualCurrent);
+                newPoints++;
             }
 
+            if (nextDir.isLine()) {
+                Point actualNext = new Point(nextPoint);
+                int dX = 0;
+                int dY = 0;
+                if (nextDir.equals(EnumDir.TOP)) {
+                    dY -= MOVEMENT;
+                } else if (nextDir.equals(EnumDir.BOTTOM)) {
+                    dY += MOVEMENT;
+                } else if (nextDir.equals(EnumDir.LEFT)) {
+                    dX -= MOVEMENT;
+                } else if (nextDir.equals(EnumDir.RIGHT)) {
+                    dX += MOVEMENT;
+                }
+                actualNext.x += dX;
+                actualNext.y += dY;
+                this.walkPath.add(index + 3, actualNext);
+                newPoints++;
+            }
+
+            if (currentDir.equals(EnumDir.TOP_RIGHT)) {
+                currentPoint.x += AbstractTile.QUARTER_TILE_SIZE;
+                currentPoint.y -= AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.x -= AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.y += AbstractTile.QUARTER_TILE_SIZE;
+            } else if (currentDir.equals(EnumDir.BOTTOM_RIGHT)) {
+                currentPoint.x += AbstractTile.QUARTER_TILE_SIZE;
+                currentPoint.y += AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.x -= AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.y -= AbstractTile.QUARTER_TILE_SIZE;
+            } else if (currentDir.equals(EnumDir.TOP_LEFT)) {
+                currentPoint.x -= AbstractTile.QUARTER_TILE_SIZE;
+                currentPoint.y -= AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.x += AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.y += AbstractTile.QUARTER_TILE_SIZE;
+            } else if (currentDir.equals(EnumDir.BOTTOM_LEFT)) {
+                currentPoint.x -= AbstractTile.QUARTER_TILE_SIZE;
+                currentPoint.y += AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.x += AbstractTile.QUARTER_TILE_SIZE;
+                nextPoint.y -= AbstractTile.QUARTER_TILE_SIZE;
+            }
+            index += 1 + newPoints;
         }
     }
 }
