@@ -33,7 +33,6 @@ public class SimCore extends GameEngine {
             int tileX = (int) (event.getX() / (float) (AbstractTile.TILE_SIZE + 1));
             int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
             this.person.setTarget(new Point(tileX, tileY));
-            this.person.updatePath();
         } else if (event.isMiddleButton()) {
             int tileX = (int) (event.getX() / (float) (AbstractTile.TILE_SIZE + 1));
             int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
@@ -61,6 +60,6 @@ public class SimCore extends GameEngine {
 
     @Override
     protected void tickGame(int delta) {
-        // this.person.update();
+        this.person.update();
     }
 }

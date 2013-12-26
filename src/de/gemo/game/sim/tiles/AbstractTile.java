@@ -5,6 +5,10 @@ import java.awt.*;
 public abstract class AbstractTile {
 
     public static final int TILE_SIZE = 64;
+    public static final int HALF_TILE_SIZE = TILE_SIZE / 2;
+    public static final int QUARTER_TILE_SIZE = HALF_TILE_SIZE / 2;
+    public static final int TENTH_TILE_SIZE = TILE_SIZE / 10;
+    public static final int TWENTIETH_TILE_SIZE = TILE_SIZE / 20;
 
     private final String name;
     private final Color imgColor;
