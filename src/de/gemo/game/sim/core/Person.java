@@ -296,15 +296,16 @@ public class Person {
         this.smoothWalkPath();
         System.out.println("after smooth: " + this.walkPath.size());
 
+        // optimize the path
+        this.optimizeWalkPath();
+
         // round the corners
-        this.roundWalkPath(2);
+        this.roundWalkPath(4);
         System.out.println("smoothed: " + this.walkPath.size());
 
         // TODO: round diagonals
         // this.roundDiagonalWalkPath(1);
 
-        // optimize the path
-        this.optimizeWalkPath();
         System.out.println("optimized: " + this.walkPath.size());
 
         // update the waypoint
