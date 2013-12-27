@@ -24,12 +24,17 @@ public class Person {
     private int waitTicks = 0;
     private int blocked = 0;
 
+    private int refreshPathTicks = 0;
+
     private ArrayList<Point> walkPath = new ArrayList<Point>();
+
+    private org.newdawn.slick.Color pathColor;
 
     public Person(Level level, float x, float y) {
         this.level = level;
         this.setPosition(x, y);
         speed = random.nextFloat() * 1f + 0.5f;
+        this.pathColor = new org.newdawn.slick.Color(random.nextFloat(), random.nextFloat(), random.nextFloat(), 0.08f);
     }
 
     public float getAngle(Point other) {
@@ -67,6 +72,11 @@ public class Person {
     }
 
     public void update(int delta) {
+        this.refreshPathTicks--;
+        if (this.refreshPathTicks < 1) {
+            this.updatePath();
+        }
+
         if (this.currentWaypoint == null) {
             if (this.waitTicks < 5 || this.blocked > 0) {
                 this.updatePath();
@@ -238,7 +248,7 @@ public class Person {
             glLineWidth(1);
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
-            glColor4f(1, 1, 0, 0.08f);
+            this.pathColor.bind();
             glBegin(GL_LINES);
             {
                 glVertex2f(node.x, node.y);
@@ -246,24 +256,24 @@ public class Person {
             }
             glEnd();
         }
-        // for (int i = 0; i < this.walkPath.size() - 1; i++) {
-        // glPushMatrix();
-        // {
-        // Point node = this.walkPath.get(i);
-        // Point next = this.walkPath.get(i + 1);
-        // glLineWidth(1);
-        // glDisable(GL_LIGHTING);
-        // glEnable(GL_BLEND);
-        // glColor4f(1, 1, 0, 0.08f);
-        // glBegin(GL_LINES);
-        // {
-        // glVertex2f(node.x, node.y);
-        // glVertex2f(next.x, next.y);
-        // }
-        // glEnd();
-        // }
-        // glPopMatrix();
-        // }
+        for (int i = 0; i < this.walkPath.size() - 1; i++) {
+            glPushMatrix();
+            {
+                Point node = this.walkPath.get(i);
+                Point next = this.walkPath.get(i + 1);
+                glLineWidth(1);
+                glDisable(GL_LIGHTING);
+                glEnable(GL_BLEND);
+                this.pathColor.bind();
+                glBegin(GL_LINES);
+                {
+                    glVertex2f(node.x, node.y);
+                    glVertex2f(next.x, next.y);
+                }
+                glEnd();
+            }
+            glPopMatrix();
+        }
     }
 
     public boolean setTarget(Point goal) {
@@ -290,6 +300,7 @@ public class Person {
             PathRunnable runnable = new PathRunnable(level.createAreaMap(), start, goal, null);
             runnable.run();
             this.walkPath = runnable.getWalkPath();
+            this.refreshPathTicks = random.nextInt(60) + 60;
         }
         if (this.walkPath.size() > 0) {
             this.currentWaypoint = this.walkPath.get(0);

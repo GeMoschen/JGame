@@ -67,11 +67,10 @@ public class PathRunnable implements Runnable {
         this.walkPath.addAll(tilePath);
 
         // get corrected walkpath-infos
-        ArrayList<Point> newWalkPath = new ArrayList<Point>();
         for (Point node : this.walkPath) {
-            newWalkPath.add(new Point(node.x * AbstractTile.TILE_SIZE + node.x + AbstractTile.TILE_SIZE / 2, node.y * AbstractTile.TILE_SIZE + node.y + AbstractTile.TILE_SIZE / 2));
+            node.x = (int) (node.x * AbstractTile.TILE_SIZE + node.x + AbstractTile.TILE_SIZE / 2);
+            node.y = (int) (node.y * AbstractTile.TILE_SIZE + node.y + AbstractTile.TILE_SIZE / 2);
         }
-        this.walkPath = newWalkPath;
 
         // smooth the corners
         this.smoothWalkPath();
