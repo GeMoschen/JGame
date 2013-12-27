@@ -3,8 +3,6 @@ package de.gemo.pathfinding;
 import java.awt.*;
 import java.util.*;
 
-import de.gemo.game.sim.core.*;
-
 /**
  * The AreaMap holds information about the With, Height, Start position, Goal
  * position and Obstacles on the map. A place on the map is referred to by it's
@@ -37,17 +35,12 @@ public class AreaMap {
      *            a 2D int array map of the obstacles on the map. '1' is
      *            obstacle, '0' is not.
      */
-    public AreaMap(Level level) {
-        this.mapWidth = level.getDimX();
-        this.mapHeight = level.getDimY();
-        this.obstacleMap = new boolean[mapWidth][mapHeight];
-        this.costMap = new int[mapWidth][mapHeight];
-        for (int y = 0; y < this.mapHeight; y++) {
-            for (int x = 0; x < this.mapWidth; x++) {
-                this.obstacleMap[x][y] = level.getTile(x, y).isBlockingPath() || level.getTempBlockedValue(x, y) >= 1;
-                this.costMap[x][y] = level.getTempBlockedValue(x, y);
-            }
-        }
+
+    public AreaMap(int dimX, int dimY, boolean[][] obstacleMap, int[][] costMap) {
+        this.mapWidth = dimX;
+        this.mapHeight = dimY;
+        this.obstacleMap = obstacleMap;
+        this.costMap = costMap;
         this.maxEdgeLength = Math.max(this.mapWidth, this.mapHeight);
         createMap();
     }

@@ -66,7 +66,7 @@ public class Level {
 
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                if ((x % 8 == 0 || y % 8 == 0 || x == dimX - 1 || y == dimY - 1 || x == 0 || y == 0) && (x % 16 == 0 || y % 16 == 0)) {
+                if (x == 4 || y == 4 || x == dimX - 5 || y == dimY - 5 || x == 0 || y == 0 || x == dimX / 2 || x == dimX / 2 + 1 || y == dimY / 2 || y == dimY / 2 + 1) {
                     AbstractTile tile = TileManager.getTileByName("Blocked");
                     if (tile != null) {
                         this.setTile(x, y, tile);
@@ -136,8 +136,7 @@ public class Level {
     AStar star = null;
 
     public ArrayList<Point> getPath(Point start, Point goal) {
-        AreaMap areaMap = new AreaMap(this);
-        AStar star = new AStar(areaMap, new ClosestHeuristic(), false);
+        AStar star = new AStar(this.createAreaMap(), new ClosestHeuristic(), false);
         ArrayList<Point> list = star.calcShortestPath(start.x, start.y, goal.x, goal.y);
         return list;
     }
@@ -186,4 +185,15 @@ public class Level {
         return 10;
     }
 
+    public AreaMap createAreaMap() {
+        boolean[][] obstacleMap = new boolean[this.dimX][this.dimY];
+        int[][] costMap = new int[this.dimX][this.dimY];
+        for (int y = 0; y < this.dimY; y++) {
+            for (int x = 0; x < this.dimX; x++) {
+                obstacleMap[x][y] = this.getTile(x, y).isBlockingPath() || this.getTempBlockedValue(x, y) > 0;
+                costMap[x][y] = this.getTempBlockedValue(x, y);
+            }
+        }
+        return new AreaMap(this.dimX, this.dimY, obstacleMap, costMap);
+    }
 }
