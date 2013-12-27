@@ -2,34 +2,24 @@ package de.gemo.gameengine.core;
 
 import java.awt.Font;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.*;
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.PixelFormat;
-import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.glu.*;
+import org.newdawn.slick.*;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
 
-import de.gemo.gameengine.core.debug.AbstractDebugMonitor;
-import de.gemo.gameengine.core.debug.StandardDebugMonitor;
-import de.gemo.gameengine.events.keyboard.KeyEvent;
-import de.gemo.gameengine.events.mouse.MouseClickEvent;
-import de.gemo.gameengine.events.mouse.MouseDragEvent;
-import de.gemo.gameengine.events.mouse.MouseMoveEvent;
-import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
-import de.gemo.gameengine.events.mouse.MouseWheelEvent;
-import de.gemo.gameengine.gui.GUIElement;
-import de.gemo.gameengine.manager.FontManager;
-import de.gemo.gameengine.manager.GUIManager;
+import de.gemo.gameengine.core.debug.*;
+import de.gemo.gameengine.events.keyboard.*;
+import de.gemo.gameengine.events.mouse.*;
+import de.gemo.gameengine.gui.*;
+import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.manager.KeyboardManager;
-import de.gemo.gameengine.manager.MouseManager;
-import static org.lwjgl.opengl.ARBTextureRectangle.*;
 
+import static org.lwjgl.opengl.ARBTextureRectangle.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class GameEngine {

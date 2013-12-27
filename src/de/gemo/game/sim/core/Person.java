@@ -10,20 +10,27 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Person {
 
+    private static Random random = new Random();
+
     private float angle = 0;
     private float x = 0, y = 0;
     private int tileX = 0, tileY = 0;
     private Point goal = null;
     private Point currentWaypoint = null;
     private int waypointIndex = 0;
+    private float speed = 0;
 
     private final Level level;
+
+    private int waitTicks = 0;
+    private int blocked = 0;
 
     private ArrayList<Point> walkPath = new ArrayList<Point>();
 
     public Person(Level level, float x, float y) {
         this.level = level;
         this.setPosition(x, y);
+        speed = random.nextFloat() * 1f + random.nextFloat() * 1f + 0.5f;
     }
 
     public float getAngle(Point other) {
@@ -44,25 +51,47 @@ public class Person {
     }
 
     public void setPosition(float x, float y) {
+        int oldTileX = this.tileX;
+        int oldTileY = this.tileY;
         this.x = x;
         this.y = y;
         this.tileX = (int) (x / (float) (AbstractTile.TILE_SIZE + 1));
         this.tileY = (int) (y / (float) (AbstractTile.TILE_SIZE + 1));
+        if (oldTileX != this.tileX || oldTileY != this.tileY) {
+            this.level.modifyTempBlocked(oldTileX, oldTileY, -1);
+            this.level.modifyTempBlocked(tileX, tileY, 1);
+        }
     }
 
     public void move(float x, float y) {
         this.setPosition(this.x + x, this.y + y);
     }
 
-    public void update() {
+    public void update(int delta) {
+
         if (this.currentWaypoint == null) {
+            if (this.waitTicks < 10 || this.blocked > 0) {
+                this.updatePath();
+                this.blocked = 0;
+                this.waitTicks = random.nextInt(40);
+            } else {
+                this.waitTicks--;
+            }
             return;
         }
 
+        if (this.waitTicks > 0) {
+            this.waitTicks--;
+            return;
+        }
+
+        if (delta < 1)
+            delta = 1;
+
         this.angle = this.getAngle(this.currentWaypoint);
 
-        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * 3);
-        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * 3);
+        float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * speed);
+        float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * speed);
 
         float movedX = this.x + mX;
         float movedY = this.y + mY;
@@ -72,35 +101,54 @@ public class Person {
             this.updatePath();
             return;
         }
+
+        if (this.tileX != movedTX || this.tileY != movedTY) {
+            if (this.blocked > 2) {
+                this.updatePath();
+                this.blocked = 0;
+                this.waitTicks = random.nextInt(40);
+                return;
+            }
+            // at least 2 persons are on the tile
+            if (this.level.getTempBlockedValue(movedTX, movedTY) > 0) {
+                this.waitTicks = random.nextInt(40);
+                this.blocked++;
+                return;
+            }
+        }
+
+        // move the person
         this.move(mX, mY);
 
-        // reached current waypoint, so update
-        float distance = (float) Math.abs(Math.sqrt(Math.pow(this.currentWaypoint.x - x, 2) + Math.pow(this.currentWaypoint.y - y, 2)));
-
-        if (distance <= AbstractTile.TENTH_TILE_SIZE || distance < Math.max(mX, mY)) {
+        float moveDistance = (float) Math.sqrt(Math.pow(mX, 2) + Math.pow(mY, 2));
+        float distanceToWP = (float) Math.sqrt(Math.pow(this.currentWaypoint.x - x, 2) + Math.pow(this.currentWaypoint.y - y, 2));
+        if (distanceToWP <= AbstractTile.TENTH_TILE_SIZE || distanceToWP <= moveDistance * 1.2f || goal.x == tileX && goal.y == tileY) {
             this.waypointIndex++;
             if (this.waypointIndex < this.walkPath.size()) {
                 this.currentWaypoint = this.walkPath.get(this.waypointIndex);
                 this.angle = this.getAngle(this.currentWaypoint);
+                return;
             } else {
                 this.currentWaypoint = null;
                 this.waypointIndex = 0;
 
                 // for testpurposes: find a new random target
-
-                Random random = new Random();
-                int x = random.nextInt(this.level.getDimX());
-                int y = random.nextInt(this.level.getDimY());
-                do {
-                    x = random.nextInt(this.level.getDimX());
-                    y = random.nextInt(this.level.getDimY());
-                    while (this.level.getTile(x, y).isBlockingPath()) {
-                        x = random.nextInt(this.level.getDimX());
-                        y = random.nextInt(this.level.getDimY());
-                    }
-                } while (!this.setTarget(new Point(x, y)));
+                this.findRandomTarget();
             }
         }
+    }
+
+    public void findRandomTarget() {
+        int x = random.nextInt(this.level.getDimX());
+        int y = random.nextInt(this.level.getDimY());
+        do {
+            x = random.nextInt(this.level.getDimX());
+            y = random.nextInt(this.level.getDimY());
+            while (this.level.getTile(x, y).isBlockingPath()) {
+                x = random.nextInt(this.level.getDimX());
+                y = random.nextInt(this.level.getDimY());
+            }
+        } while (!this.setTarget(new Point(x, y)));
     }
 
     public void render() {
@@ -112,22 +160,26 @@ public class Person {
             glTranslatef(x, y, 0);
             glRotatef(this.angle, 0, 0, 1);
 
+            int size = 3;
             glColor3f(1, 0, 0);
+            if (this.waitTicks > 0) {
+                glColor4f(1f, 1f, 1f, 1f / this.blocked);
+            }
             glBegin(GL_QUADS);
             {
-                glVertex2i(-5, -5);
-                glVertex2i(+5, -5);
-                glVertex2i(+5, +5);
-                glVertex2i(-5, +5);
+                glVertex2i(-size, -size);
+                glVertex2i(+size, -size);
+                glVertex2i(+size, +size);
+                glVertex2i(-size, +size);
             }
             glEnd();
 
             // viewLine
-            glColor3f(0, 1, 0);
+            glColor3f(1, 1, 1);
             glBegin(GL_LINES);
             {
                 glVertex2i(0, 0);
-                glVertex2i(10, 0);
+                glVertex2i(size + 3, 0);
             }
             glEnd();
         }
@@ -136,10 +188,10 @@ public class Person {
         // render walkpath
         this.renderWalkPath();
 
-        this.renderSingle(tileX, tileY, 1, 1, 0, 0.2f);
-        if (this.goal != null) {
-            this.renderSingle(goal.x, goal.y, 0, 1, 0, 0.2f);
-        }
+        // this.renderSingle(tileX, tileY, 1, 1, 0, 0.2f);
+        // if (this.goal != null) {
+        // this.renderSingle(goal.x, goal.y, 0, 1, 0, 0.2f);
+        // }
     }
 
     private void renderSingle(int x, int y, float r, float g, float b, float a) {
@@ -163,25 +215,25 @@ public class Person {
     }
 
     private void renderWalkPath() {
-        for (int i = 0; i < this.walkPath.size(); i++) {
-            glPushMatrix();
-            {
-                Point node = this.walkPath.get(i);
-                glLineWidth(1);
-                glDisable(GL_LIGHTING);
-                glEnable(GL_BLEND);
-                glColor4f(0, 1, 1, 1f);
-                glBegin(GL_LINE_LOOP);
-                {
-                    glVertex2f(node.x - 1, node.y - 1);
-                    glVertex2f(node.x + 1, node.y - 1);
-                    glVertex2f(node.x + 1, node.y + 1);
-                    glVertex2f(node.x - 1, node.y + 1);
-                }
-                glEnd();
-            }
-            glPopMatrix();
-        }
+        // for (int i = 0; i < this.walkPath.size(); i++) {
+        // glPushMatrix();
+        // {
+        // Point node = this.walkPath.get(i);
+        // glLineWidth(1);
+        // glDisable(GL_LIGHTING);
+        // glEnable(GL_BLEND);
+        // glColor4f(0, 1, 1, 1f);
+        // glBegin(GL_LINE_LOOP);
+        // {
+        // glVertex2f(node.x - 1, node.y - 1);
+        // glVertex2f(node.x + 1, node.y - 1);
+        // glVertex2f(node.x + 1, node.y + 1);
+        // glVertex2f(node.x - 1, node.y + 1);
+        // }
+        // glEnd();
+        // }
+        // glPopMatrix();
+        // }
 
         for (int i = 0; i < this.walkPath.size() - 1; i++) {
             glPushMatrix();
@@ -191,7 +243,7 @@ public class Person {
                 glLineWidth(1);
                 glDisable(GL_LIGHTING);
                 glEnable(GL_BLEND);
-                glColor4f(1, 1, 0, 0.2f);
+                glColor4f(1, 1, 0, 0.08f);
                 glBegin(GL_LINES);
                 {
                     glVertex2f(node.x, node.y);
@@ -297,10 +349,10 @@ public class Person {
         this.optimizeWalkPath();
 
         // round the corners
-        this.roundWalkPath(1);
+        this.roundWalkPath(2);
 
         // round diagonals
-        this.roundDiagonalWalkPath(1);
+        this.roundDiagonalWalkPath();
 
         // update the waypoint
         this.currentWaypoint = this.walkPath.get(0);
@@ -478,7 +530,7 @@ public class Person {
         }
     }
 
-    private void roundDiagonalWalkPath(int count) {
+    private void roundDiagonalWalkPath() {
         for (int index = 1; index < this.walkPath.size() - 2; index++) {
             EnumDir currentDir = this.getWalkDirection(this.walkPath.get(index), this.walkPath.get(index + 1));
 
@@ -499,41 +551,39 @@ public class Person {
 
             int newPoints = 0;
             int MOVEMENT = AbstractTile.HALF_TILE_SIZE;
-
+            Point actualCurrent = null, actualNext = null;
+            int dXActual = 0, dYActual = 0;
+            int dXNext = 0, dYNext = 0;
             if (lastDir.isLine()) {
-                Point actualCurrent = new Point(currentPoint);
-                int dX = 0;
-                int dY = 0;
+                actualCurrent = new Point(currentPoint);
                 if (lastDir.equals(EnumDir.TOP)) {
-                    dY += MOVEMENT;
+                    dYActual += MOVEMENT;
                 } else if (lastDir.equals(EnumDir.BOTTOM)) {
-                    dY -= MOVEMENT;
+                    dYActual -= MOVEMENT;
                 } else if (lastDir.equals(EnumDir.LEFT)) {
-                    dX += MOVEMENT;
+                    dXActual += MOVEMENT;
                 } else if (lastDir.equals(EnumDir.RIGHT)) {
-                    dX -= MOVEMENT;
+                    dXActual -= MOVEMENT;
                 }
-                actualCurrent.x += dX;
-                actualCurrent.y += dY;
+                actualCurrent.x += dXActual;
+                actualCurrent.y += dYActual;
                 this.walkPath.add(index, actualCurrent);
-                newPoints++;
+                newPoints += 1;
             }
 
             if (nextDir.isLine()) {
-                Point actualNext = new Point(nextPoint);
-                int dX = 0;
-                int dY = 0;
+                actualNext = new Point(nextPoint);
                 if (nextDir.equals(EnumDir.TOP)) {
-                    dY -= MOVEMENT;
+                    dYNext -= MOVEMENT;
                 } else if (nextDir.equals(EnumDir.BOTTOM)) {
-                    dY += MOVEMENT;
+                    dYNext += MOVEMENT;
                 } else if (nextDir.equals(EnumDir.LEFT)) {
-                    dX -= MOVEMENT;
+                    dXNext -= MOVEMENT;
                 } else if (nextDir.equals(EnumDir.RIGHT)) {
-                    dX += MOVEMENT;
+                    dXNext += MOVEMENT;
                 }
-                actualNext.x += dX;
-                actualNext.y += dY;
+                actualNext.x += dXNext;
+                actualNext.y += dYNext;
                 this.walkPath.add(index + 3, actualNext);
                 newPoints++;
             }
@@ -559,6 +609,24 @@ public class Person {
                 nextPoint.x += AbstractTile.QUARTER_TILE_SIZE;
                 nextPoint.y -= AbstractTile.QUARTER_TILE_SIZE;
             }
+
+            if (lastDir.isLine()) {
+                Point betweenPoint = new Point(actualCurrent);
+                Point afterPoint = new Point(currentPoint);
+                betweenPoint.x += ((afterPoint.x - betweenPoint.x) / 2) - (dXActual / 3);
+                betweenPoint.y += ((afterPoint.y - betweenPoint.y) / 2) - (dYActual / 3);
+                this.walkPath.add(index + 1, betweenPoint);
+                newPoints++;
+            }
+            if (nextDir.isLine()) {
+                Point betweenPoint = new Point(actualNext);
+                Point afterPoint = new Point(nextPoint);
+                betweenPoint.x += ((afterPoint.x - betweenPoint.x) / 2) - (dXNext / 3);
+                betweenPoint.y += ((afterPoint.y - betweenPoint.y) / 2) - (dYNext / 3);
+                this.walkPath.add(index + 4, betweenPoint);
+                newPoints++;
+            }
+
             index += 1 + newPoints;
         }
     }

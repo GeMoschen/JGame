@@ -22,6 +22,7 @@ public class AreaMap {
     private int goalLocationX = 0;
     private int goalLocationY = 0;
     private boolean[][] obstacleMap = { { false } };
+    private int[][] costMap = { { 0 } };
 
     /**
      * Class constructor specifying the With, Height and Obstacles of the map.
@@ -40,9 +41,11 @@ public class AreaMap {
         this.mapWidth = level.getDimX();
         this.mapHeight = level.getDimY();
         this.obstacleMap = new boolean[mapWidth][mapHeight];
+        this.costMap = new int[mapWidth][mapHeight];
         for (int y = 0; y < this.mapHeight; y++) {
             for (int x = 0; x < this.mapWidth; x++) {
-                this.obstacleMap[x][y] = level.getTile(x, y).isBlockingPath();
+                this.obstacleMap[x][y] = level.getTile(x, y).isBlockingPath() || level.getTempBlockedValue(x, y) >= 1;
+                this.costMap[x][y] = level.getTempBlockedValue(x, y);
             }
         }
         this.maxEdgeLength = Math.max(this.mapWidth, this.mapHeight);
@@ -61,8 +64,9 @@ public class AreaMap {
             for (int y = 0; y < mapHeight; y++) {
                 node = new Node(x, y, this);
                 try {
-                    if (obstacleMap[x][y])
+                    if (obstacleMap[x][y]) {
                         node.setObstical(true);
+                    }
                 } catch (Exception e) {
                 }
                 map.get(x).add(node);
@@ -141,10 +145,10 @@ public class AreaMap {
     public float getDistanceBetween(Node node1, Node node2) {
         // if the nodes are on top or next to each other, return 1
         if (node1.getX() == node2.getX() || node1.getY() == node2.getY()) {
-            return 1;// *(mapHeight+mapWith);
+            return 1 + this.costMap[node2.x][node2.y] * 4;// *(mapHeight+mapWith);
         } else { // if they are diagonal to each other return diagonal distance:
                  // sqrt(1^2+1^2)
-            return (float) 1.9;// *(mapHeight+mapWith);
+            return (float) 1.9 + this.costMap[node2.x][node2.y] * 4;// *(mapHeight+mapWith);
         }
     }
 
