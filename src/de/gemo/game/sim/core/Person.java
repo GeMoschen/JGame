@@ -73,7 +73,7 @@ public class Person {
 
     public void update(int delta) {
         this.refreshPathTicks--;
-        if (this.refreshPathTicks < 1) {
+        if (this.refreshPathTicks < 1 && this.goal != null) {
             this.updatePath();
         }
 
