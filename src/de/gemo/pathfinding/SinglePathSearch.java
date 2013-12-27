@@ -7,7 +7,7 @@ import de.gemo.game.sim.core.*;
 import de.gemo.game.sim.tiles.*;
 import de.gemo.gameengine.units.Vector;
 
-public class PathRunnable implements Runnable {
+public class SinglePathSearch {
 
     private AStar star = null;
     private ArrayList<Point> walkPath = new ArrayList<Point>();
@@ -16,15 +16,14 @@ public class PathRunnable implements Runnable {
     private boolean searchDone = false;
     private PathFinishListener listener = null;
 
-    public PathRunnable(AreaMap areaMap, Point start, Point goal, PathFinishListener listener) {
+    public SinglePathSearch(AreaMap areaMap, Point start, Point goal, PathFinishListener listener) {
         this.star = new AStar(areaMap, new DiagonalHeuristic(), false);
         this.start = start;
         this.goal = goal;
         this.listener = listener;
     }
 
-    @Override
-    public synchronized void run() {
+    public void run() {
         // init search
         this.searchDone = false;
         this.pathFound = false;
@@ -45,7 +44,6 @@ public class PathRunnable implements Runnable {
                 this.listener.onSearchUnsuccessful(start, goal);
             }
         }
-
     }
 
     public synchronized boolean isSearchDone() {
@@ -396,7 +394,7 @@ public class PathRunnable implements Runnable {
         }
     }
 
-    public ArrayList<Point> getWalkPath() {
+    public synchronized ArrayList<Point> getWalkPath() {
         return walkPath;
     }
 

@@ -10,7 +10,17 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Person {
 
+    private static PathThread[] pathThreads;
+    private static int IDcount = 1;
     private static Random random = new Random();
+
+    static {
+        pathThreads = new PathThread[4];
+        for (int index = 0; index < pathThreads.length; index++) {
+            pathThreads[index] = new PathThread();
+            new Thread(pathThreads[index]).start();
+        }
+    }
 
     private float angle = 0;
     private float x = 0, y = 0;
@@ -25,6 +35,8 @@ public class Person {
     private int blocked = 0;
 
     private int refreshPathTicks = 0;
+    private int ID = 0;
+    private int threadID = -1;
 
     private ArrayList<Point> walkPath = new ArrayList<Point>();
 
@@ -35,23 +47,8 @@ public class Person {
         this.setPosition(x, y);
         speed = random.nextFloat() * 1f + 0.5f;
         this.pathColor = new org.newdawn.slick.Color(random.nextFloat(), random.nextFloat(), random.nextFloat(), 0.08f);
-    }
-
-    public float getAngle(Point other) {
-        double dx = other.getX() - x;
-        // Minus to correct for coord re-mapping
-        double dy = -(other.getY() - y);
-
-        double inRads = Math.atan2(dy, dx);
-
-        // We need to map to coord system when 0 degree is at 3 O'clock, 270 at
-        // 12 O'clock
-        if (inRads < 0)
-            inRads = Math.abs(inRads);
-        else
-            inRads = 2 * Math.PI - inRads;
-
-        return (float) Math.toDegrees(inRads);
+        this.ID = IDcount++;
+        this.threadID = random.nextInt(pathThreads.length);
     }
 
     public void setPosition(float x, float y) {
@@ -71,17 +68,38 @@ public class Person {
         this.setPosition(this.x + x, this.y + y);
     }
 
+    public float getAngleToOtherPoint(Point other) {
+        double dx = other.getX() - x;
+        // Minus to correct for coord re-mapping
+        double dy = -(other.getY() - y);
+
+        double inRads = Math.atan2(dy, dx);
+
+        // We need to map to coord system when 0 degree is at 3 O'clock, 270 at
+        // 12 O'clock
+        if (inRads < 0)
+            inRads = Math.abs(inRads);
+        else
+            inRads = 2 * Math.PI - inRads;
+
+        return (float) Math.toDegrees(inRads);
+    }
+
     public void update(int delta) {
+        // if (this.refreshPathTicks < 1) {
+        this.checkPathSearch();
+        // }
+
         this.refreshPathTicks--;
         if (this.refreshPathTicks < 1 && this.goal != null) {
             this.updatePath();
         }
 
         if (this.currentWaypoint == null) {
-            if (this.waitTicks < 5 || this.blocked > 0) {
+            if (this.waitTicks < 10 || this.blocked > 0) {
                 this.updatePath();
                 this.blocked = 0;
-                this.waitTicks = random.nextInt(10);
+                this.waitTicks = random.nextInt(30);
             } else {
                 this.waitTicks--;
             }
@@ -96,7 +114,7 @@ public class Person {
         if (delta < 1)
             delta = 1;
 
-        this.angle = this.getAngle(this.currentWaypoint);
+        this.angle = this.getAngleToOtherPoint(this.currentWaypoint);
 
         float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * speed);
         float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * speed);
@@ -111,15 +129,15 @@ public class Person {
                 return;
             }
             if (this.tileX != movedTX || this.tileY != movedTY) {
-                if (this.blocked > 2) {
+                if (this.blocked > 5) {
                     this.updatePath();
                     this.blocked = 0;
-                    this.waitTicks = random.nextInt(10);
+                    this.waitTicks = random.nextInt(30);
                     return;
                 }
                 // at least 2 persons are on the tile
                 if (this.level.getTempBlockedValue(movedTX, movedTY) > 0) {
-                    this.waitTicks = random.nextInt(10);
+                    this.waitTicks = random.nextInt(30);
                     this.blocked++;
                     return;
                 }
@@ -135,7 +153,7 @@ public class Person {
             this.walkPath.remove(0);
             if (this.walkPath.size() > 0) {
                 this.currentWaypoint = this.walkPath.get(0);
-                this.angle = this.getAngle(this.currentWaypoint);
+                this.angle = this.getAngleToOtherPoint(this.currentWaypoint);
                 return;
             } else {
                 this.currentWaypoint = null;
@@ -148,14 +166,11 @@ public class Person {
     public void findRandomTarget() {
         int x = random.nextInt(this.level.getDimX());
         int y = random.nextInt(this.level.getDimY());
-        do {
+        while (this.level.getTile(x, y).isBlockingPath()) {
             x = random.nextInt(this.level.getDimX());
             y = random.nextInt(this.level.getDimY());
-            while (this.level.getTile(x, y).isBlockingPath()) {
-                x = random.nextInt(this.level.getDimX());
-                y = random.nextInt(this.level.getDimY());
-            }
-        } while (!this.setTarget(new Point(x, y)));
+        }
+        this.setTarget(new Point(x, y));
     }
 
     public void render() {
@@ -256,58 +271,62 @@ public class Person {
             }
             glEnd();
         }
-        for (int i = 0; i < this.walkPath.size() - 1; i++) {
-            glPushMatrix();
-            {
-                Point node = this.walkPath.get(i);
-                Point next = this.walkPath.get(i + 1);
-                glLineWidth(1);
-                glDisable(GL_LIGHTING);
-                glEnable(GL_BLEND);
-                this.pathColor.bind();
-                glBegin(GL_LINES);
-                {
-                    glVertex2f(node.x, node.y);
-                    glVertex2f(next.x, next.y);
-                }
-                glEnd();
-            }
-            glPopMatrix();
-        }
+        // for (int i = 0; i < this.walkPath.size() - 1; i++) {
+        // glPushMatrix();
+        // {
+        // Point node = this.walkPath.get(i);
+        // Point next = this.walkPath.get(i + 1);
+        // glLineWidth(1);
+        // glDisable(GL_LIGHTING);
+        // glEnable(GL_BLEND);
+        // this.pathColor.bind();
+        // glBegin(GL_LINES);
+        // {
+        // glVertex2f(node.x, node.y);
+        // glVertex2f(next.x, next.y);
+        // }
+        // glEnd();
+        // }
+        // glPopMatrix();
+        // }
     }
 
-    public boolean setTarget(Point goal) {
+    public void setTarget(Point goal) {
         this.goal = goal;
-        if (this.updatePath()) {
-            this.currentWaypoint = this.walkPath.get(0);
-            this.angle = this.getAngle(this.currentWaypoint);
-            return true;
-        }
-        return false;
+        this.updatePath();
     }
 
-    public boolean updatePath() {
-        this.currentWaypoint = null;
-
+    public void updatePath() {
         if (this.goal == null) {
-            return false;
+            return;
         }
 
         Point start = new Point(this.tileX, this.tileY);
         AbstractTile startTile = this.level.getTile(this.tileX, this.tileY);
         AbstractTile goalTile = this.level.getTile(goal.x, goal.y);
         if (startTile != null && goalTile != null && !startTile.isBlockingPath() && !goalTile.isBlockingPath() && start != goal) {
-            PathRunnable runnable = new PathRunnable(level.createAreaMap(), start, goal, null);
-            runnable.run();
+            SinglePathSearch runnable = new SinglePathSearch(level.createAreaMap(), start, goal, null);
+            pathThreads[this.threadID].queue(this.ID, runnable);
+            this.refreshPathTicks = random.nextInt(30);
+        }
+    }
+
+    private void checkPathSearch() {
+        SinglePathSearch runnable = pathThreads[this.threadID].poll(this.ID);
+        if (runnable == null) {
+            return;
+        }
+
+        if (runnable.isSearchDone()) {
             this.walkPath = runnable.getWalkPath();
-            this.refreshPathTicks = random.nextInt(60) + 60;
+            this.refreshPathTicks = random.nextInt(30);
+            if (runnable.isPathFound()) {
+                this.currentWaypoint = this.walkPath.get(0);
+                this.angle = this.getAngleToOtherPoint(this.currentWaypoint);
+            } else {
+                this.currentWaypoint = null;
+            }
         }
-        if (this.walkPath.size() > 0) {
-            this.currentWaypoint = this.walkPath.get(0);
-            this.angle = this.getAngle(this.currentWaypoint);
-            return true;
-        }
-        return false;
     }
 
 }

@@ -186,14 +186,6 @@ public class Level {
     }
 
     public AreaMap createAreaMap() {
-        boolean[][] obstacleMap = new boolean[this.dimX][this.dimY];
-        int[][] costMap = new int[this.dimX][this.dimY];
-        for (int y = 0; y < this.dimY; y++) {
-            for (int x = 0; x < this.dimX; x++) {
-                obstacleMap[x][y] = this.getTile(x, y).isBlockingPath() || this.getTempBlockedValue(x, y) > 0;
-                costMap[x][y] = this.getTempBlockedValue(x, y);
-            }
-        }
-        return new AreaMap(this.dimX, this.dimY, obstacleMap, costMap);
+        return new AreaMap(this.dimX, this.dimY, Arrays.copyOf(this.blocked, this.blocked.length), Arrays.copyOf(this.tempBlocked, this.tempBlocked.length));
     }
 }

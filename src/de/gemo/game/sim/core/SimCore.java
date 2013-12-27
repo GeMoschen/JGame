@@ -1,7 +1,13 @@
 package de.gemo.game.sim.core;
 
+import java.util.*;
+
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
+
 import de.gemo.game.sim.tiles.*;
 import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.events.keyboard.*;
 import de.gemo.gameengine.events.mouse.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -18,8 +24,26 @@ public class SimCore extends GameEngine {
     protected void createManager() {
         TileManager.initialize();
         level = new Level(113, 85);
-        for (int i = 0; i < 200; i++) {
-            this.level.addPerson(new Person(level, AbstractTile.TILE_SIZE * i + AbstractTile.HALF_TILE_SIZE, AbstractTile.TILE_SIZE * i + AbstractTile.HALF_TILE_SIZE));
+        // int x = 1;
+    }
+
+    int oldDragX = -1;
+    int oldDragY = -1;
+
+    @Override
+    public void onMouseDrag(boolean handled, MouseDragEvent event) {
+        if (event.isMiddleButton()) {
+            int tileX = (int) (event.getX() / (float) (AbstractTile.TILE_SIZE + 1));
+            int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
+            if (oldDragX != tileX || oldDragY != tileY) {
+                oldDragX = tileX;
+                oldDragY = tileY;
+                if (level.getTile(tileX, tileY).isBlockingPath()) {
+                    level.setTile(tileX, tileY, TileManager.getTileByName("Empty"));
+                } else {
+                    level.setTile(tileX, tileY, TileManager.getTileByName("Blocked"));
+                }
+            }
         }
     }
 
@@ -34,19 +58,23 @@ public class SimCore extends GameEngine {
             for (Person person : this.level.getPersons()) {
                 person.findRandomTarget();
             }
-        } else if (event.isMiddleButton()) {
-            int tileX = (int) (event.getX() / (float) (AbstractTile.TILE_SIZE + 1));
-            int tileY = (int) (event.getY() / (float) (AbstractTile.TILE_SIZE + 1));
-            if (level.getTile(tileX, tileY).isBlockingPath()) {
-                level.setTile(tileX, tileY, TileManager.getTileByName("Empty"));
-            } else {
-                level.setTile(tileX, tileY, TileManager.getTileByName("Blocked"));
+        }
+    }
+
+    @Override
+    public void onKeyReleased(KeyEvent event) {
+        if (event.getKey() == Keyboard.KEY_SPACE) {
+            Random random = new Random();
+            for (int i = 0; i < 50; i++) {
+                this.level.addPerson(new Person(level, AbstractTile.TILE_SIZE * random.nextInt(level.getDimX()) + AbstractTile.HALF_TILE_SIZE, AbstractTile.TILE_SIZE * random.nextInt(level.getDimY()) + AbstractTile.HALF_TILE_SIZE));
             }
+            System.out.println("count: " + this.level.getPersons().size());
         }
     }
 
     @Override
     protected void renderGame2D() {
+        Display.setTitle("FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
         glDisable(GL_TEXTURE_2D);
         glPushMatrix();
         {
