@@ -17,7 +17,6 @@ public class Person {
     private int tileX = 0, tileY = 0;
     private Point goal = null;
     private Point currentWaypoint = null;
-    private int waypointIndex = 0;
     private float speed = 0;
 
     private final Level level;
@@ -30,7 +29,7 @@ public class Person {
     public Person(Level level, float x, float y) {
         this.level = level;
         this.setPosition(x, y);
-        speed = random.nextFloat() * 1f + random.nextFloat() * 1f + 0.5f;
+        speed = random.nextFloat() * 1f + 0.5f;
     }
 
     public float getAngle(Point other) {
@@ -73,7 +72,7 @@ public class Person {
             if (this.waitTicks < 10 || this.blocked > 0) {
                 this.updatePath();
                 this.blocked = 0;
-                this.waitTicks = random.nextInt(40);
+                this.waitTicks = random.nextInt(30);
             } else {
                 this.waitTicks--;
             }
@@ -93,27 +92,28 @@ public class Person {
         float mX = (float) (Math.sin(Math.toRadians(this.angle + 90)) * speed);
         float mY = (float) (-Math.cos(Math.toRadians(this.angle + 90)) * speed);
 
-        float movedX = this.x + mX;
-        float movedY = this.y + mY;
-        int movedTX = (int) (movedX / (float) (AbstractTile.TILE_SIZE + 1));
-        int movedTY = (int) (movedY / (float) (AbstractTile.TILE_SIZE + 1));
-        if (this.level.getTile(movedTX, movedTY).isBlockingPath()) {
-            this.updatePath();
-            return;
-        }
-
-        if (this.tileX != movedTX || this.tileY != movedTY) {
-            if (this.blocked > 2) {
+        for (int iterations = 1; iterations <= 1; iterations += 1) {
+            float movedX = this.x + mX * iterations;
+            float movedY = this.y + mY * iterations;
+            int movedTX = (int) (movedX / (float) (AbstractTile.TILE_SIZE + 1));
+            int movedTY = (int) (movedY / (float) (AbstractTile.TILE_SIZE + 1));
+            if (this.level.getTile(movedTX, movedTY).isBlockingPath()) {
                 this.updatePath();
-                this.blocked = 0;
-                this.waitTicks = random.nextInt(40);
                 return;
             }
-            // at least 2 persons are on the tile
-            if (this.level.getTempBlockedValue(movedTX, movedTY) > 0) {
-                this.waitTicks = random.nextInt(40);
-                this.blocked++;
-                return;
+            if (this.tileX != movedTX || this.tileY != movedTY) {
+                if (this.blocked > 1) {
+                    this.updatePath();
+                    this.blocked = 0;
+                    this.waitTicks = random.nextInt(30);
+                    return;
+                }
+                // at least 2 persons are on the tile
+                if (this.level.getTempBlockedValue(movedTX, movedTY) > 0) {
+                    this.waitTicks = random.nextInt(30);
+                    this.blocked++;
+                    return;
+                }
             }
         }
 
@@ -123,15 +123,13 @@ public class Person {
         float moveDistance = (float) Math.sqrt(Math.pow(mX, 2) + Math.pow(mY, 2));
         float distanceToWP = (float) Math.sqrt(Math.pow(this.currentWaypoint.x - x, 2) + Math.pow(this.currentWaypoint.y - y, 2));
         if (distanceToWP <= AbstractTile.TENTH_TILE_SIZE || distanceToWP <= moveDistance * 1.2f || goal.x == tileX && goal.y == tileY) {
-            this.waypointIndex++;
-            if (this.waypointIndex < this.walkPath.size()) {
-                this.currentWaypoint = this.walkPath.get(this.waypointIndex);
+            this.walkPath.remove(0);
+            if (this.walkPath.size() > 0) {
+                this.currentWaypoint = this.walkPath.get(0);
                 this.angle = this.getAngle(this.currentWaypoint);
                 return;
             } else {
                 this.currentWaypoint = null;
-                this.waypointIndex = 0;
-
                 // for testpurposes: find a new random target
                 this.findRandomTarget();
             }
@@ -160,7 +158,7 @@ public class Person {
             glTranslatef(x, y, 0);
             glRotatef(this.angle, 0, 0, 1);
 
-            int size = 3;
+            int size = 2;
             glColor3f(1, 0, 0);
             if (this.waitTicks > 0) {
                 glColor4f(1f, 1f, 1f, 1f / this.blocked);
@@ -235,24 +233,38 @@ public class Person {
         // glPopMatrix();
         // }
 
-        for (int i = 0; i < this.walkPath.size() - 1; i++) {
-            glPushMatrix();
+        if (this.walkPath.size() > 0) {
+            Point node = new Point((int) x, (int) y);
+            Point next = this.walkPath.get(0);
+            glLineWidth(1);
+            glDisable(GL_LIGHTING);
+            glEnable(GL_BLEND);
+            glColor4f(1, 1, 0, 0.08f);
+            glBegin(GL_LINES);
             {
-                Point node = this.walkPath.get(i);
-                Point next = this.walkPath.get(i + 1);
-                glLineWidth(1);
-                glDisable(GL_LIGHTING);
-                glEnable(GL_BLEND);
-                glColor4f(1, 1, 0, 0.08f);
-                glBegin(GL_LINES);
-                {
-                    glVertex2f(node.x, node.y);
-                    glVertex2f(next.x, next.y);
-                }
-                glEnd();
+                glVertex2f(node.x, node.y);
+                glVertex2f(next.x, next.y);
             }
-            glPopMatrix();
+            glEnd();
         }
+        // for (int i = 0; i < this.walkPath.size() - 1; i++) {
+        // glPushMatrix();
+        // {
+        // Point node = this.walkPath.get(i);
+        // Point next = this.walkPath.get(i + 1);
+        // glLineWidth(1);
+        // glDisable(GL_LIGHTING);
+        // glEnable(GL_BLEND);
+        // glColor4f(1, 1, 0, 0.08f);
+        // glBegin(GL_LINES);
+        // {
+        // glVertex2f(node.x, node.y);
+        // glVertex2f(next.x, next.y);
+        // }
+        // glEnd();
+        // }
+        // glPopMatrix();
+        // }
     }
 
     public boolean setTarget(Point goal) {
@@ -267,7 +279,6 @@ public class Person {
 
     public boolean updatePath() {
         this.currentWaypoint = null;
-        this.waypointIndex = 0;
 
         if (this.goal == null) {
             return false;

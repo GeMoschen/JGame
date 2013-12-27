@@ -17,8 +17,8 @@ public class SimCore extends GameEngine {
     @Override
     protected void createManager() {
         TileManager.initialize();
-        level = new Level(60, 45);
-        for (int i = 0; i < 50; i++) {
+        level = new Level(113, 85);
+        for (int i = 0; i < 200; i++) {
             this.level.addPerson(new Person(level, AbstractTile.TILE_SIZE * i + AbstractTile.HALF_TILE_SIZE, AbstractTile.TILE_SIZE * i + AbstractTile.HALF_TILE_SIZE));
         }
     }

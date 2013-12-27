@@ -5,7 +5,6 @@ import java.awt.image.*;
 import java.util.*;
 
 import de.gemo.game.sim.tiles.*;
-import de.gemo.gameengine.manager.*;
 import de.gemo.pathfinding.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -67,13 +66,13 @@ public class Level {
 
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                if (x != 4 && y != 4 && x != dimX - 4 && y != dimY - 4 && x != dimX / 2 && y != dimY / 2) {
-                    AbstractTile tile = TileManager.getTileByName("Empty");
+                if ((x % 8 == 0 || y % 8 == 0 || x == dimX - 1 || y == dimY - 1 || x == 0 || y == 0) && (x % 16 == 0 || y % 16 == 0)) {
+                    AbstractTile tile = TileManager.getTileByName("Blocked");
                     if (tile != null) {
                         this.setTile(x, y, tile);
                     }
                 } else {
-                    AbstractTile tile = TileManager.getTileByName("Blocked");
+                    AbstractTile tile = TileManager.getTileByName("Empty");
                     if (tile != null) {
                         this.setTile(x, y, tile);
                     }
@@ -166,13 +165,9 @@ public class Level {
     }
 
     public void tick() {
-        // long nano = System.nanoTime();
         for (Person person : this.persons) {
             person.update(0);
         }
-        // long end = System.nanoTime() - nano;
-        // float ms = (float) (end / 1000000f);
-        // System.out.println("took: " + ms);
     }
 
     public void modifyTempBlocked(int x, int y, int value) {
