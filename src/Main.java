@@ -59,7 +59,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
 import de.gemo.game.physics.Shader;
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.Vector2f;
 
 public class Main {
 
@@ -93,7 +93,7 @@ public class Main {
             glColor4f(minDistance, minDistance, minDistance, minDistance);
             glBegin(GL_QUADS);
             {
-                for (Vector vertex : block.getVertices()) {
+                for (Vector2f vertex : block.getVertices()) {
                     vertex.render();
                 }
             }
@@ -108,16 +108,16 @@ public class Main {
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
             for (Block block : blocks) {
-                Vector[] vertices = block.getVertices();
+                Vector2f[] vertices = block.getVertices();
                 for (int i = 0; i < vertices.length; i++) {
-                    Vector currentVertex = vertices[i];
-                    Vector nextVertex = vertices[(i + 1) % vertices.length];
-                    Vector edge = Vector.sub(nextVertex, currentVertex, null);
-                    Vector normal = new Vector(edge.getY(), -edge.getX());
-                    Vector lightToCurrent = Vector.sub(currentVertex, light.location, null);
-                    if (Vector.dot(normal, lightToCurrent) > 0) {
-                        Vector point1 = Vector.add(currentVertex, Vector.sub(currentVertex, light.location, null).scale(width), null);
-                        Vector point2 = Vector.add(nextVertex, Vector.sub(nextVertex, light.location, null).scale(width), null);
+                    Vector2f currentVertex = vertices[i];
+                    Vector2f nextVertex = vertices[(i + 1) % vertices.length];
+                    Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
+                    Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
+                    Vector2f lightToCurrent = Vector2f.sub(currentVertex, light.location, null);
+                    if (Vector2f.dot(normal, lightToCurrent) > 0) {
+                        Vector2f point1 = Vector2f.add(currentVertex, Vector2f.sub(currentVertex, light.location, null).scale(width), null);
+                        Vector2f point2 = Vector2f.add(nextVertex, Vector2f.sub(nextVertex, light.location, null).scale(width), null);
 
                         glColor4f(1, 1, 1, 1f);
                         glBegin(GL_QUADS);
@@ -166,7 +166,7 @@ public class Main {
         int blockCount = 15 + (int) (Math.random() * 1);
 
         for (int i = 1; i <= lightCount; i++) {
-            Vector location = new Vector((float) Math.random() * width, (float) Math.random() * height);
+            Vector2f location = new Vector2f((float) Math.random() * width, (float) Math.random() * height);
             lights.add(new Light(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10, 1));
         }
 

@@ -13,7 +13,7 @@ import de.gemo.gameengine.events.mouse.MouseDragEvent;
 import de.gemo.gameengine.events.mouse.MouseMoveEvent;
 import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
 import de.gemo.gameengine.events.mouse.MouseWheelEvent;
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.*;
 
 public class MouseManager {
     public static MouseManager INSTANCE = null;
@@ -216,11 +216,11 @@ public class MouseManager {
         return pressedButtons.get(button);
     }
 
-    public Vector getMouseVector() {
+    public Vector3f getMouseVector() {
         return this.hitBox.getCenter();
     }
 
-    public Vector getTempMouseVector() {
+    public Vector3f getTempMouseVector() {
         return this.tempHitBox.getCenter();
     }
 }

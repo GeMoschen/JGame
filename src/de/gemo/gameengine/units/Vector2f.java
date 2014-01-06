@@ -1,35 +1,29 @@
 package de.gemo.gameengine.units;
 
-import java.io.Serializable;
+import java.io.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Vector implements Serializable {
+public class Vector2f implements Serializable {
 
     private static final long serialVersionUID = 1870562186338212289L;
 
-    protected float x, y, z;
+    protected float x, y;
+    private boolean dirty = true;
+    private float length = 0f;
 
-    public static Vector FromPoint(float x, float y) {
-        return new Vector(x, y, 0);
+    public static Vector2f FromPoint(float x, float y) {
+        return new Vector2f(x, y);
     }
 
-    public static Vector FromPoint(float x, float y, float z) {
-        return new Vector(x, y, z);
+    public Vector2f() {
+        this(0, 0);
     }
 
-    public Vector() {
-        this(0, 0, 0);
-    }
-
-    public Vector(float x, float y) {
-        this(x, y, 0);
-    }
-
-    public Vector(float x, float y, float z) {
+    public Vector2f(float x, float y) {
         this.x = x;
         this.y = y;
-        this.z = z;
+        this.dirty = true;
     }
 
     public void rotate(float sin, float cos) {
@@ -37,17 +31,19 @@ public class Vector implements Serializable {
         float tempy = (sin * x) + (cos * y);
         x = tempx;
         y = tempy;
+        this.dirty = true;
     }
 
-    public void rotateAround(Vector vector, double sin, double cos) {
+    public void rotateAround(Vector2f vector, double sin, double cos) {
         double tempx = vector.getX() + (cos * (x - vector.getX()) - sin * (y - vector.getY()));
         double tempy = vector.getY() + (sin * (x - vector.getX()) + cos * (y - vector.getY()));
 
         x = (float) tempx;
         y = (float) tempy;
+        this.dirty = true;
     }
 
-    public void rotateAround(Vector vector, float angle) {
+    public void rotateAround(Vector2f vector, float angle) {
         double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
@@ -57,11 +53,13 @@ public class Vector implements Serializable {
 
         x = (float) tempx;
         y = (float) tempy;
+        this.dirty = true;
     }
 
     public void move(float x, float y) {
         this.x += x;
         this.y += y;
+        this.dirty = true;
     }
 
     /**
@@ -77,24 +75,13 @@ public class Vector implements Serializable {
      *            the x to set
      * @param y
      *            the y to set
-     */
-    public void set(float x, float y) {
-        this.set(x, y, this.z);
-    }
-
-    /**
-     * 
-     * @param x
-     *            the x to set
-     * @param y
-     *            the y to set
      * @param z
      *            the z to set
      */
-    public void set(float x, float y, float z) {
+    public void set(float x, float y) {
         this.x = x;
         this.y = y;
-        this.z = z;
+        this.dirty = true;
     }
 
     /**
@@ -103,6 +90,7 @@ public class Vector implements Serializable {
      */
     public void setX(float x) {
         this.x = x;
+        this.dirty = true;
     }
 
     /**
@@ -118,55 +106,57 @@ public class Vector implements Serializable {
      */
     public void setY(float y) {
         this.y = y;
-    }
-
-    /**
-     * @return the z
-     */
-    public float getZ() {
-        return z;
-    }
-
-    /**
-     * @param z
-     *            the z to set
-     */
-    public void setZ(float z) {
-        this.z = z;
+        this.dirty = true;
     }
 
     public void render() {
-        glVertex3f(this.x, this.y, this.z);
+        glVertex2f(this.x, this.y);
     }
 
-    public Vector scale(float scale) {
+    public Vector2f scale(float scale) {
         x *= scale;
         y *= scale;
+        this.dirty = true;
         return this;
+    }
+
+    public float getLength() {
+        if (this.dirty) {
+            this.dirty = false;
+            this.length = (float) Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        }
+        return this.length;
+    }
+
+    public void truncate(float max) {
+        float factor = max / this.getLength();
+        factor = (factor < 1.0f) ? factor : 1.0f;
+        this.scale(factor);
     }
 
     public void scaleX(float scaleX) {
         this.x *= scaleX;
+        this.dirty = true;
     }
 
     public void scaleY(float scaleY) {
         this.y *= scaleY;
+        this.dirty = true;
     }
 
-    public double distanceTo(Vector vector) {
+    public double distanceTo(Vector2f vector) {
         return Math.sqrt(Math.pow(vector.getX() - this.getX(), 2) + Math.pow(vector.getY() - this.getY(), 2));
     }
 
-    public Vector clone() {
-        return new Vector(x, y, z);
+    public Vector2f clone() {
+        return new Vector2f(x, y);
     }
 
     @Override
     public String toString() {
         String result = this.getClass().getSimpleName() + " { ";
         result += this.getX() + " ; ";
-        result += this.getY() + " ; ";
-        result += this.getZ();
+        result += this.getY();
         return result + " }";
     }
 
@@ -189,9 +179,26 @@ public class Vector implements Serializable {
      *            created
      * @return the sum of left and right in dest
      */
-    public static Vector add(Vector left, Vector right, Vector dest) {
+    public static Vector2f add(Vector2f left, Vector2f right) {
+        return Vector2f.add(left, right, null);
+    }
+
+    /**
+     * Add a vector to another vector and place the result in a destination
+     * vector.
+     * 
+     * @param left
+     *            The LHS vector
+     * @param right
+     *            The RHS vector
+     * @param dest
+     *            The destination vector, or null if a new vector is to be
+     *            created
+     * @return the sum of left and right in dest
+     */
+    public static Vector2f add(Vector2f left, Vector2f right, Vector2f dest) {
         if (dest == null)
-            return new Vector(left.x + right.x, left.y + right.y);
+            return new Vector2f(left.x + right.x, left.y + right.y);
         else {
             dest.set(left.x + right.x, left.y + right.y);
             return dest;
@@ -211,9 +218,26 @@ public class Vector implements Serializable {
      *            created
      * @return left minus right in dest
      */
-    public static Vector sub(Vector left, Vector right, Vector dest) {
+    public static Vector2f sub(Vector2f left, Vector2f right) {
+        return Vector2f.sub(left, right, null);
+    }
+
+    /**
+     * Subtract a vector from another vector and place the result in a
+     * destination vector.
+     * 
+     * @param left
+     *            The LHS vector
+     * @param right
+     *            The RHS vector
+     * @param dest
+     *            The destination vector, or null if a new vector is to be
+     *            created
+     * @return left minus right in dest
+     */
+    public static Vector2f sub(Vector2f left, Vector2f right, Vector2f dest) {
         if (dest == null)
-            return new Vector(left.x - right.x, left.y - right.y);
+            return new Vector2f(left.x - right.x, left.y - right.y);
         else {
             dest.set(left.x - right.x, left.y - right.y);
             return dest;
@@ -230,8 +254,22 @@ public class Vector implements Serializable {
      *            The RHS vector
      * @return left dot right
      */
-    public static float dot(Vector left, Vector right) {
+    public static float dot(Vector2f left, Vector2f right) {
         return left.x * right.x + left.y * right.y;
     }
 
+    public static Vector2f normalize(Vector2f vector) {
+        float length = vector.getLength();
+        return new Vector2f(vector.x / length, vector.y / length);
+    }
+
+    public static Vector2f truncate(Vector2f vector, float max) {
+        Vector2f clone = vector.clone();
+        clone.truncate(max);
+        return clone;
+    }
+
+    public static Vector2f invert(Vector2f vector) {
+        return new Vector2f(-vector.x, -vector.y);
+    }
 }

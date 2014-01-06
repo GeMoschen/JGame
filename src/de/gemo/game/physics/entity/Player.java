@@ -1,29 +1,14 @@
 package de.gemo.game.physics.entity;
 
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.GL_LINE_STIPPLE;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLineWidth;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glScalef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glVertex2f;
+import org.jbox2d.collision.shapes.*;
+import org.jbox2d.common.*;
+import org.jbox2d.dynamics.*;
+import org.jbox2d.dynamics.contacts.*;
+import org.newdawn.slick.*;
 
-import org.jbox2d.collision.shapes.CircleShape;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.FixtureDef;
-import org.jbox2d.dynamics.contacts.Contact;
-import org.newdawn.slick.Color;
+import de.gemo.game.physics.*;
 
-import de.gemo.game.physics.Physics2D;
+import static org.lwjgl.opengl.GL11.*;
 
 public class Player extends EntityCollidable {
 
@@ -55,6 +40,7 @@ public class Player extends EntityCollidable {
 
     private boolean keyJumpReleased = false, keyHookReleased = true;
     private boolean keyLeft = false, keyRight = false, keyHook = false, keyJump = false, keyUse = false;
+    private long endCollision = 0;
 
     public Player(float x, float y) {
         // box

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.newdawn.slick.Color;
 
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -22,7 +22,7 @@ public class Hitbox {
         return hitbox;
     }
 
-    public static Hitbox createRectangle(Vector center, float halfWidth, float halfHeight) {
+    public static Hitbox createRectangle(Vector2f center, float halfWidth, float halfHeight) {
         return createRectangle(center.getX(), center.getY(), halfWidth, halfHeight);
     }
 
@@ -35,19 +35,19 @@ public class Hitbox {
         return hitbox;
     }
 
-    private List<Vector> points = new ArrayList<Vector>();
-    private Vector center;
+    private List<Vector3f> points = new ArrayList<Vector3f>();
+    private Vector3f center;
     private float angle = 0f;
 
-    public Hitbox(Vector center) {
+    public Hitbox(Vector3f center) {
         this.center = center;
     }
 
     public Hitbox(float x, float y) {
-        this(new Vector(x, y));
+        this(new Vector3f(x, y, 0));
     }
 
-    public final List<Vector> getPoints() {
+    public final List<Vector3f> getPoints() {
         return points;
     }
 
@@ -55,19 +55,19 @@ public class Hitbox {
         return this.points.size();
     }
 
-    public final Vector getPoint(int index) {
+    public final Vector3f getPoint(int index) {
         return this.points.get(index);
     }
 
-    public final void addPoint(Vector vector) {
+    public final void addPoint(Vector3f vector) {
         this.addPoint(vector.getX(), vector.getY());
     }
 
     public final void addPoint(float x, float y) {
-        this.points.add(new Vector(this.getCenter().getX() + x, this.getCenter().getY() + y));
+        this.points.add(new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0));
     }
 
-    public final Vector getCenter() {
+    public final Vector3f getCenter() {
         return this.center;
     }
 
@@ -77,13 +77,13 @@ public class Hitbox {
         this.move(difX, difY);
     }
 
-    public final void setCenter(Vector vector) {
+    public final void setCenter(Vector2f vector) {
         this.setCenter(vector.getX(), vector.getY());
     }
 
     public final void move(float x, float y) {
         this.center.move(x, y);
-        for (Vector vector : this.points) {
+        for (Vector3f vector : this.points) {
             vector.move(x, y);
         }
     }
@@ -101,12 +101,12 @@ public class Hitbox {
         float rad = (float) Math.toRadians(angle);
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
-        for (Vector vector : this.points) {
+        for (Vector3f vector : this.points) {
             vector.rotateAround(this.getCenter(), sin, cos);
         }
     }
 
-    public final void rotateAround(Vector center, float angle) {
+    public final void rotateAround(Vector3f center, float angle) {
         this.angle += angle;
 
         if (this.angle < 0f) {
@@ -120,12 +120,12 @@ public class Hitbox {
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
         this.center.rotateAround(center, sin, cos);
-        for (Vector vector : this.points) {
+        for (Vector3f vector : this.points) {
             vector.rotateAround(center, sin, cos);
         }
     }
 
-    public void setAngle(Vector center, float angle) {
+    public void setAngle(Vector3f center, float angle) {
         this.rotateAround(center, -this.angle + angle);
     }
 
@@ -170,7 +170,7 @@ public class Hitbox {
             {
                 Color.green.bind();
                 glBegin(GL_LINE_LOOP);
-                for (Vector vector : this.points) {
+                for (Vector3f vector : this.points) {
                     vector.render();
                 }
                 glEnd();
@@ -186,7 +186,7 @@ public class Hitbox {
     public void scale(float scaleX, float scaleY) {
         float currentAngle = this.angle;
         this.setAngle(0);
-        for (Vector vector : this.points) {
+        for (Vector3f vector : this.points) {
             float currentX = vector.getX() - this.center.getX();
             float currentY = vector.getY() - this.center.getY();
             currentX *= scaleX;
@@ -207,7 +207,7 @@ public class Hitbox {
 
     public Hitbox clone() {
         Hitbox otherBox = new Hitbox(this.center.clone());
-        for (Vector vector : this.points) {
+        for (Vector3f vector : this.points) {
             otherBox.addPoint(vector.clone());
         }
         return otherBox;
@@ -225,9 +225,9 @@ public class Hitbox {
         return result + " }";
     }
 
-    public static Hitbox load(Vector baseVector, ArrayList<Vector> pointList) {
+    public static Hitbox load(Vector3f baseVector, ArrayList<Vector3f> pointList) {
         Hitbox hitbox = new Hitbox(baseVector);
-        for (Vector vector : pointList) {
+        for (Vector3f vector : pointList) {
             hitbox.addPoint(vector.getX(), vector.getY());
         }
         return hitbox;
@@ -235,7 +235,7 @@ public class Hitbox {
 
     public void export(ObjectOutputStream outputStream) {
         try {
-            for (Vector vector : this.points) {
+            for (Vector3f vector : this.points) {
                 outputStream.writeObject(vector);
             }
         } catch (IOException e) {

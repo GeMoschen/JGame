@@ -23,8 +23,8 @@ public class SimCore extends GameEngine {
     @Override
     protected void createManager() {
         TileManager.initialize();
-        level = new Level(113, 85);
-        // int x = 1;
+        // level = new Level(113, 85);
+        level = new Level(10, 10);
     }
 
     int oldDragX = -1;
@@ -65,8 +65,10 @@ public class SimCore extends GameEngine {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_SPACE) {
             Random random = new Random();
-            for (int i = 0; i < 50; i++) {
-                this.level.addPerson(new Person(level, AbstractTile.TILE_SIZE * random.nextInt(level.getDimX()) + AbstractTile.HALF_TILE_SIZE, AbstractTile.TILE_SIZE * random.nextInt(level.getDimY()) + AbstractTile.HALF_TILE_SIZE));
+            for (int i = 0; i < 1; i++) {
+                Person person = new Person(level, AbstractTile.TILE_SIZE * random.nextInt(level.getDimX()) + AbstractTile.HALF_TILE_SIZE, AbstractTile.TILE_SIZE * random.nextInt(level.getDimY()) + AbstractTile.HALF_TILE_SIZE);
+                this.level.addPerson(person);
+                person.findRandomTarget();
             }
             System.out.println("count: " + this.level.getPersons().size());
         }
@@ -74,7 +76,8 @@ public class SimCore extends GameEngine {
 
     @Override
     protected void renderGame2D() {
-        Display.setTitle("FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+        int time = (int) (level.time / 1000000f);
+        Display.setTitle("FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS() + " - " + time);
         glDisable(GL_TEXTURE_2D);
         glPushMatrix();
         {

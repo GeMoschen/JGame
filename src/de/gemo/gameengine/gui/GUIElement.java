@@ -1,42 +1,32 @@
 package de.gemo.gameengine.gui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.physics.gui.statics.GUIConfig.GUIElementConfig;
-import de.gemo.game.physics.gui.statics.GUITextures;
-import de.gemo.gameengine.collision.CollisionHelper;
-import de.gemo.gameengine.collision.Hitbox;
-import de.gemo.gameengine.events.keyboard.KeyEvent;
-import de.gemo.gameengine.events.mouse.MouseClickEvent;
-import de.gemo.gameengine.events.mouse.MouseDragEvent;
-import de.gemo.gameengine.events.mouse.MouseMoveEvent;
-import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
-import de.gemo.gameengine.events.mouse.MouseWheelEvent;
-import de.gemo.gameengine.interfaces.listener.FocusListener;
-import de.gemo.gameengine.interfaces.listener.MouseListener;
-import de.gemo.gameengine.renderer.IRenderable;
-import de.gemo.gameengine.renderer.Renderer;
-import de.gemo.gameengine.textures.SingleTexture;
-import de.gemo.gameengine.textures.TextureRepeatMode;
-import de.gemo.gameengine.units.Vector;
+import de.gemo.game.physics.gui.statics.*;
+import de.gemo.gameengine.collision.*;
+import de.gemo.gameengine.events.keyboard.*;
+import de.gemo.gameengine.events.mouse.*;
+import de.gemo.gameengine.interfaces.listener.*;
+import de.gemo.gameengine.renderer.*;
+import de.gemo.gameengine.textures.*;
+import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class GUIElement implements IRenderable {
 
     public static Graphic2D createGraphic2DFromXML(GUIElementConfig config, Texture texture) {
-        return createGraphic2DFromXML(config, texture, new Vector());
+        return createGraphic2DFromXML(config, texture, new Vector3f());
     }
 
-    public static Graphic2D createGraphic2DFromXML(GUIElementConfig config, Texture texture, Vector position) {
+    public static Graphic2D createGraphic2DFromXML(GUIElementConfig config, Texture texture, Vector3f position) {
         return createGraphic2DFromXML(config, new SingleTexture(texture, 0, 0, texture.getTextureWidth(), texture.getTextureHeight()), position);
     }
 
-    public static Graphic2D createGraphic2DFromXML(GUIElementConfig config, SingleTexture texture, Vector position) {
+    public static Graphic2D createGraphic2DFromXML(GUIElementConfig config, SingleTexture texture, Vector3f position) {
         Graphic2D graphic = new Graphic2D(position);
         float x = config.getX();
         float y = config.getY();
@@ -49,7 +39,7 @@ public class GUIElement implements IRenderable {
     }
 
     protected float z = 0;
-    protected Vector position = new Vector(), size = new Vector();
+    protected Vector3f position = new Vector3f(), size = new Vector3f();
     protected float angle = 0f;
     protected float alpha = 1f;
     protected boolean visible = true;
@@ -60,7 +50,7 @@ public class GUIElement implements IRenderable {
     protected MouseListener mouseListener = null;
     protected FocusListener focusListener = null;
 
-    public final void move(Vector movement) {
+    public final void move(Vector3f movement) {
         this.move(movement.getX(), movement.getY(), movement.getZ());
     }
 
@@ -72,7 +62,7 @@ public class GUIElement implements IRenderable {
         this.setPosition(this.getPosition().getX() + x, this.getPosition().getY() + y, this.getPosition().getZ() + z);
     }
 
-    public final void setPosition(Vector position) {
+    public final void setPosition(Vector3f position) {
         this.setPosition(position.getX(), position.getY(), position.getZ());
     }
 
@@ -91,11 +81,11 @@ public class GUIElement implements IRenderable {
         }
     }
 
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
         return position;
     }
 
-    public final void setSize(Vector size) {
+    public final void setSize(Vector2f size) {
         this.setSize(size.getX(), size.getY());
     }
 
@@ -128,7 +118,7 @@ public class GUIElement implements IRenderable {
         }
     }
 
-    public final Vector getSize() {
+    public final Vector3f getSize() {
         return size;
     }
 

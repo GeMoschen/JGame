@@ -1,15 +1,13 @@
 package de.gemo.gameengine.gui;
 
-import java.util.Random;
+import java.util.*;
 
-import org.newdawn.slick.Color;
+import org.newdawn.slick.*;
 
-import de.gemo.gameengine.renderer.IRenderable;
-import de.gemo.gameengine.renderer.Renderer;
+import de.gemo.gameengine.renderer.*;
+import de.gemo.gameengine.textures.*;
 import de.gemo.gameengine.textures.Animation;
-import de.gemo.gameengine.textures.MultiTexture;
-import de.gemo.gameengine.textures.SingleTexture;
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -21,7 +19,7 @@ public class Graphic2D implements IRenderable {
     protected final Color randomColor;
 
     // position
-    protected final Vector position = new Vector();
+    protected final Vector3f position = new Vector3f();
 
     // visibility
     protected float angle = 0, alpha = 1f;
@@ -49,11 +47,11 @@ public class Graphic2D implements IRenderable {
         this(x, y, z, 0f, 1f);
     }
 
-    public Graphic2D(Vector position) {
+    public Graphic2D(Vector3f position) {
         this(position.getX(), position.getY(), position.getZ(), 0f, 1f);
     }
 
-    public Graphic2D(Vector position, float angle, float alpha) {
+    public Graphic2D(Vector3f position, float angle, float alpha) {
         this(position.getX(), position.getY(), position.getZ(), angle, alpha);
     }
 
@@ -239,9 +237,9 @@ public class Graphic2D implements IRenderable {
      * <b>Note:</b> This position is always the center of the graphic. The
      * offsets given by the PositionAnchor are handled seperatly.
      * 
-     * @return the position as a {@link Vector}
+     * @return the position as a {@link Vector2f}
      */
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
         return this.position;
     }
 

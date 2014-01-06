@@ -1,28 +1,24 @@
 package de.gemo.game.physics;
 
 import java.awt.Font;
-import java.util.ArrayList;
+import java.awt.geom.*;
+import java.util.*;
 import java.util.List;
 
-import org.jbox2d.collision.AABB;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
-import org.lwjgl.input.Keyboard;
+import org.jbox2d.collision.*;
+import org.jbox2d.common.*;
+import org.jbox2d.dynamics.*;
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 
-import de.gemo.game.physics.entity.EntityCollidable;
-import de.gemo.game.physics.entity.Ground;
-import de.gemo.game.physics.entity.Player;
-import de.gemo.game.physics.entity.Wall;
-import de.gemo.game.physics.gui.implementations.GUIButton;
-import de.gemo.game.physics.gui.implementations.GUITextfield;
-import de.gemo.game.physics.gui.implementations.TestListener;
-import de.gemo.game.physics.gui.statics.GUITextures;
-import de.gemo.game.physics.gui.statics.GUIXML;
-import de.gemo.gameengine.core.GameEngine;
-import de.gemo.gameengine.events.keyboard.KeyEvent;
-import de.gemo.gameengine.manager.FontManager;
-import de.gemo.gameengine.renderer.Renderer;
+import de.gemo.game.physics.entity.*;
+import de.gemo.game.physics.gui.implementations.*;
+import de.gemo.game.physics.gui.statics.*;
+import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.events.keyboard.*;
+import de.gemo.gameengine.manager.*;
+import de.gemo.gameengine.renderer.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -88,14 +84,14 @@ public class Physics2D extends GameEngine {
         button.setMouseListener(listener);
         button.setFocusListener(listener);
         button.setText("Button");
-        this.addGUIElement("button", button);
+        // this.addGUIElement("button", button);
 
         // textfield
         GUITextfield textfield = new GUITextfield(100, 330, 100, 25);
         textfield.setMouseListener(listener);
         textfield.setFocusListener(listener);
         textfield.setText("Textfield");
-        this.addGUIElement("textfield", textfield);
+        // this.addGUIElement("textfield", textfield);
     }
 
     @Override
@@ -113,7 +109,8 @@ public class Physics2D extends GameEngine {
         // physics
         physicsTime = System.currentTimeMillis();
         long timeNow = System.currentTimeMillis() - lastTimeStep;
-        float time = (float) timeNow / 1000f;
+        float time = (float) (timeNow / 1000f);
+        time = 1f / 60f;
         world.step(time, 16, 6);
         lastTimeStep = System.currentTimeMillis();
         physicsTime = lastTimeStep - physicsTime;
@@ -158,46 +155,44 @@ public class Physics2D extends GameEngine {
         glPopMatrix();
 
         // render game
-        // // render game
-        // glPushMatrix();
-        // {
-        // glDisable(GL_TEXTURE_2D);
-        // glDisable(GL_BLEND);
-        //
-        // // glTranslatef(0, 500, 0);
-        // // glScalef(0.25f, 0.25f, 1);
-        //
-        // glTranslatef(screenMovement.x, screenMovement.y, 0);
-        //
-        // // enable depth-testing
-        // glEnable(GL_DEPTH_TEST);
-        // GL11.glDepthFunc(GL11.GL_LEQUAL);
-        //
-        // // render JBox2D-bodies
-        // for (EntityCollidable entity : this.renderList) {
-        // entity.
-        // }
-        //
-        // // render SCREEN-CORNERS
-        // // upper left
-        // glDisable(GL_LINE_STIPPLE);
-        // glLineWidth(2);
-        // glPushMatrix();
-        // {
-        // glTranslatef(upperLeft.x * Physics2D.pxPerM, upperLeft.y *
-        // Physics2D.pxPerM, 0);
-        // glScalef(Physics2D.pxPerM, Physics2D.pxPerM, 0);
-        // Color.green.bind();
-        // glBegin(GL_LINE_LOOP);
-        // glVertex2f(0f, 0f);
-        // glVertex2f(lowerRight.x - upperLeft.x, 0f);
-        // glVertex2f(lowerRight.x - upperLeft.x, lowerRight.y - upperLeft.y);
-        // glVertex2f(0f, lowerRight.y - upperLeft.y);
-        // glEnd();
-        // }
-        // glPopMatrix();
-        // }
-        // glPopMatrix();
+        glPushMatrix();
+        {
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+
+            // glTranslatef(0, 500, 0);
+            // glScalef(0.25f, 0.25f, 1);
+
+            glTranslatef(screenMovement.x, screenMovement.y, 0);
+
+            // enable depth-testing
+            glEnable(GL_DEPTH_TEST);
+            GL11.glDepthFunc(GL11.GL_LEQUAL);
+
+            // render JBox2D-bodies
+            for (EntityCollidable entity : this.renderList) {
+                entity.render();
+            }
+
+            // render SCREEN-CORNERS
+            // upper left
+            glDisable(GL_LINE_STIPPLE);
+            glLineWidth(2);
+            glPushMatrix();
+            {
+                glTranslatef(upperLeft.x * Physics2D.pxPerM, upperLeft.y * Physics2D.pxPerM, 0);
+                glScalef(Physics2D.pxPerM, Physics2D.pxPerM, 0);
+                Color.green.bind();
+                glBegin(GL_LINE_LOOP);
+                glVertex2f(0f, 0f);
+                glVertex2f(lowerRight.x - upperLeft.x, 0f);
+                glVertex2f(lowerRight.x - upperLeft.x, lowerRight.y - upperLeft.y);
+                glVertex2f(0f, lowerRight.y - upperLeft.y);
+                glEnd();
+            }
+            glPopMatrix();
+        }
+        glPopMatrix();
 
         glPushMatrix();
         {

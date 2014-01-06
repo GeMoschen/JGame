@@ -66,17 +66,19 @@ public class Level {
 
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                if (x == 4 || y == 4 || x == dimX - 5 || y == dimY - 5 || x == 0 || y == 0 || x == dimX / 2 || x == dimX / 2 + 1 || y == dimY / 2 || y == dimY / 2 + 1) {
-                    AbstractTile tile = TileManager.getTileByName("Blocked");
-                    if (tile != null) {
-                        this.setTile(x, y, tile);
-                    }
-                } else {
-                    AbstractTile tile = TileManager.getTileByName("Empty");
-                    if (tile != null) {
-                        this.setTile(x, y, tile);
-                    }
+                // if (x == 4 || y == 4 || x == dimX - 5 || y == dimY - 5 || x
+                // == 0 || y == 0 || x == dimX / 2 || x == dimX / 2 + 1 || y ==
+                // dimY / 2 || y == dimY / 2 + 1) {
+                // AbstractTile tile = TileManager.getTileByName("Blocked");
+                // if (tile != null) {
+                // this.setTile(x, y, tile);
+                // }
+                // } else {
+                AbstractTile tile = TileManager.getTileByName("Empty");
+                if (tile != null) {
+                    this.setTile(x, y, tile);
                 }
+                // }
                 this.tempBlocked[x][y] = 0;
             }
         }
@@ -93,20 +95,17 @@ public class Level {
     public void renderLevel() {
         for (int y = 0; y < dimY; y++) {
             for (int x = 0; x < dimX; x++) {
-                // glPushMatrix();
-                // {
-                // glEnable(GL_BLEND);
-                // glEnable(GL_TEXTURE_2D);
-                // glTranslatef(x * AbstractTile.TILE_SIZE +
-                // AbstractTile.QUARTER_TILE_SIZE + x, y *
-                // AbstractTile.TILE_SIZE + AbstractTile.QUARTER_TILE_SIZE - 3 +
-                // y, 0);
-                // org.newdawn.slick.Color color = new
-                // org.newdawn.slick.Color(1, 1, 1, 0.2f);
-                // FontManager.getStandardFont().drawString(0, 0, "" +
-                // this.getTempBlockedValue(x, y), color);
-                // }
-                // glPopMatrix();
+                glPushMatrix();
+                {
+                    glEnable(GL_BLEND);
+                    glEnable(GL_TEXTURE_2D);
+                    glTranslatef(x * AbstractTile.TILE_SIZE + AbstractTile.QUARTER_TILE_SIZE + x, y * AbstractTile.TILE_SIZE + AbstractTile.QUARTER_TILE_SIZE - 3 + y, 0);
+                    // org.newdawn.slick.Color color = new
+                    // org.newdawn.slick.Color(1, 1, 1, 0.2f);
+                    // FontManager.getStandardFont().drawString(0, 0, "" +
+                    // this.getTempBlockedValue(x, y), color);
+                }
+                glPopMatrix();
 
                 glPushMatrix();
                 {
@@ -185,7 +184,15 @@ public class Level {
         return 10;
     }
 
+    public long time = 0;
+
     public AreaMap createAreaMap() {
-        return new AreaMap(this.dimX, this.dimY, Arrays.copyOf(this.blocked, this.blocked.length), Arrays.copyOf(this.tempBlocked, this.tempBlocked.length));
+        long start = System.nanoTime();
+        AreaMap map = new AreaMap(this.dimX, this.dimY, this.blocked, this.tempBlocked);
+        time += (System.nanoTime() - start);
+        return map;
+        // return new AreaMap(this.dimX, this.dimY, Arrays.copyOf(this.blocked,
+        // this.blocked.length), Arrays.copyOf(this.tempBlocked,
+        // this.tempBlocked.length));
     }
 }

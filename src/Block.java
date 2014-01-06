@@ -1,4 +1,4 @@
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.Vector2f;
 
 public class Block {
     public int x, y, width, height;
@@ -10,7 +10,7 @@ public class Block {
         this.height = height;
     }
 
-    public Vector[] getVertices() {
-        return new Vector[] { new Vector(x, y), new Vector(x, y + height), new Vector(x + width, y + height), new Vector(x + width, y) };
+    public Vector2f[] getVertices() {
+        return new Vector2f[] { new Vector2f(x, y), new Vector2f(x, y + height), new Vector2f(x + width, y + height), new Vector2f(x + width, y) };
     }
 }

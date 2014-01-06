@@ -2,7 +2,7 @@ package de.gemo.gameengine.collision;
 
 import java.util.ArrayList;
 
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.*;
 
 public class CollisionHelper {
 
@@ -23,7 +23,7 @@ public class CollisionHelper {
     // /////////////////////////////////////////////
 
     // Jordan Curve Theorem - very fast
-    public static boolean isVectorInHitbox(Vector vector, Hitbox hitbox) {
+    public static boolean isVectorInHitbox(Vector3f vector, Hitbox hitbox) {
         if (vector == null || hitbox == null) {
             return false;
         }
@@ -42,12 +42,12 @@ public class CollisionHelper {
         if (hitboxA == null || hitboxB == null) {
             return false;
         }
-        for (Vector vector : hitboxA.getPoints()) {
+        for (Vector3f vector : hitboxA.getPoints()) {
             if (isVectorInHitbox(vector, hitboxB)) {
                 return true;
             }
         }
-        for (Vector vector : hitboxB.getPoints()) {
+        for (Vector3f vector : hitboxB.getPoints()) {
             if (isVectorInHitbox(vector, hitboxA)) {
                 return true;
             }
@@ -60,12 +60,12 @@ public class CollisionHelper {
         if (hitboxA == null || hitboxB == null) {
             return false;
         }
-        for (Vector vector : hitboxA.getPoints()) {
+        for (Vector3f vector : hitboxA.getPoints()) {
             if (isVectorInHitbox(vector, hitboxB)) {
                 return true;
             }
         }
-        for (Vector vector : hitboxB.getPoints()) {
+        for (Vector3f vector : hitboxB.getPoints()) {
             if (isVectorInHitbox(vector, hitboxA)) {
                 return true;
             }
@@ -74,15 +74,15 @@ public class CollisionHelper {
     }
 
     // find intersections
-    public static ArrayList<Vector> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
+    public static ArrayList<Vector3f> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
         if (hitboxA == null || hitboxB == null) {
             return null;
         }
 
-        ArrayList<Vector> result = null;
+        ArrayList<Vector3f> result = null;
 
-        Vector a1 = null, a2 = null;
-        Vector b1 = null, b2 = null;
+        Vector3f a1 = null, a2 = null;
+        Vector3f b1 = null, b2 = null;
         for (int i = 0; i < hitboxA.getPointCount(); i++) {
             a1 = hitboxA.getPoint(i);
             if (i < hitboxA.getPointCount() - 1) {
@@ -98,10 +98,10 @@ public class CollisionHelper {
                     b2 = hitboxB.getPoint(0);
                 }
 
-                Vector vector = findIntersection(a1, a2, b1, b2);
+                Vector3f vector = findIntersection(a1, a2, b1, b2);
                 if (vector != null) {
                     if (result == null) {
-                        result = new ArrayList<Vector>();
+                        result = new ArrayList<Vector3f>();
                     }
                     result.add(vector);
                 }
@@ -110,7 +110,7 @@ public class CollisionHelper {
         return result;
     }
 
-    public static Vector findIntersection(Vector start1, Vector end1, Vector start2, Vector end2) {
+    public static Vector3f findIntersection(Vector3f start1, Vector3f end1, Vector3f start2, Vector3f end2) {
         float denom = ((end1.getX() - start1.getX()) * (end2.getY() - start2.getY())) - ((end1.getY() - start1.getY()) * (end2.getX() - start2.getX()));
 
         // AB & CD are parallel
@@ -130,7 +130,7 @@ public class CollisionHelper {
         }
 
         // Find intersection point
-        return new Vector((int) (start1.getX() + (r * (end1.getX() - start1.getX()))), (int) (start1.getY() + (r * (end1.getY() - start1.getY()))));
+        return new Vector3f((int) (start1.getX() + (r * (end1.getX() - start1.getX()))), (int) (start1.getY() + (r * (end1.getY() - start1.getY()))), 0);
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.*;
 
 import de.gemo.game.sim.core.*;
 import de.gemo.game.sim.tiles.*;
-import de.gemo.gameengine.units.Vector;
+import de.gemo.gameengine.units.Vector2f;
 
 public class SinglePathSearch {
 
@@ -29,6 +29,7 @@ public class SinglePathSearch {
         this.pathFound = false;
         // calculate path
         ArrayList<Point> tilePath = star.calcShortestPath(this.start.x, this.start.y, this.goal.x, this.goal.y);
+
         // end search
         this.pathFound = (tilePath != null && tilePath.size() > 0);
 
@@ -77,10 +78,10 @@ public class SinglePathSearch {
         this.optimizeWalkPath();
 
         // round the corners
-        this.roundWalkPath(1);
+        // this.roundWalkPath(2);
 
         // round diagonals
-        this.roundDiagonalWalkPath();
+        // this.roundDiagonalWalkPath();
     }
 
     private EnumDir getWalkDirection(Point p1, Point p2) {
@@ -265,7 +266,7 @@ public class SinglePathSearch {
             }
 
             // create the rotational center
-            Vector center = new Vector(currentPoint.x + offX, currentPoint.y + offY);
+            Vector2f center = new Vector2f(currentPoint.x + offX, currentPoint.y + offY);
 
             // determine the needed values
             float startAngle = 0;
@@ -281,7 +282,7 @@ public class SinglePathSearch {
             // add new points and rotate them around the rotational center
             float currentAngle = angleStep;
             for (int i = 0; i < smoothCount; i++) {
-                Vector newPoint = new Vector(center.getX() - offX, center.getY() - offY);
+                Vector2f newPoint = new Vector2f(center.getX() - offX, center.getY() - offY);
                 newPoint.rotateAround(center, startAngle + currentAngle);
                 this.walkPath.add(index + 1, new Point((int) newPoint.getX(), (int) newPoint.getY()));
                 currentAngle += angleStep;
