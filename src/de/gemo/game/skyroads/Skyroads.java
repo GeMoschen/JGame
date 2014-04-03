@@ -88,7 +88,7 @@ public class Skyroads extends Engine {
     private static final Matrix4f textureMatrix = new Matrix4f();
 
     /** Sets up the OpenGL states. */
-    private void setUpOpenGL() {
+    private void setUpOpenGL2() {
         int maxRenderbufferSize = glGetInteger(GL_MAX_RENDERBUFFER_SIZE_EXT);
 
         if (!GLContext.getCapabilities().OpenGL14 && GLContext.getCapabilities().GL_ARB_shadow) {
@@ -176,7 +176,7 @@ public class Skyroads extends Engine {
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         }
-        generateShadowMap();
+        // generateShadowMap();
     }
 
     /** Sets up the FloatBuffers to be used later on. */
@@ -192,7 +192,7 @@ public class Skyroads extends Engine {
     }
 
     /** Generate the shadow map. */
-    private void generateShadowMap() {
+    private void generateShadowMap2() {
         float lightToSceneDistance, nearPlane, fieldOfView;
         FloatBuffer lightModelView = BufferUtils.createFloatBuffer(16);
         FloatBuffer lightProjection = BufferUtils.createFloatBuffer(16);
@@ -364,7 +364,7 @@ public class Skyroads extends Engine {
         }
 
         this.setUpBufferValues();
-        this.setUpOpenGL();
+        // this.setUpOpenGL();
 
         this.initPhysics();
     }
@@ -451,7 +451,7 @@ public class Skyroads extends Engine {
         }
 
         // handle playerinput
-        // player.handleInput(jump, left, right, up, down);
+        player.handleInput(jump, left, right, up, down);
 
         // // reset position
         if (KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_UP)) {

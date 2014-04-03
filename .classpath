@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/jars/CodecJLayerMP3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/SoundSystem.jar"/>
 	<classpathentry kind="lib" path="lib/jars/LibraryLWJGLOpenAL.jar"/>
 	<classpathentry kind="lib" path="lib/jars/CodecWav.jar"/>
 	<classpathentry kind="lib" path="lib/jars/lwjgl_util.jar"/>
@@ -12,7 +11,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JGame/lib/natives-windows"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/GeMo/workspace/JGame/lib/jars/slick.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jinngine.examples.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/jars/quickhull3d.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jbox2d-library-2.1.2.3-jar-with-dependencies.jar" sourcepath="lib/jars/jbox2d-library-2.1.2.3-sources.jar">
@@ -20,5 +18,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/JGame/lib/jars/jbox2d-library-2.1.2.3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jars/slick.jar"/>
+	<classpathentry kind="lib" path="lib/jars/SoundSystem.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

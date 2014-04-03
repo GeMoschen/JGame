@@ -1,7 +1,6 @@
 package de.gemo.game.core;
 
 import de.gemo.engine.core.Engine;
-import de.gemo.game.jbox2d.JBox2D;
 
 public class Game extends Thread {
 
@@ -13,7 +12,7 @@ public class Game extends Thread {
      */
     public static void main(String[] args) {
         if (INSTANCE == null) {
-            Game game = new Game(new JBox2D());
+            Game game = new Game(new Testgame());
         }
     }
 
