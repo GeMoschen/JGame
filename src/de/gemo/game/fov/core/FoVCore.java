@@ -20,6 +20,8 @@ public class FoVCore extends GameEngine {
 
     private Shader coneShader, ambientShader;
 
+    private Vector2f v1, v2, v3;
+
     public FoVCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
     }
@@ -48,6 +50,10 @@ public class FoVCore extends GameEngine {
 
         ambientShader = new Shader();
         // ambientShader.loadPixelShader("ambientLight.frag");
+
+        v3 = new Vector2f(100, 100);
+        v2 = new Vector2f(200, 100);
+        v1 = new Vector2f(300, 100);
     }
 
     private void updateLights() {
@@ -92,6 +98,9 @@ public class FoVCore extends GameEngine {
             }
             i = 1;
         }
+
+        v2.x = MouseManager.INSTANCE.getMouseVector().getX();
+        v2.y = MouseManager.INSTANCE.getMouseVector().getY();
     }
 
     @Override
@@ -99,8 +108,45 @@ public class FoVCore extends GameEngine {
         this.updateLights();
     }
 
+    private void angleTest() {
+
+        glDisable(GL_BLEND);
+        glColor4f(1, 0, 0, 1);
+        glBegin(GL_LINES);
+        glVertex2f(v1.x, v1.y);
+        glVertex2f(v2.x, v2.y);
+
+        glVertex2f(v2.x, v2.y);
+        glVertex2f(v3.x, v3.y);
+        glEnd();
+
+        float a1 = getAngle(v2, v3);
+        float a2 = getAngle(v1, v2);
+        float allA = 180 + a1 + a2;
+        allA /= 2;
+
+        if (a1 > 90) {
+            allA -= 180;
+        }
+
+        de.gemo.gameengine.units.Vector2f v4 = new de.gemo.gameengine.units.Vector2f(v2.x, v2.y - 20);
+
+        float rad = (float) Math.toRadians(allA);
+        float sin = (float) Math.sin(rad);
+        float cos = (float) Math.cos(rad);
+        v4.rotateAround(new de.gemo.gameengine.units.Vector2f(v2.x, v2.y), sin, cos);
+
+        glColor4f(1, 0, 1, 1);
+        glBegin(GL_LINES);
+        glVertex2f(v2.x, v2.y);
+        glVertex2f(v4.getX(), v4.getY());
+        glEnd();
+    }
+
     @Override
     protected void renderGame2D() {
+        this.angleTest();
+
         // blocks
         glColor3f(1f, 1f, 1f);
         for (Block block : blocks) {
@@ -129,6 +175,7 @@ public class FoVCore extends GameEngine {
         for (LightCone light : lights) {
             light.render(this.blocks, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
+
     }
 
     @Override
