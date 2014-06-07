@@ -514,14 +514,12 @@ public class GameEngine {
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             TrueTypeFont font = FontManager.getFont(FontManager.DEFAULT, Font.PLAIN, 12);
             int x = (int) (this.VIEW_WIDTH / 2f - font.getWidth(text) / 2f);
             int y = (int) (this.VIEW_HEIGHT / 2f - font.getHeight(text) / 2f);
             font.drawString(x, y, text, Color.red);
-
-            glEnable(GL_LIGHTING);
-            glEnable(GL_LIGHT0);
         }
         glPopMatrix();
 

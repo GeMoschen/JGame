@@ -107,7 +107,6 @@ public class FoVCore extends GameEngine {
         for (LightCone light : lights) {
             light.render(this.blocks, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
-
     }
 
     @Override

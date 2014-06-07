@@ -200,6 +200,14 @@ public class MouseManager {
         }
     }
 
+    public int getCurrentX() {
+        return currentX;
+    }
+
+    public int getCurrentY() {
+        return currentY;
+    }
+
     public Hitbox getHitBox() {
         return hitBox;
     }
