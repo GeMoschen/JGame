@@ -28,8 +28,8 @@ public class Player extends EntityCollidable {
     // some fixed vars
     final float jumpHeight = -5f;
     final float doubleJumpHeight = -5f;
-    final float maxVelX = 8.5f;
-    final float addVelX = 0.011f;
+    final float maxVelX = 10.5f;
+    final float addVelX = 0.015f;
 
     private boolean lookingRight = false;
     private float hookDistance = 0f;
@@ -41,6 +41,8 @@ public class Player extends EntityCollidable {
     private boolean keyJumpReleased = false, keyHookReleased = true;
     private boolean keyLeft = false, keyRight = false, keyHook = false, keyJump = false, keyUse = false;
     private long endCollision = 0;
+
+    private int onWallTicks = 0;
 
     public Player(float x, float y) {
         // box
@@ -268,9 +270,16 @@ public class Player extends EntityCollidable {
         // move left
         if (leftDown && !rightDown) {
             if (this.body.getLinearVelocity().x > -maxVelX) {
+                if (this.onWall) {
+                    this.onWallTicks++;
+                } else {
+                    this.onWallTicks = 0;
+                }
                 float half = 0.5f;
                 if (this.getLinearVelocity().x > 0) {
                     half = 0.5f;
+                } else if (this.hookCatched && !this.onGround && !this.onWall) {
+                    half = 1.8f;
                 } else if (!this.onGround) {
                     half = 0.5f;
                 } else if (this.hookCatched) {
@@ -282,7 +291,10 @@ public class Player extends EntityCollidable {
                 if (onWall && !onGround)
                     half = 0.3f;
 
-                this.body.applyLinearImpulse(new Vec2(half * (-addVelX), 0), this.body.getPosition());
+                if (this.onWallTicks > 10 || !this.onWall) {
+                    this.body.applyLinearImpulse(new Vec2(half * (-addVelX), 0), this.body.getPosition());
+                    this.onWallTicks = 0;
+                }
             }
             if (!this.onWall) {
                 this.lookingRight = false;
@@ -292,9 +304,16 @@ public class Player extends EntityCollidable {
         // move right
         if (!leftDown && rightDown) {
             if (this.body.getLinearVelocity().x < maxVelX) {
+                if (this.onWall) {
+                    this.onWallTicks++;
+                } else {
+                    this.onWallTicks = 0;
+                }
                 float half = 0.5f;
                 if (this.getLinearVelocity().x < 0) {
                     half = 0.5f;
+                } else if (this.hookCatched && !this.onGround && !this.onWall) {
+                    half = 1.8f;
                 } else if (!this.onGround) {
                     half = 0.5f;
                 } else if (this.hookCatched) {
@@ -305,7 +324,10 @@ public class Player extends EntityCollidable {
                 if (onWall && !onGround)
                     half = 0.3f;
 
-                this.body.applyLinearImpulse(new Vec2(half * (+addVelX), 0), this.getPosition());
+                if (this.onWallTicks > 10 || !this.onWall) {
+                    this.onWallTicks = 0;
+                    this.body.applyLinearImpulse(new Vec2(half * (+addVelX), 0), this.getPosition());
+                }
             }
             if (!this.onWall) {
                 this.lookingRight = true;
@@ -408,17 +430,20 @@ public class Player extends EntityCollidable {
             this.currentWall = null;
         }
 
+        float velo = (float) Math.abs(vel.x * 0.77f);
         if (this.onWall) {
+            this.onWallTicks = 0;
             if (vel.y <= 0f) {
-                float velo = (float) Math.abs(vel.x * 0.77f + 1f);
                 velo = Math.min(velo, 6.5f);
                 velo = Math.max(velo, 0.43f);
-                this.setLinearVelocity(0, -velo);
             }
 
             this.lookingRight = !this.lookingRight;
             this.setJumping(false);
             this.setDoubleJumpAvailable(true);
+        }
+        if (this.onWall && vel.y <= 0f) {
+            this.setLinearVelocity(0, -velo);
         }
 
         if (this.hook != null && this.hookCatched) {

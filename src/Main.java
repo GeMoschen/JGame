@@ -1,178 +1,131 @@
-import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_EQUAL;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_KEEP;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_ONE;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
 import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.GL_REPLACE;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
+import static org.lwjgl.opengl.GL11.GL_VERSION;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glColorMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glStencilFunc;
-import static org.lwjgl.opengl.GL11.glStencilOp;
 import static org.lwjgl.opengl.GL11.glVertex2f;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glDeleteProgram;
-import static org.lwjgl.opengl.GL20.glDeleteShader;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform2f;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glValidateProgram;
+import static org.lwjgl.opengl.GL20.glUniform4f;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
-
-import de.gemo.game.physics.Shader;
-import de.gemo.gameengine.units.Vector2f;
+import org.lwjgl.util.vector.Vector2f;
 
 public class Main {
 
     public final int width = 800;
     public final int height = 600;
 
-    public ArrayList<Light> lights = new ArrayList<Light>();
+    public ArrayList<LightCone> lights = new ArrayList<LightCone>();
     public ArrayList<Block> blocks = new ArrayList<Block>();
 
-    private Shader shader;
+    private Shader coneShader, ambientShader;
 
     private void render() {
-        // CLEAR BACKGROUND
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        this.updateLights();
 
-        // NORMAL RENDERPASS
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
+        glClear(GL_COLOR_BUFFER_BIT);
 
+        // blocks
+        glColor3f(1f, 1f, 1f);
         for (Block block : blocks) {
-            float minDistance = Integer.MAX_VALUE;
-            for (Light light : lights) {
-                if (light.location.distanceTo(block.getVertices()[0]) / light.brightness < minDistance) {
-                    minDistance = (float) light.location.distanceTo(block.getVertices()[0]) / light.brightness;
-                }
-            }
-
-            minDistance = (1f - (minDistance / 670f));
-            minDistance = Math.max(minDistance, 0);
-
-            glColor4f(minDistance, minDistance, minDistance, minDistance);
-            glBegin(GL_QUADS);
-            {
-                for (Vector2f vertex : block.getVertices()) {
-                    vertex.render();
-                }
-            }
-            glEnd();
+            block.render();
         }
 
-        // LIGHT-RENDERPASS
-        for (Light light : lights) {
-            light.brightness = 1f;
-            glColorMask(false, false, false, false);
-            glStencilFunc(GL_ALWAYS, 1, 1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        // AMBIENT
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        ambientShader.bind();
+        glUniform4f(glGetUniformLocation(ambientShader.getID(), "ambientColor"), 0.3f, 0.3f, 0.7f, 0.5f);
 
-            for (Block block : blocks) {
-                Vector2f[] vertices = block.getVertices();
-                for (int i = 0; i < vertices.length; i++) {
-                    Vector2f currentVertex = vertices[i];
-                    Vector2f nextVertex = vertices[(i + 1) % vertices.length];
-                    Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
-                    Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
-                    Vector2f lightToCurrent = Vector2f.sub(currentVertex, light.location, null);
-                    if (Vector2f.dot(normal, lightToCurrent) > 0) {
-                        Vector2f point1 = Vector2f.add(currentVertex, Vector2f.sub(currentVertex, light.location, null).scale(width), null);
-                        Vector2f point2 = Vector2f.add(nextVertex, Vector2f.sub(nextVertex, light.location, null).scale(width), null);
+        glColor4f(0.3f, 0.3f, 0.7f, 0.5f);
+        glBegin(GL_QUADS);
+        {
+            glVertex2f(0, 0);
+            glVertex2f(800, 0);
+            glVertex2f(800, 600);
+            glVertex2f(0, 600);
+        }
+        glEnd();
+        ambientShader.unbind();
+        glDisable(GL_BLEND);
 
-                        glColor4f(1, 1, 1, 1f);
-                        glBegin(GL_QUADS);
-                        {
-                            glVertex2f(currentVertex.getX(), currentVertex.getY());
-                            glVertex2f(point1.getX(), point1.getY());
-                            glVertex2f(point2.getX(), point2.getY());
-                            glVertex2f(nextVertex.getX(), nextVertex.getY());
-                        }
-                        glEnd();
-                    }
-                }
-            }
-
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            glStencilFunc(GL_EQUAL, 0, 1);
-            glColorMask(true, true, true, true);
-
-            this.shader.bind();
-            glUniform1f(glGetUniformLocation(this.shader.getShaderProgramID(), "lightBrightness"), light.brightness);
-            glUniform2f(glGetUniformLocation(this.shader.getShaderProgramID(), "lightLocation"), light.location.getX(), height - light.location.getY());
-            glUniform3f(glGetUniformLocation(this.shader.getShaderProgramID(), "lightColor"), light.red, light.green, light.blue);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE);
-
-            glBegin(GL_QUADS);
-            {
-                glVertex2f(0, 0);
-                glVertex2f(0, height);
-                glVertex2f(width, height);
-                glVertex2f(width, 0);
-            }
-            glEnd();
-
-            glDisable(GL_BLEND);
-            this.shader.unbind();
-            glClear(GL_STENCIL_BUFFER_BIT);
+        for (LightCone light : lights) {
+            light.render(this.blocks, this.coneShader, this.ambientShader, 800, 600);
         }
 
         Display.update();
         Display.sync(60);
     }
 
+    private void updateLights() {
+        // lights.get(0).location.x = Mouse.getX();
+        // lights.get(0).location.y = height - Mouse.getY();
+        lights.get(0).intensity = 1f;
+        lights.get(0).red = 30f;
+        lights.get(0).green = 0f;
+        lights.get(0).blue = 0f;
+        if (Mouse.isButtonDown(0)) {
+            lights.get(0).target = new Vector2f(Mouse.getX(), height - Mouse.getY());
+        }
+
+        lights.get(0).setAngle(getAngle(lights.get(0).getLocation(), new Vector2f(Mouse.getX(), height - Mouse.getY())));
+        lights.get(0).seek(this.lights);
+        int i = 0;
+        for (LightCone cone : this.lights) {
+            if (i != 0) {
+                cone.update();
+                // cone.seek(this.lights);
+            }
+            i = 1;
+        }
+    }
+
+    public float getAngle(Vector2f target, Vector2f pos) {
+        float angle = (float) Math.toDegrees(Math.atan2(target.y - pos.y, target.x - pos.x));
+
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        return angle - 90;
+    }
+
     private void setUpObjects() {
-        int lightCount = 2 + (int) (Math.random() * 1);
-        int blockCount = 15 + (int) (Math.random() * 1);
+        int lightCount = 5;
+        int blockCount = 10 + (int) (Math.random() * 1);
+        // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
             Vector2f location = new Vector2f((float) Math.random() * width, (float) Math.random() * height);
-            lights.add(new Light(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10, 1));
+            lights.add(new LightCone(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10));
         }
 
         for (int i = 1; i <= blockCount; i++) {
-            int width = 25;
-            int height = 25;
+            int width = 50;
+            int height = 50;
             int x = (int) (Math.random() * (this.width - width));
             int y = (int) (Math.random() * (this.height - height));
             blocks.add(new Block(x, y, width, height));
@@ -188,8 +141,16 @@ public class Main {
             e.printStackTrace();
         }
 
-        this.shader = new Shader();
-        this.shader.loadPixelShader("resources\\shader\\lightshader.frag");
+        System.out.println("OS name: " + System.getProperty("os.name"));
+        System.out.println("OS version: " + System.getProperty("os.version"));
+        System.out.println("LWJGL version: " + org.lwjgl.Sys.getVersion());
+        System.out.println("OpenGL version: " + glGetString(GL_VERSION));
+
+        coneShader = new Shader();
+        coneShader.loadPixelShader("viewcone.frag");
+
+        ambientShader = new Shader();
+        // ambientShader.loadPixelShader("ambientLight.frag");
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -197,11 +158,12 @@ public class Main {
         glMatrixMode(GL_MODELVIEW);
 
         glEnable(GL_STENCIL_TEST);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(0f, 0f, 0f, 0f);
     }
 
     private void cleanup() {
-        this.shader.cleanup();
+        this.coneShader.cleanup();
+        this.ambientShader.cleanup();
         Display.destroy();
     }
 
@@ -212,26 +174,9 @@ public class Main {
         main.initialize();
 
         while (!Display.isCloseRequested()) {
-            main.moveLights();
             main.render();
         }
 
         main.cleanup();
-    }
-
-    private void moveLights() {
-        // for (Light light : this.lights) {
-        // float moveX = 1;
-        // if (Math.random() > 0.5) {
-        // moveX = -1;
-        // }
-        // float moveY = 1;
-        // if (Math.random() > 0.5) {
-        // moveY = -1;
-        // }
-        // light.location.move(moveX, moveY);
-        // }
-        Light light = this.lights.get(0);
-        light.location.set(Mouse.getX(), height - Mouse.getY());
     }
 }

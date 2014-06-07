@@ -35,12 +35,14 @@ public class Hitbox {
         return hitbox;
     }
 
+    private AABB aabb;
     private List<Vector3f> points = new ArrayList<Vector3f>();
     private Vector3f center;
     private float angle = 0f;
 
     public Hitbox(Vector3f center) {
         this.center = center;
+        this.aabb = new AABB();
     }
 
     public Hitbox(float x, float y) {
@@ -64,7 +66,9 @@ public class Hitbox {
     }
 
     public final void addPoint(float x, float y) {
-        this.points.add(new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0));
+        Vector3f vector = new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
+        this.points.add(vector);
+        this.aabb.addPoint(vector.getX(), vector.getY());
     }
 
     public final Vector3f getCenter() {
@@ -83,8 +87,10 @@ public class Hitbox {
 
     public final void move(float x, float y) {
         this.center.move(x, y);
+        this.aabb.reset();
         for (Vector3f vector : this.points) {
             vector.move(x, y);
+            this.aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
@@ -101,8 +107,10 @@ public class Hitbox {
         float rad = (float) Math.toRadians(angle);
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
+        this.aabb.reset();
         for (Vector3f vector : this.points) {
             vector.rotateAround(this.getCenter(), sin, cos);
+            this.aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
@@ -120,8 +128,10 @@ public class Hitbox {
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
         this.center.rotateAround(center, sin, cos);
+        this.aabb.reset();
         for (Vector3f vector : this.points) {
             vector.rotateAround(center, sin, cos);
+            this.aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
@@ -223,6 +233,10 @@ public class Hitbox {
             }
         }
         return result + " }";
+    }
+
+    public AABB getAABB() {
+        return aabb;
     }
 
     public static Hitbox load(Vector3f baseVector, ArrayList<Vector3f> pointList) {
