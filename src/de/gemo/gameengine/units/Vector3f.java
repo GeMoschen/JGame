@@ -2,6 +2,8 @@ package de.gemo.gameengine.units;
 
 import java.io.*;
 
+import org.lwjgl.util.vector.Vector2f;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class Vector3f implements Serializable {
@@ -41,6 +43,20 @@ public class Vector3f implements Serializable {
         x = (float) tempx;
         y = (float) tempy;
         this.dirty = true;
+    }
+
+    public float getAngle(Vector3f other) {
+        float angle = (float) Math.toDegrees(Math.atan2(other.getY() - this.getY(), other.getX() - this.getX()));
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle - 90;
+    }
+
+    public float getDistance(Vector3f other) {
+        float xDist = other.x - this.x;
+        float yDist = other.y - this.y;
+        return (float) Math.sqrt(xDist * xDist + yDist * yDist);
     }
 
     public void rotateAround(Vector3f vector, float angle) {

@@ -17,10 +17,12 @@ public class Block {
 
     private void createHitbox(int x, int y, int width, int height) {
         this.hitbox = new Hitbox(x, y);
-        this.hitbox.addPoint(0, 0);
-        this.hitbox.addPoint(0, 0 + height);
-        this.hitbox.addPoint(0 + width, 0 + height);
-        this.hitbox.addPoint(0 + width, 0);
+        this.hitbox.addPoint(-width, -height);
+        this.hitbox.addPoint(-width, +height);
+        this.hitbox.addPoint(0, +height + (float) Math.random() * 10f);
+        this.hitbox.addPoint(+width, +height);
+        this.hitbox.addPoint(+width, -height);
+        this.hitbox.addPoint(0, -height + (float) Math.random() * 10f);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -28,14 +30,22 @@ public class Block {
     }
 
     public Vector2f[] getVertices() {
-        return new Vector2f[] { new Vector2f(x, y), new Vector2f(x, y + height), new Vector2f(x + width, y + height), new Vector2f(x + width, y) };
+        Vector2f[] vertices = new Vector2f[this.hitbox.getPointCount()];
+        for (int i = 0; i < this.hitbox.getPointCount(); i++) {
+            vertices[i] = new Vector2f(this.hitbox.getPoint(i).getX(), this.hitbox.getPoint(i).getY());
+        }
+        return vertices;
     }
 
     public void render() {
-        glBegin(GL_QUADS);
+        glBegin(GL_TRIANGLES);
         {
-            for (Vector2f vertex : this.getVertices()) {
-                glVertex2f(vertex.getX(), vertex.getY());
+            for (int i = 0; i < getVertices().length; i++) {
+                Vector2f current = getVertices()[i];
+                Vector2f last = getVertices()[i == 0 ? getVertices().length - 1 : i - 1];
+                glVertex2f(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getY());
+                glVertex2f(current.getX(), current.getY());
+                glVertex2f(last.getX(), last.getY());
             }
         }
         glEnd();

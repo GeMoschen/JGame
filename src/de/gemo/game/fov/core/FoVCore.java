@@ -20,8 +20,6 @@ public class FoVCore extends GameEngine {
 
     private Shader coneShader, ambientShader;
 
-    private Vector2f v1, v2, v3;
-
     public FoVCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
     }
@@ -38,8 +36,8 @@ public class FoVCore extends GameEngine {
         }
 
         for (int i = 1; i <= blockCount; i++) {
-            int width = 50;
-            int height = 50;
+            int width = 30;
+            int height = 30;
             int x = (int) (Math.random() * (this.VIEW_WIDTH - width));
             int y = (int) (Math.random() * (this.VIEW_HEIGHT - height));
             blocks.add(new Block(x, y, width, height));
@@ -50,10 +48,6 @@ public class FoVCore extends GameEngine {
 
         ambientShader = new Shader();
         // ambientShader.loadPixelShader("ambientLight.frag");
-
-        v3 = new Vector2f(100, 100);
-        v2 = new Vector2f(200, 100);
-        v1 = new Vector2f(300, 100);
     }
 
     private void updateLights() {
@@ -98,9 +92,6 @@ public class FoVCore extends GameEngine {
             }
             i = 1;
         }
-
-        v2.x = MouseManager.INSTANCE.getMouseVector().getX();
-        v2.y = MouseManager.INSTANCE.getMouseVector().getY();
     }
 
     @Override
@@ -108,49 +99,20 @@ public class FoVCore extends GameEngine {
         this.updateLights();
     }
 
-    private void angleTest() {
-
-        glDisable(GL_BLEND);
-        glColor4f(1, 0, 0, 1);
-        glBegin(GL_LINES);
-        glVertex2f(v1.x, v1.y);
-        glVertex2f(v2.x, v2.y);
-
-        glVertex2f(v2.x, v2.y);
-        glVertex2f(v3.x, v3.y);
-        glEnd();
-
-        float a1 = getAngle(v2, v3);
-        float a2 = getAngle(v1, v2);
-        float allA = 180 + a1 + a2;
-        allA /= 2;
-
-        if (a1 > 90) {
-            allA -= 180;
-        }
-
-        de.gemo.gameengine.units.Vector2f v4 = new de.gemo.gameengine.units.Vector2f(v2.x, v2.y - 20);
-
-        float rad = (float) Math.toRadians(allA);
-        float sin = (float) Math.sin(rad);
-        float cos = (float) Math.cos(rad);
-        v4.rotateAround(new de.gemo.gameengine.units.Vector2f(v2.x, v2.y), sin, cos);
-
-        glColor4f(1, 0, 1, 1);
-        glBegin(GL_LINES);
-        glVertex2f(v2.x, v2.y);
-        glVertex2f(v4.getX(), v4.getY());
-        glEnd();
+    private void angleTest(Block block) {
+        Hitbox hitbox = block.getHitbox().clone();
+        hitbox.scaleByPixel(15);
+        hitbox.render();
     }
 
     @Override
     protected void renderGame2D() {
-        this.angleTest();
 
         // blocks
-        glColor3f(1f, 1f, 1f);
         for (Block block : blocks) {
+            glColor3f(1f, 1f, 1f);
             block.render();
+            this.angleTest(block);
         }
 
         // AMBIENT
@@ -186,6 +148,16 @@ public class FoVCore extends GameEngine {
 
     public float getAngle(Vector2f target, Vector2f pos) {
         float angle = (float) Math.toDegrees(Math.atan2(target.y - pos.y, target.x - pos.x));
+
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        return angle - 90;
+    }
+
+    public float getAngle(de.gemo.gameengine.units.Vector3f target, de.gemo.gameengine.units.Vector3f pos) {
+        float angle = (float) Math.toDegrees(Math.atan2(target.getY() - pos.getY(), target.getX() - pos.getX()));
 
         if (angle < 0) {
             angle += 360;

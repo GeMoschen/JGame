@@ -210,6 +210,18 @@ public class Hitbox {
         this.setAngle(currentAngle);
     }
 
+    public void scaleByPixel(float pixel) {
+        for (Vector3f vector : this.points) {
+            float angle = vector.getAngle(this.center) - 90;
+            float distance = vector.getDistance(center);
+            int sign = 1;
+            if (distance < 0)
+                sign = -1;
+            vector.setX(center.getX() + ((float) (Math.cos(Math.toRadians(angle)) * (distance + pixel * sign))));
+            vector.setY(center.getY() + ((float) (Math.sin(Math.toRadians(angle)) * (distance + pixel * sign))));
+        }
+    }
+
     public void scaleX(float scaleX) {
         this.scale(scaleX, 1f);
     }
@@ -221,7 +233,7 @@ public class Hitbox {
     public Hitbox clone() {
         Hitbox otherBox = new Hitbox(this.center.clone());
         for (Vector3f vector : this.points) {
-            otherBox.addPoint(vector.clone());
+            otherBox.addPoint(Vector3f.sub(vector, this.center));
         }
         return otherBox;
     }
