@@ -171,7 +171,9 @@ public class LightCone {
         }
 
         for (PolyDefault shadow : shadows) {
-            polygon = (PolyDefault) polygon.difference(shadow);
+            if (!polygon.isHole()) {
+                polygon = (PolyDefault) polygon.difference(shadow);
+            }
         }
 
         // this.hitbox.render();

@@ -26,7 +26,7 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 10;
+        int lightCount = 20;
         int blockCount = 25;
         // int blockCount = 3;
 
@@ -101,7 +101,8 @@ public class FoVCore extends GameEngine {
 
     private void angleTest(Block block) {
         Hitbox hitbox = block.getHitbox().clone();
-        hitbox.scaleByPixel(15);
+        hitbox.scale(1.2f, 1.2f);
+        // hitbox.scaleByPixel(-10);
         hitbox.render();
     }
 

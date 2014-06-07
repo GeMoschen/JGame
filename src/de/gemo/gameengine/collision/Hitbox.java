@@ -1,11 +1,9 @@
 package de.gemo.gameengine.collision;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
-import org.newdawn.slick.Color;
+import org.newdawn.slick.*;
 
 import de.gemo.gameengine.units.*;
 
@@ -212,13 +210,12 @@ public class Hitbox {
 
     public void scaleByPixel(float pixel) {
         for (Vector3f vector : this.points) {
-            float angle = vector.getAngle(this.center) - 90;
-            float distance = vector.getDistance(center);
-            int sign = 1;
-            if (distance < 0)
-                sign = -1;
-            vector.setX(center.getX() + ((float) (Math.cos(Math.toRadians(angle)) * (distance + pixel * sign))));
-            vector.setY(center.getY() + ((float) (Math.sin(Math.toRadians(angle)) * (distance + pixel * sign))));
+            Vector3f vect = Vector3f.sub(center, vector);
+            vect = Vector3f.normalize(vect);
+            vect = vect.scale(pixel);
+            Vector3f newVector = Vector3f.add(vector, vect);
+            vector.setX(newVector.getX());
+            vector.setY(newVector.getY());
         }
     }
 
