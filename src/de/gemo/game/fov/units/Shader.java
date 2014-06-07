@@ -1,3 +1,5 @@
+package de.gemo.game.fov.units;
+
 import static org.lwjgl.opengl.GL20.glDeleteProgram;
 import static org.lwjgl.opengl.GL20.glDeleteShader;
 import static org.lwjgl.opengl.GL20.glValidateProgram;

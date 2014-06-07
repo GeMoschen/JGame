@@ -1,3 +1,5 @@
+package de.gemo.game.fov.units;
+
 import org.lwjgl.util.vector.Vector2f;
 
 public class LightBasic {

@@ -1,3 +1,5 @@
+package de.gemo.game.fov.units;
+
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_EQUAL;
@@ -38,6 +40,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.seisw.util.geom.Point2D;
 import com.seisw.util.geom.PolyDefault;
 
+import de.gemo.game.fov.core.*;
+import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.units.*;
 
