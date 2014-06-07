@@ -39,7 +39,7 @@ public class CollisionHelper {
 
     // Use the JC-Theorem for collisiondetection
     public static boolean isColliding(Hitbox hitboxA, Hitbox hitboxB) {
-        if (hitboxA == null || hitboxB == null) {
+        if (hitboxA == null || hitboxB == null || !hitboxA.getAABB().collides(hitboxB.getAABB())) {
             return false;
         }
         for (Vector3f vector : hitboxA.getPoints()) {
@@ -57,7 +57,7 @@ public class CollisionHelper {
 
     // Use the JC-Theorem for collisiondetection
     public static boolean isCollidingFast(Hitbox hitboxA, Hitbox hitboxB) {
-        if (hitboxA == null || hitboxB == null) {
+        if (hitboxA == null || hitboxB == null || !hitboxA.getAABB().collides(hitboxB.getAABB())) {
             return false;
         }
         for (Vector3f vector : hitboxA.getPoints()) {
@@ -75,7 +75,7 @@ public class CollisionHelper {
 
     // find intersections
     public static ArrayList<Vector3f> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
-        if (hitboxA == null || hitboxB == null) {
+        if (hitboxA == null || hitboxB == null || !hitboxA.getAABB().collides(hitboxB.getAABB())) {
             return null;
         }
 
