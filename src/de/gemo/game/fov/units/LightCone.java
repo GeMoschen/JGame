@@ -1,49 +1,16 @@
 package de.gemo.game.fov.units;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_EQUAL;
-import static org.lwjgl.opengl.GL11.GL_KEEP;
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.GL_NEVER;
-import static org.lwjgl.opengl.GL11.GL_ONE;
-import static org.lwjgl.opengl.GL11.GL_POLYGON;
-import static org.lwjgl.opengl.GL11.GL_REPLACE;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glColorMask;
-import static org.lwjgl.opengl.GL11.glDepthMask;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glStencilFunc;
-import static org.lwjgl.opengl.GL11.glStencilMask;
-import static org.lwjgl.opengl.GL11.glStencilOp;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glVertex2f;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glUniform2f;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
 
-import com.seisw.util.geom.Point2D;
-import com.seisw.util.geom.PolyDefault;
+import com.seisw.util.geom.*;
 
-import de.gemo.game.fov.core.*;
-import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.units.*;
+import de.gemo.gameengine.units.Vector3f;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
 public class LightCone {
     private Vector2f location;
@@ -56,6 +23,7 @@ public class LightCone {
 
     public Vector2f velocity = new Vector2f();
     public Hitbox hitbox;
+    private boolean alerted = false;
 
     public LightCone(Vector2f location, float red, float green, float blue) {
         this.location = location;
@@ -133,9 +101,15 @@ public class LightCone {
 
         // bind shader
         coneShader.bind();
+
         glUniform2f(glGetUniformLocation(coneShader.getID(), "lightLocation"), this.location.getX(), height - this.location.getY());
-        glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.1f, 0.4f, 0.0f);
-        glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.05f, 0.2f, 0.0f);
+        if (!alerted) {
+            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.1f, 0.4f, 0.0f);
+            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.05f, 0.2f, 0.0f);
+        } else {
+            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.4f, 0.1f, 0.0f);
+            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.2f, 0.05f, 0.0f);
+        }
 
         // enable blending
         glEnable(GL_BLEND);
@@ -200,16 +174,24 @@ public class LightCone {
             polygon = (PolyDefault) polygon.difference(shadow);
         }
 
-        this.hitbox.render();
+        // this.hitbox.render();
         glBegin(GL_LINE_LOOP);
         {
+            if (this.alerted) {
+                glColor4f(1, 0, 0, 0.5f);
+            } else {
+                glColor4f(0, 1, 0, 0.5f);
+            }
             for (int i = 0; i < polygon.getNumPoints(); i++) {
-                glColor4f(1, 0, 0, 1f);
                 glVertex2f((float) polygon.getX(i), (float) polygon.getY(i));
             }
         }
         glEnd();
 
+    }
+
+    public Hitbox getHitbox() {
+        return hitbox;
     }
 
     public boolean exists(List<Vector2f> list, Vector2f search) {
@@ -266,7 +248,7 @@ public class LightCone {
 
         this.velocity = Vector2f.add(velocity, steering, null);
 
-        this.velocity = Vector2f.add(velocity, this.seperate(list), null);
+        // this.velocity = Vector2f.add(velocity, this.seperate(list), null);
         this.velocity = truncate(velocity, maxVelocity);
 
         // move
@@ -278,37 +260,45 @@ public class LightCone {
         }
     }
 
+    public void setAlerted(boolean alerted) {
+        this.alerted = alerted;
+    }
+
     public Vector2f seperate(List<LightCone> list) {
         Vector2f v = new Vector2f();
-        int neighborCount = 0;
-        for (LightCone agent : list) {
-            if (this == list) {
-                continue;
-            }
-            if (Math.abs(this.getDistance(agent.location)) < 150) {
-                v.x += agent.location.x - this.location.x;
-                v.y += agent.location.x - this.location.x;
-                neighborCount++;
-            }
-        }
-
-        if (neighborCount == 0) {
-            return v;
-        }
-
-        v.x /= neighborCount;
-        v.y /= neighborCount;
-
-        v.x *= -1;
-        v.y *= -1;
-
-        if (v.x == 0 && v.y == 0) {
-            return v;
-        }
-
-        v.normalise();
-        this.truncate(v, 1.0f);
+        // int neighborCount = 0;
+        // for (LightCone agent : list) {
+        // if (this == list) {
+        // continue;
+        // }
+        // if (Math.abs(this.getDistance(agent.location)) < 150) {
+        // v.x += agent.location.x - this.location.x;
+        // v.y += agent.location.x - this.location.x;
+        // neighborCount++;
+        // }
+        // }
+        //
+        // if (neighborCount == 0) {
+        // return v;
+        // }
+        //
+        // v.x /= neighborCount;
+        // v.y /= neighborCount;
+        //
+        // v.x *= -1;
+        // v.y *= -1;
+        //
+        // if (v.x == 0 && v.y == 0) {
+        // return v;
+        // }
+        //
+        // v.normalise();
+        // this.truncate(v, 1.0f);
         return v;
+    }
+
+    public boolean collides(LightCone other) {
+        return CollisionHelper.isVectorInHitbox(new Vector3f(other.getLocation().x, other.getLocation().y, 0), this.hitbox);
     }
 
     private Vector2f truncate(Vector2f vector, float maxForce) {

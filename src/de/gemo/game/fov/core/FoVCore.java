@@ -5,12 +5,13 @@ import java.util.*;
 import org.lwjgl.input.*;
 import org.lwjgl.util.vector.*;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
-
 import de.gemo.game.fov.units.*;
+import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
 public class FoVCore extends GameEngine {
 
@@ -25,8 +26,8 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 5;
-        int blockCount = 10 + (int) (Math.random() * 1);
+        int lightCount = 10;
+        int blockCount = 25;
         // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
@@ -50,8 +51,6 @@ public class FoVCore extends GameEngine {
     }
 
     private void updateLights() {
-        // lights.get(0).location.x = Mouse.getX();
-        // lights.get(0).location.y = height - Mouse.getY();
         lights.get(0).intensity = 1f;
         lights.get(0).red = 30f;
         lights.get(0).green = 0f;
@@ -65,8 +64,31 @@ public class FoVCore extends GameEngine {
         int i = 0;
         for (LightCone cone : this.lights) {
             if (i != 0) {
-                cone.update();
-                // cone.seek(this.lights);
+                if (!cone.collides(lights.get(0))) {
+                    cone.update();
+                    cone.setAlerted(false);
+                } else {
+                    // create raycast
+                    Hitbox raycast = new Hitbox(0, 0);
+                    raycast.addPoint(cone.getLocation().x, cone.getLocation().y);
+                    raycast.addPoint(lights.get(0).getLocation().x, lights.get(0).getLocation().y);
+
+                    // check for colliding polys
+                    boolean canSeeTarget = false;
+                    for (Block block : this.blocks) {
+                        if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+                            canSeeTarget = true;
+                            break;
+                        }
+                    }
+                    if (canSeeTarget) {
+                        cone.update();
+                        cone.setAlerted(false);
+                    } else {
+                        cone.setAlerted(true);
+                        cone.setAngle(getAngle(cone.getLocation(), lights.get(0).getLocation()));
+                    }
+                }
             }
             i = 1;
         }

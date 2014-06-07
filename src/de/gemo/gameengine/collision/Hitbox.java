@@ -175,7 +175,7 @@ public class Hitbox {
             }
             glPopMatrix();
 
-            // render boundingbox
+            // render hitbox
             glPushMatrix();
             {
                 Color.green.bind();
@@ -186,6 +186,9 @@ public class Hitbox {
                 glEnd();
             }
             glPopMatrix();
+
+            // render AABB
+            // this.aabb.render();
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
