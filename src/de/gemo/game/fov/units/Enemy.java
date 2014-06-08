@@ -68,7 +68,7 @@ public class Enemy {
             // check for colliding polys
             canSeeTarget = true;
             for (Tile block : tileList) {
-                if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+                if (CollisionHelper.findIntersection(block.expanded, raycast) != null) {
                     canSeeTarget = false;
                     break;
                 }

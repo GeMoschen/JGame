@@ -60,14 +60,13 @@ public class NavNode implements Comparable<NavNode> {
             }
             glEnd();
 
-            glColor4f(1f, 1f, 1f, 0.015f);
+            glColor4f(1f, 1f, 1f, 0.005f);
 
             glBegin(GL_LINES);
             {
                 for (NavNode neighbor : this.neighbors) {
                     glVertex2f(this.position.getX(), this.position.getY());
                     glVertex2f(neighbor.position.getX(), neighbor.position.getY());
-
                 }
             }
             glEnd();

@@ -65,7 +65,7 @@ public class NavMesh {
                 // check for colliding polys
                 boolean canSeeTarget = true;
                 for (Tile block : tileList) {
-                    if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+                    if (CollisionHelper.findIntersection(block.expanded, raycast) != null) {
                         canSeeTarget = false;
                         break;
                     }
@@ -116,7 +116,7 @@ public class NavMesh {
         // check for colliding polys
         boolean canSeeTarget = true;
         for (Tile block : tileList) {
-            if (CollisionHelper.findIntersection(raycast, this.expandHitbox(block.getHitbox(), 10)) != null) {
+            if (CollisionHelper.findIntersection(this.expandHitbox(block.getHitbox(), 10), raycast) != null) {
                 canSeeTarget = false;
                 break;
             }
@@ -219,15 +219,15 @@ public class NavMesh {
     private void findNeighborsForNode(NavNode node, List<Tile> tileList, boolean useExpanded) {
         // add neighbors to startNode
         List<Hitbox> expanded = new ArrayList<Hitbox>();
-        if (useExpanded) {
-            for (Tile block : tileList) {
-                expanded.add(block.expanded);
-            }
-        } else {
-            for (Tile block : tileList) {
-                expanded.add(block.getHitbox());
-            }
+        // if (useExpanded) {
+        for (Tile block : tileList) {
+            expanded.add(block.expanded);
         }
+        // } else {
+        // for (Tile block : tileList) {
+        // expanded.add(block.getHitbox());
+        // }
+        // }
 
         // create raycast
         Hitbox raycast = new Hitbox(0, 0);
