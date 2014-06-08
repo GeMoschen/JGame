@@ -5,21 +5,15 @@ import java.util.*;
 import org.lwjgl.util.vector.Vector2f;
 
 import de.gemo.game.fov.navigation.*;
-import de.gemo.game.fov.navigation.Path;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.units.Vector3f;
-import de.gemo.pathfinding.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 public class Enemy {
     private Vector3f location;
-    public float red;
-    public float green;
-    public float blue;
-    public float intensity = 1;
     private float angle = 0f, momentum = 0f;
 
     public Vector3f velocity = new Vector3f();
@@ -30,11 +24,8 @@ public class Enemy {
     private int waypointIndex = 0;
     private Vector3f currentWaypoint = null;
 
-    public Enemy(Vector3f location, float red, float green, float blue) {
+    public Enemy(Vector3f location) {
         this.location = location;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
         this.momentum = (float) Math.random() * 1.5f;
         if (Math.random() < 0.5) {
             this.momentum = -this.momentum;
@@ -87,13 +78,11 @@ public class Enemy {
                 if (this.path != null) {
                     this.waypointIndex++;
                     this.currentWaypoint = this.path.getNode(this.waypointIndex);
-                    System.out.println("goal found");
                     return;
                 }
             }
             tries++;
         }
-        System.out.println("no goal found");
     }
 
     public void render(List<Tile> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
@@ -232,9 +221,9 @@ public class Enemy {
         // }
         // glEnd();
 
-//        if (this.path != null) {
-//            this.path.render();
-//        }
+        if (this.path != null) {
+            this.path.render(this.waypointIndex);
+        }
 
     }
 
@@ -264,7 +253,7 @@ public class Enemy {
             this.setAngle(this.currentWaypoint.getAngle(this.location));
 
             float maxVelocity = 0.02f;
-            float maxForce = 1f;
+            float maxForce = 1.5f;
             float mass = 1f;
             Vector3f desired = new Vector3f();
             Vector3f.sub(currentWaypoint, location, desired);
@@ -284,9 +273,7 @@ public class Enemy {
                 this.waypointIndex++;
                 if (this.path != null) {
                     if (this.waypointIndex == this.path.getPath().size()) {
-                        System.out.println("searching....");
                         this.findRandomGoal(navMesh, tileList);
-                        System.out.println("done....");
                     } else {
                         this.currentWaypoint = this.path.getNode(this.waypointIndex);
                     }

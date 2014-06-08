@@ -60,21 +60,17 @@ public class NavNode implements Comparable<NavNode> {
             }
             glEnd();
 
-            glColor4f(1f, 1f, 1f, 0.01f);
+            glColor4f(1f, 1f, 1f, 0.015f);
 
-            for (NavNode neighbor : this.neighbors) {
-                glBegin(GL_LINES);
-                {
+            glBegin(GL_LINES);
+            {
+                for (NavNode neighbor : this.neighbors) {
                     glVertex2f(this.position.getX(), this.position.getY());
                     glVertex2f(neighbor.position.getX(), neighbor.position.getY());
-                }
-                glEnd();
-            }
 
-            // glEnable(GL_TEXTURE_2D);
-            // FontManager.getStandardFont().drawString(this.position.getX(),
-            // this.position.getY() + 5, "" +
-            // (int)goal.distanceTo(this.position));
+                }
+            }
+            glEnd();
         }
         glPopMatrix();
     }

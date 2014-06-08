@@ -220,7 +220,6 @@ public class Hitbox {
             vector.setX(vect.getX() + vector.getX());
             vector.setY(vect.getY() + vector.getY());
         }
-        
     }
 
     public void scaleX(float scaleX) {

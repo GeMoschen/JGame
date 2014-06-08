@@ -14,8 +14,8 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class FoVCore extends GameEngine {
 
-    private ArrayList<Enemy> lights = new ArrayList<Enemy>();
-    private ArrayList<Tile> blocks = new ArrayList<Tile>();
+    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    private ArrayList<Tile> tiles = new ArrayList<Tile>();
     private NavMesh navMesh;
 
     private Shader coneShader, ambientShader;
@@ -26,21 +26,21 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 5;
-        int blockCount = 20;
+        int lightCount = 4;
+        int blockCount = 80;
         // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
             Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
-            lights.add(new Enemy(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10));
+            enemies.add(new Enemy(location));
         }
 
         for (int i = 1; i <= blockCount; i++) {
-            int width = 30;
-            int height = 30;
+            int width = 15;
+            int height = 15;
             int x = (int) (Math.random() * (this.VIEW_WIDTH - width));
             int y = (int) (Math.random() * (this.VIEW_HEIGHT - height));
-            blocks.add(new Tile(x, y, width, height));
+            tiles.add(new Tile(x, y, width, height));
         }
 
         coneShader = new Shader();
@@ -49,26 +49,22 @@ public class FoVCore extends GameEngine {
         ambientShader = new Shader();
         // ambientShader.loadPixelShader("ambientLight.frag");
 
-        this.navMesh = new NavMesh(this.blocks);
+        this.navMesh = new NavMesh(this.tiles);
     }
 
     @Override
     public void onMouseDown(boolean handled, MouseClickEvent event) {
         if (event.isRightButton()) {
-            this.lights.get(0).findRandomGoal(navMesh, this.blocks);
+            this.enemies.get(0).findRandomGoal(navMesh, this.tiles);
         }
     }
 
     private void updateLights() {
-        lights.get(0).intensity = 1f;
-        lights.get(0).red = 30f;
-        lights.get(0).green = 0f;
-        lights.get(0).blue = 0f;
-
         // lights.get(0).setAngle(getAngle(lights.get(0).getLocation(),
         // MouseManager.INSTANCE.getMouseVector()));
-        for (Enemy cone : this.lights) {
-            cone.update(this.navMesh, this.blocks);
+        for (Enemy enemy : this.enemies) {
+            enemy.update(this.navMesh, this.tiles);
+
             // if (!cone.collides(lights.get(0))) {
             // cone.update();
             // // cone.setAlerted(false);
@@ -108,7 +104,7 @@ public class FoVCore extends GameEngine {
     protected void renderGame2D() {
 
         // blocks
-        for (Tile block : blocks) {
+        for (Tile block : tiles) {
             glColor4f(1f, 1f, 1f, 0.5f);
             block.renderHitbox();
         }
@@ -132,8 +128,8 @@ public class FoVCore extends GameEngine {
         glDisable(GL_BLEND);
 
         // render lightcones
-        for (Enemy light : lights) {
-            light.render(this.blocks, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
+        for (Enemy light : enemies) {
+            light.render(this.tiles, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
 
         // this.navMesh.createNavMesh(this.blocks);
