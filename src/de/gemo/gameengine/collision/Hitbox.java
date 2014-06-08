@@ -271,5 +271,4 @@ public class Hitbox {
             e.printStackTrace();
         }
     }
-
 }

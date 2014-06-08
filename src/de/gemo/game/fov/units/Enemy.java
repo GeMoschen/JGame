@@ -59,7 +59,7 @@ public class Enemy {
         this.waypointIndex = 0;
         this.path = null;
         this.currentWaypoint = null;
-        while (!canSeeTarget && tries < 150) {
+        while (!canSeeTarget && tries < 300) {
             // create raycast
             Hitbox raycast = new Hitbox(0, 0);
             raycast.addPoint(this.location);
@@ -269,7 +269,7 @@ public class Enemy {
             this.velocity = Vector3f.add(velocity, steering);
             Vector3f.add(this.location, this.velocity, this.location);
 
-            if (this.isNearTarget(5)) {
+            if (this.isNearTarget(2)) {
                 this.waypointIndex++;
                 if (this.path != null) {
                     if (this.waypointIndex == this.path.getPath().size()) {

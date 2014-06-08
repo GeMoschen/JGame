@@ -197,7 +197,9 @@ public class Vector3f implements Serializable {
     }
 
     public double distanceTo(Vector3f vector) {
-        return Math.sqrt(Math.pow(vector.getX() - this.getX(), 2) + Math.pow(vector.getY() - this.getY(), 2));
+        float x = vector.getX() - this.getX();
+        float y = vector.getY() - this.getY();
+        return Math.sqrt(x * x + y * y);
     }
 
     public Vector3f clone() {

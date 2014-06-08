@@ -23,30 +23,30 @@ public class NavMesh {
     public Path path = null;
 
     public void createNavMesh(List<Tile> tileList) {
+        // clear old navpoints
+
         this.navPoints.clear();
         // add all available points
         for (Tile tile : tileList) {
             Hitbox hitbox = this.expandHitbox(tile.getHitbox(), 10);
             for (Vector3f vector : hitbox.getPoints()) {
-
-                boolean found = false;
+                boolean isInsidePolygon = false;
                 for (Tile checkTile : tileList) {
                     if (tile == checkTile) {
                         continue;
                     }
 
-                    Hitbox otherHitbox = this.expandHitbox(checkTile.getHitbox(), 9);
+                    Hitbox otherHitbox = checkTile.expanded;
                     if (CollisionHelper.isVectorInHitbox(vector, otherHitbox)) {
-                        found = true;
+                        isInsidePolygon = true;
                         break;
                     }
                 }
-                if (!found) {
+                if (!isInsidePolygon) {
                     this.navPoints.add(new NavNode(vector));
                 }
             }
         }
-
         this.findNeighbours(tileList);
     }
 
@@ -250,6 +250,7 @@ public class NavMesh {
             if (canSeeTarget) {
                 node.addNeighbor(other);
                 other.addNeighbor(node);
+
             }
         }
     }
