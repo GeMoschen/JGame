@@ -24,8 +24,8 @@ public class NavMesh {
 
     public void createNavMesh(List<Tile> tileList) {
         // clear old navpoints
-
         this.navPoints.clear();
+
         // add all available points
         for (Tile tile : tileList) {
             Hitbox hitbox = this.expandHitbox(tile.getHitbox(), 10);
@@ -241,9 +241,9 @@ public class NavMesh {
         Hitbox raycast = new Hitbox(0, 0);
         raycast.addPoint(node.getPosition());
         for (NavNode other : this.navPoints) {
-            if (other.getPosition().getDistance(node.getPosition()) > 250) {
-                continue;
-            }
+            // if (other.getPosition().getDistance(node.getPosition()) > 240) {
+            // continue;
+            // }
 
             // create raycast
             if (raycast.getPointCount() > 1) {

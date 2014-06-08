@@ -281,19 +281,18 @@ public class Enemy {
         miniBox.addPoint(0, 10);
         for (Tile tile : tileList) {
             Hitbox exp = tile.getHitbox().clone();
-            exp.scaleByPixel(10.1f);
+            exp.scaleByPixel(10.5f);
             if (CollisionHelper.isVectorInHitbox(this.location, exp)) {
                 Vector3f minVector = Vector3f.sub(this.getLocation(), exp.getCenter());
 
                 this.velocity = minVector.clone();
                 if (this.velocity.getX() == 0 && this.velocity.getY() == 0) {
-                    this.velocity.setX(2.5f);
+                    this.velocity.setX(0.5f);
                 }
-                velocity.truncate(2.5f);
-                System.out.println("coll");
+                velocity.truncate(0.5f);
 
                 Vector3f.add(this.location, this.velocity, this.location);
-                // return;
+                return;
             }
         }
 

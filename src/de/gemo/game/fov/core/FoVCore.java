@@ -27,7 +27,6 @@ public class FoVCore extends GameEngine {
     protected void createManager() {
         int lightCount = 5;
         int blockCount = 80;
-        // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
             Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
@@ -138,7 +137,7 @@ public class FoVCore extends GameEngine {
             light.render(this.tiles, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
 
-        // this.navMesh.createNavMesh(this.blocks);
+        // this.navMesh.createNavMesh(this.tiles);
         this.navMesh.render();
         if (this.navMesh.path != null) {
             this.navMesh.path.render();
