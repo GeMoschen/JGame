@@ -2,8 +2,6 @@ package de.gemo.gameengine.units;
 
 import java.io.*;
 
-import org.lwjgl.util.vector.Vector2f;
-
 import static org.lwjgl.opengl.GL11.*;
 
 public class Vector3f implements Serializable {

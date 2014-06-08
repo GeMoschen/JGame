@@ -83,6 +83,10 @@ public class Hitbox {
         this.setCenter(vector.getX(), vector.getY());
     }
 
+    public final void setCenter(Vector3f vector) {
+        this.setCenter(vector.getX(), vector.getY());
+    }
+
     public final void move(float x, float y) {
         this.center.move(x, y);
         this.aabb.reset();

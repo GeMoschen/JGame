@@ -4,8 +4,6 @@ import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
 
-import com.seisw.util.geom.*;
-
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.units.Vector3f;
 
@@ -13,19 +11,19 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 public class LightCone {
-    private Vector2f location;
+    private Vector3f location;
     public float red;
     public float green;
     public float blue;
     public float intensity = 1;
     private float angle = 0f, momentum = 0f;
-    public Vector2f target = null;
+    public Vector3f target = null;
 
-    public Vector2f velocity = new Vector2f();
+    public Vector3f velocity = new Vector3f();
     public Hitbox hitbox;
     private boolean alerted = false;
 
-    public LightCone(Vector2f location, float red, float green, float blue) {
+    public LightCone(Vector3f location, float red, float green, float blue) {
         this.location = location;
         this.red = red;
         this.green = green;
@@ -38,7 +36,7 @@ public class LightCone {
     }
 
     private void createHitbox() {
-        this.hitbox = new Hitbox(this.location.x, this.location.y);
+        this.hitbox = new Hitbox(this.location);
         this.hitbox.addPoint(0, 0);
         this.hitbox.addPoint(-94, -252);
         this.hitbox.addPoint(-70, -261);
@@ -56,7 +54,7 @@ public class LightCone {
         this.angle = this.hitbox.getAngle();
     }
 
-    public void render(List<Block> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
+    public void render(List<Tile> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
 
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_STENCIL_TEST);
@@ -71,17 +69,17 @@ public class LightCone {
 
         // render ShadowFins
         List<ShadowFin> fins = new ArrayList<ShadowFin>();
-        for (Block block : blocks) {
-            Vector2f[] vertices = block.getVertices();
-            for (int i = 0; i < vertices.length; i++) {
-                Vector2f currentVertex = vertices[i];
-                Vector2f nextVertex = vertices[(i + 1) % vertices.length];
-                Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
-                Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
-                Vector2f lightToCurrent = Vector2f.sub(currentVertex, this.location, null);
-                if (Vector2f.dot(normal, lightToCurrent) > 0) {
-                    Vector2f point1 = Vector2f.add(currentVertex, (Vector2f) Vector2f.sub(currentVertex, this.location, null).scale(width), null);
-                    Vector2f point2 = Vector2f.add(nextVertex, (Vector2f) Vector2f.sub(nextVertex, this.location, null).scale(width), null);
+        for (Tile block : blocks) {
+            List<Vector3f> vertices = block.getHitbox().getPoints();
+            for (int i = 0; i < vertices.size(); i++) {
+                Vector3f currentVertex = vertices.get(i);
+                Vector3f nextVertex = vertices.get((i + 1) % vertices.size());
+                Vector3f edge = Vector3f.sub(nextVertex, currentVertex);
+                Vector3f normal = new Vector3f(edge.getY(), -edge.getX(), 0);
+                Vector3f lightToCurrent = Vector3f.sub(currentVertex, this.location);
+                if (Vector3f.dot(normal, lightToCurrent) > 0) {
+                    Vector3f point1 = Vector3f.add(currentVertex, Vector3f.sub(currentVertex, this.location, null).scale(width), null);
+                    Vector3f point2 = Vector3f.add(nextVertex, Vector3f.sub(nextVertex, this.location, null).scale(width), null);
                     ShadowFin fin = new ShadowFin(currentVertex, point1, point2, nextVertex);
                     fin.render(0, 0, 0, 1f);
                     fins.add(fin);
@@ -118,7 +116,7 @@ public class LightCone {
         // render cone
         glPushMatrix();
         {
-            glTranslatef(this.location.x, this.location.y, 0f);
+            glTranslatef(this.location.getX(), this.location.getY(), this.location.getZ());
             glRotatef(this.angle, 0, 0, 1);
             glBegin(GL_POLYGON);
             {
@@ -136,59 +134,62 @@ public class LightCone {
         glClear(GL_STENCIL_BUFFER_BIT);
         glDisable(GL_STENCIL_TEST);
 
-        // render ShadowFins
-        List<PolyDefault> shadows = new ArrayList<PolyDefault>();
-        for (Block block : blocks) {
-            PolyDefault shadowPoly = new PolyDefault();
-            boolean foundShadow = false;
-            Vector2f[] vertices = block.getVertices();
-            for (int i = 0; i < vertices.length; i++) {
-                Vector2f currentVertex = vertices[i];
-                Vector2f nextVertex = vertices[(i + 1) % vertices.length];
-                Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
-                Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
-                Vector2f lightToCurrent = Vector2f.sub(currentVertex, this.location, null);
-                if (Vector2f.dot(normal, lightToCurrent) > 0) {
-                    PolyDefault finPoly = new PolyDefault();
-                    Vector2f point1 = Vector2f.add(currentVertex, (Vector2f) Vector2f.sub(currentVertex, this.location, null).scale(width), null);
-                    Vector2f point2 = Vector2f.add(nextVertex, (Vector2f) Vector2f.sub(nextVertex, this.location, null).scale(width), null);
-                    finPoly.add(new Point2D(currentVertex.x, currentVertex.y));
-                    finPoly.add(new Point2D(point1.x, point1.y));
-                    finPoly.add(new Point2D(point2.x, point2.y));
-                    finPoly.add(new Point2D(nextVertex.x, nextVertex.y));
-                    shadowPoly = (PolyDefault) shadowPoly.union(finPoly);
-                    foundShadow = true;
-                }
-            }
-
-            if (foundShadow) {
-                shadows.add(shadowPoly);
-            }
-        }
-        PolyDefault polygon = new PolyDefault();
-        for (Vector3f vector : this.hitbox.getPoints()) {
-            polygon.add(vector.getX(), vector.getY());
-        }
-
-        for (PolyDefault shadow : shadows) {
-            if (!polygon.isHole()) {
-                polygon = (PolyDefault) polygon.difference(shadow);
-            }
-        }
+        // // render ShadowFins
+        // List<PolyDefault> shadows = new ArrayList<PolyDefault>();
+        // for (Tile block : blocks) {
+        // PolyDefault shadowPoly = new PolyDefault();
+        // boolean foundShadow = false;
+        // Vector2f[] vertices = block.getVertices();
+        // for (int i = 0; i < vertices.length; i++) {
+        // Vector2f currentVertex = vertices[i];
+        // Vector2f nextVertex = vertices[(i + 1) % vertices.length];
+        // Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
+        // Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
+        // Vector2f lightToCurrent = Vector2f.sub(currentVertex, this.location,
+        // null);
+        // if (Vector2f.dot(normal, lightToCurrent) > 0) {
+        // PolyDefault finPoly = new PolyDefault();
+        // Vector2f point1 = Vector2f.add(currentVertex, (Vector2f)
+        // Vector2f.sub(currentVertex, this.location, null).scale(width), null);
+        // Vector2f point2 = Vector2f.add(nextVertex, (Vector2f)
+        // Vector2f.sub(nextVertex, this.location, null).scale(width), null);
+        // finPoly.add(new Point2D(currentVertex.x, currentVertex.y));
+        // finPoly.add(new Point2D(point1.x, point1.y));
+        // finPoly.add(new Point2D(point2.x, point2.y));
+        // finPoly.add(new Point2D(nextVertex.x, nextVertex.y));
+        // shadowPoly = (PolyDefault) shadowPoly.union(finPoly);
+        // foundShadow = true;
+        // }
+        // }
+        //
+        // if (foundShadow) {
+        // shadows.add(shadowPoly);
+        // }
+        // }
+        // PolyDefault polygon = new PolyDefault();
+        // for (Vector3f vector : this.hitbox.getPoints()) {
+        // polygon.add(vector.getX(), vector.getY());
+        // }
+        //
+        // for (PolyDefault shadow : shadows) {
+        // if (!polygon.isHole()) {
+        // polygon = (PolyDefault) polygon.difference(shadow);
+        // }
+        // }
 
         // this.hitbox.render();
-        glBegin(GL_LINE_LOOP);
-        {
-            if (this.alerted) {
-                glColor4f(1, 0, 0, 0.5f);
-            } else {
-                glColor4f(0, 1, 0, 0.5f);
-            }
-            for (int i = 0; i < polygon.getNumPoints(); i++) {
-                glVertex2f((float) polygon.getX(i), (float) polygon.getY(i));
-            }
-        }
-        glEnd();
+        // glBegin(GL_LINE_LOOP);
+        // {
+        // if (this.alerted) {
+        // glColor4f(1, 0, 0, 0.5f);
+        // } else {
+        // glColor4f(0, 1, 0, 0.5f);
+        // }
+        // for (int i = 0; i < polygon.getNumPoints(); i++) {
+        // glVertex2f((float) polygon.getX(i), (float) polygon.getY(i));
+        // }
+        // }
+        // glEnd();
 
     }
 
@@ -216,46 +217,46 @@ public class LightCone {
     }
 
     public boolean isNearTarget(float radius) {
-        float xDist = target.x - location.x;
-        float yDist = target.y - location.y;
+        float xDist = target.getX() - location.getX();
+        float yDist = target.getY() - location.getZ();
         return (float) Math.abs(Math.sqrt(xDist * xDist + yDist * yDist)) <= radius;
     }
 
-    public float getDistance(Vector2f target) {
-        float xDist = target.x - location.x;
-        float yDist = target.y - location.y;
+    public float getDistance(Vector3f target) {
+        float xDist = target.getX() - location.getX();
+        float yDist = target.getY() - location.getY();
         return (float) Math.sqrt(xDist * xDist + yDist * yDist);
     }
 
     public void seek(List<LightCone> list) {
         if (target == null) {
-            Vector2f.add(this.location, this.seperate(list), this.location);
-            this.hitbox.setCenter(this.location.x, this.location.y);
+            Vector3f.add(this.location, this.seperate(list), this.location);
+            this.hitbox.setCenter(this.location);
             return;
         }
 
         float maxVelocity = 2f;
         float maxForce = 2f;
         float mass = 1f;
-        Vector2f desired = new Vector2f();
-        Vector2f.sub(target, location, desired);
-        if (desired.x != 0 && desired.y != 0) {
-            desired.normalise().scale(maxVelocity);
+        Vector3f desired = new Vector3f();
+        Vector3f.sub(target, location, desired);
+        if (desired.getX() != 0 && desired.getY() != 0) {
+            Vector3f.normalize(desired).scale(maxVelocity);
         }
 
-        Vector2f steering = Vector2f.sub(desired, this.velocity, null);
-        steering = truncate(steering, maxForce);
+        Vector3f steering = Vector3f.sub(desired, this.velocity);
+        steering.truncate(maxForce);
 
-        steering = (Vector2f) steering.scale(1f / mass);
+        steering = (Vector3f) steering.scale(1f / mass);
 
-        this.velocity = Vector2f.add(velocity, steering, null);
+        this.velocity = Vector3f.add(velocity, steering);
 
         // this.velocity = Vector2f.add(velocity, this.seperate(list), null);
-        this.velocity = truncate(velocity, maxVelocity);
+        this.velocity.truncate(maxVelocity);
 
         // move
-        Vector2f.add(this.location, velocity, this.location);
-        this.hitbox.setCenter(this.location.x, this.location.y);
+        Vector3f.add(this.location, velocity, this.location);
+        this.hitbox.setCenter(this.location);
 
         if (this.isNearTarget(2)) {
             this.target = null;
@@ -266,8 +267,8 @@ public class LightCone {
         this.alerted = alerted;
     }
 
-    public Vector2f seperate(List<LightCone> list) {
-        Vector2f v = new Vector2f();
+    public Vector3f seperate(List<LightCone> list) {
+        Vector3f v = new Vector3f();
         // int neighborCount = 0;
         // for (LightCone agent : list) {
         // if (this == list) {
@@ -300,26 +301,10 @@ public class LightCone {
     }
 
     public boolean collides(LightCone other) {
-        return CollisionHelper.isVectorInHitbox(new Vector3f(other.getLocation().x, other.getLocation().y, 0), this.hitbox);
+        return CollisionHelper.isVectorInHitbox(other.getLocation(), this.hitbox);
     }
 
-    private Vector2f truncate(Vector2f vector, float maxForce) {
-        if (vector.x < maxForce && vector.y < maxForce) {
-            return vector;
-        }
-
-        float factor = 1f;
-        if (vector.x >= vector.y) {
-            factor = maxForce / vector.x;
-        } else {
-            factor = maxForce / vector.y;
-        }
-        vector.x *= factor;
-        vector.y *= factor;
-        return vector;
-    }
-
-    public Vector2f getLocation() {
+    public Vector3f getLocation() {
         return location;
     }
 }

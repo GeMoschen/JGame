@@ -3,12 +3,11 @@ package de.gemo.game.fov.core;
 import java.util.*;
 
 import org.lwjgl.input.*;
-import org.lwjgl.util.vector.*;
-
 import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
+import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -16,7 +15,7 @@ import static org.lwjgl.opengl.GL20.*;
 public class FoVCore extends GameEngine {
 
     private ArrayList<LightCone> lights = new ArrayList<LightCone>();
-    private ArrayList<Block> blocks = new ArrayList<Block>();
+    private ArrayList<Tile> blocks = new ArrayList<Tile>();
 
     private Shader coneShader, ambientShader;
 
@@ -31,7 +30,7 @@ public class FoVCore extends GameEngine {
         // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
-            Vector2f location = new Vector2f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT);
+            Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
             lights.add(new LightCone(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10));
         }
 
@@ -40,11 +39,11 @@ public class FoVCore extends GameEngine {
             int height = 30;
             int x = (int) (Math.random() * (this.VIEW_WIDTH - width));
             int y = (int) (Math.random() * (this.VIEW_HEIGHT - height));
-            blocks.add(new Block(x, y, width, height));
+            blocks.add(new Tile(x, y, width, height));
         }
 
         coneShader = new Shader();
-        coneShader.loadPixelShader("viewcone.frag");
+        coneShader.loadPixelShader("shaders/viewcone.frag");
 
         ambientShader = new Shader();
         // ambientShader.loadPixelShader("ambientLight.frag");
@@ -56,10 +55,10 @@ public class FoVCore extends GameEngine {
         lights.get(0).green = 0f;
         lights.get(0).blue = 0f;
         if (Mouse.isButtonDown(0)) {
-            lights.get(0).target = new Vector2f(MouseManager.INSTANCE.getMouseVector().getX(), MouseManager.INSTANCE.getMouseVector().getY());
+            lights.get(0).target = MouseManager.INSTANCE.getMouseVector().clone();
         }
 
-        lights.get(0).setAngle(getAngle(lights.get(0).getLocation(), new Vector2f(MouseManager.INSTANCE.getMouseVector().getX(), MouseManager.INSTANCE.getMouseVector().getY())));
+        lights.get(0).setAngle(getAngle(lights.get(0).getLocation(), MouseManager.INSTANCE.getMouseVector()));
         lights.get(0).seek(this.lights);
         int i = 0;
         for (LightCone cone : this.lights) {
@@ -70,12 +69,12 @@ public class FoVCore extends GameEngine {
                 } else {
                     // create raycast
                     Hitbox raycast = new Hitbox(0, 0);
-                    raycast.addPoint(cone.getLocation().x, cone.getLocation().y);
-                    raycast.addPoint(lights.get(0).getLocation().x, lights.get(0).getLocation().y);
+                    raycast.addPoint(cone.getLocation());
+                    raycast.addPoint(lights.get(0).getLocation());
 
                     // check for colliding polys
                     boolean canSeeTarget = false;
-                    for (Block block : this.blocks) {
+                    for (Tile block : this.blocks) {
                         if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
                             canSeeTarget = true;
                             break;
@@ -99,10 +98,9 @@ public class FoVCore extends GameEngine {
         this.updateLights();
     }
 
-    private void angleTest(Block block) {
+    private void angleTest(Tile block) {
         Hitbox hitbox = block.getHitbox().clone();
-        hitbox.scale(1.2f, 1.2f);
-        // hitbox.scaleByPixel(-10);
+        hitbox.scaleByPixel(-10);
         hitbox.render();
     }
 
@@ -110,9 +108,9 @@ public class FoVCore extends GameEngine {
     protected void renderGame2D() {
 
         // blocks
-        for (Block block : blocks) {
+        for (Tile block : blocks) {
             glColor3f(1f, 1f, 1f);
-            block.render();
+            block.renderHitbox();
             this.angleTest(block);
         }
 
@@ -147,23 +145,7 @@ public class FoVCore extends GameEngine {
         this.ambientShader.cleanup();
     }
 
-    public float getAngle(Vector2f target, Vector2f pos) {
-        float angle = (float) Math.toDegrees(Math.atan2(target.y - pos.y, target.x - pos.x));
-
-        if (angle < 0) {
-            angle += 360;
-        }
-
-        return angle - 90;
-    }
-
-    public float getAngle(de.gemo.gameengine.units.Vector3f target, de.gemo.gameengine.units.Vector3f pos) {
-        float angle = (float) Math.toDegrees(Math.atan2(target.getY() - pos.getY(), target.getX() - pos.getX()));
-
-        if (angle < 0) {
-            angle += 360;
-        }
-
-        return angle - 90;
+    public float getAngle(Vector3f target, Vector3f pos) {
+        return pos.getAngle(target);
     }
 }

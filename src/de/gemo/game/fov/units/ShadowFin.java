@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
+
+import de.gemo.gameengine.units.*;
 
 public class ShadowFin {
     public List<Vector3f> vectorList;
@@ -38,7 +39,7 @@ public class ShadowFin {
         {
             glColor4f(r, g, b, alpha);
             for (Vector3f vector : this.vectorList) {
-                glVertex3f(vector.x, vector.y, vector.z);
+                glVertex3f(vector.getX(), vector.getY(), vector.getZ());
             }
         }
         glEnd();
