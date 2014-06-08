@@ -96,7 +96,6 @@ public class AStar {
                         openList.add(neighbor);
                     }
                 }
-
             }
         }
         return null;

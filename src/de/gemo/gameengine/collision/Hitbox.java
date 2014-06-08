@@ -214,7 +214,7 @@ public class Hitbox {
 
     public void scaleByPixel(float pixel) {
         for (Vector3f vector : this.points) {
-            Vector3f vect = Vector3f.sub(center, vector);
+            Vector3f vect = Vector3f.sub(vector, center);
             vect = Vector3f.normalize(vect);
             vect = vect.scale(pixel);
             Vector3f newVector = Vector3f.add(vector, vect);

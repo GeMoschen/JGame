@@ -3,9 +3,12 @@ package de.gemo.game.fov.core;
 import java.util.*;
 
 import org.lwjgl.input.*;
+
+import de.gemo.game.fov.navigation.*;
 import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.units.*;
 
@@ -16,6 +19,7 @@ public class FoVCore extends GameEngine {
 
     private ArrayList<LightCone> lights = new ArrayList<LightCone>();
     private ArrayList<Tile> blocks = new ArrayList<Tile>();
+    private NavMesh navMesh;
 
     private Shader coneShader, ambientShader;
 
@@ -25,8 +29,8 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 20;
-        int blockCount = 25;
+        int lightCount = 1;
+        int blockCount = 10;
         // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
@@ -47,6 +51,15 @@ public class FoVCore extends GameEngine {
 
         ambientShader = new Shader();
         // ambientShader.loadPixelShader("ambientLight.frag");
+
+        this.navMesh = new NavMesh(this.blocks);
+    }
+
+    @Override
+    public void onMouseDown(boolean handled, MouseClickEvent event) {
+        if (event.isRightButton()) {
+            this.navMesh.path = this.navMesh.findPath(this.lights.get(0).getLocation(), new Vector3f(event.getX(), event.getY(), 0), this.blocks);
+        }
     }
 
     private void updateLights() {
@@ -98,20 +111,13 @@ public class FoVCore extends GameEngine {
         this.updateLights();
     }
 
-    private void angleTest(Tile block) {
-        Hitbox hitbox = block.getHitbox().clone();
-        hitbox.scaleByPixel(-10);
-        hitbox.render();
-    }
-
     @Override
     protected void renderGame2D() {
 
         // blocks
         for (Tile block : blocks) {
-            glColor3f(1f, 1f, 1f);
+            glColor4f(1f, 1f, 1f, 0.5f);
             block.renderHitbox();
-            this.angleTest(block);
         }
 
         // AMBIENT
@@ -135,6 +141,13 @@ public class FoVCore extends GameEngine {
         // render lightcones
         for (LightCone light : lights) {
             light.render(this.blocks, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
+        }
+
+        this.navMesh.createNavMesh(this.blocks);
+        this.navMesh.render();
+        if (this.navMesh.path != null) {
+            this.navMesh.path.render();
+        } else {
         }
 
     }

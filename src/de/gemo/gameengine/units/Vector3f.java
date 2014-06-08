@@ -213,6 +213,15 @@ public class Vector3f implements Serializable {
         return result + " }";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Vector3f) {
+            Vector3f other = (Vector3f) obj;
+            return other.x == this.x && other.y == this.y && other.z == this.z;
+        }
+        return false;
+    }
+
     // ////////////////////////////////////////
     //
     // STATIC METHODS

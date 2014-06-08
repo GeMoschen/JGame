@@ -160,6 +160,15 @@ public class Vector2f implements Serializable {
         return result + " }";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Vector2f) {
+            Vector2f other = (Vector2f) obj;
+            return other.x == this.x && other.y == this.y;
+        }
+        return false;
+    }
+
     // ////////////////////////////////////////
     //
     // STATIC METHODS
