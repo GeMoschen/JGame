@@ -14,7 +14,7 @@ public class NavMesh {
         this.createNavMesh(tileList);
     }
 
-    public void render(Vector3f goal) {
+    public void render() {
         for (NavNode node : this.navPoints) {
             node.render();
         }
@@ -65,7 +65,7 @@ public class NavMesh {
                 // check for colliding polys
                 boolean canSeeTarget = true;
                 for (Tile block : tileList) {
-                    if (CollisionHelper.findIntersection(block.expanded, raycast) != null) {
+                    if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
                         canSeeTarget = false;
                         break;
                     }
@@ -79,6 +79,7 @@ public class NavMesh {
     }
 
     public Path findPath(Vector3f start, Vector3f goal, List<Tile> tileList) {
+
         System.out.println();
         System.out.println("SEARCH STARTED");
         long startTime = System.nanoTime();
@@ -116,7 +117,7 @@ public class NavMesh {
         // check for colliding polys
         boolean canSeeTarget = true;
         for (Tile block : tileList) {
-            if (CollisionHelper.findIntersection(this.expandHitbox(block.getHitbox(), 10), raycast) != null) {
+            if (CollisionHelper.isIntersecting(this.expandHitbox(block.getHitbox(), 10), raycast)) {
                 canSeeTarget = false;
                 break;
             }
@@ -159,6 +160,10 @@ public class NavMesh {
             this.expandNode(currentNode, goalNode, openList, closedList);
         }
 
+        long duration_3 = System.nanoTime() - startTime_3;
+        float dur_3 = duration_3 / 1000000f;
+        System.out.println("Search (NOT): " + dur_3);
+
         // remove temporary connections
         this.removeNodeFromNeighbors(startNode);
         this.removeNodeFromNeighbors(goalNode);
@@ -167,6 +172,7 @@ public class NavMesh {
     }
 
     private void expandNode(NavNode currentNode, NavNode goalNode, PriorityQueue<NavNode> openList, Set<NavNode> closedList) {
+
         for (NavNode neighbor : currentNode.getNeighbors()) {
             // continue, if we have already visited this node
             if (closedList.contains(neighbor)) {
@@ -225,6 +231,8 @@ public class NavMesh {
         }
         // } else {
         // for (Tile block : tileList) {
+        // Hitbox clone = block.getHitbox().clone();
+        // clone.scaleByPixel(7);
         // expanded.add(block.getHitbox());
         // }
         // }
@@ -233,6 +241,10 @@ public class NavMesh {
         Hitbox raycast = new Hitbox(0, 0);
         raycast.addPoint(node.getPosition());
         for (NavNode other : this.navPoints) {
+            if (other.getPosition().getDistance(node.getPosition()) > 250) {
+                continue;
+            }
+
             // create raycast
             if (raycast.getPointCount() > 1) {
                 raycast.getPoints().remove(1);
@@ -242,7 +254,7 @@ public class NavMesh {
             // check for colliding polys
             boolean canSeeTarget = true;
             for (Hitbox exp : expanded) {
-                if (CollisionHelper.findIntersection(exp, raycast) != null) {
+                if (CollisionHelper.isIntersecting(exp, raycast)) {
                     canSeeTarget = false;
                     break;
                 }
@@ -250,7 +262,6 @@ public class NavMesh {
             if (canSeeTarget) {
                 node.addNeighbor(other);
                 other.addNeighbor(node);
-
             }
         }
     }

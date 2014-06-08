@@ -59,7 +59,7 @@ public class Enemy {
         this.waypointIndex = 0;
         this.path = null;
         this.currentWaypoint = null;
-        while (!canSeeTarget && tries < 300) {
+        while (!canSeeTarget && tries < 100) {
             // create raycast
             Hitbox raycast = new Hitbox(0, 0);
             raycast.addPoint(this.location);
@@ -68,7 +68,7 @@ public class Enemy {
             // check for colliding polys
             canSeeTarget = true;
             for (Tile block : tileList) {
-                if (CollisionHelper.findIntersection(block.expanded, raycast) != null) {
+                if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
                     canSeeTarget = false;
                     break;
                 }
@@ -82,6 +82,31 @@ public class Enemy {
                 }
             }
             tries++;
+        }
+    }
+
+    public void setTarget(Vector3f goal, NavMesh navMesh, List<Tile> tileList) {
+        // create raycast
+        Hitbox raycast = new Hitbox(0, 0);
+        raycast.addPoint(this.location);
+        raycast.addPoint(Vector3f.add(this.location, new Vector3f(1, 1, 0)));
+        boolean canSeeTarget = true;
+        this.waypointIndex = 0;
+        this.path = null;
+        this.currentWaypoint = null;
+        // check for colliding polys
+        for (Tile block : tileList) {
+            if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
+                canSeeTarget = false;
+                break;
+            }
+        }
+        if (canSeeTarget) {
+            this.path = navMesh.findPath(this.location, goal, tileList);
+            if (this.path != null) {
+                this.waypointIndex++;
+                this.currentWaypoint = this.path.getNode(this.waypointIndex);
+            }
         }
     }
 
@@ -247,13 +272,37 @@ public class Enemy {
     }
 
     public void update(NavMesh navMesh, List<Tile> tileList) {
-        if (this.currentWaypoint != null) {
 
+        this.velocity = new Vector3f(0, 0, 0);
+        Hitbox miniBox = new Hitbox(this.location);
+        miniBox.addPoint(0, 0);
+        miniBox.addPoint(10, 0);
+        miniBox.addPoint(10, 10);
+        miniBox.addPoint(0, 10);
+        for (Tile tile : tileList) {
+            Hitbox exp = tile.getHitbox().clone();
+            exp.scaleByPixel(10.1f);
+            if (CollisionHelper.isVectorInHitbox(this.location, exp)) {
+                Vector3f minVector = Vector3f.sub(this.getLocation(), exp.getCenter());
+
+                this.velocity = minVector.clone();
+                if (this.velocity.getX() == 0 && this.velocity.getY() == 0) {
+                    this.velocity.setX(2.5f);
+                }
+                velocity.truncate(2.5f);
+                System.out.println("coll");
+
+                Vector3f.add(this.location, this.velocity, this.location);
+                // return;
+            }
+        }
+
+        if (this.currentWaypoint != null) {
             this.velocity = new Vector3f(0, 0, 0);
             this.setAngle(this.currentWaypoint.getAngle(this.location));
 
             float maxVelocity = 0.02f;
-            float maxForce = 1.5f;
+            float maxForce = 2.5f;
             float mass = 1f;
             Vector3f desired = new Vector3f();
             Vector3f.sub(currentWaypoint, location, desired);
@@ -269,7 +318,7 @@ public class Enemy {
             this.velocity = Vector3f.add(velocity, steering);
             Vector3f.add(this.location, this.velocity, this.location);
 
-            if (this.isNearTarget(2)) {
+            if (this.isNearTarget(3.5f)) {
                 this.waypointIndex++;
                 if (this.path != null) {
                     if (this.waypointIndex == this.path.getPath().size()) {

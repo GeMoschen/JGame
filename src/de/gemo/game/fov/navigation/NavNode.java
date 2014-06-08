@@ -60,7 +60,7 @@ public class NavNode implements Comparable<NavNode> {
             }
             glEnd();
 
-            glColor4f(1f, 1f, 1f, 0.005f);
+            glColor4f(1f, 1f, 1f, 0.02f);
 
             glBegin(GL_LINES);
             {
@@ -70,6 +70,31 @@ public class NavNode implements Comparable<NavNode> {
                 }
             }
             glEnd();
+        }
+        glPopMatrix();
+    }
+
+    public void renderSpecial() {
+        glPushMatrix();
+        {
+            glDisable(GL_LIGHTING);
+            glDisable(GL_TEXTURE_2D);
+            glLineWidth(1f);
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glColor4f(1, 0, 0, 1f);
+            glBegin(GL_LINE_LOOP);
+            {
+                glVertex2f(this.position.getX() - 2, this.position.getY() - 2);
+                glVertex2f(this.position.getX() - 2, this.position.getY() + 2);
+                glVertex2f(this.position.getX() + 2, this.position.getY() + 2);
+                glVertex2f(this.position.getX() + 2, this.position.getY() - 2);
+            }
+            glEnd();
+
+            glColor4f(1f, 1f, 0f, 1f);
         }
         glPopMatrix();
     }

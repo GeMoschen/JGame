@@ -6,7 +6,6 @@ import de.gemo.game.fov.navigation.*;
 import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.mouse.*;
-import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -26,7 +25,7 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 4;
+        int lightCount = 5;
         int blockCount = 80;
         // int blockCount = 3;
 
@@ -55,14 +54,21 @@ public class FoVCore extends GameEngine {
     @Override
     public void onMouseDown(boolean handled, MouseClickEvent event) {
         if (event.isRightButton()) {
-            this.enemies.get(0).findRandomGoal(navMesh, this.tiles);
+            for (Enemy enemy : this.enemies) {
+                enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0), navMesh, this.tiles);
+            }
         }
     }
 
     private void updateLights() {
         // lights.get(0).setAngle(getAngle(lights.get(0).getLocation(),
         // MouseManager.INSTANCE.getMouseVector()));
+        int i = 0;
         for (Enemy enemy : this.enemies) {
+            if (i == 0) {
+                enemy.setAlerted(true);
+            }
+            i++;
             enemy.update(this.navMesh, this.tiles);
 
             // if (!cone.collides(lights.get(0))) {
@@ -133,7 +139,7 @@ public class FoVCore extends GameEngine {
         }
 
         // this.navMesh.createNavMesh(this.blocks);
-        this.navMesh.render(MouseManager.INSTANCE.getMouseVector());
+        this.navMesh.render();
         if (this.navMesh.path != null) {
             this.navMesh.path.render();
         } else {

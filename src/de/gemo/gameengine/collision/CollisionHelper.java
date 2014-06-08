@@ -75,7 +75,7 @@ public class CollisionHelper {
 
     // find intersections
     public static ArrayList<Vector3f> findIntersection(Hitbox hitboxA, Hitbox hitboxB) {
-        if (hitboxA == null || hitboxB == null || !hitboxA.getAABB().collides(hitboxB.getAABB())) {
+        if (hitboxA == null || hitboxB == null) {
             return null;
         }
 
@@ -131,6 +131,60 @@ public class CollisionHelper {
 
         // Find intersection point
         return new Vector3f((int) (start1.getX() + (r * (end1.getX() - start1.getX()))), (int) (start1.getY() + (r * (end1.getY() - start1.getY()))), 0);
+    }
+
+    // find intersections
+    public static boolean isIntersecting(Hitbox hitboxA, Hitbox hitboxB) {
+        if (hitboxA == null || hitboxB == null || !hitboxA.getAABB().collides(hitboxB.getAABB())) {
+            return false;
+        }
+
+        Vector3f a1 = null, a2 = null;
+        Vector3f b1 = null, b2 = null;
+        for (int i = 0; i < hitboxA.getPointCount(); i++) {
+            a1 = hitboxA.getPoint(i);
+            if (i < hitboxA.getPointCount() - 1) {
+                a2 = hitboxA.getPoint(i + 1);
+            } else {
+                a2 = hitboxA.getPoint(0);
+            }
+            for (int j = 0; j < hitboxB.getPointCount(); j++) {
+                b1 = hitboxB.getPoint(j);
+                if (j < hitboxB.getPointCount() - 1) {
+                    b2 = hitboxB.getPoint(j + 1);
+                } else {
+                    b2 = hitboxB.getPoint(0);
+                }
+
+                if (isIntersecting(a1, a2, b1, b2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isIntersecting(Vector3f start1, Vector3f end1, Vector3f start2, Vector3f end2) {
+        float denom = ((end1.getX() - start1.getX()) * (end2.getY() - start2.getY())) - ((end1.getY() - start1.getY()) * (end2.getX() - start2.getX()));
+
+        // AB & CD are parallel
+        if ((int) denom == 0) {
+            return false;
+        }
+
+        float numer = ((start1.getY() - start2.getY()) * (end2.getX() - start2.getX())) - ((start1.getX() - start2.getX()) * (end2.getY() - start2.getY()));
+        float r = numer / denom;
+
+        float numer2 = ((start1.getY() - start2.getY()) * (end1.getX() - start1.getX())) - ((start1.getX() - start2.getX()) * (end1.getY() - start1.getY()));
+        float s = numer2 / denom;
+
+        // no intersection
+        if ((r < 0 || r > 1) || (s < 0 || s > 1)) {
+            return false;
+        }
+
+        // Find intersection point
+        return true;
     }
 
 }
