@@ -14,7 +14,7 @@ public class NavMesh {
         this.createNavMesh(tileList);
     }
 
-    public void render() {
+    public void render(Vector3f goal) {
         for (NavNode node : this.navPoints) {
             node.render();
         }
@@ -52,7 +52,6 @@ public class NavMesh {
 
     private void findNeighbours(List<Tile> tileList) {
         NavNode current, other;
-        List<NavNode> middleNodes = new ArrayList<NavNode>();
         for (int i = 0; i < this.navPoints.size(); i++) {
             current = this.navPoints.get(i);
             for (int j = i + 1; j < this.navPoints.size(); j++) {
@@ -72,19 +71,16 @@ public class NavMesh {
                     }
                 }
                 if (canSeeTarget) {
-                    NavNode middleNode = new NavNode(new Vector3f(current.getPosition().getX() + (float) (other.getPosition().getX() - current.getPosition().getX()) / 2f, current.getPosition().getY() + (float) (other.getPosition().getY() - current.getPosition().getY()) / 2f, 0f));
-                    middleNode.addNeighbor(current);
-                    middleNode.addNeighbor(other);
-                    current.addNeighbor(middleNode);
-                    other.addNeighbor(middleNode);
-                    middleNodes.add(middleNode);
+                    current.addNeighbor(other);
+                    other.addNeighbor(current);
                 }
             }
         }
-        // this.navPoints.addAll(middleNodes);
     }
 
     public Path findPath(Vector3f start, Vector3f goal, List<Tile> tileList) {
+        long startTime = System.nanoTime();
+
         // reset heuristics
         for (NavNode node : this.navPoints) {
             node.reset();
@@ -95,8 +91,13 @@ public class NavMesh {
         NavNode goalNode = new NavNode(goal);
 
         // add temporary connections
-        this.findNeighborsForNode(startNode, tileList);
-        this.findNeighborsForNode(goalNode, tileList);
+        this.findNeighborsForNode(startNode, tileList, 0);
+        this.findNeighborsForNode(goalNode, tileList, 9);
+
+        System.out.println();
+        long duration = System.nanoTime() - startTime;
+        float dur = duration / 1000000f;
+        System.out.println("took 1: " + dur);
 
         // create raycast from start to goal
         Hitbox raycast = new Hitbox(0, 0);
@@ -106,7 +107,7 @@ public class NavMesh {
         // check for colliding polys
         boolean canSeeTarget = true;
         for (Tile block : tileList) {
-            if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+            if (CollisionHelper.findIntersection(raycast, this.expandHitbox(block.getHitbox(), 10)) != null) {
                 canSeeTarget = false;
                 break;
             }
@@ -120,98 +121,76 @@ public class NavMesh {
         Set<NavNode> closedList = new HashSet<NavNode>();
         PriorityQueue<NavNode> openList = new PriorityQueue<NavNode>();
         openList.add(startNode);
+        NavNode currentNode;
         while (!openList.isEmpty()) {
-            // get the first Node from non-searched Node list, sorted by lowest
-            // distance from our goal as guessed by our heuristic
-            NavNode current = openList.poll();
+            currentNode = openList.poll();
 
             // check if our current Node location is the goal Node. If it is, we
             // are done.
-            if (current.equals(goalNode)) {
+            if (currentNode.equals(goalNode)) {
                 // remove temporary connections
                 this.removeNodeFromNeighbors(startNode);
                 this.removeNodeFromNeighbors(goalNode);
 
+                duration = System.nanoTime() - startTime;
+                dur = duration / 1000000f;
+                System.out.println("took: " + dur);
+
                 // reconstruct path
-                return reconstructPath(current, startNode);
+                return reconstructPath(currentNode, startNode);
             }
 
-            // move current Node to the closed (already searched) list
-            closedList.add(current);
-
-            // go through all the current Nodes neighbors and calculate if one
-            // should be our next step
-            for (NavNode neighbor : current.getNeighbors()) {
-                boolean neighborIsBetter;
-
-                // if we have already searched this Node, don't bother and
-                // continue to the next one
-                if (closedList.contains(neighbor))
-                    continue;
-
-                // calculate how long the path is if we choose this neighbor
-                // as the next step in the path
-                float neighborDistanceFromStart = (float) (current.getDistanceFromStart() + goalNode.getPosition().distanceTo(neighbor.getPosition()));
-
-                // add neighbor to the open list if it is not there
-                if (!openList.contains(neighbor)) {
-                    openList.add(neighbor);
-                    neighborIsBetter = true;
-                    // if neighbor is closer to start it could also be
-                    // better
-                } else if (neighborDistanceFromStart < current.getDistanceFromStart()) {
-                    neighborIsBetter = true;
-                } else {
-                    neighborIsBetter = false;
-                }
-                // set neighbors parameters if it is better
-                if (neighborIsBetter) {
-                    // remove from openlist
-                    openList.remove(neighbor);
-
-                    // update neighbor
-                    neighbor.setPreviousNode(current);
-                    neighbor.setDistanceFromStart(neighborDistanceFromStart);
-                    neighbor.setHeuristicDistanceFromGoal(this.getEstimatedDistanceToGoal(neighbor, goalNode));
-
-                    // add to openlist
-                    openList.add(neighbor);
-                }
-            }
+            closedList.add(currentNode);
+            this.expandNode(currentNode, goalNode, openList, closedList);
         }
 
         // remove temporary connections
         this.removeNodeFromNeighbors(startNode);
         this.removeNodeFromNeighbors(goalNode);
+
+        duration = System.nanoTime() - startTime;
+        dur = duration / 1000000f;
+        System.out.println("took: " + dur);
+
         return null;
+    }
+
+    private void expandNode(NavNode currentNode, NavNode goalNode, PriorityQueue<NavNode> openList, Set<NavNode> closedList) {
+        for (NavNode neighbor : currentNode.getNeighbors()) {
+            if (closedList.contains(neighbor)) {
+                continue;
+            }
+
+            float g = (float) (currentNode.getDistanceFromStart() + neighbor.getPosition().distanceTo(currentNode.getPosition()));
+            if (openList.contains(neighbor) && g > neighbor.getDistanceFromStart()) {
+                continue;
+            }
+
+            neighbor.setPreviousNode(currentNode);
+            neighbor.setDistanceFromStart(g);
+
+            float f = g + this.getEstimatedDistanceToGoal(neighbor, goalNode);
+            if (openList.contains(neighbor)) {
+                neighbor.setHeuristicDistanceFromGoal(f);
+            } else {
+                neighbor.setHeuristicDistanceFromGoal(f);
+                openList.add(neighbor);
+            }
+        }
     }
 
     private Path reconstructPath(NavNode node, NavNode startNode) {
         Path path = new Path();
         while (!(node.getPreviousNode() == null)) {
-            NavNode newNode = new NavNode(node.getPosition().clone());
-            path.addNode(newNode);
+            path.addNode(node.getPosition());
             node = node.getPreviousNode();
         }
-        path.addNode(startNode);
+        path.addNode(startNode.getPosition());
         return path;
     }
 
     private float getEstimatedDistanceToGoal(NavNode start, NavNode goal) {
-        start.getPosition();
-        // float dx = goal.getPosition().getX() - start.getPosition().getX();
-        // float dy = goal.getPosition().getY() - start.getPosition().getY();
-        //
-        // float result = (float) (Math.sqrt((dx * dx) + (dy * dy)));
-        return Vector3f.sub(start.getPosition(), goal.getPosition()).getLength();
-        // // return (start.getPosition().getDistance(goal.getPosition()));
-
-        // float dist = Math.abs(start.getPosition().getX() -
-        // goal.getPosition().getX()) + Math.abs(start.getPosition().getY() -
-        // goal.getPosition().getY());
-        // float p = (1 / 10000);
-        // dist *= (1.0 + p);
-        // return dist;
+        return (float) start.getPosition().distanceTo(goal.getPosition());
     }
 
     private void removeNodeFromNeighbors(NavNode node) {
@@ -221,7 +200,7 @@ public class NavMesh {
         }
     }
 
-    private void findNeighborsForNode(NavNode node, List<Tile> tileList) {
+    private void findNeighborsForNode(NavNode node, List<Tile> tileList, float pixel) {
         // add neighbors to startNode
         for (NavNode other : this.navPoints) {
             // create raycast
@@ -232,7 +211,7 @@ public class NavMesh {
             // check for colliding polys
             boolean canSeeTarget = true;
             for (Tile block : tileList) {
-                if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+                if (CollisionHelper.findIntersection(raycast, this.expandHitbox(block.getHitbox(), pixel)) != null) {
                     canSeeTarget = false;
                     break;
                 }
@@ -244,7 +223,7 @@ public class NavMesh {
         }
     }
 
-    private Hitbox expandHitbox(Hitbox original, int pixel) {
+    private Hitbox expandHitbox(Hitbox original, float pixel) {
         Hitbox hitbox = original.clone();
         hitbox.scaleByPixel(pixel);
         return hitbox;

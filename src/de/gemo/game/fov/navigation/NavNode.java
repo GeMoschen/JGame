@@ -60,7 +60,7 @@ public class NavNode implements Comparable<NavNode> {
             }
             glEnd();
 
-            glColor4f(1f, 1f, 1f, 0.02f);
+            glColor4f(1f, 1f, 1f, 0.01f);
 
             for (NavNode neighbor : this.neighbors) {
                 glBegin(GL_LINES);
@@ -71,7 +71,10 @@ public class NavNode implements Comparable<NavNode> {
                 glEnd();
             }
 
-            glDisable(GL_BLEND);
+            // glEnable(GL_TEXTURE_2D);
+            // FontManager.getStandardFont().drawString(this.position.getX(),
+            // this.position.getY() + 5, "" +
+            // (int)goal.distanceTo(this.position));
         }
         glPopMatrix();
     }

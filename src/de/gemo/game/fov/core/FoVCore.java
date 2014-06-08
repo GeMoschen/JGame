@@ -2,11 +2,8 @@ package de.gemo.game.fov.core;
 
 import java.util.*;
 
-import org.lwjgl.input.*;
-
 import de.gemo.game.fov.navigation.*;
 import de.gemo.game.fov.units.*;
-import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.manager.*;
@@ -17,7 +14,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class FoVCore extends GameEngine {
 
-    private ArrayList<LightCone> lights = new ArrayList<LightCone>();
+    private ArrayList<Enemy> lights = new ArrayList<Enemy>();
     private ArrayList<Tile> blocks = new ArrayList<Tile>();
     private NavMesh navMesh;
 
@@ -29,13 +26,13 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 1;
-        int blockCount = 10;
+        int lightCount = 5;
+        int blockCount = 20;
         // int blockCount = 3;
 
         for (int i = 1; i <= lightCount; i++) {
             Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
-            lights.add(new LightCone(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10));
+            lights.add(new Enemy(location, (float) Math.random() * 10, (float) Math.random() * 10, (float) Math.random() * 10));
         }
 
         for (int i = 1; i <= blockCount; i++) {
@@ -58,7 +55,7 @@ public class FoVCore extends GameEngine {
     @Override
     public void onMouseDown(boolean handled, MouseClickEvent event) {
         if (event.isRightButton()) {
-            this.navMesh.path = this.navMesh.findPath(this.lights.get(0).getLocation(), new Vector3f(event.getX(), event.getY(), 0), this.blocks);
+            this.lights.get(0).findRandomGoal(navMesh, this.blocks);
         }
     }
 
@@ -67,42 +64,38 @@ public class FoVCore extends GameEngine {
         lights.get(0).red = 30f;
         lights.get(0).green = 0f;
         lights.get(0).blue = 0f;
-        if (Mouse.isButtonDown(0)) {
-            lights.get(0).target = MouseManager.INSTANCE.getMouseVector().clone();
-        }
 
-        lights.get(0).setAngle(getAngle(lights.get(0).getLocation(), MouseManager.INSTANCE.getMouseVector()));
-        lights.get(0).seek(this.lights);
-        int i = 0;
-        for (LightCone cone : this.lights) {
-            if (i != 0) {
-                if (!cone.collides(lights.get(0))) {
-                    cone.update();
-                    cone.setAlerted(false);
-                } else {
-                    // create raycast
-                    Hitbox raycast = new Hitbox(0, 0);
-                    raycast.addPoint(cone.getLocation());
-                    raycast.addPoint(lights.get(0).getLocation());
-
-                    // check for colliding polys
-                    boolean canSeeTarget = false;
-                    for (Tile block : this.blocks) {
-                        if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
-                            canSeeTarget = true;
-                            break;
-                        }
-                    }
-                    if (canSeeTarget) {
-                        cone.update();
-                        cone.setAlerted(false);
-                    } else {
-                        cone.setAlerted(true);
-                        cone.setAngle(getAngle(cone.getLocation(), lights.get(0).getLocation()));
-                    }
-                }
-            }
-            i = 1;
+        // lights.get(0).setAngle(getAngle(lights.get(0).getLocation(),
+        // MouseManager.INSTANCE.getMouseVector()));
+        for (Enemy cone : this.lights) {
+            cone.update(this.navMesh, this.blocks);
+            // if (!cone.collides(lights.get(0))) {
+            // cone.update();
+            // // cone.setAlerted(false);
+            // } else {
+            // // create raycast
+            // Hitbox raycast = new Hitbox(0, 0);
+            // raycast.addPoint(cone.getLocation());
+            // raycast.addPoint(lights.get(0).getLocation());
+            //
+            // // check for colliding polys
+            // boolean canSeeTarget = false;
+            // for (Tile block : this.blocks) {
+            // if (CollisionHelper.findIntersection(raycast, block.getHitbox())
+            // != null) {
+            // canSeeTarget = true;
+            // break;
+            // }
+            // }
+            // if (canSeeTarget) {
+            // cone.update();
+            // cone.setAlerted(false);
+            // } else {
+            // cone.setAlerted(true);
+            // cone.setAngle(getAngle(cone.getLocation(),
+            // lights.get(0).getLocation()));
+            // }
+            // }
         }
     }
 
@@ -139,12 +132,12 @@ public class FoVCore extends GameEngine {
         glDisable(GL_BLEND);
 
         // render lightcones
-        for (LightCone light : lights) {
+        for (Enemy light : lights) {
             light.render(this.blocks, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
 
-        this.navMesh.createNavMesh(this.blocks);
-        this.navMesh.render();
+        // this.navMesh.createNavMesh(this.blocks);
+        this.navMesh.render(MouseManager.INSTANCE.getMouseVector());
         if (this.navMesh.path != null) {
             this.navMesh.path.render();
         } else {

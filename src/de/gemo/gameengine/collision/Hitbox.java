@@ -217,10 +217,10 @@ public class Hitbox {
             Vector3f vect = Vector3f.sub(vector, center);
             vect = Vector3f.normalize(vect);
             vect = vect.scale(pixel);
-            Vector3f newVector = Vector3f.add(vector, vect);
-            vector.setX(newVector.getX());
-            vector.setY(newVector.getY());
+            vector.setX(vect.getX() + vector.getX());
+            vector.setY(vect.getY() + vector.getY());
         }
+        
     }
 
     public void scaleX(float scaleX) {

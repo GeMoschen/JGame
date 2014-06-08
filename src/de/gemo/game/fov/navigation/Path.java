@@ -2,16 +2,18 @@ package de.gemo.game.fov.navigation;
 
 import java.util.*;
 
+import de.gemo.gameengine.units.*;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class Path {
-    private List<NavNode> path;
+    private List<Vector3f> path;
 
     public Path() {
-        this.path = new ArrayList<NavNode>();
+        this.path = new ArrayList<Vector3f>();
     }
 
-    public boolean addNode(NavNode node) {
+    public boolean addNode(Vector3f node) {
         if (!this.path.contains(node)) {
             this.path.add(0, node);
             return true;
@@ -19,11 +21,11 @@ public class Path {
         return false;
     }
 
-    public List<NavNode> getPath() {
+    public List<Vector3f> getPath() {
         return path;
     }
 
-    public NavNode getNode(int index) {
+    public Vector3f getNode(int index) {
         return this.path.get(index);
     }
 
@@ -40,10 +42,10 @@ public class Path {
         glBegin(GL_LINES);
         {
             for (int i = 1; i < this.path.size(); i++) {
-                NavNode current = this.path.get(i);
-                NavNode last = this.path.get(i - 1);
-                glVertex2f(last.getPosition().getX(), last.getPosition().getY());
-                glVertex2f(current.getPosition().getX(), current.getPosition().getY());
+                Vector3f current = this.path.get(i);
+                Vector3f last = this.path.get(i - 1);
+                glVertex2f(last.getX(), last.getY());
+                glVertex2f(current.getX(), current.getY());
             }
         }
         glEnd();

@@ -4,26 +4,33 @@ import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import de.gemo.game.fov.navigation.*;
+import de.gemo.game.fov.navigation.Path;
 import de.gemo.gameengine.collision.*;
+import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.units.Vector3f;
+import de.gemo.pathfinding.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
-public class LightCone {
+public class Enemy {
     private Vector3f location;
     public float red;
     public float green;
     public float blue;
     public float intensity = 1;
     private float angle = 0f, momentum = 0f;
-    public Vector3f target = null;
 
     public Vector3f velocity = new Vector3f();
     public Hitbox hitbox;
     private boolean alerted = false;
 
-    public LightCone(Vector3f location, float red, float green, float blue) {
+    private Path path = null;
+    private int waypointIndex = 0;
+    private Vector3f currentWaypoint = null;
+
+    public Enemy(Vector3f location, float red, float green, float blue) {
         this.location = location;
         this.red = red;
         this.green = green;
@@ -54,8 +61,42 @@ public class LightCone {
         this.angle = this.hitbox.getAngle();
     }
 
-    public void render(List<Tile> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
+    public void findRandomGoal(NavMesh navMesh, List<Tile> tileList) {
+        Vector3f goal = new Vector3f((float) Math.random() * GameEngine.INSTANCE.VIEW_WIDTH, (float) Math.random() * GameEngine.INSTANCE.VIEW_HEIGHT, 0);
+        boolean canSeeTarget = false;
+        int tries = 0;
+        this.waypointIndex = 0;
+        this.path = null;
+        this.currentWaypoint = null;
+        while (!canSeeTarget && tries < 150) {
+            // create raycast
+            Hitbox raycast = new Hitbox(0, 0);
+            raycast.addPoint(this.location);
+            raycast.addPoint(Vector3f.add(this.location, new Vector3f(1, 1, 0)));
 
+            // check for colliding polys
+            canSeeTarget = true;
+            for (Tile block : tileList) {
+                if (CollisionHelper.findIntersection(raycast, block.getHitbox()) != null) {
+                    canSeeTarget = false;
+                    break;
+                }
+            }
+            if (canSeeTarget) {
+                this.path = navMesh.findPath(this.location, goal, tileList);
+                if (this.path != null) {
+                    this.waypointIndex++;
+                    this.currentWaypoint = this.path.getNode(this.waypointIndex);
+                    System.out.println("goal found");
+                    return;
+                }
+            }
+            tries++;
+        }
+        System.out.println("no goal found");
+    }
+
+    public void render(List<Tile> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_STENCIL_TEST);
         glColorMask(false, false, false, false);
@@ -191,6 +232,10 @@ public class LightCone {
         // }
         // glEnd();
 
+//        if (this.path != null) {
+//            this.path.render();
+//        }
+
     }
 
     public Hitbox getHitbox() {
@@ -212,14 +257,48 @@ public class LightCone {
         }
     }
 
-    public void update() {
-        this.setAngle(this.angle + this.momentum);
+    public void update(NavMesh navMesh, List<Tile> tileList) {
+        if (this.currentWaypoint != null) {
+
+            this.velocity = new Vector3f(0, 0, 0);
+            this.setAngle(this.currentWaypoint.getAngle(this.location));
+
+            float maxVelocity = 0.02f;
+            float maxForce = 1f;
+            float mass = 1f;
+            Vector3f desired = new Vector3f();
+            Vector3f.sub(currentWaypoint, location, desired);
+            if (desired.getX() != 0 && desired.getY() != 0) {
+                Vector3f.normalize(desired).scale(maxVelocity);
+            }
+
+            Vector3f steering = Vector3f.sub(desired, this.velocity);
+            steering.truncate(maxForce);
+
+            steering = (Vector3f) steering.scale(1f / mass);
+
+            this.velocity = Vector3f.add(velocity, steering);
+            Vector3f.add(this.location, this.velocity, this.location);
+
+            if (this.isNearTarget(5)) {
+                this.waypointIndex++;
+                if (this.path != null) {
+                    if (this.waypointIndex == this.path.getPath().size()) {
+                        System.out.println("searching....");
+                        this.findRandomGoal(navMesh, tileList);
+                        System.out.println("done....");
+                    } else {
+                        this.currentWaypoint = this.path.getNode(this.waypointIndex);
+                    }
+                }
+            }
+        } else {
+            this.findRandomGoal(navMesh, tileList);
+        }
     }
 
-    public boolean isNearTarget(float radius) {
-        float xDist = target.getX() - location.getX();
-        float yDist = target.getY() - location.getZ();
-        return (float) Math.abs(Math.sqrt(xDist * xDist + yDist * yDist)) <= radius;
+    private boolean isNearTarget(float radius) {
+        return this.location.distanceTo(this.currentWaypoint) < radius;
     }
 
     public float getDistance(Vector3f target) {
@@ -228,79 +307,46 @@ public class LightCone {
         return (float) Math.sqrt(xDist * xDist + yDist * yDist);
     }
 
-    public void seek(List<LightCone> list) {
-        if (target == null) {
-            Vector3f.add(this.location, this.seperate(list), this.location);
-            this.hitbox.setCenter(this.location);
-            return;
-        }
-
-        float maxVelocity = 2f;
-        float maxForce = 2f;
-        float mass = 1f;
-        Vector3f desired = new Vector3f();
-        Vector3f.sub(target, location, desired);
-        if (desired.getX() != 0 && desired.getY() != 0) {
-            Vector3f.normalize(desired).scale(maxVelocity);
-        }
-
-        Vector3f steering = Vector3f.sub(desired, this.velocity);
-        steering.truncate(maxForce);
-
-        steering = (Vector3f) steering.scale(1f / mass);
-
-        this.velocity = Vector3f.add(velocity, steering);
-
-        // this.velocity = Vector2f.add(velocity, this.seperate(list), null);
-        this.velocity.truncate(maxVelocity);
-
-        // move
-        Vector3f.add(this.location, velocity, this.location);
-        this.hitbox.setCenter(this.location);
-
-        if (this.isNearTarget(2)) {
-            this.target = null;
-        }
-    }
+    // public void seek(List<Enemy> list) {
+    // if (currentWaypoint == null) {
+    // Vector3f.add(this.location, this.seperate(list), this.location);
+    // this.hitbox.setCenter(this.location);
+    // return;
+    // }
+    //
+    // float maxVelocity = 2f;
+    // float maxForce = 2f;
+    // float mass = 1f;
+    // Vector3f desired = new Vector3f();
+    // Vector3f.sub(currentWaypoint, location, desired);
+    // if (desired.getX() != 0 && desired.getY() != 0) {
+    // Vector3f.normalize(desired).scale(maxVelocity);
+    // }
+    //
+    // Vector3f steering = Vector3f.sub(desired, this.velocity);
+    // steering.truncate(maxForce);
+    //
+    // steering = (Vector3f) steering.scale(1f / mass);
+    //
+    // this.velocity = Vector3f.add(velocity, steering);
+    //
+    // // this.velocity = Vector2f.add(velocity, this.seperate(list), null);
+    // this.velocity.truncate(maxVelocity);
+    //
+    // // move
+    // Vector3f.add(this.location, velocity, this.location);
+    // this.hitbox.setCenter(this.location);
+    //
+    // if (this.isNearTarget(5)) {
+    // this.currentWaypoint = null;
+    // }
+    // }
 
     public void setAlerted(boolean alerted) {
         this.alerted = alerted;
     }
 
-    public Vector3f seperate(List<LightCone> list) {
-        Vector3f v = new Vector3f();
-        // int neighborCount = 0;
-        // for (LightCone agent : list) {
-        // if (this == list) {
-        // continue;
-        // }
-        // if (Math.abs(this.getDistance(agent.location)) < 150) {
-        // v.x += agent.location.x - this.location.x;
-        // v.y += agent.location.x - this.location.x;
-        // neighborCount++;
-        // }
-        // }
-        //
-        // if (neighborCount == 0) {
-        // return v;
-        // }
-        //
-        // v.x /= neighborCount;
-        // v.y /= neighborCount;
-        //
-        // v.x *= -1;
-        // v.y *= -1;
-        //
-        // if (v.x == 0 && v.y == 0) {
-        // return v;
-        // }
-        //
-        // v.normalise();
-        // this.truncate(v, 1.0f);
-        return v;
-    }
-
-    public boolean collides(LightCone other) {
+    public boolean collides(Enemy other) {
         return CollisionHelper.isVectorInHitbox(other.getLocation(), this.hitbox);
     }
 
