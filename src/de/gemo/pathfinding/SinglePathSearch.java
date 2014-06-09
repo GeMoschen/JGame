@@ -5,7 +5,7 @@ import java.util.*;
 
 import de.gemo.game.sim.core.*;
 import de.gemo.game.sim.tiles.*;
-import de.gemo.gameengine.units.Vector2f;
+import de.gemo.gameengine.units.*;
 
 public class SinglePathSearch {
 

@@ -1,7 +1,6 @@
 package de.gemo.game.physics;
 
 import java.awt.Font;
-import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
 

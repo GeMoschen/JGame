@@ -26,7 +26,7 @@ public class FoVCore extends GameEngine {
     @Override
     protected void createManager() {
         int lightCount = 5;
-        int blockCount = 80;
+        int blockCount = 150;
 
         for (int i = 1; i <= lightCount; i++) {
             Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
