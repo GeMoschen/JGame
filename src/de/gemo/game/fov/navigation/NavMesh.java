@@ -2,6 +2,7 @@ package de.gemo.game.fov.navigation;
 
 import java.util.*;
 
+import de.gemo.game.fov.core.*;
 import de.gemo.game.fov.units.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
@@ -94,28 +95,31 @@ public class NavMesh {
     }
 
     public Path findPath(Vector3f start, Vector3f goal, List<Tile> tileList) {
-        // reset heuristics
-        for (NavNode node : this.navPoints) {
-            node.reset();
-        }
+        System.out.println();
+        TimeHandler.start("Pathfinding");
 
         // create start and goal
         NavNode startNode = new NavNode(start);
         NavNode goalNode = new NavNode(goal);
 
         // add temporary connections
+        TimeHandler.start("Init");
         this.findNeighborsForNode(startNode, tileList, true);
         this.findNeighborsForNode(goalNode, tileList, true);
+        TimeHandler.end("Init");
 
+        TimeHandler.start("Init 2");
         // create raycast from start to goal
         Hitbox raycast = new Hitbox(0, 0);
         raycast.addPoint(startNode.getPosition());
         raycast.addPoint(goalNode.getPosition());
 
-        // check for colliding polys
+        // search tiles in boundingbox from the raycast
+        List<Point<Tile>> tilesInRect = this.tileTree.searchWithin(raycast.getAABB().getLeft() - 20, raycast.getAABB().getTop() - 20, raycast.getAABB().getRight() + 20, raycast.getAABB().getBottom() + 20);
         boolean canSeeTarget = true;
-        for (Tile block : tileList) {
-            if (CollisionHelper.isIntersecting(this.expandHitbox(block.getHitbox(), 10), raycast)) {
+        for (Point<Tile> b : tilesInRect) {
+            Tile block = b.getValue();
+            if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
                 canSeeTarget = false;
                 break;
             }
@@ -127,10 +131,14 @@ public class NavMesh {
             goalNode.setPreviousNode(startNode);
             this.removeNodeFromNeighbors(startNode);
             this.removeNodeFromNeighbors(goalNode);
+            TimeHandler.end("Init 2");
             return this.reconstructPath(goalNode, startNode);
         }
 
+        TimeHandler.end("Init 2");
+
         // initialize A*
+        TimeHandler.start("Path");
         Set<NavNode> closedList = new HashSet<NavNode>();
         PriorityQueue<NavNode> openList = new PriorityQueue<NavNode>();
         openList.add(startNode);
@@ -155,10 +163,13 @@ public class NavMesh {
             this.expandNode(currentNode, goalNode, openList, closedList);
         }
 
+        TimeHandler.end("Path");
         // remove temporary connections
         this.removeNodeFromNeighbors(startNode);
         this.removeNodeFromNeighbors(goalNode);
-
+        TimeHandler.end("Path");
+        TimeHandler.end("Pathfinding");
+        System.out.println("no path found");
         return null;
     }
 
@@ -199,6 +210,8 @@ public class NavMesh {
             node = node.getPreviousNode();
         }
         path.addNode(startNode.getPosition());
+        TimeHandler.end("Path");
+        TimeHandler.end("Pathfinding");
         return path;
     }
 
@@ -215,7 +228,7 @@ public class NavMesh {
 
     private void findNeighborsForNode(NavNode node, List<Tile> tileList, boolean useExpanded) {
         // init vars
-        int minPointsToFind = 10;
+        int minPointsToFind = 20;
         List<Point<NavNode>> points = new ArrayList<Point<NavNode>>();
 
         // find at least "minPointsToFind" Points in a radius around the current
@@ -233,23 +246,24 @@ public class NavMesh {
 
         // if we have too less points, we simply add all points
         if (points.size() < minPointsToFind) {
+            System.out.println("all points");
             points = this.allPoints;
         }
 
         // create raycast
         Hitbox raycast = new Hitbox(0, 0);
-        raycast.addPoint(node.getPosition());
         for (Point<NavNode> o : points) {
             NavNode other = o.getValue();
 
             // create raycast
-            if (raycast.getPointCount() > 1) {
-                raycast.getPoints().remove(1);
-            }
+            // if (raycast.getPointCount() > 1) {
+            raycast.getPoints().clear();
+            // }
+            raycast.addPoint(node.getPosition());
             raycast.addPoint(other.getPosition());
 
             // search tiles in boundingbox from the raycast
-            List<Point<Tile>> tilesInRect = this.tileTree.searchWithin(raycast.getAABB().getLeft(), raycast.getAABB().getTop(), raycast.getAABB().getRight(), raycast.getAABB().getBottom());
+            List<Point<Tile>> tilesInRect = this.tileTree.searchWithin(raycast.getAABB().getLeft() - 20, raycast.getAABB().getTop() - 20, raycast.getAABB().getRight() + 20, raycast.getAABB().getBottom() + 20);
 
             // check for colliding tiles
             boolean canSeeTarget = true;
@@ -258,12 +272,12 @@ public class NavMesh {
                 if (useExpanded) {
                     if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
                         canSeeTarget = false;
-                        continue;
+                        break;
                     }
                 } else {
                     if (CollisionHelper.isIntersecting(block.getHitbox(), raycast)) {
                         canSeeTarget = false;
-                        continue;
+                        break;
                     }
                 }
             }

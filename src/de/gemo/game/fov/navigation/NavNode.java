@@ -60,7 +60,7 @@ public class NavNode implements Comparable<NavNode> {
             }
             glEnd();
 
-            glColor4f(1f, 1f, 1f, 0.02f);
+            glColor4f(1f, 1f, 1f, 0.03f);
 
             glBegin(GL_LINES);
             {
