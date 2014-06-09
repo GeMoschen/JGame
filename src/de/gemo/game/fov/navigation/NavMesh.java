@@ -228,7 +228,7 @@ public class NavMesh {
 
     private void findNeighborsForNode(NavNode node, List<Tile> tileList, boolean useExpanded) {
         // init vars
-        int minPointsToFind = 20;
+        int minPointsToFind = 5;
         List<Point<NavNode>> points = new ArrayList<Point<NavNode>>();
 
         // find at least "minPointsToFind" Points in a radius around the current
