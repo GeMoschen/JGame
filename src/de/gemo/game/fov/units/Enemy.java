@@ -259,10 +259,11 @@ public class Enemy {
             glColor4f(1, 1, 1, 1);
             glBegin(GL_QUADS);
             {
-                glVertex2f(this.location.getX() - 3, this.location.getY() - 3);
-                glVertex2f(this.location.getX() + 3, this.location.getY() - 3);
-                glVertex2f(this.location.getX() + 3, this.location.getY() + 3);
-                glVertex2f(this.location.getX() - 3, this.location.getY() + 3);
+                int block = 3;
+                glVertex2f(this.location.getX() - block, this.location.getY() - block);
+                glVertex2f(this.location.getX() + block, this.location.getY() - block);
+                glVertex2f(this.location.getX() + block, this.location.getY() + block);
+                glVertex2f(this.location.getX() - block, this.location.getY() + block);
             }
             glEnd();
         }

@@ -4,6 +4,7 @@ import java.util.*;
 
 import de.gemo.game.fov.navigation.*;
 import de.gemo.game.fov.units.*;
+import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.units.*;
@@ -25,13 +26,8 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 5;
+        int lightCount = 10;
         int blockCount = 80;
-
-        for (int i = 1; i <= lightCount; i++) {
-            Vector3f location = new Vector3f(20 + (float) Math.random() * (this.VIEW_WIDTH - 20), 20 + (float) Math.random() * (this.VIEW_HEIGHT - 20), 0);
-            enemies.add(new Enemy(location));
-        }
 
         for (int i = 1; i <= blockCount; i++) {
             int width = 15;
@@ -39,6 +35,22 @@ public class FoVCore extends GameEngine {
             int x = (int) (20 + (Math.random() * (this.VIEW_WIDTH - width - 20)));
             int y = (int) (20 + (Math.random() * (this.VIEW_HEIGHT - height - 20)));
             tiles.add(new Tile(x, y, width, height));
+        }
+
+        for (int i = 1; i <= lightCount; i++) {
+            boolean freeSpace = false;
+            Vector3f location = null;
+            while (!freeSpace) {
+                freeSpace = true;
+                location = new Vector3f(20 + (float) Math.random() * (this.VIEW_WIDTH - 20), 20 + (float) Math.random() * (this.VIEW_HEIGHT - 20), 0);
+                for (Tile tile : this.tiles) {
+                    if (CollisionHelper.isVectorInHitbox(location, tile.expanded)) {
+                        freeSpace = false;
+                        break;
+                    }
+                }
+            }
+            enemies.add(new Enemy(location));
         }
 
         coneShader = new Shader();
