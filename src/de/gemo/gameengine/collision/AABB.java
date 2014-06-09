@@ -12,6 +12,22 @@ public class AABB {
         this.reset();
     }
 
+    public float getTop() {
+        return top;
+    }
+
+    public float getLeft() {
+        return left;
+    }
+
+    public float getBottom() {
+        return bottom;
+    }
+
+    public float getRight() {
+        return right;
+    }
+
     public void reset() {
         this.top = Float.MAX_VALUE;
         this.bottom = Float.MIN_VALUE;
