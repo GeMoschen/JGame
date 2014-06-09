@@ -26,7 +26,7 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 10;
+        int lightCount = 5;
         int blockCount = 80;
 
         for (int i = 1; i <= blockCount; i++) {
@@ -76,6 +76,7 @@ public class FoVCore extends GameEngine {
         // MouseManager.INSTANCE.getMouseVector()));
         int i = 0;
         for (Enemy enemy : this.enemies) {
+
             if (i == 0) {
                 enemy.setAlerted(true);
             }
@@ -150,7 +151,7 @@ public class FoVCore extends GameEngine {
         }
 
         // this.navMesh.createNavMesh(this.tiles);
-        this.navMesh.render();
+        // this.navMesh.render();
     }
 
     @Override
