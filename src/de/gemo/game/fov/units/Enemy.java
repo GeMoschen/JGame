@@ -53,13 +53,15 @@ public class Enemy {
     }
 
     public void findRandomGoal(NavMesh navMesh, List<Tile> tileList) {
-        Vector3f goal = new Vector3f((float) Math.random() * GameEngine.INSTANCE.VIEW_WIDTH, (float) Math.random() * GameEngine.INSTANCE.VIEW_HEIGHT, 0);
+        Vector3f goal;
         boolean canSeeTarget = false;
         int tries = 0;
         this.waypointIndex = 0;
         this.path = null;
         this.currentWaypoint = null;
         while (!canSeeTarget && tries < 100) {
+            goal = new Vector3f((float) Math.random() * GameEngine.INSTANCE.VIEW_WIDTH, (float) Math.random() * GameEngine.INSTANCE.VIEW_HEIGHT, 0);
+
             // create raycast
             Hitbox raycast = new Hitbox(0, 0);
             raycast.addPoint(this.location);
@@ -68,7 +70,9 @@ public class Enemy {
             // check for colliding polys
             canSeeTarget = true;
             for (Tile block : tileList) {
-                if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
+                Hitbox expanded = block.getHitbox().clone();
+                expanded.scaleByPixel(20);
+                if (CollisionHelper.isVectorInHitbox(goal, expanded)) {
                     canSeeTarget = false;
                     break;
                 }
@@ -96,7 +100,7 @@ public class Enemy {
         this.currentWaypoint = null;
         // check for colliding polys
         for (Tile block : tileList) {
-            if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
+            if (CollisionHelper.isVectorInHitbox(goal, block.expanded)) {
                 canSeeTarget = false;
                 break;
             }
@@ -250,6 +254,20 @@ public class Enemy {
             this.path.render(this.waypointIndex);
         }
 
+        glPushMatrix();
+        {
+            glColor4f(1, 1, 1, 1);
+            glBegin(GL_QUADS);
+            {
+                glVertex2f(this.location.getX() - 3, this.location.getY() - 3);
+                glVertex2f(this.location.getX() + 3, this.location.getY() - 3);
+                glVertex2f(this.location.getX() + 3, this.location.getY() + 3);
+                glVertex2f(this.location.getX() - 3, this.location.getY() + 3);
+            }
+            glEnd();
+        }
+        glPopMatrix();
+
     }
 
     public Hitbox getHitbox() {
@@ -272,32 +290,30 @@ public class Enemy {
     }
 
     public void update(NavMesh navMesh, List<Tile> tileList) {
-
         this.velocity = new Vector3f(0, 0, 0);
-        Hitbox miniBox = new Hitbox(this.location);
-        miniBox.addPoint(0, 0);
-        miniBox.addPoint(10, 0);
-        miniBox.addPoint(10, 10);
-        miniBox.addPoint(0, 10);
         for (Tile tile : tileList) {
             Hitbox exp = tile.getHitbox().clone();
             exp.scaleByPixel(10.5f);
-            if (CollisionHelper.isVectorInHitbox(this.location, exp)) {
+            if (CollisionHelper.isVectorInHitbox(this.location, tile.getHitbox())) {
                 Vector3f minVector = Vector3f.sub(this.getLocation(), exp.getCenter());
 
                 this.velocity = minVector.clone();
                 if (this.velocity.getX() == 0 && this.velocity.getY() == 0) {
-                    this.velocity.setX(0.5f);
+                    this.velocity.setX(2.5f);
                 }
-                velocity.truncate(0.5f);
-
+                velocity.truncate(2.5f);
                 Vector3f.add(this.location, this.velocity, this.location);
+                // this.path = navMesh.findPath(this.location,
+                // this.currentWaypoint, tileList);
                 return;
+
+                // Vector3f.add(this.location, this.velocity, this.location);
+                // return;
             }
         }
 
         if (this.currentWaypoint != null) {
-            this.velocity = new Vector3f(0, 0, 0);
+            // this.velocity = new Vector3f(0, 0, 0);
             this.setAngle(this.currentWaypoint.getAngle(this.location));
 
             float maxVelocity = 0.02f;
@@ -317,7 +333,14 @@ public class Enemy {
             this.velocity = Vector3f.add(velocity, steering);
             Vector3f.add(this.location, this.velocity, this.location);
 
-            if (this.isNearTarget(3.5f)) {
+            for (Tile tile : tileList) {
+                if (CollisionHelper.isVectorInHitbox(this.location, tile.getHitbox())) {
+                    Vector3f.sub(this.location, this.velocity, this.location);
+                    return;
+                }
+            }
+
+            if (this.isNearTarget(1.5f)) {
                 this.waypointIndex++;
                 if (this.path != null) {
                     if (this.waypointIndex == this.path.getPath().size()) {
@@ -341,41 +364,6 @@ public class Enemy {
         float yDist = target.getY() - location.getY();
         return (float) Math.sqrt(xDist * xDist + yDist * yDist);
     }
-
-    // public void seek(List<Enemy> list) {
-    // if (currentWaypoint == null) {
-    // Vector3f.add(this.location, this.seperate(list), this.location);
-    // this.hitbox.setCenter(this.location);
-    // return;
-    // }
-    //
-    // float maxVelocity = 2f;
-    // float maxForce = 2f;
-    // float mass = 1f;
-    // Vector3f desired = new Vector3f();
-    // Vector3f.sub(currentWaypoint, location, desired);
-    // if (desired.getX() != 0 && desired.getY() != 0) {
-    // Vector3f.normalize(desired).scale(maxVelocity);
-    // }
-    //
-    // Vector3f steering = Vector3f.sub(desired, this.velocity);
-    // steering.truncate(maxForce);
-    //
-    // steering = (Vector3f) steering.scale(1f / mass);
-    //
-    // this.velocity = Vector3f.add(velocity, steering);
-    //
-    // // this.velocity = Vector2f.add(velocity, this.seperate(list), null);
-    // this.velocity.truncate(maxVelocity);
-    //
-    // // move
-    // Vector3f.add(this.location, velocity, this.location);
-    // this.hitbox.setCenter(this.location);
-    //
-    // if (this.isNearTarget(5)) {
-    // this.currentWaypoint = null;
-    // }
-    // }
 
     public void setAlerted(boolean alerted) {
         this.alerted = alerted;

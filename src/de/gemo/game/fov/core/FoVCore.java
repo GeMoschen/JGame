@@ -26,18 +26,18 @@ public class FoVCore extends GameEngine {
     @Override
     protected void createManager() {
         int lightCount = 5;
-        int blockCount = 80;
+        int blockCount = 200;
 
         for (int i = 1; i <= lightCount; i++) {
-            Vector3f location = new Vector3f((float) Math.random() * this.VIEW_WIDTH, (float) Math.random() * this.VIEW_HEIGHT, 0);
+            Vector3f location = new Vector3f(20 + (float) Math.random() * (this.VIEW_WIDTH - 20), 20 + (float) Math.random() * (this.VIEW_HEIGHT - 20), 0);
             enemies.add(new Enemy(location));
         }
 
         for (int i = 1; i <= blockCount; i++) {
             int width = 15;
             int height = 15;
-            int x = (int) (Math.random() * (this.VIEW_WIDTH - width));
-            int y = (int) (Math.random() * (this.VIEW_HEIGHT - height));
+            int x = (int) (20 + (Math.random() * (this.VIEW_WIDTH - width - 20)));
+            int y = (int) (20 + (Math.random() * (this.VIEW_HEIGHT - height - 20)));
             tiles.add(new Tile(x, y, width, height));
         }
 
@@ -45,7 +45,7 @@ public class FoVCore extends GameEngine {
         coneShader.loadPixelShader("shaders/viewcone.frag");
 
         ambientShader = new Shader();
-        // ambientShader.loadPixelShader("ambientLight.frag");
+        ambientShader.loadPixelShader("shaders/ambientLight.frag");
 
         this.navMesh = new NavMesh(this.tiles);
     }
@@ -118,7 +118,7 @@ public class FoVCore extends GameEngine {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         ambientShader.bind();
-        glUniform4f(glGetUniformLocation(ambientShader.getID(), "ambientColor"), 0.3f, 0.3f, 0.7f, 0.5f);
+        glUniform4f(glGetUniformLocation(ambientShader.getID(), "ambientColor"), 0.3f, 0.3f, 0.7f, 1f);
 
         glColor4f(0.3f, 0.3f, 0.7f, 0.5f);
         glBegin(GL_QUADS);
@@ -145,9 +145,5 @@ public class FoVCore extends GameEngine {
     protected void onShutdown(boolean error) {
         this.coneShader.cleanup();
         this.ambientShader.cleanup();
-    }
-
-    public float getAngle(Vector3f target, Vector3f pos) {
-        return pos.getAngle(target);
     }
 }

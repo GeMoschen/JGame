@@ -1,11 +1,11 @@
-varying LOWP vec4 vColor;
+varying vec4 vColor;
 varying vec2 vTexCoord;
  
 //texture samplers
 uniform sampler2D u_texture; //diffuse map
  
 //additional parameters for the shader
-uniform LOWP vec4 ambientColor;
+uniform vec4 ambientColor;
  
 void main() {
     vec4 diffuseColor = texture2D(u_texture, vTexCoord);

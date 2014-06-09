@@ -24,58 +24,6 @@ public class NavMesh {
         for (NavNode node : this.navPoints) {
             node.render();
         }
-
-        // int xmin = (int) (MouseManager.INSTANCE.getMouseVector().getX() -
-        // 250);
-        // int xmax = (int) (MouseManager.INSTANCE.getMouseVector().getX() +
-        // 250);
-        // int ymin = (int) (MouseManager.INSTANCE.getMouseVector().getY() -
-        // 250);
-        // int ymax = (int) (MouseManager.INSTANCE.getMouseVector().getY() +
-        // 250);
-        //
-        // glPushMatrix();
-        // {
-        // System.out.println("-------------------------");
-        // long startTime = System.nanoTime();
-        // List<Point<NavNode>> points = this.tree.searchIntersect(xmin, ymin,
-        // xmax, ymax);
-        // long duration = System.nanoTime() - startTime;
-        // float ms = duration / 1000000f;
-        // System.out.println("MS: " + ms);
-        //
-        // long startTime2 = System.nanoTime();
-        // for (NavNode node : this.navPoints) {
-        // if
-        // (node.getPosition().getDistance(MouseManager.INSTANCE.getMouseVector())
-        // > 250) {
-        // continue;
-        // }
-        // }
-        // long duration2 = System.nanoTime() - startTime2;
-        // float ms2 = duration2 / 1000000f;
-        // System.out.println("MS 2: " + ms2);
-        //
-        // glDisable(GL_LIGHTING);
-        // glDisable(GL_TEXTURE_2D);
-        // glLineWidth(1f);
-        //
-        // glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //
-        // glColor4f(1, 0, 0, 1f);
-        // for (Point<NavNode> point : points) {
-        // glBegin(GL_LINE_LOOP);
-        // {
-        // glVertex2d(point.getX() - 2, point.getY() - 2);
-        // glVertex2d(point.getX() - 2, point.getY() + 2);
-        // glVertex2d(point.getX() + 2, point.getY() + 2);
-        // glVertex2d(point.getX() + 2, point.getY() - 2);
-        // }
-        // glEnd();
-        // }
-        // }
-        // glPopMatrix();
     }
 
     public void createNavMesh(List<Tile> tileList) {
@@ -146,11 +94,6 @@ public class NavMesh {
     }
 
     public Path findPath(Vector3f start, Vector3f goal, List<Tile> tileList) {
-
-        System.out.println();
-        System.out.println("SEARCH STARTED");
-        long startTime = System.nanoTime();
-
         // reset heuristics
         for (NavNode node : this.navPoints) {
             node.reset();
@@ -161,26 +104,14 @@ public class NavMesh {
         NavNode goalNode = new NavNode(goal);
 
         // add temporary connections
-        long startTime_1 = System.nanoTime();
-        this.findNeighborsForNode(startNode, tileList, false);
-        long duration_1 = System.nanoTime() - startTime_1;
-        float dur_1 = duration_1 / 1000000f;
-        System.out.println("new: " + dur_1);
-
-        long startTime_2 = System.nanoTime();
+        this.findNeighborsForNode(startNode, tileList, true);
         this.findNeighborsForNode(goalNode, tileList, true);
-        long duration_2 = System.nanoTime() - startTime_2;
-        float dur_2 = duration_2 / 1000000f;
-        System.out.println("old: " + dur_2);
-
-        System.out.println("Initialize: " + (dur_1 + dur_2));
 
         // create raycast from start to goal
         Hitbox raycast = new Hitbox(0, 0);
         raycast.addPoint(startNode.getPosition());
         raycast.addPoint(goalNode.getPosition());
 
-        long startTime_3 = System.nanoTime();
         // check for colliding polys
         boolean canSeeTarget = true;
         for (Tile block : tileList) {
@@ -215,14 +146,6 @@ public class NavMesh {
                 this.removeNodeFromNeighbors(startNode);
                 this.removeNodeFromNeighbors(goalNode);
 
-                long duration_3 = System.nanoTime() - startTime_3;
-                float dur_3 = duration_3 / 1000000f;
-                System.out.println("Search: " + dur_3);
-
-                long duration = System.nanoTime() - startTime;
-                float dur = duration / 1000000f;
-                System.out.println("Complete Pathfinding: " + dur);
-
                 // reconstruct path
                 return reconstructPath(currentNode, startNode);
             }
@@ -231,10 +154,6 @@ public class NavMesh {
             closedList.add(currentNode);
             this.expandNode(currentNode, goalNode, openList, closedList);
         }
-
-        long duration_3 = System.nanoTime() - startTime_3;
-        float dur_3 = duration_3 / 1000000f;
-        System.out.println("Search (NOT): " + dur_3);
 
         // remove temporary connections
         this.removeNodeFromNeighbors(startNode);
@@ -296,7 +215,7 @@ public class NavMesh {
 
     private void findNeighborsForNode(NavNode node, List<Tile> tileList, boolean useExpanded) {
         // init vars
-        int minPointsToFind = 3;
+        int minPointsToFind = 10;
         List<Point<NavNode>> points = new ArrayList<Point<NavNode>>();
 
         // find at least "minPointsToFind" Points in a radius around the current
@@ -307,13 +226,13 @@ public class NavMesh {
             int ymin = (int) (node.getPosition().getY() - 250);
             int ymax = (int) (node.getPosition().getY() + 250);
             points = this.pointTree.searchWithin(xmin, ymin, xmax, ymax);
-            if (points.size() > minPointsToFind) {
+            if (points.size() >= minPointsToFind) {
                 break;
             }
         }
 
         // if we have too less points, we simply add all points
-        if (points.size() < minPointsToFind + 1) {
+        if (points.size() < minPointsToFind) {
             points = this.allPoints;
         }
 
@@ -336,9 +255,16 @@ public class NavMesh {
             boolean canSeeTarget = true;
             for (Point<Tile> b : tilesInRect) {
                 Tile block = b.getValue();
-                if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
-                    canSeeTarget = false;
-                    continue;
+                if (useExpanded) {
+                    if (CollisionHelper.isIntersecting(block.expanded, raycast)) {
+                        canSeeTarget = false;
+                        continue;
+                    }
+                } else {
+                    if (CollisionHelper.isIntersecting(block.getHitbox(), raycast)) {
+                        canSeeTarget = false;
+                        continue;
+                    }
                 }
             }
             if (canSeeTarget) {

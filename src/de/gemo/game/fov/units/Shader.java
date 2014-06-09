@@ -97,7 +97,8 @@ public class Shader {
 
         if (ARBShaderObjects.glGetObjectParameteriARB(pixelShaderID, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE) {
             System.out.println("Error creating shader: " + getLogInfo(vertexShaderID));
-            throw new RuntimeException("Error creating shader: " + getLogInfo(vertexShaderID));
+            // throw new RuntimeException("Error creating shader: " +
+            // getLogInfo(vertexShaderID));
         }
 
         this.useVertexShader = true;
@@ -114,7 +115,8 @@ public class Shader {
 
         if (ARBShaderObjects.glGetObjectParameteriARB(pixelShaderID, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE) {
             System.out.println("Error creating shader: " + getLogInfo(pixelShaderID));
-            throw new RuntimeException("Error creating shader: " + getLogInfo(pixelShaderID));
+            // throw new RuntimeException("Error creating shader: " +
+            // getLogInfo(pixelShaderID));
         }
 
         this.usePixelShader = true;
