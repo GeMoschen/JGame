@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class Enemy {
     // private Vector3f location;
-    private float angle = 0f, momentum = 0f, viewAngle = 0;
+    private float currentAngle = 0f, wantedAngle = 0f, momentum = 0f, viewAngle = 0;
 
     public Vector3f velocity = new Vector3f();
     private Hitbox hitbox;
@@ -27,6 +27,13 @@ public class Enemy {
     public Enemy(Vector3f location) {
         this.momentum = 1;
         this.createHitbox(location);
+        this.viewAngle = (float) (-Math.random() * 60 + Math.random() * 60);
+        if (this.viewAngle > 45) {
+            this.viewAngle = 45f;
+        }
+        if (this.viewAngle < -45) {
+            this.viewAngle = -45;
+        }
     }
 
     private void createHitbox(Vector3f location) {
@@ -46,21 +53,87 @@ public class Enemy {
     public void setAngle(float angle) {
         this.updateViewAngle();
         this.hitbox.setAngle(angle + this.viewAngle);
-        this.angle = this.hitbox.getAngle() - this.viewAngle;
+        this.currentAngle = this.hitbox.getAngle() - this.viewAngle;
     }
 
     private void updateViewAngle() {
-        float moveSpeed = 0.4f;
+        float moveSpeed = 0.3f;
         if (this.momentum == 1) {
             this.viewAngle += moveSpeed;
         } else {
             this.viewAngle -= moveSpeed;
         }
 
-        if (this.viewAngle >= 30) {
+        if (this.viewAngle >= 45) {
             this.momentum = 0;
-        } else if (this.viewAngle <= -30) {
+        } else if (this.viewAngle <= -45) {
             this.momentum = 1;
+        }
+    }
+
+    float minX = Float.MAX_VALUE;
+
+    public void update(NavMesh navMesh, List<Tile> tileList) {
+        this.velocity = new Vector3f(0, 0, 0);
+
+        if (this.currentWaypoint != null) {
+            // this.setAngle(this.currentWaypoint.getAngle(this.hitbox.getCenter()));
+
+            this.setAngle(0);
+
+            float factor = 1.004f;
+            float invFactor = 1 / factor;
+            if (this.momentum > 0) {
+                if (this.viewAngle < 0) {
+                    this.hitbox.scale(factor, factor);
+                } else if (this.viewAngle > 0) {
+                    this.hitbox.scale(invFactor, invFactor);
+                }
+            } else {
+                if (this.viewAngle > 0) {
+                    this.hitbox.scale(factor, factor);
+                } else if (this.viewAngle < 0) {
+                    this.hitbox.scale(invFactor, invFactor);
+                }
+            }
+
+            float maxVelocity = 0.02f;
+            float maxForce = 0.3f;
+            float mass = 1f;
+            Vector3f desired = new Vector3f();
+            Vector3f.sub(currentWaypoint, this.hitbox.getCenter(), desired);
+            if (desired.getX() != 0 && desired.getY() != 0) {
+                Vector3f.normalize(desired).scale(maxVelocity);
+            }
+
+            float dimX = this.hitbox.getAABB().getRight() - this.hitbox.getAABB().getLeft();
+            if (dimX < this.minX) {
+                System.out.println("min: " + minX);
+                this.minX = dimX;
+            }
+
+            Vector3f steering = Vector3f.sub(desired, this.velocity);
+            steering.truncate(maxForce);
+
+            steering = (Vector3f) steering.scale(1f / mass);
+
+            this.velocity = Vector3f.add(velocity, steering);
+            // this.move(this.velocity);
+
+            if (this.isNearTarget(1.5f)) {
+                this.waypointIndex++;
+                if (this.path != null) {
+                    if (this.waypointIndex == this.path.getPath().size()) {
+                        this.findRandomGoal(navMesh, tileList);
+                    } else {
+                        this.currentWaypoint = this.path.getNode(this.waypointIndex);
+                        this.wantedAngle = this.currentWaypoint.getAngle(this.hitbox.getCenter());
+                        this.viewAngle -= 0;
+                    }
+                }
+            }
+        } else {
+            this.findRandomGoal(navMesh, tileList);
         }
     }
 
@@ -94,6 +167,7 @@ public class Enemy {
                 if (this.path != null) {
                     this.waypointIndex++;
                     this.currentWaypoint = this.path.getNode(this.waypointIndex);
+                    this.wantedAngle = this.currentWaypoint.getAngle(this.hitbox.getCenter());
                     return;
                 }
             }
@@ -188,7 +262,7 @@ public class Enemy {
         glPushMatrix();
         {
             glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getY(), this.hitbox.getCenter().getZ());
-            glRotatef(this.angle + this.viewAngle, 0, 0, 1);
+            glRotatef(this.getHitbox().getAngle(), 0, 0, 1);
             glBegin(GL_POLYGON);
             {
                 glVertex2f(0, 0);
@@ -301,45 +375,6 @@ public class Enemy {
     public void insertIfNotExists(List<Vector2f> list, Vector2f vector) {
         if (!exists(list, vector)) {
             list.add(vector);
-        }
-    }
-
-    public void update(NavMesh navMesh, List<Tile> tileList) {
-        this.velocity = new Vector3f(0, 0, 0);
-
-        if (this.currentWaypoint != null) {
-            this.setAngle(this.currentWaypoint.getAngle(this.hitbox.getCenter()));
-
-            float maxVelocity = 0.02f;
-            float maxForce = 0.3f;
-            float mass = 1f;
-            Vector3f desired = new Vector3f();
-            Vector3f.sub(currentWaypoint, this.hitbox.getCenter(), desired);
-            if (desired.getX() != 0 && desired.getY() != 0) {
-                Vector3f.normalize(desired).scale(maxVelocity);
-            }
-
-            Vector3f steering = Vector3f.sub(desired, this.velocity);
-            steering.truncate(maxForce);
-
-            steering = (Vector3f) steering.scale(1f / mass);
-
-            this.velocity = Vector3f.add(velocity, steering);
-            this.move(this.velocity);
-
-            if (this.isNearTarget(1.5f)) {
-                this.waypointIndex++;
-                if (this.path != null) {
-                    if (this.waypointIndex == this.path.getPath().size()) {
-                        this.findRandomGoal(navMesh, tileList);
-                    } else {
-                        this.currentWaypoint = this.path.getNode(this.waypointIndex);
-                        this.viewAngle -= 0;
-                    }
-                }
-            }
-        } else {
-            this.findRandomGoal(navMesh, tileList);
         }
     }
 

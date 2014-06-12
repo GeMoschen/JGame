@@ -190,7 +190,7 @@ public class Hitbox {
             glPopMatrix();
 
             // render AABB
-            // this.aabb.render();
+//            this.aabb.render();
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
@@ -199,8 +199,8 @@ public class Hitbox {
     }
 
     public void scale(float scaleX, float scaleY) {
-        float currentAngle = this.angle;
-        this.setAngle(0);
+//        float currentAngle = this.angle;
+//        this.setAngle(0);
         for (Vector3f vector : this.points) {
             float currentX = vector.getX() - this.center.getX();
             float currentY = vector.getY() - this.center.getY();
@@ -209,9 +209,8 @@ public class Hitbox {
             vector.setX(this.center.getX() + currentX);
             vector.setY(this.center.getY() + currentY);
         }
-        this.setAngle(currentAngle);
+//        this.setAngle(currentAngle);
     }
-
     public void scaleByPixel(float pixel) {
         for (Vector3f vector : this.points) {
             Vector3f vect = Vector3f.sub(vector, center);

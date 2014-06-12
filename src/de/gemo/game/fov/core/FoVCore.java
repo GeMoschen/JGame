@@ -26,7 +26,7 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 5;
+        int lightCount = 1;
         int blockCount = 80;
 
         for (int i = 1; i <= blockCount; i++) {
@@ -64,10 +64,31 @@ public class FoVCore extends GameEngine {
 
     @Override
     public void onMouseDown(boolean handled, MouseClickEvent event) {
-        if (event.isRightButton()) {
+        if (event.isLeftButton()) {
             for (Enemy enemy : this.enemies) {
-                enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0), navMesh, this.tiles);
+
+                enemy.update(this.navMesh, this.tiles);
+                // enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0),
+                // navMesh, this.tiles);
             }
+        }
+
+        if (event.isMiddleButton()) {
+            for (Enemy enemy : this.enemies) {
+
+//                enemy.update(this.navMesh, this.tiles);
+                 enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0),
+                 navMesh, this.tiles);
+            }
+        }
+    }
+
+    @Override
+    public void onMouseWheel(boolean handled, MouseWheelEvent event) {
+        for (Enemy enemy : this.enemies) {
+            enemy.update(this.navMesh, this.tiles);
+            // enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0),
+            // navMesh, this.tiles);
         }
     }
 
@@ -78,10 +99,10 @@ public class FoVCore extends GameEngine {
         for (Enemy enemy : this.enemies) {
 
             if (i == 0) {
-                enemy.setAlerted(true);
+                // enemy.setAlerted(true);
             }
             i++;
-            enemy.update(this.navMesh, this.tiles);
+             enemy.update(this.navMesh, this.tiles);
 
             // if (!cone.collides(lights.get(0))) {
             // cone.update();
