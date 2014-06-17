@@ -57,16 +57,16 @@ public class Enemy {
     }
 
     private void updateViewAngle() {
-        float moveSpeed = 0.3f;
+        float moveSpeed = 0.25f;
         if (this.momentum == 1) {
             this.viewAngle += moveSpeed;
         } else {
             this.viewAngle -= moveSpeed;
         }
 
-        if (this.viewAngle >= 45) {
+        if (this.viewAngle >= 60) {
             this.momentum = 0;
-        } else if (this.viewAngle <= -45) {
+        } else if (this.viewAngle <= -60) {
             this.momentum = 1;
         }
     }
@@ -77,25 +77,25 @@ public class Enemy {
         this.velocity = new Vector3f(0, 0, 0);
 
         if (this.currentWaypoint != null) {
-            // this.setAngle(this.currentWaypoint.getAngle(this.hitbox.getCenter()));
+            this.setAngle(this.currentWaypoint.getAngle(this.hitbox.getCenter()));
 
-            this.setAngle(0);
+            // this.setAngle(0);
 
-            float factor = 1.004f;
-            float invFactor = 1 / factor;
-            if (this.momentum > 0) {
-                if (this.viewAngle < 0) {
-                    this.hitbox.scale(factor, factor);
-                } else if (this.viewAngle > 0) {
-                    this.hitbox.scale(invFactor, invFactor);
-                }
-            } else {
-                if (this.viewAngle > 0) {
-                    this.hitbox.scale(factor, factor);
-                } else if (this.viewAngle < 0) {
-                    this.hitbox.scale(invFactor, invFactor);
-                }
-            }
+            // float factor = 1.002f;
+            // float invFactor = 1 / factor;
+            // if (this.momentum > 0) {
+            // if (this.viewAngle < 0) {
+            // this.hitbox.scale(factor, factor);
+            // } else if (this.viewAngle > 0) {
+            // this.hitbox.scale(invFactor, invFactor);
+            // }
+            // } else {
+            // if (this.viewAngle > 0) {
+            // this.hitbox.scale(factor, factor);
+            // } else if (this.viewAngle < 0) {
+            // this.hitbox.scale(invFactor, invFactor);
+            // }
+            // }
 
             float maxVelocity = 0.02f;
             float maxForce = 0.3f;
@@ -118,7 +118,7 @@ public class Enemy {
             steering = (Vector3f) steering.scale(1f / mass);
 
             this.velocity = Vector3f.add(velocity, steering);
-            // this.move(this.velocity);
+            this.move(this.velocity);
 
             if (this.isNearTarget(1.5f)) {
                 this.waypointIndex++;

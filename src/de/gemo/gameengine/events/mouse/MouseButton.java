@@ -28,4 +28,8 @@ public enum MouseButton {
         }
         return UNDEFINED;
     }
+
+    public int getID() {
+        return ID;
+    }
 }
