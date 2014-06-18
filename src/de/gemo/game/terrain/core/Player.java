@@ -5,7 +5,7 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Player implements IPhysicsObject {
+public class Player implements IPhysicsObject, IRenderObject {
 
     private float playerWidth = 5, playerHeight = 10;
     private Vector2f position, velocity;
@@ -31,8 +31,8 @@ public class Player implements IPhysicsObject {
 
     public void jump() {
         if ((this.onGround) && (!this.topBlocked) && (this.velocity.getY() > -500.0F)) {
-            this.velocity.setY(this.velocity.getY() - 0.23f);
-            float jumpX = 0.115f;
+            this.velocity.setY(this.velocity.getY() - 0.24f);
+            float jumpX = 0.125f;
             if (this.lookRight) {
                 this.velocity.setX(jumpX);
             } else {
@@ -45,11 +45,11 @@ public class Player implements IPhysicsObject {
     public void updatePhysics(int delta) {
         // shoot angle
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
-            if ((this.lookRight && this.shootAngle > 0) || (!this.lookRight && this.shootAngle > -160)) {
+            if ((this.lookRight && this.shootAngle > 0) || (!this.lookRight && this.shootAngle > -170)) {
                 this.shootAngle -= 2f;
             }
         } else if ((this.movement[DOWN] && this.lookRight) || (this.movement[UP] && !this.lookRight)) {
-            if ((!this.lookRight && this.shootAngle < 0) || (this.lookRight && this.shootAngle < 160)) {
+            if ((!this.lookRight && this.shootAngle < 0) || (this.lookRight && this.shootAngle < 170)) {
                 this.shootAngle += 2f;
             }
         }
@@ -68,7 +68,7 @@ public class Player implements IPhysicsObject {
 
         // movement
         if (onGround) {
-            float maxX = 0.035f;
+            float maxX = 0.045f;
             if (this.movement[LEFT]) {
                 if (this.lookRight) {
                     this.shootAngle = -this.shootAngle;
@@ -195,6 +195,7 @@ public class Player implements IPhysicsObject {
 
     }
 
+    @Override
     public void render() {
         glPushMatrix();
         {
@@ -230,7 +231,7 @@ public class Player implements IPhysicsObject {
             glPushMatrix();
             {
                 glRotatef((float) this.shootAngle, 0, 0, 1);
-                glTranslatef(0, -50, 0);
+                glTranslatef(0, -65, 0);
                 glColor4f(1, 0, 0, 1);
                 glBegin(GL_LINES);
                 {

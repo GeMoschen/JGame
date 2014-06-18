@@ -2,14 +2,14 @@ package de.gemo.game.terrain.core;
 
 import java.util.*;
 
-public class PhysicsHandler {
-    private List<IPhysicsObject> objects = new ArrayList<IPhysicsObject>();
+public class RenderHandler {
+    private List<IRenderObject> objects = new ArrayList<IRenderObject>();
 
-    public void add(IPhysicsObject object) {
+    public void add(IRenderObject object) {
         this.objects.add(object);
     }
 
-    public void remove(IPhysicsObject object) {
+    public void remove(IRenderObject object) {
         for (int i = 0; i < this.objects.size(); i++) {
             if (this.objects.get(i) == object) {
                 this.objects.remove(i);
@@ -18,9 +18,9 @@ public class PhysicsHandler {
         }
     }
 
-    public void updateAll(int delta) {
+    public void renderAll() {
         for (int i = 0; i < this.objects.size(); i++) {
-            this.objects.get(i).updatePhysics(delta);
+            this.objects.get(i).render();
         }
     }
 }

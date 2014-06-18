@@ -26,6 +26,7 @@ public class TerrainCore extends GameEngine {
     private Vector2f offset = new Vector2f();
     private Player player;
     private PhysicsHandler physicsHandler;
+    private RenderHandler renderHandler;
 
     public TerrainCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
@@ -42,8 +43,10 @@ public class TerrainCore extends GameEngine {
 
         this.createTerrain(2 * 512, 1 * 512);
         this.physicsHandler = new PhysicsHandler();
+        this.renderHandler = new RenderHandler();
         this.player = new Player(500, 100);
         this.physicsHandler.add(this.player);
+        this.renderHandler.add(this.player);
     }
 
     private void createTerrain(int width, int height) {
@@ -213,7 +216,7 @@ public class TerrainCore extends GameEngine {
             }
             glEnd();
 
-            this.player.render();
+            this.renderHandler.renderAll();
         }
         glPopMatrix();
 
@@ -228,7 +231,7 @@ public class TerrainCore extends GameEngine {
         boolean down = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_DOWN);
         boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
-        this.physicsHandler.update(delta);
+        this.physicsHandler.updateAll(delta);
     }
 
     @Override
