@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.core;
 
+import java.io.*;
 import java.nio.*;
 
 import org.lwjgl.input.*;
@@ -20,6 +21,8 @@ public class TerrainCore extends GameEngine {
     private ByteBuffer buffer;
     private int texID = -1;
 
+    private TexData dirt;
+
     private Vector2f offset = new Vector2f();
     private Player player;
 
@@ -29,6 +32,13 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void createManager() {
+
+        try {
+            this.dirt = new TexData("resources/dirt.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         this.createTerrain(2 * 1024, 768);
         this.player = new Player(500, 100);
     }
@@ -43,7 +53,23 @@ public class TerrainCore extends GameEngine {
         }
 
         this.createPerlinWorld();
+        this.updateTerrainTexture();
         this.bakeTexture();
+    }
+
+    private void updateTerrainTexture() {
+        for (int y = 0; y < this.terrain[0].length; y++) {
+            for (int x = 0; x < this.terrain.length; x++) {
+                if (this.terrain[x][y] == 1) {
+                    buffer.position(this.getBufferPosition(x, y));
+                    buffer.put(this.dirt.getR(x, y));
+                    buffer.put(this.dirt.getG(x, y));
+                    buffer.put(this.dirt.getB(x, y));
+                    buffer.put(this.dirt.getA(x, y));
+                    buffer.position(0);
+                }
+            }
+        }
     }
 
     private void bakeTexture() {
@@ -144,10 +170,11 @@ public class TerrainCore extends GameEngine {
                 glVertex2i(0, this.terrain[0].length);
             }
             glEnd();
+
+            this.player.render();
         }
         glPopMatrix();
 
-        this.player.render();
     }
 
     @Override
