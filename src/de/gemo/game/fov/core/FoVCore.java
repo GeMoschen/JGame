@@ -26,8 +26,8 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int lightCount = 1;
-        int blockCount = 10;
+        int lightCount = 5;
+        int blockCount = 80;
 
         for (int i = 1; i <= blockCount; i++) {
             int width = 15;
@@ -171,7 +171,7 @@ public class FoVCore extends GameEngine {
         }
 
         // this.navMesh.createNavMesh(this.tiles);
-        this.navMesh.render();
+//        this.navMesh.render();
     }
 
     @Override

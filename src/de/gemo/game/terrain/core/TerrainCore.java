@@ -39,7 +39,7 @@ public class TerrainCore extends GameEngine {
             e.printStackTrace();
         }
 
-        this.createTerrain(2 * 1024, 768);
+        this.createTerrain(2 * 512, 1 * 512);
         this.player = new Player(500, 100);
     }
 
@@ -54,7 +54,31 @@ public class TerrainCore extends GameEngine {
 
         this.createPerlinWorld();
         this.updateTerrainTexture();
+        this.createGrass();
         this.bakeTexture();
+    }
+
+    private void createGrass() {
+        for (int y = 0; y < this.terrain[0].length; y++) {
+            for (int x = 0; x < this.terrain.length; x++) {
+                boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y) && this.isUnderFreeSky(x, y);
+                if (placeGrass_1) {
+                    buffer.position(this.getBufferPosition(x, y));
+                    buffer.put(this.dirt.getR(x, y));
+                    buffer.put((byte) Math.min(255, this.dirt.getG(x, y) + 96));
+                    buffer.put(this.dirt.getB(x, y));
+                    buffer.put(this.dirt.getA(x, y));
+
+                    buffer.position(this.getBufferPosition(x, y + 1));
+                    buffer.put(this.dirt.getR(x, y + 1));
+                    buffer.put((byte) Math.min(255, this.dirt.getG(x, y + 1) + 48));
+                    buffer.put(this.dirt.getB(x, y + 1));
+                    buffer.put(this.dirt.getA(x, y + 1));
+
+                    buffer.position(0);
+                }
+            }
+        }
     }
 
     private void updateTerrainTexture() {
@@ -107,12 +131,13 @@ public class TerrainCore extends GameEngine {
     }
 
     private void createPerlinWorld() {
-        float freq = 0.006f;
+        float freq = 0.008f;
 
         float offX = (float) (Math.random() * (Math.random() * 50000));
         float offY = (float) (Math.random() * (Math.random() * 50000));
 
         float cutOff = 0.4f;
+        float upperCutOff = 20f;
 
         for (int x = 0; x < terrain.length; x++) {
             for (int wrongY = 0; wrongY < terrain[0].length; wrongY++) {
@@ -133,7 +158,7 @@ public class TerrainCore extends GameEngine {
                     noise *= dX;
                 }
 
-                this.terrain[x][y] = noise >= cutOff * (1d - ((double) (y) / (double) terrain[0].length) * 0.75) ? 1 : 0;
+                this.terrain[x][y] = noise >= cutOff * (1d - ((double) (y) / (double) terrain[0].length) * 0.75) && noise < upperCutOff ? 1 : 0;
                 this.setPixelNoCheck(x, y, this.terrain[x][y]);
             }
         }
@@ -179,6 +204,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void updateGame(int delta) {
+        // System.out.println(GameEngine.INSTANCE.getDebugMonitor().getFPS());
         boolean left = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LEFT);
         boolean right = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_RIGHT);
         boolean up = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_UP);
@@ -303,10 +329,23 @@ public class TerrainCore extends GameEngine {
     }
 
     public boolean isPixelSolid(int x, int y) {
+        return this.isPixelSolid(x, y, true);
+    }
+
+    public boolean isUnderFreeSky(int x, int y) {
+        for (int thisY = y - 1; thisY >= 0; thisY --) {
+            if (this.isPixelSolid(x, thisY)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isPixelSolid(int x, int y, boolean defaultValue) {
         if (x >= 0 && y >= 0 && x < this.terrain.length && y < this.terrain[0].length) {
             return this.terrain[x][y] != 0;
         } else {
-            return true;
+            return defaultValue;
         }
     }
 

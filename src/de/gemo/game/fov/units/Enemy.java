@@ -339,7 +339,7 @@ public class Enemy {
         if (this.path != null) {
             this.path.render(this.waypointIndex);
         }
-        this.hitbox.render();
+//        this.hitbox.render();
 
         glPushMatrix();
         {
