@@ -230,11 +230,21 @@ public class Player implements IPhysicsObject {
             glPushMatrix();
             {
                 glRotatef((float) this.shootAngle, 0, 0, 1);
+                glTranslatef(0, -50, 0);
                 glColor4f(1, 0, 0, 1);
                 glBegin(GL_LINES);
                 {
-                    glVertex2f(0, 0);
-                    glVertex2f(0, -20);
+                    glVertex2f(+5, 0);
+                    glVertex2f(+15, 0);
+
+                    glVertex2f(-5, 0);
+                    glVertex2f(-15, 0);
+
+                    glVertex2f(0, +5);
+                    glVertex2f(0, +15);
+
+                    glVertex2f(0, -5);
+                    glVertex2f(0, -15);
                 }
                 glEnd();
             }
