@@ -1,6 +1,5 @@
 package de.gemo.game.terrain.core;
 
-import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -10,7 +9,7 @@ public class Player implements IPhysicsObject, IRenderObject {
     private float playerWidth = 5, playerHeight = 10;
     private Vector2f position, velocity;
     private boolean lookRight = true;
-    private TerrainCore core;
+    private World world;
 
     private float shootAngle = 0f;
 
@@ -19,14 +18,14 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
-    public Player(Vector2f position) {
+    public Player(World world, Vector2f position) {
+        this.world = world;
         this.position = position.clone();
         this.velocity = new Vector2f(0, 0);
-        this.core = (TerrainCore) GameEngine.INSTANCE;
     }
 
-    public Player(float x, float y) {
-        this(new Vector2f(x, y));
+    public Player(World world, float x, float y) {
+        this(world, new Vector2f(x, y));
     }
 
     public void jump() {
@@ -101,10 +100,10 @@ public class Player implements IPhysicsObject, IRenderObject {
 
         onGround = false;
         for (int bottomX = (int) ((int) this.position.getX() - playerWidth / 2); bottomX <= (int) this.position.getX() + playerWidth / 2; bottomX++) {
-            if (core.isPixelSolid(bottomX, (int) ((int) this.position.getY() + playerHeight / 2 + 1)) && (this.velocity.getY() > 0)) {
+            if (world.isPixelSolid(bottomX, (int) ((int) this.position.getY() + playerHeight / 2 + 1)) && (this.velocity.getY() > 0)) {
                 onGround = true;
                 for (int yCheck = (int) ((int) this.position.getY() + playerHeight / 4); yCheck < (int) this.position.getY() + playerHeight / 2; yCheck++) {
-                    if (core.isPixelSolid(bottomX, yCheck)) {
+                    if (world.isPixelSolid(bottomX, yCheck)) {
                         this.position.setY(yCheck - playerHeight / 2);
                         break;
                     }
@@ -118,7 +117,7 @@ public class Player implements IPhysicsObject, IRenderObject {
         topBlocked = false;
         // start with the top edge
         for (int topX = (int) ((int) this.position.getX() - playerWidth / 2); topX <= (int) this.position.getX() + playerWidth / 2; topX++) {
-            if (core.isPixelSolid(topX, (int) ((int) this.position.getY() - playerHeight / 2 - 1))) { // if
+            if (world.isPixelSolid(topX, (int) ((int) this.position.getY() - playerHeight / 2 - 1))) { // if
                 // the
                 // pixel
                 // is
@@ -132,11 +131,11 @@ public class Player implements IPhysicsObject, IRenderObject {
         // loop left edge
         if (this.velocity.getX() < 0) {
             for (int leftY = (int) ((int) this.position.getY() - playerHeight / 2); leftY <= (int) this.position.getY() + playerHeight / 2; leftY++) {
-                if (core.isPixelSolid((int) ((int) this.position.getX() - playerWidth / 2), leftY)) {
+                if (world.isPixelSolid((int) ((int) this.position.getX() - playerWidth / 2), leftY)) {
                     // next move from the edge to the right, inside the box
                     // (stop it at 1/4th the player width)
                     for (int xCheck = (int) ((int) this.position.getX() - playerWidth / 4); xCheck < (int) this.position.getX() - playerWidth / 2; xCheck--) {
-                        if (core.isPixelSolid(xCheck, leftY)) {
+                        if (world.isPixelSolid(xCheck, leftY)) {
                             this.position.setX(xCheck + playerWidth / 2f); // push
                                                                            // the
                                                                            // block
@@ -156,9 +155,9 @@ public class Player implements IPhysicsObject, IRenderObject {
         // do the same for the right edge
         if (this.velocity.getX() > 0) {
             for (int rightY = (int) ((int) this.position.getY() - playerHeight / 2); rightY <= (int) this.position.getY() + playerHeight / 2; rightY++) {
-                if (core.isPixelSolid((int) ((int) this.position.getX() + playerWidth / 2), rightY)) {
+                if (world.isPixelSolid((int) ((int) this.position.getX() + playerWidth / 2), rightY)) {
                     for (int xCheck = (int) ((int) this.position.getX() + playerWidth / 4); xCheck < (int) this.position.getX() + playerWidth / 2 + 1; xCheck++) {
-                        if (core.isPixelSolid(xCheck, rightY)) {
+                        if (world.isPixelSolid(xCheck, rightY)) {
                             this.position.setX(xCheck - playerWidth / 2f);
                             break;
                         }
@@ -197,59 +196,55 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     @Override
     public void render() {
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glEnable(GL_BLEND);
+
+        glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glColor4f(1, 0, 0, 1);
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex2f(-this.playerWidth, -this.playerHeight);
+            glVertex2f(+this.playerWidth, -this.playerHeight);
+            glVertex2f(+this.playerWidth, +this.playerHeight);
+            glVertex2f(-this.playerWidth, +this.playerHeight);
+        }
+        glEnd();
+
+        // view
+        glColor4f(0, 1, 0, 1);
+        glBegin(GL_LINES);
+        {
+            glVertex2f(0, 0);
+            if (this.lookRight) {
+                glVertex2f(this.playerWidth, 0);
+            } else {
+                glVertex2f(-this.playerWidth, 0);
+            }
+        }
+        glEnd();
+
+        // shootangle
         glPushMatrix();
         {
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_LIGHTING);
-            glEnable(GL_BLEND);
-
-            glTranslatef(this.position.getX(), this.position.getY(), 0);
+            glRotatef((float) this.shootAngle, 0, 0, 1);
+            glTranslatef(0, -65, 0);
             glColor4f(1, 0, 0, 1);
-            glBegin(GL_LINE_LOOP);
-            {
-                glVertex2f(-this.playerWidth, -this.playerHeight);
-                glVertex2f(+this.playerWidth, -this.playerHeight);
-                glVertex2f(+this.playerWidth, +this.playerHeight);
-                glVertex2f(-this.playerWidth, +this.playerHeight);
-            }
-            glEnd();
-
-            // view
-            glColor4f(0, 1, 0, 1);
             glBegin(GL_LINES);
             {
-                glVertex2f(0, 0);
-                if (this.lookRight) {
-                    glVertex2f(this.playerWidth, 0);
-                } else {
-                    glVertex2f(-this.playerWidth, 0);
-                }
+                glVertex2f(+5, 0);
+                glVertex2f(+15, 0);
+
+                glVertex2f(-5, 0);
+                glVertex2f(-15, 0);
+
+                glVertex2f(0, +5);
+                glVertex2f(0, +15);
+
+                glVertex2f(0, -5);
+                glVertex2f(0, -15);
             }
             glEnd();
-
-            // shootangle
-            glPushMatrix();
-            {
-                glRotatef((float) this.shootAngle, 0, 0, 1);
-                glTranslatef(0, -65, 0);
-                glColor4f(1, 0, 0, 1);
-                glBegin(GL_LINES);
-                {
-                    glVertex2f(+5, 0);
-                    glVertex2f(+15, 0);
-
-                    glVertex2f(-5, 0);
-                    glVertex2f(-15, 0);
-
-                    glVertex2f(0, +5);
-                    glVertex2f(0, +15);
-
-                    glVertex2f(0, -5);
-                    glVertex2f(0, -15);
-                }
-                glEnd();
-            }
-            glPopMatrix();
         }
         glPopMatrix();
     }

@@ -2,6 +2,8 @@ package de.gemo.game.terrain.core;
 
 import java.util.*;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class RenderHandler {
     private List<IRenderObject> objects = new ArrayList<IRenderObject>();
 
@@ -19,8 +21,13 @@ public class RenderHandler {
     }
 
     public void renderAll() {
+        glEnable(GL_DEPTH_TEST);
         for (int i = 0; i < this.objects.size(); i++) {
-            this.objects.get(i).render();
+            glPushMatrix();
+            {
+                this.objects.get(i).render();
+            }
+            glPopMatrix();
         }
     }
 }
