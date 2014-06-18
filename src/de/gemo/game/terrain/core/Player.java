@@ -5,12 +5,10 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Player {
-    // private Vector2f position, lastPosition;
-    // private Vector2f velocity;
+public class Player implements IPhysicsObject {
 
     private float playerWidth = 5, playerHeight = 10;
-    private float x, y, velX = 0, velY = 0;
+    private Vector2f position, velocity;
     private boolean lookRight = true;
     private TerrainCore core;
 
@@ -22,8 +20,8 @@ public class Player {
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
     public Player(Vector2f position) {
-        x = position.getX();
-        y = position.getY();
+        this.position = position.clone();
+        this.velocity = new Vector2f(0, 0);
         this.core = (TerrainCore) GameEngine.INSTANCE;
     }
 
@@ -32,18 +30,19 @@ public class Player {
     }
 
     public void jump() {
-        if ((this.onGround) && (!this.topBlocked) && (this.velY > -500.0F)) {
-            this.velY -= 0.23F;
+        if ((this.onGround) && (!this.topBlocked) && (this.velocity.getY() > -500.0F)) {
+            this.velocity.setY(this.velocity.getY() - 0.23f);
             float jumpX = 0.115f;
             if (this.lookRight) {
-                this.velX = jumpX;
+                this.velocity.setX(jumpX);
             } else {
-                this.velX = -jumpX;
+                this.velocity.setX(-jumpX);
             }
         }
     }
 
-    public void update(int delta) {
+    @Override
+    public void updatePhysics(int delta) {
         // shoot angle
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
             if ((this.lookRight && this.shootAngle > 0) || (!this.lookRight && this.shootAngle > -160)) {
@@ -56,16 +55,16 @@ public class Player {
         }
 
         // gravity
-        float f1 = this.velX;
-        float f2 = this.velY;
+        float f1 = this.velocity.getX();
+        float f2 = this.velocity.getY();
 
         f2 += +0.0012F * delta;
-        this.velY = f2;
+        this.velocity.setY(f2);
 
-        this.x = (x + f1 * delta);
+        this.position.setX(this.position.getX() + f1 * delta);
 
         if ((!onGround) || (f2 <= 0.0F))
-            this.y = (this.y + f2 * delta);
+            this.position.setY(this.position.getY() + f2 * delta);
 
         // movement
         if (onGround) {
@@ -75,20 +74,23 @@ public class Player {
                     this.shootAngle = -this.shootAngle;
                 }
                 this.lookRight = false;
-                velX = -maxX;
-            } else if (velX < 0)
-                velX *= 0.5f; // slow down side-ways velocity if we're not
-                              // moving
-                              // left
+                this.velocity.setX(-maxX);
+            } else if (this.velocity.getX() < 0)
+                this.velocity.setX(this.velocity.getX() * 0.5f); // slow down
+                                                                 // side-ways
+                                                                 // velocity if
+                                                                 // we're not
+            // moving
+            // left
 
             if (this.movement[RIGHT]) {
                 if (!this.lookRight) {
                     this.shootAngle = -this.shootAngle;
                 }
                 this.lookRight = true;
-                velX = maxX;
-            } else if (velX > 0)
-                velX *= 0.5f;
+                this.velocity.setX(maxX);
+            } else if (this.velocity.getX() > 0)
+                this.velocity.setX(this.velocity.getX() * 0.5f);
         }
 
         // Collision detection/handling
@@ -98,91 +100,96 @@ public class Player {
         // Once we hit empty space, we move the box to that empty space
 
         onGround = false;
-        for (int bottomX = (int) ((int) x - playerWidth / 2); bottomX <= (int) x + playerWidth / 2; bottomX++) {
-            if (core.isPixelSolid(bottomX, (int) ((int) y + playerHeight / 2 + 1)) && (velY > 0)) {
+        for (int bottomX = (int) ((int) this.position.getX() - playerWidth / 2); bottomX <= (int) this.position.getX() + playerWidth / 2; bottomX++) {
+            if (core.isPixelSolid(bottomX, (int) ((int) this.position.getY() + playerHeight / 2 + 1)) && (this.velocity.getY() > 0)) {
                 onGround = true;
-                for (int yCheck = (int) ((int) y + playerHeight / 4); yCheck < (int) y + playerHeight / 2; yCheck++) {
+                for (int yCheck = (int) ((int) this.position.getY() + playerHeight / 4); yCheck < (int) this.position.getY() + playerHeight / 2; yCheck++) {
                     if (core.isPixelSolid(bottomX, yCheck)) {
-                        y = yCheck - playerHeight / 2;
+                        this.position.setY(yCheck - playerHeight / 2);
                         break;
                     }
                 }
-                if (velY > 0)
-                    velY *= -0.1f;
+                if (this.velocity.getY() > 0) {
+                    this.velocity.setY(this.velocity.getY() * -0.1f);
+                }
             }
         }
 
         topBlocked = false;
         // start with the top edge
-        for (int topX = (int) ((int) x - playerWidth / 2); topX <= (int) x + playerWidth / 2; topX++) {
-            if (core.isPixelSolid(topX, (int) ((int) y - playerHeight / 2 - 1))) { // if
-                                                                                   // the
-                                                                                   // pixel
-                                                                                   // is
-                                                                                   // solid
+        for (int topX = (int) ((int) this.position.getX() - playerWidth / 2); topX <= (int) this.position.getX() + playerWidth / 2; topX++) {
+            if (core.isPixelSolid(topX, (int) ((int) this.position.getY() - playerHeight / 2 - 1))) { // if
+                // the
+                // pixel
+                // is
+                // solid
                 topBlocked = true;
-                if (velY < 0) {
-                    velY *= -0.1f;
+                if (this.velocity.getY() < 0) {
+                    this.velocity.setY(this.velocity.getY() * -0.1f);
                 }
             }
         }
         // loop left edge
-        if (velX < 0) {
-            for (int leftY = (int) ((int) y - playerHeight / 2); leftY <= (int) y + playerHeight / 2; leftY++) {
-                if (core.isPixelSolid((int) ((int) x - playerWidth / 2), leftY)) {
+        if (this.velocity.getX() < 0) {
+            for (int leftY = (int) ((int) this.position.getY() - playerHeight / 2); leftY <= (int) this.position.getY() + playerHeight / 2; leftY++) {
+                if (core.isPixelSolid((int) ((int) this.position.getX() - playerWidth / 2), leftY)) {
                     // next move from the edge to the right, inside the box
                     // (stop it at 1/4th the player width)
-                    for (int xCheck = (int) ((int) x - playerWidth / 4); xCheck < (int) x - playerWidth / 2; xCheck--) {
+                    for (int xCheck = (int) ((int) this.position.getX() - playerWidth / 4); xCheck < (int) this.position.getX() - playerWidth / 2; xCheck--) {
                         if (core.isPixelSolid(xCheck, leftY)) {
-                            x = xCheck + playerWidth / 2; // push the block over
+                            this.position.setX(xCheck + playerWidth / 2f); // push
+                                                                           // the
+                                                                           // block
+                                                                           // over
                             break;
                         }
                     }
-                    if (leftY > y && !topBlocked) {
-                        y -= 1;
+                    if (leftY > this.position.getY() && !topBlocked) {
+                        this.position.setY(this.position.getY() - 1f);
                     } else {
-                        velX *= 0.4f;
-                        x += 0.1f;
+                        this.velocity.setX(this.velocity.getX() * 0.4f);
+                        this.position.setX(this.position.getX() + 0.1f);
                     }
                 }
             }
         }
         // do the same for the right edge
-        if (velX > 0) {
-            for (int rightY = (int) ((int) y - playerHeight / 2); rightY <= (int) y + playerHeight / 2; rightY++) {
-                if (core.isPixelSolid((int) ((int) x + playerWidth / 2), rightY)) {
-                    for (int xCheck = (int) ((int) x + playerWidth / 4); xCheck < (int) x + playerWidth / 2 + 1; xCheck++) {
+        if (this.velocity.getX() > 0) {
+            for (int rightY = (int) ((int) this.position.getY() - playerHeight / 2); rightY <= (int) this.position.getY() + playerHeight / 2; rightY++) {
+                if (core.isPixelSolid((int) ((int) this.position.getX() + playerWidth / 2), rightY)) {
+                    for (int xCheck = (int) ((int) this.position.getX() + playerWidth / 4); xCheck < (int) this.position.getX() + playerWidth / 2 + 1; xCheck++) {
                         if (core.isPixelSolid(xCheck, rightY)) {
-                            x = xCheck - playerWidth / 2;
+                            this.position.setX(xCheck - playerWidth / 2f);
                             break;
                         }
                     }
-                    if (rightY > y && !topBlocked) {
-                        y -= 1;
+                    if (rightY > this.position.getY() && !topBlocked) {
+                        this.position.setY(this.position.getY() - 1f);
                     } else {
-                        velX *= 0.4f;
-                        x -= 0.1f;
+                        this.velocity.setX(this.velocity.getX() * 0.4f);
+                        this.position.setX(this.position.getX() - 0.1f);
                     }
                 }
             }
         }
 
         // Boundary Checks
-        if (x < 0 && velX < 0) {
-            x -= x;
-            velX *= -1;
+        if (this.position.getX() < 0 && this.velocity.getX() < 0) {
+            this.position.setX(0);
+
+            this.velocity.setX(this.velocity.getX() * -1f);
         }
-        if (y < 0 && velY < 0) {
-            y -= y;
-            velY *= -1;
+        if (this.position.getY() < 0 && this.velocity.getY() < 0) {
+            this.position.setY(0);
+            this.velocity.setY(this.velocity.getY() * -1f);
         }
-        if (x > 2048 && velX > 0) {
-            x += 2048 - x;
-            velX *= -1;
+        if (this.position.getX() > 2048 && this.velocity.getX() > 0) {
+            this.position.setX(2048);
+            this.velocity.setX(this.velocity.getX() * -1f);
         }
-        if (y + playerHeight / 2 > 768 && velY > 0) {
-            y += 768 - y - playerHeight / 2;
-            velY = 0;
+        if (this.position.getY() + playerHeight / 2 > 768 && this.velocity.getY() > 0) {
+            this.position.setY(768 - this.position.getY() - playerHeight / 2f);
+            this.velocity.setY(0);
             onGround = true;
         }
 
@@ -195,7 +202,7 @@ public class Player {
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
 
-            glTranslatef(this.x, this.y, 0);
+            glTranslatef(this.position.getX(), this.position.getY(), 0);
             glColor4f(1, 0, 0, 1);
             glBegin(GL_LINE_LOOP);
             {
@@ -240,6 +247,27 @@ public class Player {
         for (int i = 0; i < args.length; i++) {
             this.movement[i] = args[i];
         }
+    }
+
+    @Override
+    public Vector2f getPosition() {
+        return this.position;
+    }
+
+    @Override
+    public Vector2f getVelocity() {
+        return this.velocity;
+    }
+
+    @Override
+    public void setPosition(Vector2f position) {
+        this.position.set(position.getX(), position.getY());
+
+    }
+
+    @Override
+    public void setVelocity(Vector2f velocity) {
+        this.velocity.set(velocity.getX(), velocity.getY());
     }
 
     // ///////////////////////////////////////////////////////////////

@@ -61,19 +61,33 @@ public class TerrainCore extends GameEngine {
     private void createGrass() {
         for (int y = 0; y < this.terrain[0].length; y++) {
             for (int x = 0; x < this.terrain.length; x++) {
-                boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y) && this.isUnderFreeSky(x, y);
+                boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
                 if (placeGrass_1) {
-                    buffer.position(this.getBufferPosition(x, y));
-                    buffer.put(this.dirt.getR(x, y));
-                    buffer.put((byte) Math.min(255, this.dirt.getG(x, y) + 96));
-                    buffer.put(this.dirt.getB(x, y));
-                    buffer.put(this.dirt.getA(x, y));
+                    if (this.isUnderFreeSky(x, y)) {
+                        buffer.position(this.getBufferPosition(x, y));
+                        buffer.put(this.dirt.getR(x, y));
+                        buffer.put((byte) Math.min(255, this.dirt.getG(x, y) + 96));
+                        buffer.put(this.dirt.getB(x, y));
+                        buffer.put(this.dirt.getA(x, y));
 
-                    buffer.position(this.getBufferPosition(x, y + 1));
-                    buffer.put(this.dirt.getR(x, y + 1));
-                    buffer.put((byte) Math.min(255, this.dirt.getG(x, y + 1) + 48));
-                    buffer.put(this.dirt.getB(x, y + 1));
-                    buffer.put(this.dirt.getA(x, y + 1));
+                        buffer.position(this.getBufferPosition(x, y + 1));
+                        buffer.put(this.dirt.getR(x, y + 1));
+                        buffer.put((byte) Math.min(255, this.dirt.getG(x, y + 1) + 48));
+                        buffer.put(this.dirt.getB(x, y + 1));
+                        buffer.put(this.dirt.getA(x, y + 1));
+                    } else {
+                        buffer.position(this.getBufferPosition(x, y));
+                        buffer.put(this.dirt.getR(x, y));
+                        buffer.put((byte) Math.min(255, this.dirt.getG(x, y) + 48));
+                        buffer.put(this.dirt.getB(x, y));
+                        buffer.put(this.dirt.getA(x, y));
+
+                        buffer.position(this.getBufferPosition(x, y + 1));
+                        buffer.put(this.dirt.getR(x, y + 1));
+                        buffer.put((byte) Math.min(255, this.dirt.getG(x, y + 1) + 16));
+                        buffer.put(this.dirt.getB(x, y + 1));
+                        buffer.put(this.dirt.getA(x, y + 1));
+                    }
 
                     buffer.position(0);
                 }
@@ -211,7 +225,7 @@ public class TerrainCore extends GameEngine {
         boolean down = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_DOWN);
         boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
-        this.player.update(delta);
+        this.player.updatePhysics(delta);
     }
 
     @Override
@@ -333,7 +347,7 @@ public class TerrainCore extends GameEngine {
     }
 
     public boolean isUnderFreeSky(int x, int y) {
-        for (int thisY = y - 1; thisY >= 0; thisY --) {
+        for (int thisY = y - 1; thisY >= 0; thisY--) {
             if (this.isPixelSolid(x, thisY)) {
                 return false;
             }

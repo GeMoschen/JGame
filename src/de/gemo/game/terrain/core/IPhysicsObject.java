@@ -2,7 +2,7 @@ package de.gemo.game.terrain.core;
 
 import de.gemo.gameengine.units.*;
 
-public interface PhysicsObject {
+public interface IPhysicsObject {
 
     public abstract Vector2f getPosition();
 
@@ -11,4 +11,6 @@ public interface PhysicsObject {
     public abstract void setPosition(Vector2f position);
 
     public abstract void setVelocity(Vector2f velocity);
+
+    public abstract void updatePhysics(int delta);
 }

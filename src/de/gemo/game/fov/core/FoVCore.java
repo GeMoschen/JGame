@@ -171,7 +171,7 @@ public class FoVCore extends GameEngine {
         }
 
         // this.navMesh.createNavMesh(this.tiles);
-//        this.navMesh.render();
+        // this.navMesh.render();
     }
 
     @Override
