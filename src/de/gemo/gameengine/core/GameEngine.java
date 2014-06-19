@@ -138,7 +138,6 @@ public class GameEngine {
         glOrtho(0, VIEW_WIDTH, VIEW_HEIGHT, 0, 100, -100);
         glMatrixMode(GL_MODELVIEW);
 
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
 
@@ -509,8 +508,6 @@ public class GameEngine {
         {
             glDisable(GL_TEXTURE_RECTANGLE_ARB);
             glDisable(GL_DEPTH_TEST);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_LIGHT0);
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);

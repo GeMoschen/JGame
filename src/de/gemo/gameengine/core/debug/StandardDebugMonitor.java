@@ -2,12 +2,11 @@ package de.gemo.gameengine.core.debug;
 
 import java.awt.Font;
 
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.*;
+import org.newdawn.slick.*;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
 
-import de.gemo.gameengine.manager.FontManager;
-import static org.lwjgl.opengl.ARBTextureRectangle.*;
+import de.gemo.gameengine.manager.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -18,18 +17,12 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
         glPushMatrix();
         {
             TrueTypeFont font = FontManager.getStandardFont(Font.BOLD);
-
-            glDisable(GL_CULL_FACE);
-            glDisable(GL_TEXTURE_RECTANGLE_ARB);
             glDisable(GL_DEPTH_TEST);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_LIGHT0);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
             int fontX = 125;
             int fontY = 5;
             glTranslatef(20, 20, 0);
-
-            glDisable(GL_BLEND);
-            glDisable(GL_TEXTURE_2D);
 
             int height = 200;
             if (!this.isShowExtended()) {
@@ -108,15 +101,12 @@ public class StandardDebugMonitor extends AbstractDebugMonitor {
 
                 glDisable(GL_BLEND);
             }
-            glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_ALPHA_TEST);
             glBlendFunc(GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             glDepthFunc(GL_LEQUAL);
-            glEnable(GL_LIGHTING);
-            glEnable(GL_LIGHT0);
         }
         glPopMatrix();
     }

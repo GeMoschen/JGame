@@ -5,9 +5,9 @@ import java.nio.*;
 
 import org.lwjgl.opengl.*;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import de.gemo.gameengine.units.*;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class World implements IRenderObject {
 
@@ -20,46 +20,10 @@ public class World implements IRenderObject {
     private TexData backgroundTexture;
 
     public World(int width, int height) {
-        this.createTerrain(2 * 512, 1 * 512);
+        this.createWorld(2 * 512, 1 * 512);
     }
 
-    public int getWidth() {
-        return this.terrainData.length;
-    }
-
-    public int getHeight() {
-        return this.terrainData[0].length;
-    }
-
-    private int updateTexture(int currentID, ByteBuffer buffer) {
-        buffer.position(0);
-        long start = System.nanoTime();
-        if (currentID == -1) {
-            currentID = glGenTextures(); // Generate texture ID
-            glBindTexture(GL_TEXTURE_2D, currentID); // Bind texture ID
-
-            // Setup wrap mode
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-
-            // Setup texture scaling filtering
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            // Send texel data to OpenGL
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.terrainData.length, this.terrainData[0].length, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        } else {
-            glBindTexture(GL_TEXTURE_2D, currentID);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.terrainData.length, this.terrainData[0].length, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        }
-
-        long d = System.nanoTime() - start;
-        float dur = d / 1000000f;
-        System.out.println("Update Texture: " + dur);
-        return currentID;
-    }
-
-    public void createTerrain(int width, int height) {
+    public void createWorld(int width, int height) {
         try {
             this.backgroundTexture = new TexData("resources/dirt.jpg");
         } catch (IOException e) {
@@ -75,9 +39,9 @@ public class World implements IRenderObject {
         }
 
         this.createPerlinWorld();
-        this.updateTerrainTexture();
+        this.paintTerrainTexture();
         this.createGrass();
-        this.updateTexture();
+        this.createTexture();
     }
 
     private void createPerlinWorld() {
@@ -114,60 +78,110 @@ public class World implements IRenderObject {
         }
     }
 
+    public ByteBuffer getTerrainParts(int x, int y, int width, int height, boolean updateTexture) {
+        long start = System.nanoTime();
+        int minX = Math.max(0, x);
+        int minY = Math.max(0, y);
+        int maxX = Math.min(this.getWidth(), x + width);
+        int maxY = Math.min(this.getHeight(), y + height);
+        int dX = maxX - minX + 1;
+        int dY = maxY - minY + 1;
+        if (dX < 0 || dY < 0) {
+            return null;
+        }
+        ByteBuffer buffer = ByteBuffer.allocateDirect(dX * dY * BYTES_PER_PIXEL);
+        for (y = minY; y < maxY; y++) {
+            for (x = minX; x < maxX; x++) {
+                this.textureBuffer.position(this.getBufferPosition(x, y));
+                buffer.put(this.textureBuffer.get());
+                buffer.put(this.textureBuffer.get());
+                buffer.put(this.textureBuffer.get());
+                buffer.put(this.textureBuffer.get());
+                this.textureBuffer.position(0);
+            }
+        }
+        buffer.position(0);
+        if (updateTexture) {
+            this.updateTexture(minX, minY, dX, dY, buffer);
+        }
+
+        long duration = System.nanoTime() - start;
+        float d = duration / 1000000f;
+        System.out.println("Terrain: " + d);
+        return buffer;
+    }
+
+    private void paintTerrainTexture() {
+        for (int y = 0; y < this.getHeight(); y++) {
+            for (int x = 0; x < this.getWidth(); x++) {
+                if (this.terrainData[x][y] == 1) {
+                    this.textureBuffer.position(this.getBufferPosition(x, y));
+                    this.textureBuffer.put(this.backgroundTexture.getR(x, y));
+                    this.textureBuffer.put(this.backgroundTexture.getG(x, y));
+                    this.textureBuffer.put(this.backgroundTexture.getB(x, y));
+                    this.textureBuffer.put(this.backgroundTexture.getA(x, y));
+                    this.textureBuffer.position(0);
+                }
+            }
+        }
+    }
+
     private void createGrass() {
-        for (int y = 0; y < this.terrainData[0].length; y++) {
-            for (int x = 0; x < this.terrainData.length; x++) {
+        for (int y = 0; y < this.getHeight(); y++) {
+            for (int x = 0; x < this.getWidth(); x++) {
                 boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
                 if (placeGrass_1) {
                     if (this.isUnderFreeSky(x, y)) {
-                        textureBuffer.position(this.getBufferPosition(x, y));
-                        textureBuffer.put(this.backgroundTexture.getR(x, y));
-                        textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 96));
-                        textureBuffer.put(this.backgroundTexture.getB(x, y));
-                        textureBuffer.put(this.backgroundTexture.getA(x, y));
+                        this.textureBuffer.position(this.getBufferPosition(x, y));
+                        this.textureBuffer.put(this.backgroundTexture.getR(x, y));
+                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 96));
+                        this.textureBuffer.put(this.backgroundTexture.getB(x, y));
+                        this.textureBuffer.put(this.backgroundTexture.getA(x, y));
 
-                        textureBuffer.position(this.getBufferPosition(x, y + 1));
-                        textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
-                        textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 48));
-                        textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
-                        textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
+                        this.textureBuffer.position(this.getBufferPosition(x, y + 1));
+                        this.textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
+                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 48));
+                        this.textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
+                        this.textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
                     } else {
-                        textureBuffer.position(this.getBufferPosition(x, y));
-                        textureBuffer.put(this.backgroundTexture.getR(x, y));
-                        textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 48));
-                        textureBuffer.put(this.backgroundTexture.getB(x, y));
-                        textureBuffer.put(this.backgroundTexture.getA(x, y));
+                        this.textureBuffer.position(this.getBufferPosition(x, y));
+                        this.textureBuffer.put(this.backgroundTexture.getR(x, y));
+                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 48));
+                        this.textureBuffer.put(this.backgroundTexture.getB(x, y));
+                        this.textureBuffer.put(this.backgroundTexture.getA(x, y));
 
-                        textureBuffer.position(this.getBufferPosition(x, y + 1));
-                        textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
-                        textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 16));
-                        textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
-                        textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
+                        this.textureBuffer.position(this.getBufferPosition(x, y + 1));
+                        this.textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
+                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 16));
+                        this.textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
+                        this.textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
                     }
-
-                    textureBuffer.position(0);
+                    this.textureBuffer.position(0);
                 }
             }
         }
     }
 
-    private void updateTerrainTexture() {
-        for (int y = 0; y < this.terrainData[0].length; y++) {
-            for (int x = 0; x < this.terrainData.length; x++) {
-                if (this.terrainData[x][y] == 1) {
-                    textureBuffer.position(this.getBufferPosition(x, y));
-                    textureBuffer.put(this.backgroundTexture.getR(x, y));
-                    textureBuffer.put(this.backgroundTexture.getG(x, y));
-                    textureBuffer.put(this.backgroundTexture.getB(x, y));
-                    textureBuffer.put(this.backgroundTexture.getA(x, y));
-                    textureBuffer.position(0);
-                }
-            }
-        }
+    private void createTexture() {
+        this.textureID = glGenTextures(); // Generate texture ID
+        glBindTexture(GL_TEXTURE_2D, this.textureID); // Bind texture ID
+
+        // Setup wrap mode
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+
+        // Setup texture scaling filtering
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Send texel data to OpenGL
+        this.textureBuffer.position(0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.terrainData.length, this.terrainData[0].length, 0, GL_RGBA, GL_UNSIGNED_BYTE, this.textureBuffer);
     }
 
-    public void updateTexture() {
-        this.textureID = updateTexture(this.textureID, this.textureBuffer);
+    public void updateTexture(int x, int y, int width, int height, ByteBuffer buffer) {
+        glBindTexture(GL_TEXTURE_2D, this.textureID);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width - 1, height - 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
 
     public void filledCircle(int midX, int midY, int radius, int terrainType, boolean replaceAir) {
@@ -180,6 +194,8 @@ public class World implements IRenderObject {
         innerRadius = innerRadius * innerRadius;
         int radiusSquared = radius * radius;
         int xSquared, ySquared, XPlusY;
+
+        // make circle
         for (int y = -radius; y <= radius; y++) {
             ySquared = y * y;
             for (int x = -radius; x <= radius; x++) {
@@ -191,41 +207,102 @@ public class World implements IRenderObject {
             }
         }
 
+        // paint texture & grass
+        if (terrainType == 1) {
+            // paint texture
+            for (int y = -radius; y <= radius; y++) {
+                ySquared = y * y;
+                for (int x = -radius; x <= radius; x++) {
+                    xSquared = x * x;
+                    XPlusY = xSquared + ySquared;
+                    if (XPlusY <= radiusSquared && XPlusY >= innerRadius) {
+                        int mX = midX + x;
+                        int mY = midY + y;
+                        this.textureBuffer.position(this.getBufferPosition(mX, mY));
+                        this.textureBuffer.put(this.backgroundTexture.getR(mX, mY));
+                        this.textureBuffer.put(this.backgroundTexture.getG(mX, mY));
+                        this.textureBuffer.put(this.backgroundTexture.getB(mX, mY));
+                        this.textureBuffer.put(this.backgroundTexture.getA(mX, mY));
+                        this.textureBuffer.position(0);
+                    }
+                }
+            }
+
+            // paint grass
+            for (int y = -radius; y <= radius; y++) {
+                ySquared = y * y;
+                for (int x = -radius; x <= radius; x++) {
+                    xSquared = x * x;
+                    XPlusY = xSquared + ySquared;
+                    if (XPlusY <= radiusSquared && XPlusY >= innerRadius) {
+                        boolean placeGrass_1 = !this.isPixelSolid(midX + x, midY + y - 1) && this.isPixelSolid(midX + x, midY + y);
+                        if (placeGrass_1) {
+                            if (this.isUnderFreeSky(midX + x, midY + y)) {
+                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y));
+                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y));
+                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y) + 96));
+                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y));
+                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y));
+
+                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + 1));
+                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y + 1));
+                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y + 1) + 48));
+                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y + 1));
+                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y + 1));
+                            } else {
+                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y));
+                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y));
+                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y) + 48));
+                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y));
+                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y));
+
+                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + 1));
+                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y + 1));
+                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y + 1) + 16));
+                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y + 1));
+                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y + 1));
+                            }
+                            this.textureBuffer.position(0);
+                        }
+                    }
+                }
+            }
+        }
         long d = System.nanoTime() - start;
         float dur = d / 1000000f;
         System.out.println("Circle Duration: " + dur);
     }
 
     private void setPixel(int x, int y, int terrainType, boolean replaceAir) {
-        if (x >= 0 && y >= 0 && x < this.terrainData.length && y < this.terrainData[0].length) {
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             if (this.terrainData[x][y] == terrainType || (!replaceAir && this.terrainData[x][y] == 0)) {
                 return;
             }
 
-            textureBuffer.position(this.getBufferPosition(x, y));
+            this.textureBuffer.position(this.getBufferPosition(x, y));
             if (terrainType == 1) {
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
+                this.textureBuffer.put((byte) 255);
+                this.textureBuffer.put((byte) 255);
+                this.textureBuffer.put((byte) 255);
+                this.textureBuffer.put((byte) 255);
             } else if (terrainType == 2) {
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 255);
+                this.textureBuffer.put((byte) 127);
+                this.textureBuffer.put((byte) 127);
+                this.textureBuffer.put((byte) 127);
+                this.textureBuffer.put((byte) 255);
             } else if (terrainType == 0) {
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
             }
-            textureBuffer.position(0);
+            this.textureBuffer.position(0);
             this.terrainData[x][y] = terrainType;
         }
     }
 
     private void setPixelNoCheck(int x, int y, int terrainType) {
-        if (x >= 0 && y >= 0 && x < this.terrainData.length && y < this.terrainData[0].length) {
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             textureBuffer.position(this.getBufferPosition(x, y));
             if (terrainType == 1) {
                 textureBuffer.put((byte) 255);
@@ -261,7 +338,7 @@ public class World implements IRenderObject {
     }
 
     public boolean isPixelSolid(int x, int y, boolean defaultValue) {
-        if (x >= 0 && y >= 0 && x < this.terrainData.length && y < this.terrainData[0].length) {
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             return this.terrainData[x][y] != 0;
         } else {
             return defaultValue;
@@ -281,8 +358,8 @@ public class World implements IRenderObject {
     }
 
     private int getBufferPosition(int x, int y) {
-        if (x >= 0 && y >= 0 && x < this.terrainData.length && y < this.terrainData[0].length) {
-            return (y * this.terrainData.length + x) * BYTES_PER_PIXEL;
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
+            return (y * this.getWidth() + x) * BYTES_PER_PIXEL;
         } else {
             return 0;
         }
@@ -292,6 +369,8 @@ public class World implements IRenderObject {
     public void render() {
         glColor4f(1, 1, 1, 1);
         glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+
         glBindTexture(GL_TEXTURE_2D, this.textureID);
         glBegin(GL_QUADS);
         {
@@ -299,15 +378,23 @@ public class World implements IRenderObject {
             glVertex3i(0, 0, -1);
 
             glTexCoord2f(1, 0);
-            glVertex3i(this.terrainData.length, 0, -1);
+            glVertex3i(this.getWidth(), 0, -1);
 
             glTexCoord2f(1, 1);
-            glVertex3i(this.terrainData.length, this.terrainData[0].length, -1);
+            glVertex3i(this.getWidth(), this.getHeight(), -1);
 
             glTexCoord2f(0, 1);
-            glVertex3i(0, this.terrainData[0].length, -1);
+            glVertex3i(0, this.getHeight(), -1);
         }
         glEnd();
+    }
+
+    public int getWidth() {
+        return this.terrainData.length;
+    }
+
+    public int getHeight() {
+        return this.terrainData[0].length;
     }
 
 }

@@ -31,8 +31,8 @@ public class TerrainCore extends GameEngine {
         this.renderHandler = new RenderHandler();
         this.player = new Player(this.world, 500, 100);
         this.physicsHandler.add(this.player);
-        this.renderHandler.add(this.player);
         this.renderHandler.add(this.world);
+        this.renderHandler.add(this.player);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F12) {
-            this.world.createTerrain(this.world.getWidth(), this.world.getHeight());
+            this.world.createWorld(this.world.getWidth(), this.world.getHeight());
         } else {
             super.onKeyReleased(event);
         }
@@ -95,12 +95,19 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onMouseUp(boolean handled, MouseReleaseEvent event) {
         if (event.getButton().equals(MouseButton.RIGHT)) {
-            this.world.filledCircle(event.getX() - (int) offset.getX(), event.getY() - (int) offset.getY(), 30, 1, true);
-            this.world.updateTexture();
+            int midX = event.getX() - (int) offset.getX();
+            int midY = event.getY() - (int) offset.getY();
+            int radius = 30;
+            this.world.filledCircle(midX, midY, radius, 1, true);
+            this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
         } else if (event.getButton().equals(MouseButton.LEFT)) {
-            this.world.filledCircle(event.getX() - (int) offset.getX(), event.getY() - (int) offset.getY(), 35, 5, 2, false);
-            this.world.filledCircle(event.getX() - (int) offset.getX(), event.getY() - (int) offset.getY(), 30, 0, false);
-            this.world.updateTexture();
+            int midX = event.getX() - (int) offset.getX();
+            int midY = event.getY() - (int) offset.getY();
+            int radius = 35;
+            int wallThickness = 5;
+            this.world.filledCircle(midX, midY, radius, wallThickness, 2, false);
+            this.world.filledCircle(midX, midY, radius - wallThickness, 0, false);
+            this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
         }
     }
 }

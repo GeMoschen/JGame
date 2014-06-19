@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.core;
 
+import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -30,8 +31,8 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     public void jump() {
         if ((this.onGround) && (!this.topBlocked) && (this.velocity.getY() > -500.0F)) {
-            this.velocity.setY(this.velocity.getY() - 0.24f);
-            float jumpX = 0.125f;
+            this.velocity.setY((this.velocity.getY() - 0.012f) * GameEngine.INSTANCE.getCurrentDelta());
+            float jumpX = 0.007f * GameEngine.INSTANCE.getCurrentDelta();
             if (this.lookRight) {
                 this.velocity.setX(jumpX);
             } else {
@@ -43,13 +44,14 @@ public class Player implements IPhysicsObject, IRenderObject {
     @Override
     public void updatePhysics(int delta) {
         // shoot angle
+        float rotationSpeed = 0.2f;
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
             if ((this.lookRight && this.shootAngle > 0) || (!this.lookRight && this.shootAngle > -170)) {
-                this.shootAngle -= 2f;
+                this.shootAngle -= rotationSpeed * delta;
             }
         } else if ((this.movement[DOWN] && this.lookRight) || (this.movement[UP] && !this.lookRight)) {
             if ((!this.lookRight && this.shootAngle < 0) || (this.lookRight && this.shootAngle < 170)) {
-                this.shootAngle += 2f;
+                this.shootAngle += rotationSpeed * delta;
             }
         }
 
@@ -67,7 +69,7 @@ public class Player implements IPhysicsObject, IRenderObject {
 
         // movement
         if (onGround) {
-            float maxX = 0.045f;
+            float maxX = 0.0019f * delta;
             if (this.movement[LEFT]) {
                 if (this.lookRight) {
                     this.shootAngle = -this.shootAngle;
@@ -146,7 +148,7 @@ public class Player implements IPhysicsObject, IRenderObject {
                     if (leftY > this.position.getY() && !topBlocked) {
                         this.position.setY(this.position.getY() - 1f);
                     } else {
-                        this.velocity.setX(this.velocity.getX() * 0.4f);
+                        this.velocity.setX(this.velocity.getX() * 0.9f);
                         this.position.setX(this.position.getX() + 0.1f);
                     }
                 }
@@ -165,7 +167,7 @@ public class Player implements IPhysicsObject, IRenderObject {
                     if (rightY > this.position.getY() && !topBlocked) {
                         this.position.setY(this.position.getY() - 1f);
                     } else {
-                        this.velocity.setX(this.velocity.getX() * 0.4f);
+                        this.velocity.setX(this.velocity.getX() * 0.9f);
                         this.position.setX(this.position.getX() - 0.1f);
                     }
                 }
@@ -224,25 +226,50 @@ public class Player implements IPhysicsObject, IRenderObject {
         }
         glEnd();
 
-        // shootangle
+        // crosshair
+        float crosshairDistance = 75f;
+        float power = 1f;
+        float x1 = 5f;
+        float x2 = 15f;
+
+        // powersign
         glPushMatrix();
         {
             glRotatef((float) this.shootAngle, 0, 0, 1);
-            glTranslatef(0, -65, 0);
-            glColor4f(1, 0, 0, 1);
+            glBegin(GL_POLYGON);
+            {
+                glColor4f(0, 1, 0, 0.5f);
+                glVertex2f(0, 0);
+                glColor4f(1 * power, 1 * (1 - power), 0, 0.5f);
+                glVertex2f(-x2 * power, -crosshairDistance * power);
+                glVertex2f(-x2 / 2f * power, (-crosshairDistance - x2 / 4f + -x2 / 6f) * power);
+                glVertex2f(0, -crosshairDistance - x2 / 2f * power);
+                glVertex2f(+x2 / 2f * power, (-crosshairDistance - x2 / 4f + -x2 / 6f) * power);
+                glVertex2f(+x2 * power, -crosshairDistance * power);
+            }
+            glEnd();
+        }
+        glPopMatrix();
+
+        // crosshair
+        glPushMatrix();
+        {
+            glRotatef((float) this.shootAngle, 0, 0, 1);
+            glTranslatef(0, -crosshairDistance, 0);
+            glColor4f(1, 1, 1, 1);
             glBegin(GL_LINES);
             {
-                glVertex2f(+5, 0);
-                glVertex2f(+15, 0);
+                glVertex2f(+x1, 0);
+                glVertex2f(+x2, 0);
 
-                glVertex2f(-5, 0);
-                glVertex2f(-15, 0);
+                glVertex2f(-x1, 0);
+                glVertex2f(-x2, 0);
 
-                glVertex2f(0, +5);
-                glVertex2f(0, +15);
+                glVertex2f(0, +x1);
+                glVertex2f(0, +x2);
 
-                glVertex2f(0, -5);
-                glVertex2f(0, -15);
+                glVertex2f(0, -x1);
+                glVertex2f(0, -x2);
             }
             glEnd();
         }
