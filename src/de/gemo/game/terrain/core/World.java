@@ -13,14 +13,16 @@ public class World implements IRenderObject {
 
     private static final int BYTES_PER_PIXEL = 4;
 
-    private int[][] terrainData;
     private ByteBuffer textureBuffer;
     private int textureID = -1;
+    private int width, height;
 
     private TexData backgroundTexture;
 
     public World(int width, int height) {
-        this.createWorld(2 * 512, 1 * 512);
+        this.width = width;
+        this.height = height;
+        this.createWorld(width, height);
     }
 
     public void createWorld(int width, int height) {
@@ -30,7 +32,7 @@ public class World implements IRenderObject {
             e.printStackTrace();
         }
 
-        this.terrainData = new int[width][height];
+        int[][] terrainData = new int[width][height];
 
         if (this.textureBuffer == null) {
             this.textureBuffer = ByteBuffer.allocateDirect(terrainData.length * terrainData[0].length * BYTES_PER_PIXEL);
@@ -38,13 +40,13 @@ public class World implements IRenderObject {
             this.textureBuffer.clear();
         }
 
-        this.createPerlinWorld();
-        this.paintTerrainTexture();
+        this.createPerlinWorld(terrainData);
+        this.paintTerrainTexture(terrainData);
         this.createGrass();
         this.createTexture();
     }
 
-    private void createPerlinWorld() {
+    private void createPerlinWorld(int[][] terrainData) {
         float freq = 0.008f;
 
         float offX = (float) (Math.random() * (Math.random() * 50000));
@@ -53,11 +55,11 @@ public class World implements IRenderObject {
         float cutOff = 0.4f;
         float upperCutOff = 20f;
 
-        for (int x = 0; x < terrainData.length; x++) {
-            for (int wrongY = 0; wrongY < terrainData[0].length; wrongY++) {
-                int y = terrainData[0].length - wrongY - 1;
+        for (int x = 0; x < this.getWidth(); x++) {
+            for (int wrongY = 0; wrongY < this.getHeight(); wrongY++) {
+                int y = this.getHeight() - wrongY - 1;
                 double noise = SimplexNoise.noise(x * freq + offX, y * freq + offY);
-                double addY = ((double) (y - 300) / (double) terrainData[0].length);
+                double addY = ((double) (y - 300) / (double) this.getWidth());
                 noise += 6d * addY;
 
                 // left
@@ -67,13 +69,13 @@ public class World implements IRenderObject {
                 }
 
                 // right
-                dX = Math.abs(x - terrainData.length) / 512d;
+                dX = Math.abs(x - this.getWidth()) / 512d;
                 if (dX < 1) {
                     noise *= dX;
                 }
 
-                this.terrainData[x][y] = noise >= cutOff * (1d - ((double) (y) / (double) terrainData[0].length) * 0.75) && noise < upperCutOff ? 1 : 0;
-                this.setPixelNoCheck(x, y, this.terrainData[x][y]);
+                terrainData[x][y] = noise >= cutOff * (1d - ((double) (y) / (double) this.getHeight()) * 0.75) && noise < upperCutOff ? 1 : 0;
+                setPixelNoCheck(x, y, TerrainType.values()[terrainData[x][y]]);
             }
         }
     }
@@ -111,10 +113,10 @@ public class World implements IRenderObject {
         return buffer;
     }
 
-    private void paintTerrainTexture() {
+    private void paintTerrainTexture(int[][] terrainData) {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
-                if (this.terrainData[x][y] == 1) {
+                if (terrainData[x][y] == 1) {
                     this.textureBuffer.position(this.getBufferPosition(x, y));
                     this.textureBuffer.put(this.backgroundTexture.getR(x, y));
                     this.textureBuffer.put(this.backgroundTexture.getG(x, y));
@@ -164,7 +166,7 @@ public class World implements IRenderObject {
 
         // Send texel data to OpenGL
         this.textureBuffer.position(0);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.terrainData.length, this.terrainData[0].length, 0, GL_RGBA, GL_UNSIGNED_BYTE, this.textureBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.textureBuffer);
     }
 
     public void updateTexture(int x, int y, int width, int height, ByteBuffer buffer) {
@@ -172,11 +174,11 @@ public class World implements IRenderObject {
         glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width - 1, height - 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
 
-    public void filledCircle(int midX, int midY, int radius, int terrainType, boolean replaceAir) {
+    public void filledCircle(int midX, int midY, int radius, TerrainType terrainType, boolean replaceAir) {
         this.filledCircle(midX, midY, radius, radius, terrainType, replaceAir);
     }
 
-    public void filledCircle(int midX, int midY, int radius, int wallThickness, int terrainType, boolean replaceAir) {
+    public void filledCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType, boolean replaceAir) {
         long start = System.nanoTime();
         int innerRadius = radius - wallThickness;
         innerRadius = innerRadius * innerRadius;
@@ -196,7 +198,7 @@ public class World implements IRenderObject {
         }
 
         // paint texture & grass
-        if (terrainType == 1) {
+        if (terrainType.equals(TerrainType.TERRAIN)) {
             // paint texture
             for (int y = -radius; y <= radius; y++) {
                 ySquared = y * y;
@@ -243,53 +245,43 @@ public class World implements IRenderObject {
         System.out.println("Circle Duration: " + dur);
     }
 
-    private void setPixel(int x, int y, int terrainType, boolean replaceAir) {
+    public TerrainType getTerrainType(int x, int y) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            if (this.terrainData[x][y] == terrainType || (!replaceAir && this.terrainData[x][y] == 0)) {
+            int oldPosition = this.textureBuffer.position();
+            this.textureBuffer.position(this.getBufferPosition(x, y));
+            byte r = this.textureBuffer.get();
+            byte g = this.textureBuffer.get();
+            byte b = this.textureBuffer.get();
+            byte a = this.textureBuffer.get();
+            this.textureBuffer.position(oldPosition);
+            return TerrainType.byRGBA(r, g, b, a);
+        }
+        return TerrainType.INVALID;
+    }
+
+    private void setPixel(int x, int y, TerrainType terrainType, boolean replaceAir) {
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
+            TerrainType type = this.getTerrainType(x, y);
+            if (type.equals(terrainType) || (!replaceAir && type.equals(TerrainType.AIR))) {
                 return;
             }
 
             this.textureBuffer.position(this.getBufferPosition(x, y));
-            if (terrainType == 1) {
-                this.textureBuffer.put((byte) 255);
-                this.textureBuffer.put((byte) 255);
-                this.textureBuffer.put((byte) 255);
-                this.textureBuffer.put((byte) 255);
-            } else if (terrainType == 2) {
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 255);
-            } else if (terrainType == 0) {
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 0);
-                this.textureBuffer.put((byte) 0);
-            }
+            this.textureBuffer.put(terrainType.getR());
+            this.textureBuffer.put(terrainType.getG());
+            this.textureBuffer.put(terrainType.getB());
+            this.textureBuffer.put(terrainType.getA());
             this.textureBuffer.position(0);
-            this.terrainData[x][y] = terrainType;
         }
     }
 
-    private void setPixelNoCheck(int x, int y, int terrainType) {
+    private void setPixelNoCheck(int x, int y, TerrainType terrainType) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             textureBuffer.position(this.getBufferPosition(x, y));
-            if (terrainType == 1) {
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
-                textureBuffer.put((byte) 255);
-            } else if (terrainType == 2) {
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 127);
-                textureBuffer.put((byte) 255);
-            } else if (terrainType == 0) {
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
-                textureBuffer.put((byte) 0);
-            }
+            this.textureBuffer.put(terrainType.getR());
+            this.textureBuffer.put(terrainType.getG());
+            this.textureBuffer.put(terrainType.getB());
+            this.textureBuffer.put(terrainType.getA());
             textureBuffer.position(0);
         }
     }
@@ -309,7 +301,7 @@ public class World implements IRenderObject {
 
     public boolean isPixelSolid(int x, int y, boolean defaultValue) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return this.terrainData[x][y] != 0;
+            return !this.getTerrainType(x, y).equals(TerrainType.AIR);
         } else {
             return defaultValue;
         }
@@ -360,11 +352,11 @@ public class World implements IRenderObject {
     }
 
     public int getWidth() {
-        return this.terrainData.length;
+        return this.width;
     }
 
     public int getHeight() {
-        return this.terrainData[0].length;
+        return this.height;
     }
 
 }

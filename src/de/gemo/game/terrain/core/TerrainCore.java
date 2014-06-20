@@ -109,15 +109,15 @@ public class TerrainCore extends GameEngine {
             int midX = event.getX() - (int) offset.getX();
             int midY = event.getY() - (int) offset.getY();
             int radius = 30;
-            this.world.filledCircle(midX, midY, radius, 1, true);
+            this.world.filledCircle(midX, midY, radius, TerrainType.TERRAIN, true);
             this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
         } else if (event.getButton().equals(MouseButton.LEFT)) {
             int midX = event.getX() - (int) offset.getX();
             int midY = event.getY() - (int) offset.getY();
             int radius = 35;
             int wallThickness = 9;
-            this.world.filledCircle(midX, midY, radius, wallThickness, 2, false);
-            this.world.filledCircle(midX, midY, radius - wallThickness, 0, false);
+            this.world.filledCircle(midX, midY, radius, wallThickness, TerrainType.CRATER, false);
+            this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
             this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
         }
     }

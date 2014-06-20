@@ -4,9 +4,11 @@ public enum TerrainType {
 
     AIR(0, 0, 0, 0, false),
 
-    TERRAIN(1, 1, 1, 1, false),
+    TERRAIN(255, 255, 255, 255, true),
 
-    CRATER(0, 0, 0, 1, false);
+    CRATER(0, 0, 0, 255, true),
+
+    INVALID(0, 0, 0, 0, true);
 
     private final byte r, g, b, a;
     private final boolean solid;
@@ -37,5 +39,14 @@ public enum TerrainType {
 
     public byte getA() {
         return a;
+    }
+
+    public static TerrainType byRGBA(byte r, byte g, byte b, byte a) {
+        for (TerrainType type : TerrainType.values()) {
+            if (type.r == r && type.g == g && type.b == b && type.a == a) {
+                return type;
+            }
+        }
+        return TerrainType.INVALID;
     }
 }

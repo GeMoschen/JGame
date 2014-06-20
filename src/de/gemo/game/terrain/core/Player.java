@@ -65,6 +65,7 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     @Override
     public void updatePhysics(int delta) {
+
         // shoot angle
         float rotationSpeed = 0.2f;
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
@@ -75,6 +76,12 @@ public class Player implements IPhysicsObject, IRenderObject {
             if ((!this.lookRight && this.shootAngle < 0) || (this.lookRight && this.shootAngle < 170)) {
                 this.shootAngle += rotationSpeed * delta;
             }
+        }
+
+        if (this.lookRight && this.shootAngle < 0) {
+            this.shootAngle = 0;
+        } else if (!this.lookRight && this.shootAngle > 0) {
+            this.shootAngle = 0;
         }
 
         // gravity
@@ -277,7 +284,6 @@ public class Player implements IPhysicsObject, IRenderObject {
             glRotatef((float) this.shootAngle, 0, 0, 1);
             glTranslatef(2 + this.playerWidth, -crosshairDistance + this.playerHeight / 2f, 0);
 
-            glColor4f(1, 1, 1, 1);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
             this.crosshair.render(1, 1, 1, 1);
