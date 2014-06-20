@@ -1,6 +1,10 @@
 package de.gemo.game.terrain.core;
 
+import java.io.*;
+
 import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.manager.*;
+import de.gemo.gameengine.textures.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -13,9 +17,11 @@ public class Player implements IPhysicsObject, IRenderObject {
     private World world;
 
     private float shootAngle = 0f;
+    private float shootPower = 0f;
 
     private boolean[] movement = new boolean[5];
     private boolean onGround, topBlocked;
+    private SingleTexture crosshair;
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
@@ -23,6 +29,11 @@ public class Player implements IPhysicsObject, IRenderObject {
         this.world = world;
         this.position = position.clone();
         this.velocity = new Vector2f(0, 0);
+        try {
+            this.crosshair = TextureManager.loadSingleTexture("resources/crosshair.png");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Player(World world, float x, float y) {
@@ -39,6 +50,17 @@ public class Player implements IPhysicsObject, IRenderObject {
                 this.velocity.setX(-jumpX);
             }
         }
+    }
+
+    public void shoot() {
+        this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0008f);
+        if (this.shootPower >= 1) {
+            this.shootPower = 0;
+        }
+    }
+
+    public void resetPower() {
+        this.shootPower = 0;
     }
 
     @Override
@@ -228,8 +250,6 @@ public class Player implements IPhysicsObject, IRenderObject {
 
         // crosshair
         float crosshairDistance = 75f;
-        float power = 1f;
-        float x1 = 5f;
         float x2 = 15f;
 
         // powersign
@@ -238,14 +258,14 @@ public class Player implements IPhysicsObject, IRenderObject {
             glRotatef((float) this.shootAngle, 0, 0, 1);
             glBegin(GL_POLYGON);
             {
-                glColor4f(0, 1, 0, 0.5f);
+                glColor4f(0, 1, 0, 0.6f);
                 glVertex2f(0, 0);
-                glColor4f(1 * power, 1 * (1 - power), 0, 0.5f);
-                glVertex2f(-x2 * power, -crosshairDistance * power);
-                glVertex2f(-x2 / 2f * power, (-crosshairDistance - x2 / 4f + -x2 / 6f) * power);
-                glVertex2f(0, -crosshairDistance - x2 / 2f * power);
-                glVertex2f(+x2 / 2f * power, (-crosshairDistance - x2 / 4f + -x2 / 6f) * power);
-                glVertex2f(+x2 * power, -crosshairDistance * power);
+                glColor4f(1 * this.shootPower, 1 * (1 - this.shootPower), 0, 0.6f);
+                glVertex2f(-x2 * this.shootPower, -crosshairDistance * this.shootPower);
+                glVertex2f(-x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
+                glVertex2f(0, (-crosshairDistance - x2 / 2f) * this.shootPower);
+                glVertex2f(+x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
+                glVertex2f(+x2 * this.shootPower, -crosshairDistance * this.shootPower);
             }
             glEnd();
         }
@@ -255,23 +275,12 @@ public class Player implements IPhysicsObject, IRenderObject {
         glPushMatrix();
         {
             glRotatef((float) this.shootAngle, 0, 0, 1);
-            glTranslatef(0, -crosshairDistance, 0);
+            glTranslatef(2 + this.playerWidth, -crosshairDistance + this.playerHeight / 2f, 0);
+
             glColor4f(1, 1, 1, 1);
-            glBegin(GL_LINES);
-            {
-                glVertex2f(+x1, 0);
-                glVertex2f(+x2, 0);
-
-                glVertex2f(-x1, 0);
-                glVertex2f(-x2, 0);
-
-                glVertex2f(0, +x1);
-                glVertex2f(0, +x2);
-
-                glVertex2f(0, -x1);
-                glVertex2f(0, -x2);
-            }
-            glEnd();
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            this.crosshair.render(1, 1, 1, 1);
         }
         glPopMatrix();
     }

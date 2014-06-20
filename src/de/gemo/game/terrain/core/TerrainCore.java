@@ -21,7 +21,7 @@ public class TerrainCore extends GameEngine {
     private World world;
 
     public TerrainCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
-        super(windowTitle, windowWidth, windowHeight, fullscreen);
+        super(windowTitle, windowWidth, windowHeight, false);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TerrainCore extends GameEngine {
     protected void renderGame2D() {
         glEnable(GL_BLEND);
         glDisable(GL_LIGHTING);
-        glClearColor(0f, 0f, 0f, 1f);
+        glClearColor(0f, 0f, 0.8f, 1f);
         glDisable(GL_TEXTURE_2D);
 
         glDisable(GL_TEXTURE_RECTANGLE_ARB);
@@ -69,8 +69,17 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onKeyPressed(KeyEvent event) {
-        if (event.getKey() == Keyboard.KEY_SPACE) {
+        if (event.getKey() == Keyboard.KEY_W) {
             this.player.jump();
+        } else {
+            super.onKeyPressed(event);
+        }
+    }
+
+    @Override
+    public void onKeyHold(KeyEvent event) {
+        if (event.getKey() == Keyboard.KEY_SPACE) {
+            this.player.shoot();
         } else {
             super.onKeyPressed(event);
         }
@@ -80,6 +89,8 @@ public class TerrainCore extends GameEngine {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F12) {
             this.world.createWorld(this.world.getWidth(), this.world.getHeight());
+        } else if (event.getKey() == Keyboard.KEY_SPACE) {
+            this.player.resetPower();
         } else {
             super.onKeyReleased(event);
         }
@@ -99,15 +110,15 @@ public class TerrainCore extends GameEngine {
             int midY = event.getY() - (int) offset.getY();
             int radius = 30;
             this.world.filledCircle(midX, midY, radius, 1, true);
-            this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
+            this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
         } else if (event.getButton().equals(MouseButton.LEFT)) {
             int midX = event.getX() - (int) offset.getX();
             int midY = event.getY() - (int) offset.getY();
             int radius = 35;
-            int wallThickness = 5;
+            int wallThickness = 9;
             this.world.filledCircle(midX, midY, radius, wallThickness, 2, false);
             this.world.filledCircle(midX, midY, radius - wallThickness, 0, false);
-            this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
+            this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
         }
     }
 }

@@ -131,32 +131,20 @@ public class World implements IRenderObject {
             for (int x = 0; x < this.getWidth(); x++) {
                 boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
                 if (placeGrass_1) {
-                    if (this.isUnderFreeSky(x, y)) {
-                        this.textureBuffer.position(this.getBufferPosition(x, y));
-                        this.textureBuffer.put(this.backgroundTexture.getR(x, y));
-                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 96));
-                        this.textureBuffer.put(this.backgroundTexture.getB(x, y));
-                        this.textureBuffer.put(this.backgroundTexture.getA(x, y));
-
-                        this.textureBuffer.position(this.getBufferPosition(x, y + 1));
-                        this.textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
-                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 48));
-                        this.textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
-                        this.textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
-                    } else {
-                        this.textureBuffer.position(this.getBufferPosition(x, y));
-                        this.textureBuffer.put(this.backgroundTexture.getR(x, y));
-                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y) + 48));
-                        this.textureBuffer.put(this.backgroundTexture.getB(x, y));
-                        this.textureBuffer.put(this.backgroundTexture.getA(x, y));
-
-                        this.textureBuffer.position(this.getBufferPosition(x, y + 1));
-                        this.textureBuffer.put(this.backgroundTexture.getR(x, y + 1));
-                        this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(x, y + 1) + 16));
-                        this.textureBuffer.put(this.backgroundTexture.getB(x, y + 1));
-                        this.textureBuffer.put(this.backgroundTexture.getA(x, y + 1));
+                    for (int offY = 0; offY < 13; offY++) {
+                        if (this.isPixelSolid(x, y + offY)) {
+                            this.textureBuffer.position(this.getBufferPosition(x, y + offY));
+                            this.textureBuffer.put((byte) 0);
+                            if (offY == 0) {
+                                this.textureBuffer.put((byte) 0);
+                            } else {
+                                this.textureBuffer.put((byte) (128 / (offY / 2 + 1) + 32));
+                            }
+                            this.textureBuffer.put((byte) 0);
+                            this.textureBuffer.put((byte) 255);
+                            this.textureBuffer.position(0);
+                        }
                     }
-                    this.textureBuffer.position(0);
                 }
             }
         }
@@ -202,7 +190,7 @@ public class World implements IRenderObject {
                 xSquared = x * x;
                 XPlusY = xSquared + ySquared;
                 if (XPlusY <= radiusSquared && XPlusY >= innerRadius) {
-                    setPixel(midX + x, midY + y, terrainType, replaceAir);
+                    setPixel(midX + x, midY + y, terrainType, false);
                 }
             }
         }
@@ -237,32 +225,14 @@ public class World implements IRenderObject {
                     if (XPlusY <= radiusSquared && XPlusY >= innerRadius) {
                         boolean placeGrass_1 = !this.isPixelSolid(midX + x, midY + y - 1) && this.isPixelSolid(midX + x, midY + y);
                         if (placeGrass_1) {
-                            if (this.isUnderFreeSky(midX + x, midY + y)) {
-                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y));
-                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y));
-                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y) + 96));
-                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y));
-                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y));
-
-                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + 1));
-                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y + 1));
-                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y + 1) + 48));
-                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y + 1));
-                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y + 1));
-                            } else {
-                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y));
-                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y));
-                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y) + 48));
-                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y));
-                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y));
-
-                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + 1));
-                                this.textureBuffer.put(this.backgroundTexture.getR(midX + x, midY + y + 1));
-                                this.textureBuffer.put((byte) Math.min(255, this.backgroundTexture.getG(midX + x, midY + y + 1) + 16));
-                                this.textureBuffer.put(this.backgroundTexture.getB(midX + x, midY + y + 1));
-                                this.textureBuffer.put(this.backgroundTexture.getA(midX + x, midY + y + 1));
+                            for (int offY = 0; offY < 15; offY++) {
+                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + offY));
+                                this.textureBuffer.put((byte) 0);
+                                this.textureBuffer.put((byte) (128 / (offY / 3 + 1) + 32));
+                                this.textureBuffer.put((byte) 0);
+                                this.textureBuffer.put((byte) 255);
+                                this.textureBuffer.position(0);
                             }
-                            this.textureBuffer.position(0);
                         }
                     }
                 }
@@ -286,9 +256,9 @@ public class World implements IRenderObject {
                 this.textureBuffer.put((byte) 255);
                 this.textureBuffer.put((byte) 255);
             } else if (terrainType == 2) {
-                this.textureBuffer.put((byte) 127);
-                this.textureBuffer.put((byte) 127);
-                this.textureBuffer.put((byte) 127);
+                this.textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
+                this.textureBuffer.put((byte) 0);
                 this.textureBuffer.put((byte) 255);
             } else if (terrainType == 0) {
                 this.textureBuffer.put((byte) 0);

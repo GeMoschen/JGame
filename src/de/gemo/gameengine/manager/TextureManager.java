@@ -70,7 +70,7 @@ public class TextureManager {
             return null;
         }
         Texture texture = TextureLoader.getTexture(getExtension(file).toUpperCase(), new FileInputStream(file), false, filter);
-        return new SingleTexture(texture, 0, 0, texture.getImageWidth(), texture.getImageHeight());
+        return new SingleTexture(texture, 0, 0, texture.getImageWidth() - 1, texture.getImageHeight() - 1);
     }
 
     /**
