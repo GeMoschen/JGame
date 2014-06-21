@@ -1,7 +1,12 @@
 package de.gemo.game.terrain.core;
 
 import org.lwjgl.input.*;
+import org.newdawn.slick.*;
+import org.newdawn.slick.opengl.*;
 
+import de.gemo.game.terrain.entities.*;
+import de.gemo.game.terrain.handler.*;
+import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.keyboard.*;
 import de.gemo.gameengine.events.mouse.*;
@@ -26,7 +31,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.world = new World(2 * 512, 1 * 512);
+        this.world = new World(2048, 768);
         this.physicsHandler = new PhysicsHandler();
         this.renderHandler = new RenderHandler();
         this.player = new Player(this.world, 500, 100);
@@ -50,6 +55,18 @@ public class TerrainCore extends GameEngine {
             glTranslatef(offset.getX(), offset.getY(), 0);
             glColor4f(1, 1, 1, 1);
             this.renderHandler.renderAll();
+        }
+        glPopMatrix();
+
+        // RENDER FPS
+        glPushMatrix();
+        {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
+            Color.white.bind();
+            TextureImpl.bindNone();
+            FontManager.getStandardFont().drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
         }
         glPopMatrix();
 

@@ -1,4 +1,4 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.entities;
 
 import de.gemo.gameengine.units.*;
 

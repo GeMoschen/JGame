@@ -1,4 +1,4 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.utils;
 
 /*
  * A speed-improved simplex noise algorithm for 2D, 3D and 4D in Java.

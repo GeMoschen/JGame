@@ -1,4 +1,4 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.utils;
 
 import java.awt.*;
 import java.awt.image.*;

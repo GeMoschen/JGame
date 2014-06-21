@@ -1,10 +1,12 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.entities;
 
 import java.io.*;
 import java.nio.*;
 
 import org.lwjgl.opengl.*;
 
+import de.gemo.game.terrain.entities.*;
+import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -18,6 +20,7 @@ public class World implements IRenderObject {
     private int width, height;
 
     private TexData backgroundTexture;
+    private TerrainSettings terrainSettings;
 
     public World(int width, int height) {
         this.width = width;
@@ -47,18 +50,11 @@ public class World implements IRenderObject {
     }
 
     private void createPerlinWorld(int[][] terrainData) {
-        float freq = 0.008f;
-
-        float offX = (float) (Math.random() * (Math.random() * 50000));
-        float offY = (float) (Math.random() * (Math.random() * 50000));
-
-        float cutOff = 0.4f;
-        float upperCutOff = 20f;
-
+        this.terrainSettings = new TerrainSettings();
         for (int x = 0; x < this.getWidth(); x++) {
             for (int wrongY = 0; wrongY < this.getHeight(); wrongY++) {
                 int y = this.getHeight() - wrongY - 1;
-                double noise = SimplexNoise.noise(x * freq + offX, y * freq + offY);
+                double noise = SimplexNoise.noise(x * this.terrainSettings.getFrequencyX() + this.terrainSettings.getOffsetX(), y * this.terrainSettings.getFrequencyY() + this.terrainSettings.getOffsetY());
                 double addY = ((double) (y - 300) / (double) this.getWidth());
                 noise += 6d * addY;
 
@@ -74,7 +70,7 @@ public class World implements IRenderObject {
                     noise *= dX;
                 }
 
-                terrainData[x][y] = noise >= cutOff * (1d - ((double) (y) / (double) this.getHeight()) * 0.75) && noise < upperCutOff ? 1 : 0;
+                terrainData[x][y] = (noise >= (this.terrainSettings.getLowerCutOff() * (1d - ((double) (y) / (double) this.getHeight()) * 0.75)) && noise < this.terrainSettings.getUpperCutOff() ? 1 : 0);
                 setPixelNoCheck(x, y, TerrainType.values()[terrainData[x][y]]);
             }
         }
@@ -118,10 +114,10 @@ public class World implements IRenderObject {
             for (int x = 0; x < this.getWidth(); x++) {
                 if (terrainData[x][y] == 1) {
                     this.textureBuffer.position(this.getBufferPosition(x, y));
-                    this.textureBuffer.put(this.backgroundTexture.getR(x, y));
-                    this.textureBuffer.put(this.backgroundTexture.getG(x, y));
-                    this.textureBuffer.put(this.backgroundTexture.getB(x, y));
-                    this.textureBuffer.put(this.backgroundTexture.getA(x, y));
+                    this.textureBuffer.put(this.backgroundTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put(this.backgroundTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put(this.backgroundTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put(this.backgroundTexture.getA(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
                     this.textureBuffer.position(0);
                 }
             }
@@ -209,10 +205,10 @@ public class World implements IRenderObject {
                         int mX = midX + x;
                         int mY = midY + y;
                         this.textureBuffer.position(this.getBufferPosition(mX, mY));
-                        this.textureBuffer.put(this.backgroundTexture.getR(mX, mY));
-                        this.textureBuffer.put(this.backgroundTexture.getG(mX, mY));
-                        this.textureBuffer.put(this.backgroundTexture.getB(mX, mY));
-                        this.textureBuffer.put(this.backgroundTexture.getA(mX, mY));
+                        this.textureBuffer.put(this.backgroundTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put(this.backgroundTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put(this.backgroundTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put(this.backgroundTexture.getA(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
                         this.textureBuffer.position(0);
                     }
                 }

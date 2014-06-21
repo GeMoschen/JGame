@@ -1,7 +1,8 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.entities;
 
 import java.io.*;
 
+import de.gemo.game.terrain.core.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;
@@ -53,7 +54,7 @@ public class Player implements IPhysicsObject, IRenderObject {
     }
 
     public void shoot() {
-        this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0008f);
+        this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1) {
             this.shootPower = 0;
         }
@@ -175,7 +176,7 @@ public class Player implements IPhysicsObject, IRenderObject {
                         }
                     }
                     if (leftY > this.position.getY() && !topBlocked) {
-                        this.position.setY(this.position.getY() - 1f);
+                        this.position.setY(this.position.getY() - 0.1f);
                     } else {
                         this.velocity.setX(this.velocity.getX() * 0.9f);
                         this.position.setX(this.position.getX() + 0.1f);
@@ -194,7 +195,7 @@ public class Player implements IPhysicsObject, IRenderObject {
                         }
                     }
                     if (rightY > this.position.getY() && !topBlocked) {
-                        this.position.setY(this.position.getY() - 1f);
+                        this.position.setY(this.position.getY() - 0.1f);
                     } else {
                         this.velocity.setX(this.velocity.getX() * 0.9f);
                         this.position.setX(this.position.getX() - 0.1f);

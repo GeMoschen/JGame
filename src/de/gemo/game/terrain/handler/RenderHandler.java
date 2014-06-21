@@ -1,12 +1,8 @@
-package de.gemo.game.terrain.core;
+package de.gemo.game.terrain.handler;
 
 import java.util.*;
 
-import org.newdawn.slick.*;
-import org.newdawn.slick.opengl.*;
-
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.manager.*;
+import de.gemo.game.terrain.entities.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -35,17 +31,5 @@ public class RenderHandler {
             }
             glPopMatrix();
         }
-
-        // RENDER FPS
-        glPushMatrix();
-        {
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glEnable(GL_TEXTURE_2D);
-            Color.white.bind();
-            TextureImpl.bindNone();
-            FontManager.getStandardFont().drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
-        }
-        glPopMatrix();
     }
 }
