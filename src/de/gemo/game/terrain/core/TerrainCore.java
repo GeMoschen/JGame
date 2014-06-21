@@ -74,7 +74,6 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void updateGame(int delta) {
-        // System.out.println(GameEngine.INSTANCE.getDebugMonitor().getFPS());
         boolean left = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LEFT);
         boolean right = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_RIGHT);
         boolean up = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_UP);
@@ -106,6 +105,7 @@ public class TerrainCore extends GameEngine {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F12) {
             this.world.createWorld(this.world.getWidth(), this.world.getHeight());
+            this.player.setPosition(new Vector2f(500, 100));
         } else if (event.getKey() == Keyboard.KEY_SPACE) {
             this.player.resetPower();
         } else {
