@@ -40,13 +40,12 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     public void jump() {
         if ((this.onGround)) {
-            this.velocity.setY(-0.1f * GameEngine.INSTANCE.getCurrentDelta());
-            System.out.println("JUMP");
-            // float jumpX = 0.07f * GameEngine.INSTANCE.getCurrentDelta();
+            this.velocity.setY(-0.17f * GameEngine.INSTANCE.getCurrentDelta());
+            float jumpX = 0.1f * GameEngine.INSTANCE.getCurrentDelta();
             if (this.lookRight) {
-                // this.velocity.setX(jumpX);
+                this.velocity.setX(jumpX);
             } else {
-                // this.velocity.setX(-jumpX);
+                this.velocity.setX(-jumpX);
             }
         }
     }
@@ -63,7 +62,7 @@ public class Player implements IPhysicsObject, IRenderObject {
     }
 
     public boolean canFall() {
-        int bottomY = (int) (this.position.getY() + this.playerHeight);
+        int bottomY = (int) (this.position.getY() + this.playerHeight) + 1;
         for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
             if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
                 return false;
@@ -73,7 +72,7 @@ public class Player implements IPhysicsObject, IRenderObject {
     }
 
     public Vector2f getCollidingNormal() {
-        int bottomY = (int) (this.position.getY() + this.playerHeight);
+        int bottomY = (int) (this.position.getY() + this.playerHeight) + 1;
         for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
             if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
                 return this.world.getNormal((int) (this.position.getX() + x), bottomY);
@@ -107,29 +106,37 @@ public class Player implements IPhysicsObject, IRenderObject {
         float vY = this.velocity.getY();
 
         // friction
-        vX *= 0.95f;
-        vY *= 0.95f;
-
+        vX *= 0.85f;
+        // vY *= 0.92f;
+        //
         // gravity
         boolean canFall = this.canFall();
         if (canFall) {
-            vY += 0.012F * delta;
+            vY += (0.015F * delta);
             vY = this.getMaxAdvanceY(vY);
         } else {
-            // is on ground
-            vY = 0f;
-            Vector2f normal = this.getCollidingNormal();
-            if (normal.getY() > -0.80f) {
-                vX += (normal.getX() / 4f);
-            }
+            // is on ground.. if vY < 0, we are jumping or flying high
+            if (vY > 0) {
+                vY = -0.05f;
 
-            if (this.movement[LEFT] && !this.movement[RIGHT]) {
-                vX = -0.02f * delta;
-            }
-            if (this.movement[RIGHT] && !this.movement[LEFT]) {
-                vX = 0.02f * delta;
+                Vector2f normal = this.getCollidingNormal();
+                if (normal.getY() > -0.15f) {
+                    vX += (normal.getX() / 16f);
+                }
             }
         }
+
+        // if (this.onGround) {
+        float walkSpeed = 0.07f;
+        if (this.movement[LEFT] && !this.movement[RIGHT]) {
+            this.lookRight = false;
+            vX = -walkSpeed * delta;
+        }
+        if (this.movement[RIGHT] && !this.movement[LEFT]) {
+            this.lookRight = true;
+            vX = +walkSpeed * delta;
+        }
+        // }
 
         vX = this.getMaxAdvanceX(vX);
 
@@ -166,25 +173,21 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     private float getMaxAdvanceY(float vY) {
         if (vY > 0) {
-            int bottomY = (int) (this.position.getY() + this.playerHeight);
-            float advanceY = 0f;
-            for (int y = bottomY; advanceY <= vY; advanceY++) {
+            float bottomY = this.position.getY() + this.playerHeight + 1f;
+            float advanceY = vY;
+            float canAdvance = vY;
+            for (float y = bottomY + advanceY; advanceY >= (-vY); advanceY--) {
                 for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
                     if (this.world.isPixelSolid((int) (this.position.getX() + x), (int) y)) {
-                        return advanceY - 2f;
+                        canAdvance = advanceY;
                     }
                 }
             }
+            if (canAdvance < 0.1f) {
+                return 0;
+            }
+            return canAdvance;
         } else if (vY < 0) {
-            int topY = (int) (this.position.getY() - this.playerHeight);
-            float advanceY = 0f;
-            for (int y = topY; advanceY >= vY; advanceY--) {
-                for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                    if (this.world.isPixelSolid((int) (this.position.getX() + x), (int) y)) {
-                        return advanceY + 2f;
-                    }
-                }
-            }
         }
         return vY;
     }

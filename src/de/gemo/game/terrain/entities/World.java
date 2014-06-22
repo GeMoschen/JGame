@@ -133,11 +133,11 @@ public class World implements IRenderObject {
                         if (this.isPixelSolid(x, y + offY)) {
                             this.textureBuffer.position(this.getBufferPosition(x, y + offY));
                             this.textureBuffer.put((byte) 0);
-                            if (offY == 0) {
-                                this.textureBuffer.put((byte) 0);
-                            } else {
-                                this.textureBuffer.put((byte) (128 / (offY / 2 + 1) + 32));
-                            }
+                            // if (offY == 0) {
+                            // this.textureBuffer.put((byte) 0);
+                            // } else {
+                            this.textureBuffer.put((byte) (128 / (offY / 2 + 1) + 32));
+                            // }
                             this.textureBuffer.put((byte) 0);
                             this.textureBuffer.put((byte) 255);
                             this.textureBuffer.position(0);
