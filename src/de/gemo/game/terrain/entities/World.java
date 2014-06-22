@@ -255,7 +255,7 @@ public class World implements IRenderObject {
         return TerrainType.INVALID;
     }
 
-    private void setPixel(int x, int y, TerrainType terrainType, boolean replaceAir) {
+    public void setPixel(int x, int y, TerrainType terrainType, boolean replaceAir) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             TerrainType type = this.getTerrainType(x, y);
             if (type.equals(terrainType) || (!replaceAir && type.equals(TerrainType.AIR))) {

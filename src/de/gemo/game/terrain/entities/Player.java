@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.entities;
 
+import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;
@@ -47,6 +48,7 @@ public class Player implements IPhysicsObject, IRenderObject {
             } else {
                 this.velocity.setX(-jumpX);
             }
+            this.onGround = false;
         }
     }
 
@@ -105,8 +107,6 @@ public class Player implements IPhysicsObject, IRenderObject {
         float vX = this.velocity.getX();
         float vY = this.velocity.getY();
 
-        // friction
-        vX *= 0.85f;
         // vY *= 0.92f;
         //
         // gravity
@@ -117,13 +117,21 @@ public class Player implements IPhysicsObject, IRenderObject {
         } else {
             // is on ground.. if vY < 0, we are jumping or flying high
             if (vY > 0) {
-                vY = -0.05f;
+                vY = -0.0005f;
 
                 Vector2f normal = this.getCollidingNormal();
                 if (normal.getY() > -0.15f) {
+                    System.out.println((normal.getX() / 16f));
                     vX += (normal.getX() / 16f);
                 }
             }
+        }
+
+        // friction
+        if (!this.onGround) {
+            vX *= 0.97f;
+        } else {
+            vX *= 0.1f;
         }
 
         // if (this.onGround) {
@@ -138,12 +146,121 @@ public class Player implements IPhysicsObject, IRenderObject {
         }
         // }
 
-        vX = this.getMaxAdvanceX(vX);
+        float maxAdvanceX = this.getMaxAdvanceX(vX);
 
-        this.position.move(vX, vY);
+        float oldX = this.position.getX();
+        float oldY = this.position.getY();
+        this.position.move(maxAdvanceX, vY);
         this.velocity.set(vX, vY);
 
+        if (vX != maxAdvanceX) {
+            int maxStepSize = 10;
+            this.position.set(oldX + vX, oldY + vY);
+            if (this.canGoThere(maxStepSize)) {
+                int upShift = this.getUpshift(maxStepSize * 5);
+                this.position.move(this.getMaxAdvanceX(maxAdvanceX + vX), -upShift);
+                if (this.isStuck()) {
+                    this.position.set(oldX + vX, oldY + vY);
+                }
+            } else {
+                this.position.move(-(maxAdvanceX + vX), -vY);
+            }
+        }
+
         this.onGround = !this.canFall();
+    }
+
+    private boolean canGoThere(int steps) {
+        if (this.canFall()) {
+            return true;
+        }
+
+        for (int currentStep = 1; currentStep <= steps; currentStep++) {
+            int bottomY = (int) (this.position.getY() + this.playerHeight);
+            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+                if (!this.world.isPixelSolid((int) (this.position.getX() + x), bottomY - currentStep)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private int getUpshift(int steps) {
+        if (this.canFall()) {
+            return 0;
+        }
+
+        int upsteps = 0;
+        for (int currentStep = 1; currentStep <= steps; currentStep++) {
+            int bottomY = (int) (this.position.getY() + this.playerHeight);
+            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+                if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY - currentStep)) {
+                    upsteps = currentStep;
+                }
+            }
+        }
+        return upsteps;
+    }
+
+    private boolean isStuck() {
+        if (this.canFall()) {
+            return false;
+        }
+
+        int bottomY = (int) (this.position.getY() + this.playerHeight - 1);
+        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void line(int x, int y, int x2, int y2) {
+        int w = x2 - x;
+        int h = y2 - y;
+        int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+        if (w < 0)
+            dx1 = -1;
+        else if (w > 0)
+            dx1 = 1;
+        if (h < 0)
+            dy1 = -1;
+        else if (h > 0)
+            dy1 = 1;
+        if (w < 0)
+            dx2 = -1;
+        else if (w > 0)
+            dx2 = 1;
+        int longest = Math.abs(w);
+        int shortest = Math.abs(h);
+        if (!(longest > shortest)) {
+            longest = Math.abs(h);
+            shortest = Math.abs(w);
+            if (h < 0)
+                dy2 = -1;
+            else if (h > 0)
+                dy2 = 1;
+            dx2 = 0;
+        }
+        int numerator = longest >> 1;
+        for (int i = 0; i <= longest; i++) {
+            if (this.world.isPixelSolid(x, y)) {
+                return;
+            }
+            world.setPixel(x, y, TerrainType.CRATER, true);
+            numerator += shortest;
+            if (!(numerator < longest)) {
+                numerator -= longest;
+                x += dx1;
+                y += dy1;
+            } else {
+                x += dx2;
+                y += dy2;
+            }
+        }
     }
 
     private float getMaxAdvanceX(float vX) {
@@ -188,6 +305,20 @@ public class Player implements IPhysicsObject, IRenderObject {
             }
             return canAdvance;
         } else if (vY < 0) {
+            float topY = this.position.getY() - this.playerHeight - 1f;
+            float advanceY = vY;
+            float canAdvance = vY;
+            for (float y = topY - advanceY; advanceY <= (-vY); advanceY++) {
+                for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+                    if (this.world.isPixelSolid((int) (this.position.getX() + x), (int) y)) {
+                        canAdvance = advanceY;
+                    }
+                }
+            }
+            if (canAdvance > 0.1f) {
+                return 0;
+            }
+            return canAdvance;
         }
         return vY;
     }

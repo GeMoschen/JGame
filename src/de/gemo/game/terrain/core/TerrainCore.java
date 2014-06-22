@@ -136,6 +136,12 @@ public class TerrainCore extends GameEngine {
             this.world.filledCircle(midX, midY, radius, wallThickness, TerrainType.CRATER, false);
             this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
             this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
+        } else if (event.getButton().equals(MouseButton.MIDDLE)) {
+            int midX = event.getX() - (int) offset.getX();
+            int midY = event.getY() - (int) offset.getY();
+            this.player.line((int) this.player.getPosition().getX(), (int) this.player.getPosition().getY(), midX, midY);
+            this.world.getTerrainParts(0, 0, this.world.getWidth(), this.world.getHeight(), true);
         }
+
     }
 }
