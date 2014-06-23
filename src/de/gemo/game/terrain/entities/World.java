@@ -2,10 +2,10 @@ package de.gemo.game.terrain.entities;
 
 import java.io.*;
 import java.nio.*;
+import java.util.*;
 
 import org.lwjgl.opengl.*;
 
-import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.units.*;
 
@@ -20,6 +20,8 @@ public class World implements IRenderObject {
     private int width, height;
 
     private TexData backgroundTexture;
+    private TexData grassTexture;
+
     private TerrainSettings terrainSettings;
 
     public World(int width, int height) {
@@ -31,6 +33,7 @@ public class World implements IRenderObject {
     public void createWorld(int width, int height) {
         try {
             this.backgroundTexture = new TexData("resources/dirt.jpg");
+            this.grassTexture = new TexData("resources/grass.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,24 +128,29 @@ public class World implements IRenderObject {
     }
 
     private void createGrass() {
-        for (int y = 0; y < this.getHeight(); y++) {
+        List<Integer> xList = new ArrayList<Integer>();
+        List<Integer> yList = new ArrayList<Integer>();
+        for (int y = this.getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < this.getWidth(); x++) {
                 boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
                 if (placeGrass_1) {
-                    for (int offY = 0; offY < 13; offY++) {
-                        if (this.isPixelSolid(x, y + offY)) {
-                            this.textureBuffer.position(this.getBufferPosition(x, y + offY));
-                            this.textureBuffer.put((byte) 0);
-                            // if (offY == 0) {
-                            // this.textureBuffer.put((byte) 0);
-                            // } else {
-                            this.textureBuffer.put((byte) (128 / (offY / 2 + 1) + 32));
-                            // }
-                            this.textureBuffer.put((byte) 0);
-                            this.textureBuffer.put((byte) 255);
-                            this.textureBuffer.position(0);
-                        }
-                    }
+                    xList.add(x);
+                    yList.add(y);
+                }
+            }
+        }
+
+        for (int i = 0; i < xList.size(); i++) {
+            int x = xList.get(i);
+            int y = yList.get(i);
+            for (int offY = 0; offY < this.grassTexture.getHeight(); offY++) {
+                if (!this.grassTexture.isFuchsia(x, offY)) {
+                    this.textureBuffer.position(this.getBufferPosition(x, y + offY - 8));
+                    this.textureBuffer.put(this.grassTexture.getR(x, offY));
+                    this.textureBuffer.put(this.grassTexture.getG(x, offY));
+                    this.textureBuffer.put(this.grassTexture.getB(x, offY));
+                    this.textureBuffer.put(this.grassTexture.getA(x, offY));
+                    this.textureBuffer.position(0);
                 }
             }
         }

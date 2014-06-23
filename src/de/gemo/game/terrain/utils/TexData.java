@@ -53,4 +53,16 @@ public class TexData {
         y = y % rgb[0].length;
         return (byte) this.rgb[x][y].getAlpha();
     }
+
+    public boolean isFuchsia(final int x, final int y) {
+        return this.getR(x, y) == (byte) 255 && this.getG(x, y) == (byte) 0 && this.getB(x, y) == (byte) 255;
+    }
+
+    public int getWidth() {
+        return this.rgb.length;
+    }
+
+    public int getHeight() {
+        return this.rgb[0].length;
+    }
 }
