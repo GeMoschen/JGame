@@ -82,6 +82,9 @@ public class World implements IRenderObject {
                 }
 
                 terrainData[x][y] = (noise >= (this.terrainSettings.getLowerCutOff() * (1d - ((double) (y) / (double) this.getHeight()) * 0.75)) && noise < this.terrainSettings.getUpperCutOff() ? 1 : 0);
+                if (x < 5 || y < 5 || x > this.getWidth() - 5 || y > this.getHeight() - 5) {
+                    terrainData[x][y] = 1;
+                }
                 setPixelNoCheck(x, y, TerrainType.values()[terrainData[x][y]]);
             }
         }

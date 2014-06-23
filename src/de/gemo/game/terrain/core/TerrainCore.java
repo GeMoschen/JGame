@@ -89,6 +89,10 @@ public class TerrainCore extends GameEngine {
         boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
         this.physicsHandler.updateAll(delta);
+
+        // center camera
+        this.offset.setX(-((this.player.getPosition().getX() * scale) - (this.VIEW_WIDTH / 2f)));
+        this.offset.setY(-((this.player.getPosition().getY() * scale) - (this.VIEW_HEIGHT / 2f)));
     }
 
     @Override
@@ -130,22 +134,16 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
-        float oldScale = this.scale;
         if (event.isUp()) {
             this.scale += 0.05f;
             if (this.scale > 1.5f) {
-                this.scale = 2f;
+                this.scale = 1.5f;
             }
-
-            float ratio = 1 - (oldScale / scale);
-            offset.move(1024f * ratio, 768f * ratio);
         } else {
             this.scale -= 0.05f;
             if (this.scale < 0.7f) {
                 this.scale = 0.7f;
             }
-            float ratio = 1 - (oldScale / oldScale);
-            offset.move(1024f * ratio, 768f * ratio);
         }
     }
 
@@ -161,7 +159,7 @@ public class TerrainCore extends GameEngine {
             int midX = (int) ((event.getX() - (int) offset.getX()) * (1f / this.scale));
             int midY = (int) ((event.getY() - (int) offset.getY()) * (1f / this.scale));
             int radius = 35;
-            int wallThickness = 9;
+            int wallThickness = 7;
             this.world.filledCircle(midX, midY, radius, wallThickness, TerrainType.CRATER, false);
             this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
             this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);

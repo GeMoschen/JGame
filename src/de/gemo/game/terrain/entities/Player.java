@@ -140,17 +140,17 @@ public class Player implements IPhysicsObject, IRenderObject {
             vX *= 0.1f;
         }
 
-        // if (this.onGround) {
-        float walkSpeed = 0.07f;
-        if (this.movement[LEFT] && !this.movement[RIGHT]) {
-            this.lookRight = false;
-            vX = -walkSpeed * delta;
+        if (this.onGround) {
+            float walkSpeed = 0.03f;
+            if (this.movement[LEFT] && !this.movement[RIGHT]) {
+                this.lookRight = false;
+                vX = -walkSpeed * delta;
+            }
+            if (this.movement[RIGHT] && !this.movement[LEFT]) {
+                this.lookRight = true;
+                vX = +walkSpeed * delta;
+            }
         }
-        if (this.movement[RIGHT] && !this.movement[LEFT]) {
-            this.lookRight = true;
-            vX = +walkSpeed * delta;
-        }
-        // }
 
         float maxAdvanceX = this.getMaxAdvanceX(vX);
         this.position.move(maxAdvanceX, vY);
