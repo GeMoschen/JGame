@@ -161,7 +161,7 @@ public class Player implements IPhysicsObject, IRenderObject {
             if (this.canGoThere(maxStepSize, vX)) {
                 int upShift = this.getUpshift(maxStepSize, vX);
                 if (upShift != 0) {
-                    this.position.move((vX - maxAdvanceX) / (upShift * 2), -upShift);
+                    this.position.move((vX - maxAdvanceX) / (upShift * 2f), -upShift);
                 }
             }
         }
