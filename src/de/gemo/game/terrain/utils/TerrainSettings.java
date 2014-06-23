@@ -3,10 +3,10 @@ package de.gemo.game.terrain.utils;
 import java.util.*;
 
 public class TerrainSettings {
-    private float frequencyX = 0.003f, frequencyY = 0.007f;
+    private float frequencyX = 0.0025f, frequencyY = 0.005f;
     private float offsetX, offsetY;
 
-    private float lowerCutOff = 0.4f, upperCutOff = 20f;
+    private float lowerCutOff = 0.35f, upperCutOff = 20f;
 
     public TerrainSettings(long seed) {
         Random random = new Random(seed);

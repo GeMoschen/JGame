@@ -32,7 +32,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.world = new World(2048, 768);
+        this.world = new World(2048, 1024);
         this.physicsHandler = new PhysicsHandler();
         this.renderHandler = new RenderHandler();
         this.player = new Player(this.world, 500, 100);

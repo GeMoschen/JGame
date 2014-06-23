@@ -58,8 +58,8 @@ public class World implements IRenderObject {
             for (int wrongY = 0; wrongY < this.getHeight(); wrongY++) {
                 int y = this.getHeight() - wrongY - 1;
                 double noise = SimplexNoise.noise(x * this.terrainSettings.getFrequencyX() + this.terrainSettings.getOffsetX(), y * this.terrainSettings.getFrequencyY() + this.terrainSettings.getOffsetY());
-                double addY = ((double) (y - (this.getHeight() / 12f)) / (double) this.getWidth());
-                noise += 3.5d * addY;
+                double addY = ((double) (y) / (double) this.getHeight());
+                noise += 3.25f * addY;
                 // left
                 double dX = (double) x / (this.getWidth() / 2d);
                 if (dX < 1) {
@@ -81,7 +81,7 @@ public class World implements IRenderObject {
                     }
                 }
 
-                terrainData[x][y] = (noise >= (this.terrainSettings.getLowerCutOff() * (1d - ((double) (y) / (double) this.getHeight()) * 0.75)) && noise < this.terrainSettings.getUpperCutOff() ? 1 : 0);
+                terrainData[x][y] = (noise >= (this.terrainSettings.getLowerCutOff()) && noise < this.terrainSettings.getUpperCutOff() ? 1 : 0);
                 if (x < 5 || y < 5 || x > this.getWidth() - 5 || y > this.getHeight() - 5) {
                     terrainData[x][y] = 1;
                 }
