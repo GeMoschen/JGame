@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Player implements IPhysicsObject, IRenderObject {
 
-    private float playerWidth = 5, playerHeight = 10;
+    private int playerWidth = 5, playerHeight = 10;
     private Vector2f position, velocity;
     private boolean lookRight = true;
     private World world;
@@ -19,7 +19,7 @@ public class Player implements IPhysicsObject, IRenderObject {
     private float shootPower = 0f;
 
     private boolean[] movement = new boolean[5];
-    private boolean onGround, topBlocked;
+    private boolean onGround;
     private SingleTexture crosshair;
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
@@ -65,6 +65,13 @@ public class Player implements IPhysicsObject, IRenderObject {
 
     public boolean canFall() {
         int bottomY = (int) (this.position.getY() + this.playerHeight) + 1;
+        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
+                return false;
+            }
+        }
+
+        bottomY = (int) (this.position.getY() + this.playerHeight) + 2;
         for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
             if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
                 return false;
@@ -121,7 +128,6 @@ public class Player implements IPhysicsObject, IRenderObject {
 
                 Vector2f normal = this.getCollidingNormal();
                 if (normal.getY() > -0.15f) {
-                    System.out.println((normal.getX() / 16f));
                     vX += (normal.getX() / 16f);
                 }
             }
@@ -147,75 +153,69 @@ public class Player implements IPhysicsObject, IRenderObject {
         // }
 
         float maxAdvanceX = this.getMaxAdvanceX(vX);
-
-        float oldX = this.position.getX();
-        float oldY = this.position.getY();
         this.position.move(maxAdvanceX, vY);
         this.velocity.set(vX, vY);
 
         if (vX != maxAdvanceX) {
-            int maxStepSize = 10;
-            this.position.set(oldX + vX, oldY + vY);
-            if (this.canGoThere(maxStepSize)) {
-                int upShift = this.getUpshift(maxStepSize * 5);
-                this.position.move(this.getMaxAdvanceX(maxAdvanceX + vX), -upShift);
-                if (this.isStuck()) {
-                    this.position.set(oldX + vX, oldY + vY);
+            int maxStepSize = 5;
+            if (this.canGoThere(maxStepSize, vX)) {
+                int upShift = this.getUpshift(maxStepSize, vX);
+                if (upShift != 0) {
+                    this.position.move((vX - maxAdvanceX) / (upShift * 2), -upShift);
                 }
-            } else {
-                this.position.move(-(maxAdvanceX + vX), -vY);
             }
         }
 
         this.onGround = !this.canFall();
+        if (this.onGround && !this.movement[LEFT] && !this.movement[RIGHT]) {
+            this.velocity.setX(0);
+        }
     }
 
-    private boolean canGoThere(int steps) {
+    private boolean canGoThere(int steps, float vX) {
         if (this.canFall()) {
             return true;
         }
 
-        for (int currentStep = 1; currentStep <= steps; currentStep++) {
-            int bottomY = (int) (this.position.getY() + this.playerHeight);
-            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                if (!this.world.isPixelSolid((int) (this.position.getX() + x), bottomY - currentStep)) {
-                    return true;
+        int minX = (int) (this.position.getX() + vX - this.playerWidth);
+        int maxX = (int) (this.position.getX() + vX + this.playerWidth);
+
+        int bottomY = (int) (this.position.getY() + this.playerHeight - steps);
+        for (int x = minX; x <= maxX; x++) {
+            for (int currentStep = 1; currentStep <= this.playerHeight * 2; currentStep++) {
+                if (this.world.isPixelSolid(x, bottomY - currentStep)) {
+                    return false;
                 }
             }
         }
 
-        return false;
+        return true;
     }
 
-    private int getUpshift(int steps) {
+    private int getUpshift(int steps, float vX) {
         if (this.canFall()) {
             return 0;
         }
 
-        int upsteps = 0;
+        int minX = (int) (this.position.getX() + vX - this.playerWidth);
+        int maxX = (int) (this.position.getX() + vX + this.playerWidth + 1);
+
+        int bottomY = (int) (this.position.getY() + this.playerHeight);
+        int upShift = 0;
         for (int currentStep = 1; currentStep <= steps; currentStep++) {
-            int bottomY = (int) (this.position.getY() + this.playerHeight);
-            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY - currentStep)) {
-                    upsteps = currentStep;
+            boolean rowFree = true;
+            for (int x = minX; x <= maxX; x++) {
+                if (this.world.isPixelSolid(x, bottomY - currentStep)) {
+                    rowFree = false;
                 }
             }
-        }
-        return upsteps;
-    }
-
-    private boolean isStuck() {
-        if (this.canFall()) {
-            return false;
-        }
-
-        int bottomY = (int) (this.position.getY() + this.playerHeight - 1);
-        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
-                return true;
+            upShift++;
+            if (rowFree) {
+                return upShift;
             }
         }
-        return false;
+
+        return steps;
     }
 
     public void line(int x, int y, int x2, int y2) {
