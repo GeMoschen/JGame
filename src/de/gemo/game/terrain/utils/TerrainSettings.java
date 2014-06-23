@@ -3,7 +3,7 @@ package de.gemo.game.terrain.utils;
 import java.util.*;
 
 public class TerrainSettings {
-    private float frequencyX = 0.002f, frequencyY = 0.004f;
+    private float frequencyX = 0.003f, frequencyY = 0.007f;
     private float offsetX, offsetY;
 
     private float lowerCutOff = 0.4f, upperCutOff = 20f;

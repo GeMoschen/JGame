@@ -69,6 +69,12 @@ public class TerrainCore extends GameEngine {
             Color.white.bind();
             TextureImpl.bindNone();
             FontManager.getStandardFont().drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+            FontManager.getStandardFont().drawString(20, 35, "Scale: " + this.scale);
+
+            int midX = (int) ((MouseManager.INSTANCE.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
+            int midY = (int) ((MouseManager.INSTANCE.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
+            FontManager.getStandardFont().drawString(20, 50, "Mouse: " + midX + " / " + midY);
+
         }
         glPopMatrix();
 
@@ -124,16 +130,22 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
+        float oldScale = this.scale;
         if (event.isUp()) {
             this.scale += 0.05f;
             if (this.scale > 1.5f) {
                 this.scale = 2f;
             }
+
+            float ratio = 1 - (oldScale / scale);
+            offset.move(1024f * ratio, 768f * ratio);
         } else {
             this.scale -= 0.05f;
             if (this.scale < 0.7f) {
                 this.scale = 0.7f;
             }
+            float ratio = 1 - (oldScale / oldScale);
+            offset.move(1024f * ratio, 768f * ratio);
         }
     }
 

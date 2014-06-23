@@ -32,8 +32,8 @@ public class World implements IRenderObject {
 
     public void createWorld(int width, int height) {
         try {
-            this.backgroundTexture = new TexData("resources/dirt.jpg");
-            this.grassTexture = new TexData("resources/grass.png");
+            this.backgroundTexture = new TexData("resources/terrain/rock_terrain.jpg");
+            this.grassTexture = new TexData("resources/grasses/grass.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,19 +58,27 @@ public class World implements IRenderObject {
             for (int wrongY = 0; wrongY < this.getHeight(); wrongY++) {
                 int y = this.getHeight() - wrongY - 1;
                 double noise = SimplexNoise.noise(x * this.terrainSettings.getFrequencyX() + this.terrainSettings.getOffsetX(), y * this.terrainSettings.getFrequencyY() + this.terrainSettings.getOffsetY());
-                double addY = ((double) (y - 300) / (double) this.getWidth());
-                noise += 6d * addY;
-
+                double addY = ((double) (y - (this.getHeight() / 12f)) / (double) this.getWidth());
+                noise += 3.5d * addY;
                 // left
-                double dX = (double) x / 512d;
+                double dX = (double) x / (this.getWidth() / 2d);
                 if (dX < 1) {
                     noise *= dX;
                 }
 
                 // right
-                dX = Math.abs(x - this.getWidth()) / 512d;
+                dX = Math.abs(x - this.getWidth()) / (this.getWidth() / 2d);
                 if (dX < 1) {
                     noise *= dX;
+                }
+
+                // middle
+                if (x > 0) {
+                    double distX = Math.abs((double) x - ((double) this.getWidth() / 2f));
+                    if (distX < ((double) this.getWidth() / 2f)) {
+                        distX = distX / ((double) this.getWidth() / 2f);
+                        noise *= distX;
+                    }
                 }
 
                 terrainData[x][y] = (noise >= (this.terrainSettings.getLowerCutOff() * (1d - ((double) (y) / (double) this.getHeight()) * 0.75)) && noise < this.terrainSettings.getUpperCutOff() ? 1 : 0);

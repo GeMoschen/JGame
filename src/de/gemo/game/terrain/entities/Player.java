@@ -157,8 +157,10 @@ public class Player implements IPhysicsObject, IRenderObject {
         this.velocity.set(vX, vY);
 
         if (vX != maxAdvanceX) {
-            int maxStepSize = 5;
-            if (this.canGoThere(maxStepSize, vX)) {
+            int maxStepSize = 4;
+
+            Vector2f normal = this.getCollidingNormal();
+            if (this.canGoThere(maxStepSize, vX) && Math.abs(normal.getX()) < 0.98f) {
                 int upShift = this.getUpshift(maxStepSize, vX);
                 if (upShift != 0) {
                     this.position.move((vX - maxAdvanceX) / (upShift * 2f), -upShift);
