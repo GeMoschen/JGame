@@ -6,7 +6,7 @@ public enum TerrainType {
 
     TERRAIN(255, 255, 255, 255, true),
 
-    CRATER(180, 90, 20, 255, true),
+    CRATER(152, 113, 82, 255, true),
 
     INVALID(0, 0, 0, 0, true);
 

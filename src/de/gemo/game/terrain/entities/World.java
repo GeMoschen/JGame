@@ -15,12 +15,11 @@ public class World implements IRenderObject {
 
     private static final int BYTES_PER_PIXEL = 4;
 
-    private ByteBuffer textureBuffer;
-    private int textureID = -1;
+    private ByteBuffer terrainBuffer, backgroundBuffer;
+    private int terrainTextureID = -1, backgroundTextureID = -1;
     private int width, height;
 
-    private TexData backgroundTexture;
-    private TexData grassTexture;
+    private TexData terrainTexture, grassTexture, backgroundTexture;
 
     private TerrainSettings terrainSettings;
 
@@ -32,62 +31,70 @@ public class World implements IRenderObject {
 
     public void createWorld(int width, int height) {
         try {
-            this.backgroundTexture = new TexData("resources/terrain/wood_terrain.jpg");
-            this.grassTexture = new TexData("resources/grasses/grass.png");
+            this.terrainTexture = new TexData("resources/terrain/wood_terrain.jpg");
+            this.backgroundTexture = new TexData("resources/terrainBackgrounds/background_wood.jpg");
+            this.grassTexture = new TexData("resources/grasses/wood.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         int[][] terrainData = new int[width][height];
 
-        if (this.textureBuffer == null) {
-            this.textureBuffer = ByteBuffer.allocateDirect(terrainData.length * terrainData[0].length * BYTES_PER_PIXEL);
+        if (this.terrainBuffer == null) {
+            this.terrainBuffer = ByteBuffer.allocateDirect(terrainData.length * terrainData[0].length * BYTES_PER_PIXEL);
         } else {
-            this.textureBuffer.clear();
+            this.terrainBuffer.clear();
+        }
+
+        if (this.backgroundBuffer == null) {
+            this.backgroundBuffer = ByteBuffer.allocateDirect(terrainData.length * terrainData[0].length * BYTES_PER_PIXEL);
+        } else {
+            this.backgroundBuffer.clear();
         }
 
         this.createPerlinWorld(terrainData);
         this.paintTerrainTexture(terrainData);
         this.createEffects();
-        this.createTexture();
+        this.createTerrainTexture();
+        this.createBackgroundTexture();
     }
 
     private int getR(int x, int y) {
-        this.textureBuffer.position(this.getBufferPosition(x, y));
-        byte r = this.textureBuffer.get();
+        this.terrainBuffer.position(this.getBufferPosition(x, y));
+        byte r = this.terrainBuffer.get();
         int result = (int) r;
         if (r < 0) {
             r = (byte) (255 - r);
             result = (int) (255 - r);
         }
-        this.textureBuffer.position(0);
+        this.terrainBuffer.position(0);
         return result;
     }
 
     private int getG(int x, int y) {
-        this.textureBuffer.position(this.getBufferPosition(x, y));
-        this.textureBuffer.get();
-        byte g = this.textureBuffer.get();
+        this.terrainBuffer.position(this.getBufferPosition(x, y));
+        this.terrainBuffer.get();
+        byte g = this.terrainBuffer.get();
         int result = (int) g;
         if (g < 0) {
             g = (byte) (255 - g);
             result = (int) (255 - g);
         }
-        this.textureBuffer.position(0);
+        this.terrainBuffer.position(0);
         return result;
     }
 
     private int getB(int x, int y) {
-        this.textureBuffer.position(this.getBufferPosition(x, y));
-        this.textureBuffer.get();
-        this.textureBuffer.get();
-        byte b = this.textureBuffer.get();
+        this.terrainBuffer.position(this.getBufferPosition(x, y));
+        this.terrainBuffer.get();
+        this.terrainBuffer.get();
+        byte b = this.terrainBuffer.get();
         int result = (int) b;
         if (b < 0) {
             b = (byte) (255 - b);
             result = (int) (255 - b);
         }
-        this.textureBuffer.position(0);
+        this.terrainBuffer.position(0);
         return result;
     }
 
@@ -143,17 +150,17 @@ public class World implements IRenderObject {
         ByteBuffer buffer = ByteBuffer.allocateDirect(dX * dY * BYTES_PER_PIXEL);
         for (y = minY; y < maxY; y++) {
             for (x = minX; x < maxX; x++) {
-                this.textureBuffer.position(this.getBufferPosition(x, y));
-                buffer.put(this.textureBuffer.get());
-                buffer.put(this.textureBuffer.get());
-                buffer.put(this.textureBuffer.get());
-                buffer.put(this.textureBuffer.get());
-                this.textureBuffer.position(0);
+                this.terrainBuffer.position(this.getBufferPosition(x, y));
+                buffer.put(this.terrainBuffer.get());
+                buffer.put(this.terrainBuffer.get());
+                buffer.put(this.terrainBuffer.get());
+                buffer.put(this.terrainBuffer.get());
+                this.terrainBuffer.position(0);
             }
         }
         buffer.position(0);
         if (updateTexture) {
-            this.updateTexture(minX, minY, dX, dY, buffer);
+            this.updateTexture(minX, minY, dX, dY, this.terrainTextureID, buffer);
         }
 
         long duration = System.nanoTime() - start;
@@ -166,12 +173,12 @@ public class World implements IRenderObject {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 if (terrainData[x][y] == 1) {
-                    this.textureBuffer.position(this.getBufferPosition(x, y));
-                    this.textureBuffer.put((byte) this.backgroundTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put((byte) this.backgroundTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put((byte) this.backgroundTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put((byte) 255);
-                    this.textureBuffer.position(0);
+                    this.terrainBuffer.position(this.getBufferPosition(x, y));
+                    this.terrainBuffer.put((byte) this.terrainTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.terrainBuffer.put((byte) this.terrainTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.terrainBuffer.put((byte) this.terrainTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.terrainBuffer.put((byte) 255);
+                    this.terrainBuffer.position(0);
                 }
             }
         }
@@ -235,11 +242,11 @@ public class World implements IRenderObject {
                 r = this.getBlendedValue(r, 10 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 10 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 10 + offX * 10, alpha);
-                this.textureBuffer.position(this.getBufferPosition(x - offX, y));
-                this.textureBuffer.put((byte) r);
-                this.textureBuffer.put((byte) g);
-                this.textureBuffer.put((byte) b);
-                this.textureBuffer.position(0);
+                this.terrainBuffer.position(this.getBufferPosition(x - offX, y));
+                this.terrainBuffer.put((byte) r);
+                this.terrainBuffer.put((byte) g);
+                this.terrainBuffer.put((byte) b);
+                this.terrainBuffer.position(0);
             }
         }
 
@@ -255,11 +262,11 @@ public class World implements IRenderObject {
                 r = this.getBlendedValue(r, 55 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 55 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 55 + offX * 10, alpha);
-                this.textureBuffer.position(this.getBufferPosition(x + offX, y));
-                this.textureBuffer.put((byte) r);
-                this.textureBuffer.put((byte) g);
-                this.textureBuffer.put((byte) b);
-                this.textureBuffer.position(0);
+                this.terrainBuffer.position(this.getBufferPosition(x + offX, y));
+                this.terrainBuffer.put((byte) r);
+                this.terrainBuffer.put((byte) g);
+                this.terrainBuffer.put((byte) b);
+                this.terrainBuffer.position(0);
             }
         }
 
@@ -269,20 +276,20 @@ public class World implements IRenderObject {
             int y = yListGrass.get(i);
             for (int offY = 0; offY < this.grassTexture.getHeight(); offY++) {
                 if (!this.grassTexture.isFuchsia(x, offY)) {
-                    this.textureBuffer.position(this.getBufferPosition(x, y + offY - 8));
-                    this.textureBuffer.put((byte) this.grassTexture.getR(x, offY));
-                    this.textureBuffer.put((byte) this.grassTexture.getG(x, offY));
-                    this.textureBuffer.put((byte) this.grassTexture.getB(x, offY));
-                    this.textureBuffer.put((byte) 255);
-                    this.textureBuffer.position(0);
+                    this.terrainBuffer.position(this.getBufferPosition(x, y + offY - 8));
+                    this.terrainBuffer.put((byte) this.grassTexture.getR(x, offY));
+                    this.terrainBuffer.put((byte) this.grassTexture.getG(x, offY));
+                    this.terrainBuffer.put((byte) this.grassTexture.getB(x, offY));
+                    this.terrainBuffer.put((byte) 255);
+                    this.terrainBuffer.position(0);
                 }
             }
         }
     }
 
-    private void createTexture() {
-        this.textureID = glGenTextures(); // Generate texture ID
-        glBindTexture(GL_TEXTURE_2D, this.textureID); // Bind texture ID
+    private void createTerrainTexture() {
+        this.terrainTextureID = glGenTextures(); // Generate texture ID
+        glBindTexture(GL_TEXTURE_2D, this.terrainTextureID); // Bind texture ID
 
         // Setup wrap mode
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
@@ -293,13 +300,40 @@ public class World implements IRenderObject {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Send texel data to OpenGL
-        this.textureBuffer.position(0);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.textureBuffer);
+        this.terrainBuffer.position(0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.terrainBuffer);
     }
 
-    public void updateTexture(int x, int y, int width, int height, ByteBuffer buffer) {
-        glBindTexture(GL_TEXTURE_2D, this.textureID);
+    private void createBackgroundTexture() {
+        for (int y = 0; y < this.getHeight(); y++) {
+            for (int x = 0; x < this.getWidth(); x++) {
+                this.terrainBuffer.position(this.getBufferPosition(x, y));
+                setBackground(x, y, TerrainType.byRGBA(this.terrainBuffer.get(), this.terrainBuffer.get(), this.terrainBuffer.get(), this.terrainBuffer.get()).isSolid());
+                this.terrainBuffer.position(0);
+            }
+        }
+
+        this.backgroundTextureID = glGenTextures(); // Generate texture ID
+        glBindTexture(GL_TEXTURE_2D, this.backgroundTextureID); // Bind texture
+                                                                // ID
+        // Setup wrap mode
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+
+        // Setup texture scaling filtering
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Send texel data to OpenGL
+        this.backgroundBuffer.position(0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.backgroundBuffer);
+    }
+
+    public void updateTexture(int x, int y, int width, int height, int textureID, ByteBuffer buffer) {
+        buffer.position(0);
+        glBindTexture(GL_TEXTURE_2D, textureID);
         glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width - 1, height - 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        buffer.position(0);
     }
 
     public void filledCircle(int midX, int midY, int radius, TerrainType terrainType, boolean replaceAir) {
@@ -336,12 +370,12 @@ public class World implements IRenderObject {
                     if (XPlusY <= radiusSquared && XPlusY >= innerRadius) {
                         int mX = midX + x;
                         int mY = midY + y;
-                        this.textureBuffer.position(this.getBufferPosition(mX, mY));
-                        this.textureBuffer.put((byte) this.backgroundTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put((byte) this.backgroundTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put((byte) this.backgroundTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put((byte) 255);
-                        this.textureBuffer.position(0);
+                        this.terrainBuffer.position(this.getBufferPosition(mX, mY));
+                        this.terrainBuffer.put((byte) this.terrainTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.terrainBuffer.put((byte) this.terrainTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.terrainBuffer.put((byte) this.terrainTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.terrainBuffer.put((byte) 255);
+                        this.terrainBuffer.position(0);
                     }
                 }
             }
@@ -356,12 +390,12 @@ public class World implements IRenderObject {
                         boolean placeGrass_1 = !this.isPixelSolid(midX + x, midY + y - 1) && this.isPixelSolid(midX + x, midY + y);
                         if (placeGrass_1) {
                             for (int offY = 0; offY < 15; offY++) {
-                                this.textureBuffer.position(this.getBufferPosition(midX + x, midY + y + offY));
-                                this.textureBuffer.put((byte) 0);
-                                this.textureBuffer.put((byte) (128 / (offY / 3 + 1) + 32));
-                                this.textureBuffer.put((byte) 0);
-                                this.textureBuffer.put((byte) 255);
-                                this.textureBuffer.position(0);
+                                this.terrainBuffer.position(this.getBufferPosition(midX + x, midY + y + offY));
+                                this.terrainBuffer.put((byte) 0);
+                                this.terrainBuffer.put((byte) (128 / (offY / 3 + 1) + 32));
+                                this.terrainBuffer.put((byte) 0);
+                                this.terrainBuffer.put((byte) 255);
+                                this.terrainBuffer.position(0);
                             }
                         }
                     }
@@ -375,13 +409,13 @@ public class World implements IRenderObject {
 
     public TerrainType getTerrainType(int x, int y) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            int oldPosition = this.textureBuffer.position();
-            this.textureBuffer.position(this.getBufferPosition(x, y));
-            byte r = this.textureBuffer.get();
-            byte g = this.textureBuffer.get();
-            byte b = this.textureBuffer.get();
-            byte a = this.textureBuffer.get();
-            this.textureBuffer.position(oldPosition);
+            int oldPosition = this.terrainBuffer.position();
+            this.terrainBuffer.position(this.getBufferPosition(x, y));
+            byte r = this.terrainBuffer.get();
+            byte g = this.terrainBuffer.get();
+            byte b = this.terrainBuffer.get();
+            byte a = this.terrainBuffer.get();
+            this.terrainBuffer.position(oldPosition);
             return TerrainType.byRGBA(r, g, b, a);
         }
         return TerrainType.INVALID;
@@ -394,23 +428,41 @@ public class World implements IRenderObject {
                 return;
             }
 
-            this.textureBuffer.position(this.getBufferPosition(x, y));
-            this.textureBuffer.put((byte) terrainType.getR());
-            this.textureBuffer.put((byte) terrainType.getG());
-            this.textureBuffer.put((byte) terrainType.getB());
-            this.textureBuffer.put((byte) terrainType.getA());
-            this.textureBuffer.position(0);
+            this.terrainBuffer.position(this.getBufferPosition(x, y));
+            this.terrainBuffer.put((byte) terrainType.getR());
+            this.terrainBuffer.put((byte) terrainType.getG());
+            this.terrainBuffer.put((byte) terrainType.getB());
+            this.terrainBuffer.put((byte) terrainType.getA());
+            this.terrainBuffer.position(0);
         }
     }
 
     private void setPixelNoCheck(int x, int y, TerrainType terrainType) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            textureBuffer.position(this.getBufferPosition(x, y));
-            this.textureBuffer.put((byte) terrainType.getR());
-            this.textureBuffer.put((byte) terrainType.getG());
-            this.textureBuffer.put((byte) terrainType.getB());
-            this.textureBuffer.put((byte) terrainType.getA());
-            textureBuffer.position(0);
+            this.terrainBuffer.position(this.getBufferPosition(x, y));
+            this.terrainBuffer.put((byte) terrainType.getR());
+            this.terrainBuffer.put((byte) terrainType.getG());
+            this.terrainBuffer.put((byte) terrainType.getB());
+            this.terrainBuffer.put((byte) terrainType.getA());
+            this.terrainBuffer.position(0);
+        }
+    }
+
+    private void setBackground(int x, int y, boolean collidable) {
+        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
+            this.backgroundBuffer.position(this.getBufferPosition(x, y));
+            if (collidable) {
+                this.backgroundBuffer.put((byte) this.backgroundTexture.getR(x, y));
+                this.backgroundBuffer.put((byte) this.backgroundTexture.getG(x, y));
+                this.backgroundBuffer.put((byte) this.backgroundTexture.getB(x, y));
+                this.backgroundBuffer.put((byte) 255);
+            } else {
+                this.backgroundBuffer.put((byte) 0);
+                this.backgroundBuffer.put((byte) 0);
+                this.backgroundBuffer.put((byte) 0);
+                this.backgroundBuffer.put((byte) 0);
+            }
+            this.backgroundBuffer.position(0);
         }
     }
 
@@ -461,7 +513,14 @@ public class World implements IRenderObject {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
 
-        glBindTexture(GL_TEXTURE_2D, this.textureID);
+        glBindTexture(GL_TEXTURE_2D, this.backgroundTextureID);
+        this.renderTexture();
+
+        glBindTexture(GL_TEXTURE_2D, this.terrainTextureID);
+        this.renderTexture();
+    }
+
+    private void renderTexture() {
         glBegin(GL_QUADS);
         {
             glTexCoord2f(0, 0);
