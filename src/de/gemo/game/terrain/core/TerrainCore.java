@@ -104,12 +104,6 @@ public class TerrainCore extends GameEngine {
         boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
         this.physicsHandler.updateAll(delta);
-
-        // center camera
-        // this.offset.setX(-((this.player.getPosition().getX() * scale) -
-        // (this.VIEW_WIDTH / 2f)));
-        // this.offset.setY(-((this.player.getPosition().getY() * scale) -
-        // (this.VIEW_HEIGHT / 2f)));
     }
 
     @Override
