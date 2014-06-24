@@ -2,7 +2,6 @@ package de.gemo.game.terrain.handler;
 
 import java.util.*;
 
-import de.gemo.game.terrain.core.*;
 import de.gemo.game.terrain.entities.*;
 
 public class PhysicsHandler {

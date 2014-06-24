@@ -32,7 +32,7 @@ public class World implements IRenderObject {
 
     public void createWorld(int width, int height) {
         try {
-            this.backgroundTexture = new TexData("resources/terrain/rock_terrain.jpg");
+            this.backgroundTexture = new TexData("resources/terrain/wood_terrain.jpg");
             this.grassTexture = new TexData("resources/grasses/grass.png");
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +48,7 @@ public class World implements IRenderObject {
 
         this.createPerlinWorld(terrainData);
         this.paintTerrainTexture(terrainData);
-        this.createGrass();
+        this.createEffects();
         this.createTexture();
     }
 
@@ -131,36 +131,119 @@ public class World implements IRenderObject {
                     this.textureBuffer.put(this.backgroundTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
                     this.textureBuffer.put(this.backgroundTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
                     this.textureBuffer.put(this.backgroundTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put(this.backgroundTexture.getA(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put((byte) 255);
                     this.textureBuffer.position(0);
                 }
             }
         }
     }
 
-    private void createGrass() {
-        List<Integer> xList = new ArrayList<Integer>();
-        List<Integer> yList = new ArrayList<Integer>();
+    private byte getBlendedValue(byte background, byte foreground, float alphaForeground) {
+        float floatBackground = (float) background / 255f;
+        float alphaBackground = 1f;
+        float floatForeground = (float) foreground / 255f;
+        // if (alphaForeground < 0) {
+        // return (byte) 255;
+        // }
+        // if (alphaForeground > 1) {
+        // return (byte) 255;
+        // }
+        float result = floatForeground * alphaForeground + floatBackground * alphaBackground * (1f - alphaForeground);
+        return (byte) (result * 255f);
+        // return (byte) ((background + foreground * alphaForeground) / 2f);
+    }
+
+    private void createEffects() {
+        List<Integer> xListGrass = new ArrayList<Integer>();
+        List<Integer> yListGrass = new ArrayList<Integer>();
+
+        List<Integer> xList3DRight = new ArrayList<Integer>();
+        List<Integer> yList3DRight = new ArrayList<Integer>();
+
+        List<Integer> xList3DLeft = new ArrayList<Integer>();
+        List<Integer> yList3DLeft = new ArrayList<Integer>();
+
         for (int y = this.getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < this.getWidth(); x++) {
                 boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
                 if (placeGrass_1) {
-                    xList.add(x);
-                    yList.add(y);
+                    xListGrass.add(x);
+                    yListGrass.add(y);
+                }
+
+                boolean threeDEffectRight = (this.isPixelSolid(x, y) && !this.isPixelSolid(x + 1, y));
+                if (threeDEffectRight) {
+                    Vector2f normal = this.getNormal(x, y);
+                    if (Math.abs(normal.getY()) < 0.95d) {
+                        xList3DRight.add(x);
+                        yList3DRight.add(y);
+                    }
+                }
+
+                boolean threeDEffectLeft = (this.isPixelSolid(x, y) && !this.isPixelSolid(x - 1, y));
+                if (threeDEffectLeft) {
+                    Vector2f normal = this.getNormal(x, y);
+                    if (Math.abs(normal.getY()) < 0.95d) {
+                        xList3DLeft.add(x);
+                        yList3DLeft.add(y);
+                    }
                 }
             }
         }
 
-        for (int i = 0; i < xList.size(); i++) {
-            int x = xList.get(i);
-            int y = yList.get(i);
+        // 3D-Effect RIGHT
+        for (int i = 0; i < xList3DRight.size(); i++) {
+            int x = xList3DRight.get(i);
+            int y = yList3DRight.get(i);
+            for (int offX = 0; offX < 11; offX++) {
+                this.textureBuffer.position(this.getBufferPosition(x - offX, y));
+                byte r = this.textureBuffer.get();
+                byte g = this.textureBuffer.get();
+                byte b = this.textureBuffer.get();
+                this.textureBuffer.position(this.getBufferPosition(x - offX, y));
+                float alpha = 0.85f - (0.08f * offX);
+                r = this.getBlendedValue(r, (byte) (30), alpha);
+                g = this.getBlendedValue(g, (byte) (30), alpha);
+                b = this.getBlendedValue(b, (byte) (30), alpha);
+                this.textureBuffer.put(r);
+                this.textureBuffer.put(g);
+                this.textureBuffer.put(b);
+                this.textureBuffer.position(0);
+            }
+        }
+
+        // 3D-Effect LEFT
+        for (int i = 0; i < xList3DLeft.size(); i++) {
+            int x = xList3DLeft.get(i);
+            int y = yList3DLeft.get(i);
+            for (int offX = 0; offX < 6; offX++) {
+                this.textureBuffer.position(this.getBufferPosition(x + offX, y));
+                byte r = this.textureBuffer.get();
+                byte g = this.textureBuffer.get();
+                byte b = this.textureBuffer.get();
+                this.textureBuffer.position(this.getBufferPosition(x + offX, y));
+                float alpha = (0.02f * offX);
+                r = this.getBlendedValue(r, (byte) (255), alpha);
+                g = this.getBlendedValue(g, (byte) (255), alpha);
+                b = this.getBlendedValue(b, (byte) (255), alpha);
+                this.textureBuffer.put(r);
+                this.textureBuffer.put(g);
+                this.textureBuffer.put(b);
+                this.textureBuffer.position(0);
+            }
+        }
+
+        // grass
+        for (int i = 0; i < xListGrass.size(); i++) {
+            int x = xListGrass.get(i);
+            int y = yListGrass.get(i);
             for (int offY = 0; offY < this.grassTexture.getHeight(); offY++) {
                 if (!this.grassTexture.isFuchsia(x, offY)) {
                     this.textureBuffer.position(this.getBufferPosition(x, y + offY - 8));
                     this.textureBuffer.put(this.grassTexture.getR(x, offY));
                     this.textureBuffer.put(this.grassTexture.getG(x, offY));
                     this.textureBuffer.put(this.grassTexture.getB(x, offY));
-                    this.textureBuffer.put(this.grassTexture.getA(x, offY));
+                    this.textureBuffer.put((byte) 255);
                     this.textureBuffer.position(0);
                 }
             }
@@ -227,7 +310,7 @@ public class World implements IRenderObject {
                         this.textureBuffer.put(this.backgroundTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
                         this.textureBuffer.put(this.backgroundTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
                         this.textureBuffer.put(this.backgroundTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put(this.backgroundTexture.getA(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put((byte) 255);
                         this.textureBuffer.position(0);
                     }
                 }

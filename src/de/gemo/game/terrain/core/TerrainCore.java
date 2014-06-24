@@ -74,7 +74,6 @@ public class TerrainCore extends GameEngine {
             int midX = (int) ((MouseManager.INSTANCE.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
             int midY = (int) ((MouseManager.INSTANCE.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
             FontManager.getStandardFont().drawString(20, 50, "Mouse: " + midX + " / " + midY);
-
         }
         glPopMatrix();
 
@@ -91,8 +90,10 @@ public class TerrainCore extends GameEngine {
         this.physicsHandler.updateAll(delta);
 
         // center camera
-        this.offset.setX(-((this.player.getPosition().getX() * scale) - (this.VIEW_WIDTH / 2f)));
-        this.offset.setY(-((this.player.getPosition().getY() * scale) - (this.VIEW_HEIGHT / 2f)));
+        // this.offset.setX(-((this.player.getPosition().getX() * scale) -
+        // (this.VIEW_WIDTH / 2f)));
+        // this.offset.setY(-((this.player.getPosition().getY() * scale) -
+        // (this.VIEW_HEIGHT / 2f)));
     }
 
     @Override
@@ -141,8 +142,8 @@ public class TerrainCore extends GameEngine {
             }
         } else {
             this.scale -= 0.05f;
-            if (this.scale < 0.7f) {
-                this.scale = 0.7f;
+            if (this.scale < 0.3f) {
+                this.scale = 0.3f;
             }
         }
     }
