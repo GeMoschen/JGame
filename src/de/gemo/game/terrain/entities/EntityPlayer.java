@@ -110,7 +110,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     @Override
     public void updatePhysics(int delta) {
         // shoot angle
-        float rotationSpeed = 0.2f;
+        float rotationSpeed = 0.05f;
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
             if ((this.lookRight && this.shootAngle > rotationSpeed) || (!this.lookRight && this.shootAngle > -170)) {
                 this.shootAngle -= rotationSpeed * delta;

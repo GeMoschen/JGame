@@ -16,10 +16,11 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
     private World world;
     private EntityPlayer owner;
 
-    private static final float maxPower = 1.25f;
+    public static float maxPower = 1.75f;
     private static final int maxDamage = 45;
     private static final int blastRadius = 80;
     private static final int damageRadius = 95;
+    public static float gravity = 0.009f;
 
     public EntityBazooka(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         this.world = world;
@@ -40,7 +41,7 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
         float vX = this.velocity.getX();
         float vY = this.velocity.getY();
 
-        vY += (0.0115f * delta);
+        vY += (gravity * delta);
         vX *= 0.999f;
         vY *= 0.999f;
 

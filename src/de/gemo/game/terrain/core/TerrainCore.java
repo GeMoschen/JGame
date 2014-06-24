@@ -90,6 +90,9 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 165, "reset: F12");
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
+            font.drawString(20, 200, "__________________");
+            font.drawString(20, 215, "gravity +/-: a/y " + " ( " + EntityBazooka.gravity + " )");
+            font.drawString(20, 230, "maxPower +/-: s/x " + " ( " + EntityBazooka.maxPower + " )");
         }
         glPopMatrix();
 
@@ -110,6 +113,14 @@ public class TerrainCore extends GameEngine {
     public void onKeyPressed(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_W) {
             this.player.jump();
+        } else if (event.getKey() == Keyboard.KEY_A) {
+            EntityBazooka.gravity += 0.001f;
+        } else if (event.getKey() == Keyboard.KEY_Y) {
+            EntityBazooka.gravity -= 0.001f;
+        } else if (event.getKey() == Keyboard.KEY_S) {
+            EntityBazooka.maxPower += 0.01f;
+        } else if (event.getKey() == Keyboard.KEY_X) {
+            EntityBazooka.maxPower -= 0.01f;
         } else {
             super.onKeyPressed(event);
         }
