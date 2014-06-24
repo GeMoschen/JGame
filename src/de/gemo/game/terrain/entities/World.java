@@ -395,10 +395,10 @@ public class World implements IRenderObject {
             }
 
             this.textureBuffer.position(this.getBufferPosition(x, y));
-            this.textureBuffer.put(terrainType.getR());
-            this.textureBuffer.put(terrainType.getG());
-            this.textureBuffer.put(terrainType.getB());
-            this.textureBuffer.put(terrainType.getA());
+            this.textureBuffer.put((byte) terrainType.getR());
+            this.textureBuffer.put((byte) terrainType.getG());
+            this.textureBuffer.put((byte) terrainType.getB());
+            this.textureBuffer.put((byte) terrainType.getA());
             this.textureBuffer.position(0);
         }
     }
@@ -406,10 +406,10 @@ public class World implements IRenderObject {
     private void setPixelNoCheck(int x, int y, TerrainType terrainType) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
             textureBuffer.position(this.getBufferPosition(x, y));
-            this.textureBuffer.put(terrainType.getR());
-            this.textureBuffer.put(terrainType.getG());
-            this.textureBuffer.put(terrainType.getB());
-            this.textureBuffer.put(terrainType.getA());
+            this.textureBuffer.put((byte) terrainType.getR());
+            this.textureBuffer.put((byte) terrainType.getG());
+            this.textureBuffer.put((byte) terrainType.getB());
+            this.textureBuffer.put((byte) terrainType.getA());
             textureBuffer.position(0);
         }
     }

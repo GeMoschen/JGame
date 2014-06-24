@@ -5,7 +5,22 @@ import java.util.*;
 import de.gemo.game.terrain.entities.*;
 
 public class PhysicsHandler {
+
+    private static PhysicsHandler handler;
+
     private List<IPhysicsObject> objects = new ArrayList<IPhysicsObject>();
+
+    public PhysicsHandler() {
+        handler = this;
+    }
+
+    public static void addObject(IPhysicsObject object) {
+        handler.add(object);
+    }
+
+    public static void removeObject(IPhysicsObject object) {
+        handler.remove(object);
+    }
 
     public void add(IPhysicsObject object) {
         this.objects.add(object);

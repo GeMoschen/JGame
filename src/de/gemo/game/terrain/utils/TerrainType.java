@@ -10,14 +10,14 @@ public enum TerrainType {
 
     INVALID(0, 0, 0, 0, true);
 
-    private final byte r, g, b, a;
+    private final int r, g, b, a;
     private final boolean solid;
 
     private TerrainType(int r, int g, int b, int a, boolean solid) {
-        this.r = (byte) r;
-        this.g = (byte) g;
-        this.b = (byte) b;
-        this.a = (byte) a;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
         this.solid = solid;
     }
 
@@ -25,19 +25,19 @@ public enum TerrainType {
         return solid;
     }
 
-    public byte getR() {
+    public int getR() {
         return r;
     }
 
-    public byte getG() {
+    public int getG() {
         return g;
     }
 
-    public byte getB() {
+    public int getB() {
         return b;
     }
 
-    public byte getA() {
+    public int getA() {
         return a;
     }
 

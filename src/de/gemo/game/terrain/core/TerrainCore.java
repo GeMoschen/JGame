@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class TerrainCore extends GameEngine {
 
     private Vector2f offset = new Vector2f();
-    private Player player;
+    private EntityPlayer player;
     private PhysicsHandler physicsHandler;
     private RenderHandler renderHandler;
 
@@ -35,7 +35,7 @@ public class TerrainCore extends GameEngine {
         this.world = new World(2048, 1024);
         this.physicsHandler = new PhysicsHandler();
         this.renderHandler = new RenderHandler();
-        this.player = new Player(this.world, 500, 100);
+        this.player = new EntityPlayer(this.world, 500, 100);
         this.physicsHandler.add(this.player);
         this.renderHandler.add(this.world);
         this.renderHandler.add(this.player);
@@ -136,14 +136,14 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
         if (event.isUp()) {
-            this.scale += 0.05f;
-            if (this.scale > 3.5f) {
-                this.scale = 3.5f;
+            this.scale += 0.1f;
+            if (this.scale > 1.5f) {
+                this.scale = 1.5f;
             }
         } else {
-            this.scale -= 0.05f;
-            if (this.scale < 0.3f) {
-                this.scale = 0.3f;
+            this.scale -= 0.1f;
+            if (this.scale < 0.5f) {
+                this.scale = 0.5f;
             }
         }
     }
@@ -163,7 +163,7 @@ public class TerrainCore extends GameEngine {
             int wallThickness = 7;
             this.world.filledCircle(midX, midY, radius, wallThickness, TerrainType.CRATER, false);
             this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
-            this.world.getTerrainParts(midX - radius - 4, midY - radius - 4, radius * 2 + 8, radius * 2 + 8, true);
+            this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
         } else if (event.getButton().equals(MouseButton.MIDDLE) && KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE)) {
             int midX = (int) (event.getX() - (int) offset.getX() * (1f / this.scale));
             int midY = (int) (event.getY() - (int) offset.getY() * (1f / this.scale));

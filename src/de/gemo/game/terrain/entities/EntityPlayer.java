@@ -8,7 +8,7 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Player implements IPhysicsObject, IRenderObject {
+public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     private int playerWidth = 5, playerHeight = 10;
     private Vector2f position, velocity;
@@ -19,12 +19,12 @@ public class Player implements IPhysicsObject, IRenderObject {
     private float shootPower = 0f;
 
     private boolean[] movement = new boolean[5];
-    private boolean onGround;
+    private boolean onGround, shotFired = false;
     private SingleTexture crosshair;
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
-    public Player(World world, Vector2f position) {
+    public EntityPlayer(World world, Vector2f position) {
         this.world = world;
         this.position = position.clone();
         this.velocity = new Vector2f(0, 0);
@@ -35,7 +35,7 @@ public class Player implements IPhysicsObject, IRenderObject {
         }
     }
 
-    public Player(World world, float x, float y) {
+    public EntityPlayer(World world, float x, float y) {
         this(world, new Vector2f(x, y));
     }
 
@@ -53,14 +53,23 @@ public class Player implements IPhysicsObject, IRenderObject {
     }
 
     public void shoot() {
+        if (this.shotFired) {
+            return;
+        }
         this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1) {
+            new EntityBazooka(this.world, this.position, this.shootAngle, this.shootPower);
+            this.shotFired = true;
             this.shootPower = 0;
         }
     }
 
     public void resetPower() {
+        if (this.shootPower > 0) {
+            new EntityBazooka(this.world, this.position, this.shootAngle, this.shootPower);
+        }
         this.shootPower = 0;
+        this.shotFired = false;
     }
 
     public boolean canFall() {
@@ -95,27 +104,25 @@ public class Player implements IPhysicsObject, IRenderObject {
         // shoot angle
         float rotationSpeed = 0.2f;
         if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
-            if ((this.lookRight && this.shootAngle > 0) || (!this.lookRight && this.shootAngle > -170)) {
+            if ((this.lookRight && this.shootAngle > rotationSpeed) || (!this.lookRight && this.shootAngle > -170)) {
                 this.shootAngle -= rotationSpeed * delta;
             }
         } else if ((this.movement[DOWN] && this.lookRight) || (this.movement[UP] && !this.lookRight)) {
-            if ((!this.lookRight && this.shootAngle < 0) || (this.lookRight && this.shootAngle < 170)) {
+            if ((!this.lookRight && this.shootAngle < -rotationSpeed) || (this.lookRight && this.shootAngle < 170)) {
                 this.shootAngle += rotationSpeed * delta;
             }
         }
 
         if (this.lookRight && this.shootAngle < 0) {
-            this.shootAngle = 0;
+            this.shootAngle = -this.shootAngle;
         } else if (!this.lookRight && this.shootAngle > 0) {
-            this.shootAngle = 0;
+            this.shootAngle = -this.shootAngle;
         }
 
         // get velocity
         float vX = this.velocity.getX();
         float vY = this.velocity.getY();
 
-        // vY *= 0.92f;
-        //
         // gravity
         boolean canFall = this.canFall();
         if (canFall) {
@@ -163,7 +170,7 @@ public class Player implements IPhysicsObject, IRenderObject {
             if (this.canGoThere(maxStepSize, vX) && Math.abs(normal.getX()) < 0.98f) {
                 int upShift = this.getUpshift(maxStepSize, vX);
                 if (upShift != 0) {
-                    this.position.move((vX - maxAdvanceX) / (upShift * 2f), -upShift);
+                    this.position.move((vX - maxAdvanceX) / (upShift * 2f), this.getMaxAdvanceY(-upShift));
                 }
             }
         }
@@ -356,8 +363,8 @@ public class Player implements IPhysicsObject, IRenderObject {
         glEnd();
 
         // crosshair
-        float crosshairDistance = 75f;
-        float x2 = 15f;
+        float crosshairDistance = 85f;
+        float x2 = this.crosshair.getHalfWidth() - 3;
 
         // powersign
         glPushMatrix();
@@ -382,8 +389,7 @@ public class Player implements IPhysicsObject, IRenderObject {
         glPushMatrix();
         {
             glRotatef((float) this.shootAngle, 0, 0, 1);
-            glTranslatef(2 + this.playerWidth, -crosshairDistance + this.playerHeight / 2f, 0);
-
+            glTranslatef(this.playerWidth - 1, -crosshairDistance + this.playerHeight / 2f, 0);
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
             this.crosshair.render(1, 1, 1, 1);
@@ -396,6 +402,12 @@ public class Player implements IPhysicsObject, IRenderObject {
             this.movement[i] = args[i];
         }
     }
+
+    // ///////////////////////////////////////////////////////////////
+    //
+    // PhysicsObject
+    //
+    // ///////////////////////////////////////////////////////////////
 
     @Override
     public Vector2f getPosition() {
@@ -417,10 +429,4 @@ public class Player implements IPhysicsObject, IRenderObject {
     public void setVelocity(Vector2f velocity) {
         this.velocity.set(velocity.getX(), velocity.getY());
     }
-
-    // ///////////////////////////////////////////////////////////////
-    //
-    // PhysicsObject
-    //
-    // ///////////////////////////////////////////////////////////////
 }

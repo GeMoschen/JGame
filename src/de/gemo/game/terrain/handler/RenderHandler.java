@@ -7,7 +7,22 @@ import de.gemo.game.terrain.entities.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHandler {
+
+    private static RenderHandler handler;
+
     private List<IRenderObject> objects = new ArrayList<IRenderObject>();
+
+    public RenderHandler() {
+        handler = this;
+    }
+
+    public static void addObject(IRenderObject object) {
+        handler.add(object);
+    }
+
+    public static void removeObject(IRenderObject object) {
+        handler.remove(object);
+    }
 
     public void add(IRenderObject object) {
         this.objects.add(object);

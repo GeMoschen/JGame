@@ -118,9 +118,10 @@ public class GameEngine {
                 Display.setFullscreen(fullscreen);
             }
             Display.setDisplayMode(displayMode);
-            org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(4, 0, 0, 4);
-            Display.create(pixelFormat);
-            // Display.create();
+            // org.lwjgl.opengl.PixelFormat pixelFormat = new PixelFormat(4, 0,
+            // 0, 4);
+            // Display.create(pixelFormat);
+            Display.create();
             Display.setTitle("Starting...");
         } catch (LWJGLException e) {
             e.printStackTrace();
