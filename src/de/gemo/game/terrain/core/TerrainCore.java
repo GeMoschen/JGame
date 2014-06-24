@@ -137,8 +137,8 @@ public class TerrainCore extends GameEngine {
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
         if (event.isUp()) {
             this.scale += 0.05f;
-            if (this.scale > 1.5f) {
-                this.scale = 1.5f;
+            if (this.scale > 3.5f) {
+                this.scale = 3.5f;
             }
         } else {
             this.scale -= 0.05f;

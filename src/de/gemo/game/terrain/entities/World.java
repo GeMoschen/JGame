@@ -52,6 +52,45 @@ public class World implements IRenderObject {
         this.createTexture();
     }
 
+    private int getR(int x, int y) {
+        this.textureBuffer.position(this.getBufferPosition(x, y));
+        byte r = this.textureBuffer.get();
+        int result = (int) r;
+        if (r < 0) {
+            r = (byte) (255 - r);
+            result = (int) (255 - r);
+        }
+        this.textureBuffer.position(0);
+        return result;
+    }
+
+    private int getG(int x, int y) {
+        this.textureBuffer.position(this.getBufferPosition(x, y));
+        this.textureBuffer.get();
+        byte g = this.textureBuffer.get();
+        int result = (int) g;
+        if (g < 0) {
+            g = (byte) (255 - g);
+            result = (int) (255 - g);
+        }
+        this.textureBuffer.position(0);
+        return result;
+    }
+
+    private int getB(int x, int y) {
+        this.textureBuffer.position(this.getBufferPosition(x, y));
+        this.textureBuffer.get();
+        this.textureBuffer.get();
+        byte b = this.textureBuffer.get();
+        int result = (int) b;
+        if (b < 0) {
+            b = (byte) (255 - b);
+            result = (int) (255 - b);
+        }
+        this.textureBuffer.position(0);
+        return result;
+    }
+
     private void createPerlinWorld(int[][] terrainData) {
         this.terrainSettings = new TerrainSettings();
         for (int x = 0; x < this.getWidth(); x++) {
@@ -128,9 +167,9 @@ public class World implements IRenderObject {
             for (int x = 0; x < this.getWidth(); x++) {
                 if (terrainData[x][y] == 1) {
                     this.textureBuffer.position(this.getBufferPosition(x, y));
-                    this.textureBuffer.put(this.backgroundTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put(this.backgroundTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
-                    this.textureBuffer.put(this.backgroundTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put((byte) this.backgroundTexture.getR(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put((byte) this.backgroundTexture.getG(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
+                    this.textureBuffer.put((byte) this.backgroundTexture.getB(x + (int) this.terrainSettings.getOffsetX(), y + (int) this.terrainSettings.getOffsetY()));
                     this.textureBuffer.put((byte) 255);
                     this.textureBuffer.position(0);
                 }
@@ -138,19 +177,12 @@ public class World implements IRenderObject {
         }
     }
 
-    private byte getBlendedValue(byte background, byte foreground, float alphaForeground) {
+    private int getBlendedValue(int background, int foreground, float alphaForeground) {
         float floatBackground = (float) background / 255f;
         float alphaBackground = 1f;
         float floatForeground = (float) foreground / 255f;
-        // if (alphaForeground < 0) {
-        // return (byte) 255;
-        // }
-        // if (alphaForeground > 1) {
-        // return (byte) 255;
-        // }
         float result = floatForeground * alphaForeground + floatBackground * alphaBackground * (1f - alphaForeground);
-        return (byte) (result * 255f);
-        // return (byte) ((background + foreground * alphaForeground) / 2f);
+        return (int) (result * 255);
     }
 
     private void createEffects() {
@@ -195,19 +227,18 @@ public class World implements IRenderObject {
         for (int i = 0; i < xList3DRight.size(); i++) {
             int x = xList3DRight.get(i);
             int y = yList3DRight.get(i);
-            for (int offX = 0; offX < 11; offX++) {
+            for (int offX = 0; offX < 10; offX++) {
+                int r = this.getR(x - offX, y);
+                int g = this.getG(x - offX, y);
+                int b = this.getB(x - offX, y);
+                float alpha = 0.8f - ((float) offX * 0.08f);
+                r = this.getBlendedValue(r, 10 + offX * 10, alpha);
+                g = this.getBlendedValue(g, 10 + offX * 10, alpha);
+                b = this.getBlendedValue(b, 10 + offX * 10, alpha);
                 this.textureBuffer.position(this.getBufferPosition(x - offX, y));
-                byte r = this.textureBuffer.get();
-                byte g = this.textureBuffer.get();
-                byte b = this.textureBuffer.get();
-                this.textureBuffer.position(this.getBufferPosition(x - offX, y));
-                float alpha = 0.85f - (0.08f * offX);
-                r = this.getBlendedValue(r, (byte) (30), alpha);
-                g = this.getBlendedValue(g, (byte) (30), alpha);
-                b = this.getBlendedValue(b, (byte) (30), alpha);
-                this.textureBuffer.put(r);
-                this.textureBuffer.put(g);
-                this.textureBuffer.put(b);
+                this.textureBuffer.put((byte) r);
+                this.textureBuffer.put((byte) g);
+                this.textureBuffer.put((byte) b);
                 this.textureBuffer.position(0);
             }
         }
@@ -216,19 +247,18 @@ public class World implements IRenderObject {
         for (int i = 0; i < xList3DLeft.size(); i++) {
             int x = xList3DLeft.get(i);
             int y = yList3DLeft.get(i);
-            for (int offX = 0; offX < 6; offX++) {
+            for (int offX = 0; offX < 8; offX++) {
+                int r = this.getR(x + offX, y);
+                int g = this.getG(x + offX, y);
+                int b = this.getB(x + offX, y);
+                float alpha = 0.8f - ((float) offX * 0.1f);
+                r = this.getBlendedValue(r, 55 + offX * 10, alpha);
+                g = this.getBlendedValue(g, 55 + offX * 10, alpha);
+                b = this.getBlendedValue(b, 55 + offX * 10, alpha);
                 this.textureBuffer.position(this.getBufferPosition(x + offX, y));
-                byte r = this.textureBuffer.get();
-                byte g = this.textureBuffer.get();
-                byte b = this.textureBuffer.get();
-                this.textureBuffer.position(this.getBufferPosition(x + offX, y));
-                float alpha = (0.02f * offX);
-                r = this.getBlendedValue(r, (byte) (255), alpha);
-                g = this.getBlendedValue(g, (byte) (255), alpha);
-                b = this.getBlendedValue(b, (byte) (255), alpha);
-                this.textureBuffer.put(r);
-                this.textureBuffer.put(g);
-                this.textureBuffer.put(b);
+                this.textureBuffer.put((byte) r);
+                this.textureBuffer.put((byte) g);
+                this.textureBuffer.put((byte) b);
                 this.textureBuffer.position(0);
             }
         }
@@ -240,9 +270,9 @@ public class World implements IRenderObject {
             for (int offY = 0; offY < this.grassTexture.getHeight(); offY++) {
                 if (!this.grassTexture.isFuchsia(x, offY)) {
                     this.textureBuffer.position(this.getBufferPosition(x, y + offY - 8));
-                    this.textureBuffer.put(this.grassTexture.getR(x, offY));
-                    this.textureBuffer.put(this.grassTexture.getG(x, offY));
-                    this.textureBuffer.put(this.grassTexture.getB(x, offY));
+                    this.textureBuffer.put((byte) this.grassTexture.getR(x, offY));
+                    this.textureBuffer.put((byte) this.grassTexture.getG(x, offY));
+                    this.textureBuffer.put((byte) this.grassTexture.getB(x, offY));
                     this.textureBuffer.put((byte) 255);
                     this.textureBuffer.position(0);
                 }
@@ -307,9 +337,9 @@ public class World implements IRenderObject {
                         int mX = midX + x;
                         int mY = midY + y;
                         this.textureBuffer.position(this.getBufferPosition(mX, mY));
-                        this.textureBuffer.put(this.backgroundTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put(this.backgroundTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
-                        this.textureBuffer.put(this.backgroundTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put((byte) this.backgroundTexture.getR(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put((byte) this.backgroundTexture.getG(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
+                        this.textureBuffer.put((byte) this.backgroundTexture.getB(mX + (int) this.terrainSettings.getOffsetX(), mY + (int) this.terrainSettings.getOffsetY()));
                         this.textureBuffer.put((byte) 255);
                         this.textureBuffer.position(0);
                     }
