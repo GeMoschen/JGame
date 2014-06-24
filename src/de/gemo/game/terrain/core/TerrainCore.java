@@ -22,6 +22,7 @@ public class TerrainCore extends GameEngine {
     private EntityPlayer player;
     private PhysicsHandler physicsHandler;
     private RenderHandler renderHandler;
+    private PlayerHandler playerHandler;
 
     private World world;
     private float scale = 1f;
@@ -35,6 +36,7 @@ public class TerrainCore extends GameEngine {
         this.world = new World(2048, 1024);
         this.physicsHandler = new PhysicsHandler();
         this.renderHandler = new RenderHandler();
+        this.playerHandler = new PlayerHandler();
         this.player = new EntityPlayer(this.world, 500, 100);
         this.physicsHandler.add(this.player);
         this.renderHandler.add(this.world);
@@ -68,12 +70,26 @@ public class TerrainCore extends GameEngine {
             glEnable(GL_TEXTURE_2D);
             Color.white.bind();
             TextureImpl.bindNone();
-            FontManager.getStandardFont().drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
-            FontManager.getStandardFont().drawString(20, 35, "Scale: " + this.scale);
+
+            Font font = FontManager.getStandardFont();
+
+            font.drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+            font.drawString(20, 35, "Scale: " + this.scale);
 
             int midX = (int) ((MouseManager.INSTANCE.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
             int midY = (int) ((MouseManager.INSTANCE.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
-            FontManager.getStandardFont().drawString(20, 50, "Mouse: " + midX + " / " + midY);
+            font.drawString(20, 50, "Mouse: " + midX + " / " + midY);
+
+            font.drawString(20, 80, "Controls");
+            font.drawString(20, 85, "__________________");
+            font.drawString(20, 100, "jump: w");
+            font.drawString(20, 115, "move: left/right");
+            font.drawString(20, 130, "angle: up/down");
+            font.drawString(20, 145, "shoot: space");
+            font.drawString(20, 150, "__________________");
+            font.drawString(20, 165, "reset: F12");
+            font.drawString(20, 180, "zoom: mousewheel");
+            font.drawString(20, 195, "cam: middle mouse + move");
         }
         glPopMatrix();
 
@@ -119,6 +135,7 @@ public class TerrainCore extends GameEngine {
         if (event.getKey() == Keyboard.KEY_F12) {
             this.world.createWorld(this.world.getWidth(), this.world.getHeight());
             this.player.setPosition(new Vector2f(500, 100));
+            this.player.setHealth(100);
         } else if (event.getKey() == Keyboard.KEY_SPACE) {
             this.player.resetPower();
         } else {

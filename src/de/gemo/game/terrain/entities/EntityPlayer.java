@@ -1,5 +1,9 @@
 package de.gemo.game.terrain.entities;
 
+import org.newdawn.slick.*;
+import org.newdawn.slick.opengl.*;
+
+import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
@@ -22,6 +26,8 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private boolean onGround, shotFired = false;
     private SingleTexture crosshair;
 
+    private int health = 100;
+
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
     public EntityPlayer(World world, Vector2f position) {
@@ -33,6 +39,8 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        PlayerHandler.addPlayer(this);
     }
 
     public EntityPlayer(World world, float x, float y) {
@@ -58,7 +66,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
         this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1) {
-            new EntityBazooka(this.world, this.position, this.shootAngle, this.shootPower);
+            new EntityBazooka(this.world, this, this.position, this.shootAngle, this.shootPower);
             this.shotFired = true;
             this.shootPower = 0;
         }
@@ -66,7 +74,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public void resetPower() {
         if (this.shootPower > 0) {
-            new EntityBazooka(this.world, this.position, this.shootAngle, this.shootPower);
+            new EntityBazooka(this.world, this, this.position, this.shootAngle, this.shootPower);
         }
         this.shootPower = 0;
         this.shotFired = false;
@@ -362,6 +370,66 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
         glEnd();
 
+        // healthbar
+        glPushMatrix();
+        {
+            glPushMatrix();
+            {
+                // translate
+                glTranslatef(0, -20, 0);
+
+                // outline
+                glColor4f(0, 0, 0, 1);
+                glBegin(GL_QUADS);
+                {
+                    glVertex2f(-20, -5);
+                    glVertex2f(+20, -5);
+                    glVertex2f(+20, +5);
+                    glVertex2f(-20, +5);
+                }
+                glEnd();
+            }
+            glPopMatrix();
+
+            glPushMatrix();
+            {
+                // translate
+                glTranslatef(-19, -19, 0);
+                glBegin(GL_QUADS);
+                {
+                    glColor4f(1, 0, 0, 1);
+                    glVertex2f(0, -4);
+                    glVertex2f(0, +4);
+
+                    int maxHealth = Math.min(100, this.health);
+                    maxHealth = Math.max(0, maxHealth);
+
+                    float percent = (float) maxHealth / 100f;
+                    glColor4f(1 - percent, percent, 0, 1);
+                    glVertex2f(percent * 38f, +4);
+                    glVertex2f(percent * 38f, -4);
+                }
+                glEnd();
+            }
+            glPopMatrix();
+
+            glPushMatrix();
+            {
+                // translate
+                glTranslatef(0, -19, 0);
+                glDisable(GL_DEPTH_TEST);
+                glEnable(GL_BLEND);
+                glEnable(GL_TEXTURE_2D);
+                Color.white.bind();
+                TextureImpl.bindNone();
+                Font font = FontManager.getStandardFont();
+                font.drawString(-(font.getWidth("" + health) / 2), -20, "" + health);
+            }
+            glPopMatrix();
+
+        }
+        glPopMatrix();
+
         // crosshair
         float crosshairDistance = 85f;
         float x2 = this.crosshair.getHalfWidth() - 3;
@@ -369,6 +437,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         // powersign
         glPushMatrix();
         {
+            glDisable(GL_TEXTURE_2D);
             glRotatef((float) this.shootAngle, 0, 0, 1);
             glBegin(GL_POLYGON);
             {
@@ -401,6 +470,21 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         for (int i = 0; i < args.length; i++) {
             this.movement[i] = args[i];
         }
+    }
+
+    public int addHealth(int health) {
+        this.health += health;
+        this.health = Math.max(0, this.health);
+        this.health = Math.min(250, this.health);
+        return this.health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     // ///////////////////////////////////////////////////////////////

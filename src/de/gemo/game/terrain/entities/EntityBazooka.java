@@ -1,5 +1,7 @@
 package de.gemo.game.terrain.entities;
 
+import java.util.*;
+
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
 import de.gemo.gameengine.core.*;
@@ -12,11 +14,16 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
     private Vector2f position, velocity;
     private float dim = 5f;
     private World world;
+    private EntityPlayer owner;
 
     private static final float maxPower = 1.25f;
+    private static final int maxDamage = 45;
+    private static final int blastRadius = 80;
+    private static final int damageRadius = 95;
 
-    public EntityBazooka(World world, Vector2f position, float angle, float power) {
+    public EntityBazooka(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         this.world = world;
+        this.owner = owner;
         this.position = position.clone();
         this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * GameEngine.INSTANCE.getCurrentDelta()));
         this.velocity.rotateAround(this.position, angle);
@@ -52,11 +59,17 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
             this.position.set(midX, midY);
 
-            int radius = 60;
             int wallThickness = 7;
-            this.world.filledCircle(midX, midY, radius, wallThickness, TerrainType.CRATER, false);
-            this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
-            this.world.getTerrainParts(midX - radius - 2, midY - radius - 2, radius * 2 + 4, radius * 2 + 4, true);
+            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius, wallThickness, TerrainType.CRATER, false);
+            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius - wallThickness, TerrainType.AIR, false);
+            this.world.getTerrainParts(midX - EntityBazooka.blastRadius - 2, midY - EntityBazooka.blastRadius - 2, EntityBazooka.blastRadius * 2 + 4, EntityBazooka.blastRadius * 2 + 4, true);
+
+            List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, EntityBazooka.damageRadius);
+            for (EntityPlayer player : players) {
+                float distance = (float) player.getPosition().distanceTo(this.position);
+                int damage = (int) ((EntityBazooka.maxDamage + 8) * (1 - (distance / EntityBazooka.damageRadius)));
+                player.addHealth(-damage);
+            }
         }
         this.velocity.set(vX, vY);
     }
