@@ -5,6 +5,7 @@ import java.util.*;
 
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
+import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;
 import de.gemo.gameengine.units.*;

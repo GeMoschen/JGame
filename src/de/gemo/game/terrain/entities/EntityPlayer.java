@@ -5,6 +5,7 @@ import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
+import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;

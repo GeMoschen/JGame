@@ -7,6 +7,7 @@ import org.newdawn.slick.opengl.*;
 import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
+import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.keyboard.*;
 import de.gemo.gameengine.events.mouse.*;
@@ -90,9 +91,11 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 165, "reset: F12");
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
-            font.drawString(20, 200, "__________________");
-            font.drawString(20, 215, "gravity +/-: a/y " + " ( " + EntityBazooka.gravity + " )");
-            font.drawString(20, 230, "maxPower +/-: s/x " + " ( " + EntityBazooka.maxPower + " )");
+            // font.drawString(20, 200, "__________________");
+            // font.drawString(20, 215, "gravity +/-: a/y " + " ( " +
+            // EntityBazooka.gravity + " )");
+            // font.drawString(20, 230, "maxPower +/-: s/x " + " ( " +
+            // EntityBazooka.maxPower + " )");
         }
         glPopMatrix();
 

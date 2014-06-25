@@ -22,6 +22,16 @@ public class TerrainSettings {
         this((long) (Math.random() * 50000));
     }
 
+    public void setSeed(long seed) {
+        Random random = new Random(seed);
+        this.offsetX = (float) (random.nextFloat() * (random.nextFloat() * 50000));
+        this.offsetY = (float) (random.nextFloat() * (random.nextFloat() * 50000));
+    }
+
+    public void setSeed(String seed) {
+        this.setSeed(seed.hashCode());
+    }
+
     public float getFrequencyX() {
         return frequencyX;
     }
