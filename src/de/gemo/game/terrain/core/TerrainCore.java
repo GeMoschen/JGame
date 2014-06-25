@@ -106,7 +106,6 @@ public class TerrainCore extends GameEngine {
         boolean down = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_DOWN);
         boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
-        this.physicsHandler.updateAll(delta);
     }
 
     @Override
@@ -187,5 +186,10 @@ public class TerrainCore extends GameEngine {
             this.world.filledCircle(midX, midY, radius - wallThickness, TerrainType.AIR, false);
             this.world.getTerrainParts(midX - radius, midY - radius, radius * 2, radius * 2, true);
         }
+    }
+
+    @Override
+    protected void tickGame(int delta) {
+        this.physicsHandler.updateAll(delta);
     }
 }

@@ -214,6 +214,22 @@ public class Vector2f implements Serializable {
         }
     }
 
+    public float getAngle(Vector2f other) {
+        float angle = (float) Math.toDegrees(Math.atan2(other.getY() - this.getY(), other.getX() - this.getX()));
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle - 90;
+    }
+
+    public float getAngle(float x, float y) {
+        float angle = (float) Math.toDegrees(Math.atan2(y - this.getY(), x - this.getX()));
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle - 90;
+    }
+
     /**
      * Subtract a vector from another vector and place the result in a
      * destination vector.

@@ -1,10 +1,12 @@
 package de.gemo.game.terrain.entities;
 
+import java.io.*;
 import java.util.*;
 
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.utils.*;
-import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.manager.*;
+import de.gemo.gameengine.textures.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -15,18 +17,30 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
     private float dim = 5f;
     private World world;
     private EntityPlayer owner;
+    private float angle = 0;
 
-    public static float maxPower = 1.75f;
+    public static float maxPower = 1.55f;
     private static final int maxDamage = 45;
     private static final int blastRadius = 80;
     private static final int damageRadius = 95;
     public static float gravity = 0.009f;
+    private static SingleTexture texture = null;
+
+    static {
+        try {
+            texture = TextureManager.loadSingleTexture("resources/weapons/bazooka.png");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public EntityBazooka(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         this.world = world;
         this.owner = owner;
         this.position = position.clone();
-        this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * GameEngine.INSTANCE.getCurrentDelta()));
+        this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * 16));
         this.velocity.rotateAround(this.position, angle);
         this.velocity = Vector2f.sub(this.velocity, this.position);
 
@@ -37,9 +51,12 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
     @Override
     public void updatePhysics(int delta) {
+        delta = 16;
         // get velocity
         float vX = this.velocity.getX();
         float vY = this.velocity.getY();
+
+        this.angle = this.position.getAngle(this.position.getX() + vX, this.position.getY() + vY);
 
         vY += (gravity * delta);
         vX *= 0.999f;
@@ -125,20 +142,13 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
     @Override
     public void render() {
-        glDisable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
         glEnable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
 
         glTranslatef(this.position.getX(), this.position.getY(), 0);
-        glColor4f(0, 1, 0, 1);
-        glBegin(GL_LINE_LOOP);
-        {
-            glVertex2f(-this.dim, -this.dim);
-            glVertex2f(+this.dim, -this.dim);
-            glVertex2f(+this.dim, +this.dim);
-            glVertex2f(-this.dim, +this.dim);
-        }
-        glEnd();
+        glRotatef(this.angle - 180, 0, 0, 1);
+        glTranslatef(1, 1, 0);
+        texture.render(1, 1, 1, 1);
     }
 
     // ///////////////////////////////////////////////////////////////
