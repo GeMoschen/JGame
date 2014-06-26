@@ -50,6 +50,7 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
     @Override
     public void updatePhysics(int delta) {
+
         delta = 16;
         // get velocity
         float vX = this.velocity.getX();
@@ -63,9 +64,15 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
         int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX), (int) (this.position.getY() + vY));
         if (raycast == null) {
+            // advance position
             this.position.move(vX, vY);
-        } else {
 
+            // handle out of bounds
+            if (this.world.isOutOfEntityBounds(this.position)) {
+                RenderHandler.removeObject(this);
+                PhysicsHandler.removeObject(this);
+            }
+        } else {
             // remove from handler
             RenderHandler.removeObject(this);
             PhysicsHandler.removeObject(this);

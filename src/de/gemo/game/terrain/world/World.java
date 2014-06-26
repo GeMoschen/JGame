@@ -43,7 +43,12 @@ public class World implements IRenderObject {
         this.terrainData = generator.generate();
         this.paintTerrain();
         this.createFX();
+        this.createBridge();
         this.terrainTexture.update();
+    }
+
+    private void createBridge() {
+        BridgeCreator.generate(this.terrainData, this.terrainTexture, this.width / 2, 800);
     }
 
     private void paintTerrain() {
@@ -157,6 +162,14 @@ public class World implements IRenderObject {
         int leftX = midX - radius - 1;
         int topY = midY - radius - 1;
         this.terrainTexture.updatePartial(leftX, topY, radius * 2 + 2, radius * 2 + 2);
+    }
+
+    public boolean isOutOfEntityBounds(Vector2f vector) {
+        return this.isOutOfEntityBounds(vector.getX(), vector.getY());
+    }
+
+    public boolean isOutOfEntityBounds(float x, float y) {
+        return x < -50 || x > this.width + 50 || y > this.getHeight() + 50;
     }
 
     private void fillCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType) {
