@@ -79,9 +79,10 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
             this.position.set(midX, midY);
 
             int wallThickness = 7;
-            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius, wallThickness, TerrainType.CRATER, false);
             this.world.filledCircle(midX, midY, EntityBazooka.blastRadius - wallThickness, TerrainType.AIR, false);
-            this.world.getTerrainParts(midX - EntityBazooka.blastRadius - 2, midY - EntityBazooka.blastRadius - 2, EntityBazooka.blastRadius * 2 + 4, EntityBazooka.blastRadius * 2 + 4, true);
+            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius, wallThickness, TerrainType.CRATER, false);
+
+            this.world.updateTexture(midX - EntityBazooka.blastRadius - 2, midY - EntityBazooka.blastRadius - 2, EntityBazooka.blastRadius * 2 + 4, EntityBazooka.blastRadius * 2 + 4);
 
             List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, EntityBazooka.damageRadius);
             for (EntityPlayer player : players) {

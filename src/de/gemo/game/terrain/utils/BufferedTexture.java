@@ -87,6 +87,76 @@ public class BufferedTexture {
         return true;
     }
 
+    public int getR(int x, int y) {
+        int newBufferPosition = this.getBufferPosition(x, y);
+        if (newBufferPosition < 0) {
+            return 0;
+        }
+        this.buffer.position(newBufferPosition);
+        byte r = this.buffer.get();
+        int result = (int) r;
+        if (r < 0) {
+            r = (byte) (255 - r);
+            result = (int) (255 - r);
+        }
+        this.buffer.position(0);
+        return result;
+    }
+
+    public int getG(int x, int y) {
+        int newBufferPosition = this.getBufferPosition(x, y);
+        if (newBufferPosition < 0) {
+            return 0;
+        }
+        this.buffer.position(newBufferPosition);
+        this.buffer.get();
+        byte g = this.buffer.get();
+        int result = (int) g;
+        if (g < 0) {
+            g = (byte) (255 - g);
+            result = (int) (255 - g);
+        }
+        this.buffer.position(0);
+        return result;
+    }
+
+    public int getB(int x, int y) {
+        int newBufferPosition = this.getBufferPosition(x, y);
+        if (newBufferPosition < 0) {
+            return 0;
+        }
+        this.buffer.position(newBufferPosition);
+        this.buffer.get();
+        this.buffer.get();
+        byte b = this.buffer.get();
+        int result = (int) b;
+        if (b < 0) {
+            b = (byte) (255 - b);
+            result = (int) (255 - b);
+        }
+        this.buffer.position(0);
+        return result;
+    }
+
+    public int getA(int x, int y) {
+        int newBufferPosition = this.getBufferPosition(x, y);
+        if (newBufferPosition < 0) {
+            return 0;
+        }
+        this.buffer.position(newBufferPosition);
+        this.buffer.get();
+        this.buffer.get();
+        this.buffer.get();
+        byte a = this.buffer.get();
+        int result = (int) a;
+        if (a < 0) {
+            a = (byte) (255 - a);
+            result = (int) (255 - a);
+        }
+        this.buffer.position(0);
+        return result;
+    }
+
     public boolean clearPixel(int x, int y) {
         return this.setPixel(x, y, 0, 0, 0, 0);
     }
