@@ -15,10 +15,10 @@ public class World implements IRenderObject {
     private int width, height;
 
     private boolean[][] terrainData;
-    private TexData terrainTexture, grassTexture, backgroundTexture;
+    private TexData texTerrain, texGrass, texBackground;
 
     private int craterR = 152, craterG = 113, craterB = 82;
-    private BufferedTexture terrainTex;
+    private BufferedTexture terrainTexture;
 
     public World(int width, int height) {
         this.width = width;
@@ -28,33 +28,33 @@ public class World implements IRenderObject {
 
     public void createWorld(int width, int height) {
         try {
-            this.terrainTexture = new TexData("resources/terrain/wood_terrain.jpg");
-            this.backgroundTexture = new TexData("resources/terrainBackgrounds/background_wood.jpg");
-            this.grassTexture = new TexData("resources/grasses/wood.png");
+            this.texTerrain = new TexData("resources/terrain/wood_terrain.jpg");
+            this.texBackground = new TexData("resources/terrainBackgrounds/background_wood.jpg");
+            this.texGrass = new TexData("resources/grasses/wood.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        this.terrainTex = new BufferedTexture(this.getWidth(), this.getHeight());
+        this.terrainTexture = new BufferedTexture(this.getWidth(), this.getHeight());
 
         AbstractWorldGenerator generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
 
         this.terrainData = generator.generate();
         this.paintTerrainTexture(generator);
-        this.createEffects();
+        this.createFX();
     }
 
     private void paintTerrainTexture(AbstractWorldGenerator generator) {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 if (this.terrainData[x][y]) {
-                    this.terrainTex.setPixel(x, y, this.terrainTexture.getR(x, y), this.terrainTexture.getG(x, y), this.terrainTexture.getB(x, y), 255);
+                    this.terrainTexture.setPixel(x, y, this.texTerrain.getR(x, y), this.texTerrain.getG(x, y), this.texTerrain.getB(x, y), 255);
                 } else {
-                    this.terrainTex.clearPixel(x, y);
+                    this.terrainTexture.clearPixel(x, y);
                 }
             }
         }
-        this.terrainTex.update();
+        this.terrainTexture.update();
     }
 
     private int getBlendedValue(int background, int foreground, float alphaForeground) {
@@ -65,7 +65,7 @@ public class World implements IRenderObject {
         return (int) (result * 255);
     }
 
-    private void createEffects() {
+    private void createFX() {
         List<Integer> xListGrass = new ArrayList<Integer>();
         List<Integer> yListGrass = new ArrayList<Integer>();
 
@@ -108,14 +108,14 @@ public class World implements IRenderObject {
             int x = xList3DRight.get(i);
             int y = yList3DRight.get(i);
             for (int offX = 0; offX < 10; offX++) {
-                int r = this.terrainTex.getR(x - offX, y);
-                int g = this.terrainTex.getG(x - offX, y);
-                int b = this.terrainTex.getB(x - offX, y);
+                int r = this.terrainTexture.getR(x - offX, y);
+                int g = this.terrainTexture.getG(x - offX, y);
+                int b = this.terrainTexture.getB(x - offX, y);
                 float alpha = 0.8f - ((float) offX * 0.08f);
                 r = this.getBlendedValue(r, 10 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 10 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 10 + offX * 10, alpha);
-                this.terrainTex.setPixel(x - offX, y, r, g, b, 255);
+                this.terrainTexture.setPixel(x - offX, y, r, g, b, 255);
             }
         }
 
@@ -124,14 +124,14 @@ public class World implements IRenderObject {
             int x = xList3DLeft.get(i);
             int y = yList3DLeft.get(i);
             for (int offX = 0; offX < 8; offX++) {
-                int r = this.terrainTex.getR(x + offX, y);
-                int g = this.terrainTex.getG(x + offX, y);
-                int b = this.terrainTex.getB(x + offX, y);
+                int r = this.terrainTexture.getR(x + offX, y);
+                int g = this.terrainTexture.getG(x + offX, y);
+                int b = this.terrainTexture.getB(x + offX, y);
                 float alpha = 0.8f - ((float) offX * 0.1f);
                 r = this.getBlendedValue(r, 55 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 55 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 55 + offX * 10, alpha);
-                this.terrainTex.setPixel(x + offX, y, r, g, b, 255);
+                this.terrainTexture.setPixel(x + offX, y, r, g, b, 255);
             }
         }
 
@@ -139,23 +139,23 @@ public class World implements IRenderObject {
         for (int i = 0; i < xListGrass.size(); i++) {
             int x = xListGrass.get(i);
             int y = yListGrass.get(i);
-            for (int offY = 0; offY < this.grassTexture.getHeight(); offY++) {
-                if (!this.grassTexture.isFuchsia(x, offY)) {
+            for (int offY = 0; offY < this.texGrass.getHeight(); offY++) {
+                if (!this.texGrass.isFuchsia(x, offY)) {
                     int newY = y + offY - 8;
                     if (newY < 0 || newY >= this.height) {
                         continue;
                     }
                     this.terrainData[x][y + offY - 8] = true;
-                    this.terrainTex.setPixel(x, y + offY - 8, this.grassTexture.getR(x, offY), this.grassTexture.getG(x, offY), this.grassTexture.getB(x, offY), 255);
+                    this.terrainTexture.setPixel(x, y + offY - 8, this.texGrass.getR(x, offY), this.texGrass.getG(x, offY), this.texGrass.getB(x, offY), 255);
                 }
             }
         }
 
-        this.terrainTex.update();
+        this.terrainTexture.update();
     }
 
     public void updateTexture(int x, int y, int width, int height) {
-        this.terrainTex.updatePartial(x, y, width, height);
+        this.terrainTexture.updatePartial(x, y, width, height);
     }
 
     public void explode(int midX, int midY, int radius) {
@@ -198,17 +198,17 @@ public class World implements IRenderObject {
 
                     if (terrainType.equals(TerrainType.AIR)) {
                         // air
-                        this.terrainTex.clearPixel(newX, newY);
+                        this.terrainTexture.clearPixel(newX, newY);
                         this.terrainData[newX][newY] = false;
                     } else if (terrainType.equals(TerrainType.CRATER)) {
                         // crater
                         if (this.terrainData[newX][newY]) {
-                            this.terrainTex.setPixel(newX, newY, craterR, craterG, craterB, 255);
+                            this.terrainTexture.setPixel(newX, newY, craterR, craterG, craterB, 255);
                         }
                     } else if (terrainType.equals(TerrainType.BACKGROUND)) {
                         // background
                         if (this.terrainData[newX][newY]) {
-                            this.terrainTex.setPixel(newX, newY, this.backgroundTexture.getR(newX, newY), this.backgroundTexture.getG(newX, newY), this.backgroundTexture.getB(newX, newY), 255);
+                            this.terrainTexture.setPixel(newX, newY, this.texBackground.getR(newX, newY), this.texBackground.getG(newX, newY), this.texBackground.getB(newX, newY), 255);
                             this.terrainData[newX][newY] = false;
                         }
                     }
@@ -260,7 +260,7 @@ public class World implements IRenderObject {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
 
-        this.terrainTex.bind();
+        this.terrainTexture.bind();
         this.renderTexture();
     }
 
