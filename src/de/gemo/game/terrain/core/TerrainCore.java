@@ -6,7 +6,6 @@ import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.utils.*;
 import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.keyboard.*;
@@ -159,21 +158,36 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
+
         if (event.isUp()) {
+            // calculate current center
+            int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
+            int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
+
+            // scale
             this.scale += 0.1f;
             if (this.scale > 1.5f) {
                 this.scale = 1.5f;
             }
+
+            // center camera
+            this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
+            this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
         } else {
+            // calculate current center
+            int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
+            int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
+
+            // scale
             this.scale -= 0.1f;
             if (this.scale < 0.5f) {
                 this.scale = 0.5f;
             }
-        }
-    }
 
-    @Override
-    public void onMouseUp(boolean handled, MouseReleaseEvent event) {
+            // center camera
+            this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
+            this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
+        }
     }
 
     @Override
