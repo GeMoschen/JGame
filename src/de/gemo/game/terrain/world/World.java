@@ -1,10 +1,7 @@
 package de.gemo.game.terrain.world;
 
 import java.io.*;
-import java.nio.*;
 import java.util.*;
-
-import org.lwjgl.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.utils.*;
@@ -19,6 +16,8 @@ public class World implements IRenderObject {
 
     private boolean[][] terrainData;
     private TexData terrainTexture, grassTexture, backgroundTexture;
+
+    private int craterR = 152, craterG = 113, craterB = 82;
     private BufferedTexture terrainTex;
 
     public World(int width, int height) {
@@ -116,7 +115,7 @@ public class World implements IRenderObject {
                 r = this.getBlendedValue(r, 10 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 10 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 10 + offX * 10, alpha);
-                this.terrainTex.setPixel(x, y - offX, r, g, b, 255);
+                this.terrainTex.setPixel(x - offX, y, r, g, b, 255);
             }
         }
 
@@ -132,7 +131,7 @@ public class World implements IRenderObject {
                 r = this.getBlendedValue(r, 55 + offX * 10, alpha);
                 g = this.getBlendedValue(g, 55 + offX * 10, alpha);
                 b = this.getBlendedValue(b, 55 + offX * 10, alpha);
-                this.terrainTex.setPixel(x, y + offX, r, g, b, 255);
+                this.terrainTex.setPixel(x + offX, y, r, g, b, 255);
             }
         }
 
@@ -159,11 +158,24 @@ public class World implements IRenderObject {
         this.terrainTex.updatePartial(x, y, width, height);
     }
 
-    public void filledCircle(int midX, int midY, int radius, TerrainType terrainType, boolean replaceAir) {
-        this.filledCircle(midX, midY, radius, radius, terrainType, replaceAir);
+    public void explode(int midX, int midY, int radius) {
+        this.explode(midX, midY, radius, 0);
     }
 
-    public void filledCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType, boolean replaceAir) {
+    public void explode(int midX, int midY, int radius, int airRadius) {
+        // crater
+        this.fillCircle(midX, midY, radius, 7, TerrainType.CRATER);
+
+        // background
+        this.fillCircle(midX, midY, radius - 7, radius - 7, TerrainType.BACKGROUND);
+
+        // air
+        if (airRadius > 0) {
+            this.fillCircle(midX, midY, airRadius, airRadius, TerrainType.AIR);
+        }
+    }
+
+    public void fillCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType) {
         long start = System.nanoTime();
         int innerRadius = radius - wallThickness;
         innerRadius = innerRadius * innerRadius;
@@ -184,9 +196,23 @@ public class World implements IRenderObject {
                         continue;
                     }
 
-                    if (replaceAir || (!replaceAir && this.terrainData[newX][newY])) {
-                        this.terrainTex.setPixel(midX + x, midY + y, terrainType.getR(), terrainType.getG(), terrainType.getB(), terrainType.getA());
+                    if (terrainType.equals(TerrainType.AIR)) {
+                        // air
+                        this.terrainTex.clearPixel(newX, newY);
+                        this.terrainData[newX][newY] = false;
+                    } else if (terrainType.equals(TerrainType.CRATER)) {
+                        // crater
+                        if (this.terrainData[newX][newY]) {
+                            this.terrainTex.setPixel(newX, newY, craterR, craterG, craterB, 255);
+                        }
+                    } else if (terrainType.equals(TerrainType.BACKGROUND)) {
+                        // background
+                        if (this.terrainData[newX][newY]) {
+                            this.terrainTex.setPixel(newX, newY, this.backgroundTexture.getR(newX, newY), this.backgroundTexture.getG(newX, newY), this.backgroundTexture.getB(newX, newY), 255);
+                            this.terrainData[newX][newY] = false;
+                        }
                     }
+
                 }
             }
         }
@@ -226,22 +252,6 @@ public class World implements IRenderObject {
             }
         }
         return Vector2f.normalize(average);
-    }
-
-    private int getBufferPosition(int x, int y) {
-        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return (y * this.getWidth() + x) * CONSTANTS.BYTES_PER_PIXEL;
-        } else {
-            return 0;
-        }
-    }
-
-    public static int getBufferPosition(int x, int y, int maxWidth, int maxHeight) {
-        if (x >= 0 && y >= 0 && x < maxWidth && y < maxHeight) {
-            return (y * maxWidth + x) * CONSTANTS.BYTES_PER_PIXEL;
-        } else {
-            return 0;
-        }
     }
 
     @Override

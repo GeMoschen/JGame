@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.utils.*;
 import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;
@@ -15,7 +14,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
     private Vector2f position, velocity;
-    private float dim = 5f;
     private World world;
     private EntityPlayer owner;
     private float angle = 0;
@@ -78,10 +76,7 @@ public class EntityBazooka implements IPhysicsObject, IRenderObject {
 
             this.position.set(midX, midY);
 
-            int wallThickness = 7;
-            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius - wallThickness, TerrainType.AIR, false);
-            this.world.filledCircle(midX, midY, EntityBazooka.blastRadius, wallThickness, TerrainType.CRATER, false);
-
+            this.world.explode(midX, midY, EntityBazooka.blastRadius);
             this.world.updateTexture(midX - EntityBazooka.blastRadius - 2, midY - EntityBazooka.blastRadius - 2, EntityBazooka.blastRadius * 2 + 4, EntityBazooka.blastRadius * 2 + 4);
 
             List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, EntityBazooka.damageRadius);
