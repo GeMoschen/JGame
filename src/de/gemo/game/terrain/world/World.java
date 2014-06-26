@@ -15,13 +15,12 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class World implements IRenderObject {
 
-    private static final int BYTES_PER_PIXEL = 4;
-
-    private ByteBuffer terrainBuffer, backgroundBuffer;
+    private ByteBuffer terrainBuffer;
     private int terrainTextureID = -1, backgroundTextureID = -1;
     private int width, height;
 
     private TexData terrainTexture, grassTexture, backgroundTexture;
+    private BufferedTexture bgTex;
 
     public World(int width, int height) {
         this.width = width;
@@ -39,16 +38,12 @@ public class World implements IRenderObject {
         }
 
         if (this.terrainBuffer == null) {
-            this.terrainBuffer = ByteBuffer.allocateDirect(this.getWidth() * this.getHeight() * BYTES_PER_PIXEL);
+            this.terrainBuffer = ByteBuffer.allocateDirect(this.getWidth() * this.getHeight() * CONSTANTS.BYTES_PER_PIXEL);
         } else {
             this.terrainBuffer.clear();
         }
 
-        if (this.backgroundBuffer == null) {
-            this.backgroundBuffer = ByteBuffer.allocateDirect(this.getWidth() * this.getHeight() * BYTES_PER_PIXEL);
-        } else {
-            this.backgroundBuffer.clear();
-        }
+        this.bgTex = new BufferedTexture(this.getWidth(), this.getHeight());
 
         AbstractWorldGenerator generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
 
@@ -56,7 +51,7 @@ public class World implements IRenderObject {
         this.paintTerrainTexture(generator, terrainData);
         this.createEffects();
         this.createTerrainTexture();
-        this.createBackgroundTexture();
+        this.createBackgroundTexture(terrainData);
     }
 
     private int getR(int x, int y) {
@@ -239,29 +234,17 @@ public class World implements IRenderObject {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.terrainBuffer);
     }
 
-    private void createBackgroundTexture() {
+    private void createBackgroundTexture(boolean[][] terrainData) {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
-                this.terrainBuffer.position(this.getBufferPosition(x, y));
-                setBackground(x, y, TerrainType.byRGBA(this.terrainBuffer.get(), this.terrainBuffer.get(), this.terrainBuffer.get(), this.terrainBuffer.get()).isSolid());
-                this.terrainBuffer.position(0);
+                if (terrainData[x][y]) {
+                    this.bgTex.setPixel(x, y, this.backgroundTexture.getR(x, y), this.backgroundTexture.getG(x, y), this.backgroundTexture.getB(x, y), 255);
+                } else {
+                    this.bgTex.clearPixel(x, y);
+                }
             }
         }
-
-        this.backgroundTextureID = glGenTextures(); // Generate texture ID
-        glBindTexture(GL_TEXTURE_2D, this.backgroundTextureID); // Bind texture
-                                                                // ID
-        // Setup wrap mode
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-
-        // Setup texture scaling filtering
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Send texel data to OpenGL
-        this.backgroundBuffer.position(0);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, this.backgroundBuffer);
+        this.bgTex.update();
     }
 
     public void updateTexture(int x, int y, int width, int height, int textureID, ByteBuffer buffer) {
@@ -282,7 +265,7 @@ public class World implements IRenderObject {
         if (dX < 0 || dY < 0) {
             return null;
         }
-        ByteBuffer buffer = ByteBuffer.allocateDirect(dX * dY * BYTES_PER_PIXEL);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(dX * dY * CONSTANTS.BYTES_PER_PIXEL);
         for (y = minY; y < maxY; y++) {
             for (x = minX; x < maxX; x++) {
                 this.terrainBuffer.position(this.getBufferPosition(x, y));
@@ -405,24 +388,6 @@ public class World implements IRenderObject {
         }
     }
 
-    private void setBackground(int x, int y, boolean collidable) {
-        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            this.backgroundBuffer.position(this.getBufferPosition(x, y));
-            if (collidable) {
-                this.backgroundBuffer.put((byte) this.backgroundTexture.getR(x, y));
-                this.backgroundBuffer.put((byte) this.backgroundTexture.getG(x, y));
-                this.backgroundBuffer.put((byte) this.backgroundTexture.getB(x, y));
-                this.backgroundBuffer.put((byte) 255);
-            } else {
-                this.backgroundBuffer.put((byte) 0);
-                this.backgroundBuffer.put((byte) 0);
-                this.backgroundBuffer.put((byte) 0);
-                this.backgroundBuffer.put((byte) 0);
-            }
-            this.backgroundBuffer.position(0);
-        }
-    }
-
     public boolean isPixelSolid(int x, int y) {
         return this.isPixelSolid(x, y, true);
     }
@@ -458,7 +423,7 @@ public class World implements IRenderObject {
 
     private int getBufferPosition(int x, int y) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return (y * this.getWidth() + x) * BYTES_PER_PIXEL;
+            return (y * this.getWidth() + x) * CONSTANTS.BYTES_PER_PIXEL;
         } else {
             return 0;
         }
@@ -466,7 +431,7 @@ public class World implements IRenderObject {
 
     public static int getBufferPosition(int x, int y, int maxWidth, int maxHeight) {
         if (x >= 0 && y >= 0 && x < maxWidth && y < maxHeight) {
-            return (y * maxWidth + x) * BYTES_PER_PIXEL;
+            return (y * maxWidth + x) * CONSTANTS.BYTES_PER_PIXEL;
         } else {
             return 0;
         }
@@ -478,7 +443,7 @@ public class World implements IRenderObject {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
 
-        glBindTexture(GL_TEXTURE_2D, this.backgroundTextureID);
+        this.bgTex.bind();
         this.renderTexture();
 
         glBindTexture(GL_TEXTURE_2D, this.terrainTextureID);

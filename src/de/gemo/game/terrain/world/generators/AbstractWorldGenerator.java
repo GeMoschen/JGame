@@ -4,7 +4,6 @@ import de.gemo.game.terrain.utils.*;
 
 public abstract class AbstractWorldGenerator {
 
-    private static final int BYTES_PER_PIXEL = 4;
     private final int width, height;
     protected final TerrainSettings terrainSettings;
 
@@ -16,7 +15,7 @@ public abstract class AbstractWorldGenerator {
 
     protected int getBufferPosition(int x, int y) {
         if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return (y * this.getWidth() + x) * BYTES_PER_PIXEL;
+            return (y * this.getWidth() + x) * CONSTANTS.BYTES_PER_PIXEL;
         } else {
             return 0;
         }
