@@ -1,7 +1,10 @@
 package de.gemo.game.terrain.core;
 
+import java.awt.Font;
+
 import org.lwjgl.input.*;
 import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
@@ -74,7 +77,7 @@ public class TerrainCore extends GameEngine {
             Color.white.bind();
             TextureImpl.bindNone();
 
-            Font font = FontManager.getStandardFont();
+            TrueTypeFont font = FontManager.getStandardFont();
 
             font.drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
             font.drawString(20, 35, "Scale: " + this.scale);
@@ -93,6 +96,8 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 165, "reset: F12");
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
+
+            FontManager.getStandardFont(16, Font.BOLD).drawString(20, this.VIEW_HEIGHT - 30, "Weapon: " + this.player.getCurrentWeaponName());
             // font.drawString(20, 200, "__________________");
             // font.drawString(20, 215, "gravity +/-: a/y " + " ( " +
             // EntityBazooka.gravity + " )");
@@ -121,10 +126,8 @@ public class TerrainCore extends GameEngine {
             this.player.setWeapon(EntityBazooka.class);
         } else if (event.getKey() == Keyboard.KEY_2) {
             this.player.setWeapon(EntityGrenade.class);
-            // } else if (event.getKey() == Keyboard.KEY_S) {
-            // EntityWeapon.maxPower += 0.01f;
-            // } else if (event.getKey() == Keyboard.KEY_X) {
-            // EntityWeapon.maxPower -= 0.01f;
+        } else if (event.getKey() == Keyboard.KEY_3) {
+            this.player.setWeapon(EntityDynamite.class);
         } else {
             super.onKeyPressed(event);
         }

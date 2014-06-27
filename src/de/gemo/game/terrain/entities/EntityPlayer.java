@@ -68,7 +68,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             return;
         }
         this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
-        if (this.shootPower >= 1) {
+        if (this.shootPower >= 1 || WeaponDirectShoot.class.isAssignableFrom(currentWeapon)) {
             EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, 1f);
             this.shotFired = true;
             this.shootPower = 0;
@@ -407,39 +407,41 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         glPopMatrix();
 
         // crosshair
-        float crosshairDistance = 85f;
-        float x2 = this.crosshair.getHalfWidth() - 3;
+        if (!WeaponNoCrosshair.class.isAssignableFrom(currentWeapon)) {
+            float crosshairDistance = 85f;
+            float x2 = this.crosshair.getHalfWidth() - 3;
 
-        // powersign
-        glPushMatrix();
-        {
-            glDisable(GL_TEXTURE_2D);
-            glRotatef((float) this.shootAngle, 0, 0, 1);
-            glBegin(GL_POLYGON);
+            // powersign
+            glPushMatrix();
             {
-                glColor4f(0, 1, 0, 0.6f);
-                glVertex2f(0, 0);
-                glColor4f(1 * this.shootPower, 1 * (1 - this.shootPower), 0, 0.6f);
-                glVertex2f(-x2 * this.shootPower, -crosshairDistance * this.shootPower);
-                glVertex2f(-x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
-                glVertex2f(0, (-crosshairDistance - x2 / 2f) * this.shootPower);
-                glVertex2f(+x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
-                glVertex2f(+x2 * this.shootPower, -crosshairDistance * this.shootPower);
+                glDisable(GL_TEXTURE_2D);
+                glRotatef((float) this.shootAngle, 0, 0, 1);
+                glBegin(GL_POLYGON);
+                {
+                    glColor4f(0, 1, 0, 0.6f);
+                    glVertex2f(0, 0);
+                    glColor4f(1 * this.shootPower, 1 * (1 - this.shootPower), 0, 0.6f);
+                    glVertex2f(-x2 * this.shootPower, -crosshairDistance * this.shootPower);
+                    glVertex2f(-x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
+                    glVertex2f(0, (-crosshairDistance - x2 / 2f) * this.shootPower);
+                    glVertex2f(+x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
+                    glVertex2f(+x2 * this.shootPower, -crosshairDistance * this.shootPower);
+                }
+                glEnd();
             }
-            glEnd();
-        }
-        glPopMatrix();
+            glPopMatrix();
 
-        // crosshair
-        glPushMatrix();
-        {
-            glRotatef((float) this.shootAngle, 0, 0, 1);
-            glTranslatef(this.playerWidth - 1, -crosshairDistance + this.playerHeight / 2f, 0);
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_BLEND);
-            this.crosshair.render(1, 1, 1, 1);
+            // crosshair
+            glPushMatrix();
+            {
+                glRotatef((float) this.shootAngle, 0, 0, 1);
+                glTranslatef(this.playerWidth - 1, -crosshairDistance + this.playerHeight / 2f, 0);
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                this.crosshair.render(1, 1, 1, 1);
+            }
+            glPopMatrix();
         }
-        glPopMatrix();
     }
 
     public void setMovement(boolean... args) {
@@ -469,6 +471,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         this.currentWeapon = clazz;
+    }
+
+    public String getCurrentWeaponName() {
+        return this.currentWeapon.getSimpleName().replaceAll("Entity", "");
     }
 
     // ///////////////////////////////////////////////////////////////
