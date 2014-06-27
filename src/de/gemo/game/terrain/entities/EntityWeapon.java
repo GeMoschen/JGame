@@ -36,6 +36,12 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
     }
 
     public static final EntityWeapon fire(Class<? extends EntityWeapon> clazz, World world, EntityPlayer owner, Vector2f position, float angle, float power) {
+        // check for null
+        if (clazz == null) {
+            return null;
+        }
+
+        // try to create the object
         try {
             Constructor<? extends EntityWeapon> constructor = clazz.getConstructor(World.class, EntityPlayer.class, Vector2f.class, float.class, float.class);
             return constructor.newInstance(world, owner, position, angle, power);

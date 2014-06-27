@@ -64,6 +64,9 @@ public class EntityBazooka extends EntityWeapon {
                 RenderHandler.removeObject(this);
                 PhysicsHandler.removeObject(this);
             }
+
+            // set velocity
+            this.velocity.set(vX, vY);
         } else {
             // remove from handler
             RenderHandler.removeObject(this);
@@ -84,7 +87,6 @@ public class EntityBazooka extends EntityWeapon {
                 player.addHealth(-damage);
             }
         }
-        this.velocity.set(vX, vY);
     }
 
     @Override

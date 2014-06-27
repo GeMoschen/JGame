@@ -40,7 +40,7 @@ public class World implements IRenderObject {
 
         this.generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
         this.terrainTexture = new BufferedTexture(this.getWidth(), this.getHeight());
-        this.terrainData = generator.generate();
+        this.terrainData = generator.generate("GeMoschenIsDa");
         this.paintTerrain();
         this.createFX();
         this.createBridge();
@@ -77,18 +77,12 @@ public class World implements IRenderObject {
 
                 boolean threeDEffectRight = (this.isPixelSolid(x, y) && !this.isPixelSolid(x + 1, y));
                 if (threeDEffectRight) {
-                    Vector2f normal = this.getNormal(x, y);
-                    if (Math.abs(normal.getY()) < 0.95d) {
-                        right3D.add(new Point(x, y));
-                    }
+                    right3D.add(new Point(x, y));
                 }
 
                 boolean threeDEffectLeft = (this.isPixelSolid(x, y) && !this.isPixelSolid(x - 1, y));
                 if (threeDEffectLeft) {
-                    Vector2f normal = this.getNormal(x, y);
-                    if (Math.abs(normal.getY()) < 0.95d) {
-                        left3D.add(new Point(x, y));
-                    }
+                    left3D.add(new Point(x, y));
                 }
             }
         }
@@ -98,6 +92,9 @@ public class World implements IRenderObject {
             int x = point.x;
             int y = point.y;
             for (int offX = 0; offX < 10; offX++) {
+                if (x - offX < 0 || x - offX >= this.terrainData.length || !this.terrainData[x - offX][y]) {
+                    continue;
+                }
                 int r = this.terrainTexture.getR(x - offX, y);
                 int g = this.terrainTexture.getG(x - offX, y);
                 int b = this.terrainTexture.getB(x - offX, y);
@@ -114,6 +111,9 @@ public class World implements IRenderObject {
             int x = point.x;
             int y = point.y;
             for (int offX = 0; offX < 8; offX++) {
+                if (x - offX < 0 || x - offX >= this.terrainData.length || !this.terrainData[x - offX][y]) {
+                    continue;
+                }
                 int r = this.terrainTexture.getR(x + offX, y);
                 int g = this.terrainTexture.getG(x + offX, y);
                 int b = this.terrainTexture.getB(x + offX, y);
@@ -142,8 +142,16 @@ public class World implements IRenderObject {
         }
     }
 
+    public void explode(float midX, float midY, int radius) {
+        this.explode(midX, midY, radius, 0);
+    }
+
     public void explode(int midX, int midY, int radius) {
         this.explode(midX, midY, radius, 0);
+    }
+
+    public void explode(float midX, float midY, int radius, int airRadius) {
+        this.explode((int) midX, (int) midY, radius, airRadius);
     }
 
     public void explode(int midX, int midY, int radius, int airRadius) {
@@ -241,8 +249,9 @@ public class World implements IRenderObject {
 
     public Vector2f getNormal(int x, int y) {
         Vector2f average = new Vector2f();
-        for (int i = -3; i <= 3; i++) {
-            for (int j = -3; j <= 3; j++) {
+        int normalSize = 2;
+        for (int i = -normalSize; i <= normalSize; i++) {
+            for (int j = -normalSize; j <= normalSize; j++) {
                 if (this.isPixelSolid(x + i, y + j)) {
                     Vector2f.sub(average, new Vector2f(i, j), average);
                 }

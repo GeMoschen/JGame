@@ -117,10 +117,10 @@ public class TerrainCore extends GameEngine {
     public void onKeyPressed(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_W) {
             this.player.jump();
-            // } else if (event.getKey() == Keyboard.KEY_A) {
-            // EntityWeapon.gravity += 0.001f;
-            // } else if (event.getKey() == Keyboard.KEY_Y) {
-            // EntityWeapon.gravity -= 0.001f;
+        } else if (event.getKey() == Keyboard.KEY_1) {
+            this.player.setWeapon(EntityBazooka.class);
+        } else if (event.getKey() == Keyboard.KEY_2) {
+            this.player.setWeapon(EntityGrenade.class);
             // } else if (event.getKey() == Keyboard.KEY_S) {
             // EntityWeapon.maxPower += 0.01f;
             // } else if (event.getKey() == Keyboard.KEY_X) {

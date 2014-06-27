@@ -39,7 +39,7 @@ public class StandardWorldGenerator extends AbstractWorldGenerator {
                 }
 
                 terrainData[x][y] = (noise >= this.terrainSettings.getLowerCutOff() && noise < this.terrainSettings.getUpperCutOff());
-                if (x < 5 || y < 5 || x > this.getWidth() - 5 || y > this.getHeight() - 5) {
+                if (x < 5 || x > this.getWidth() - 5) {
                     terrainData[x][y] = true;
                 }
             }

@@ -27,7 +27,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private boolean onGround, shotFired = false;
     private SingleTexture crosshair;
 
-    private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
+    private Class<? extends EntityWeapon> currentWeapon = EntityGrenade.class;
 
     private int health = 100;
 
@@ -69,7 +69,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
         this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1) {
-            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, this.shootPower);
+            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, 1f);
             this.shotFired = true;
             this.shootPower = 0;
         }
@@ -444,6 +444,14 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public int getHealth() {
         return health;
+    }
+
+    public void setWeapon(Class<? extends EntityWeapon> clazz) {
+        if (clazz == null) {
+            return;
+        }
+
+        this.currentWeapon = clazz;
     }
 
     // ///////////////////////////////////////////////////////////////
