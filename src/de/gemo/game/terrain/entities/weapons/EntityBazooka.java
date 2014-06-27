@@ -69,7 +69,9 @@ public class EntityBazooka extends EntityWeapon {
         int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX), (int) (this.position.getY() + vY));
         if (raycast == null) {
             // create clouds behind
-            new EntityCloud(this.world, this.position);
+            Vector2f spawnPosition = this.position.clone();
+            spawnPosition.move(-vX / 6, -vY / 6);
+            new EntityCloud(this.world, spawnPosition);
 
             // advance position
             this.position.move(vX, vY);

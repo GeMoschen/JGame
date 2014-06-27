@@ -10,6 +10,7 @@ import org.newdawn.slick.opengl.*;
 import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.world.*;
+import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.textures.*;
 import de.gemo.gameengine.units.*;
@@ -21,6 +22,7 @@ public class EntityGrenade extends EntityWeapon {
     private static SingleTexture texture = null;
     private long startTime;
     private final int timer = 5;
+    private int ticksToLive;
 
     static {
         try {
@@ -35,6 +37,7 @@ public class EntityGrenade extends EntityWeapon {
     public EntityGrenade(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         super(world, owner, position, angle, power);
         this.startTime = System.currentTimeMillis();
+        this.ticksToLive = this.timer * GameEngine.INSTANCE.getTicksPerSecond();
     }
 
     @Override
@@ -73,9 +76,9 @@ public class EntityGrenade extends EntityWeapon {
             glEnable(GL_TEXTURE_2D);
             TextureImpl.bindNone();
 
-            glTranslatef(-4, -24, 0);
             TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
             int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
+            glTranslatef(-font.getWidth("" + timeLeft) / 2 + 3, -24, 0);
             font.drawString(0, 0, "" + timeLeft, Color.green);
         }
         glPopMatrix();
@@ -83,11 +86,11 @@ public class EntityGrenade extends EntityWeapon {
 
     @Override
     public void updatePhysics(int delta) {
-
-        if (System.currentTimeMillis() - timer * 1000 >= this.startTime) {
+        if (this.ticksToLive < 1) {
             this.explode();
             return;
         }
+        this.ticksToLive--;
 
         delta = 16;
         // get velocity
@@ -123,11 +126,11 @@ public class EntityGrenade extends EntityWeapon {
             this.angle = this.position.getAngle(this.position.getX() + vX, this.position.getY() + vY);
         } else {
             Vector2f normal = this.world.getNormal(raycast[0], raycast[1]);
-            float f = 1.5F * (this.velocity.getX() * normal.getX() + this.velocity.getY() * normal.getY());
+            float f = 2F * (this.velocity.getX() * normal.getX() + this.velocity.getY() * normal.getY());
             this.velocity.move(-normal.getX() * f, -normal.getY() * f);
 
             // friction bounciness
-            float bounceFriction = 0.73f;
+            float bounceFriction = 0.48f;
             this.velocity.set(this.velocity.getX() * bounceFriction, this.velocity.getY() * bounceFriction);
             return;
         }
