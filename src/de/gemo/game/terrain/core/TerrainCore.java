@@ -5,6 +5,7 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
+import de.gemo.game.terrain.entities.weapons.*;
 import de.gemo.game.terrain.handler.*;
 import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.core.*;
@@ -26,6 +27,8 @@ public class TerrainCore extends GameEngine {
 
     private World world;
     private float scale = 1f;
+
+    private long lastTickTime = System.currentTimeMillis();
 
     public TerrainCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, false);
@@ -114,14 +117,14 @@ public class TerrainCore extends GameEngine {
     public void onKeyPressed(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_W) {
             this.player.jump();
-        } else if (event.getKey() == Keyboard.KEY_A) {
-            EntityBazooka.gravity += 0.001f;
-        } else if (event.getKey() == Keyboard.KEY_Y) {
-            EntityBazooka.gravity -= 0.001f;
-        } else if (event.getKey() == Keyboard.KEY_S) {
-            EntityBazooka.maxPower += 0.01f;
-        } else if (event.getKey() == Keyboard.KEY_X) {
-            EntityBazooka.maxPower -= 0.01f;
+            // } else if (event.getKey() == Keyboard.KEY_A) {
+            // EntityWeapon.gravity += 0.001f;
+            // } else if (event.getKey() == Keyboard.KEY_Y) {
+            // EntityWeapon.gravity -= 0.001f;
+            // } else if (event.getKey() == Keyboard.KEY_S) {
+            // EntityWeapon.maxPower += 0.01f;
+            // } else if (event.getKey() == Keyboard.KEY_X) {
+            // EntityWeapon.maxPower -= 0.01f;
         } else {
             super.onKeyPressed(event);
         }
@@ -192,6 +195,11 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void tickGame(int delta) {
-        this.physicsHandler.updateAll(delta);
+        long timeSinceLastTick = System.currentTimeMillis() - this.lastTickTime;
+        int timesToTick = (int) (timeSinceLastTick / GameEngine.INSTANCE.getTickTime());
+        for (int tick = 0; tick < timesToTick; tick++) {
+            this.physicsHandler.updateAll(delta);
+        }
+        this.lastTickTime = System.currentTimeMillis();
     }
 }

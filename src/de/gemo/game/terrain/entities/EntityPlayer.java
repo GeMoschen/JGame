@@ -3,8 +3,8 @@ package de.gemo.game.terrain.entities;
 import org.newdawn.slick.*;
 import org.newdawn.slick.opengl.*;
 
+import de.gemo.game.terrain.entities.weapons.*;
 import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.utils.*;
 import de.gemo.game.terrain.world.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.manager.*;
@@ -26,6 +26,8 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private boolean[] movement = new boolean[5];
     private boolean onGround, shotFired = false;
     private SingleTexture crosshair;
+
+    private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
 
     private int health = 100;
 
@@ -67,7 +69,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
         this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1) {
-            new EntityBazooka(this.world, this, this.position, this.shootAngle, this.shootPower);
+            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, this.shootPower);
             this.shotFired = true;
             this.shootPower = 0;
         }
@@ -75,7 +77,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public void resetPower() {
         if (this.shootPower > 0) {
-            new EntityBazooka(this.world, this, this.position, this.shootAngle, this.shootPower);
+            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, this.shootPower);
         }
         this.shootPower = 0;
         this.shotFired = false;

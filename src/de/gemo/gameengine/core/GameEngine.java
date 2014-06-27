@@ -44,6 +44,10 @@ public class GameEngine {
     // TEMP-FPS
     private int tempFPS = 0;
 
+    // TICK
+    private int ticksPerSecond = 60;
+    private int tickTime;
+
     // MANAGER & MONITOR
     private GUIManager guiManager = null;
     private KeyboardManager keyManager = null;
@@ -199,7 +203,7 @@ public class GameEngine {
         lastFrame = this.getTime();
         delta = this.updateDelta();
 
-        int tickTime = (int) (1000f / 60f);
+        this.tickTime = (int) (1000f / (float) (this.ticksPerSecond));
         long startTime = System.currentTimeMillis() + 1000;
         long startTimer = System.currentTimeMillis() + tickTime;
         boolean tick = true;
@@ -214,7 +218,9 @@ public class GameEngine {
         // ungrab mouse
         this.mouseManager.ungrabMouse();
 
+        // clear color
         glClearColor(0f, 0f, 0f, 1.0f);
+
         while (!Display.isCloseRequested()) {
 
             glMatrixMode(GL_MODELVIEW);
@@ -229,7 +235,7 @@ public class GameEngine {
 
                 if (startTimer <= System.currentTimeMillis()) {
                     tick = true;
-                    startTimer = System.currentTimeMillis() + tickTime;
+                    startTimer = System.currentTimeMillis() + this.tickTime;
                 }
 
                 keyManager.update();
@@ -547,6 +553,14 @@ public class GameEngine {
 
     public String getWindowTitle() {
         return WIN_TITLE;
+    }
+
+    public int getTicksPerSecond() {
+        return ticksPerSecond;
+    }
+
+    public int getTickTime() {
+        return tickTime;
     }
 
     // ////////////////////////////////////////
