@@ -91,25 +91,41 @@ public class EntityBazooka extends EntityWeapon {
             // set velocity
             this.velocity.set(vX, vY);
         } else {
-            // remove from handler
-            RenderHandler.removeObject(this);
-            PhysicsHandler.removeObject(this);
+
+            // update position
+            this.position.set(raycast[0], raycast[1]);
 
             // explode
-            int midX = raycast[0];
-            int midY = raycast[1];
-
-            this.position.set(midX, midY);
-
-            this.world.explode(midX, midY, this.blastRadius);
-
-            List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);
-            for (EntityPlayer player : players) {
-                float distance = (float) player.getPosition().distanceTo(this.position);
-                int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
-                player.addHealth(-damage);
-            }
+            this.explode();
         }
     }
 
+    private void explode() {
+        // remove from handler
+        RenderHandler.removeObject(this);
+        PhysicsHandler.removeObject(this);
+
+        // update world
+        this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
+
+        // scan for players
+        List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);
+        for (EntityPlayer player : players) {
+            // get distance
+            float distance = (float) player.getPosition().distanceTo(this.position);
+
+            // give damage to players
+            int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
+            player.addHealth(-damage);
+
+            // add momentum
+            Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
+            toVector = Vector2f.normalize(toVector);
+            toVector.setY(toVector.getY() - 0.75f);
+            toVector.setX(toVector.getX() * 4);
+            toVector.setY(toVector.getY() * 4);
+            player.setPushedByWeapon(true);
+            player.addVelocity(toVector);
+        }
+    }
 }

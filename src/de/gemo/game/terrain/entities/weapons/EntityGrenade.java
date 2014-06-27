@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.List;
 
 import org.newdawn.slick.*;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
@@ -57,7 +56,6 @@ public class EntityGrenade extends EntityWeapon {
 
     @Override
     public void render() {
-
         glTranslatef(this.position.getX(), this.position.getY(), 0);
 
         glEnable(GL_BLEND);
@@ -155,11 +153,24 @@ public class EntityGrenade extends EntityWeapon {
         // explode
         this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
 
+        // scan for players
         List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);
         for (EntityPlayer player : players) {
+            // get distance
             float distance = (float) player.getPosition().distanceTo(this.position);
+
+            // give damage to players
             int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
             player.addHealth(-damage);
+
+            // add momentum
+            Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
+            toVector = Vector2f.normalize(toVector);
+            toVector.setY(toVector.getY() - 0.75f);
+            toVector.setX(toVector.getX() * 4);
+            toVector.setY(toVector.getY() * 4);
+            player.setPushedByWeapon(true);
+            player.addVelocity(toVector);
         }
     }
 }

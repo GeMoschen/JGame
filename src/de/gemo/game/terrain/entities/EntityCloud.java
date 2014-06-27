@@ -53,10 +53,10 @@ public class EntityCloud implements IPhysicsObject, IRenderObject {
 
     @Override
     public void updatePhysics(int delta) {
-        this.lifeTime -= 0.035f;
-        this.scale += 0.15f;
+        this.lifeTime -= 0.04f;
+        this.scale += 0.08f;
         if (this.lifeTime <= 0) {
-            // add to handler
+            // remove from handler
             PhysicsHandler.removeObject(this);
             RenderHandler.removeObject(this);
         }

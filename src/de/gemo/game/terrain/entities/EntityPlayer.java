@@ -24,7 +24,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private float shootPower = 0f;
 
     private boolean[] movement = new boolean[5];
-    private boolean onGround, shotFired = false;
+    private boolean onGround, shotFired = false, pushedByWeapon = false;
     private SingleTexture crosshair;
 
     private Class<? extends EntityWeapon> currentWeapon = EntityGrenade.class;
@@ -142,6 +142,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             vY = this.getMaxAdvanceY(vY);
         } else {
             // is on ground.. if vY < 0, we are jumping or flying high
+            this.pushedByWeapon = false;
             if (vY > 0) {
                 vY = -0.0005f;
 
@@ -153,10 +154,14 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         // friction
-        if (!this.onGround) {
-            vX *= 0.97f;
+        if (!this.pushedByWeapon) {
+            if (!this.onGround) {
+                vX *= 0.97f;
+            } else {
+                vX *= 0.1f;
+            }
         } else {
-            vX *= 0.1f;
+            vX *= 0.9999f;
         }
 
         if (this.onGround) {
@@ -191,6 +196,11 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         if (this.onGround && !this.movement[LEFT] && !this.movement[RIGHT]) {
             this.velocity.setX(0);
         }
+    }
+
+    public void setPushedByWeapon(boolean pushedByWeapon) {
+        this.pushedByWeapon = pushedByWeapon;
+        this.onGround = false;
     }
 
     private boolean canGoThere(int steps, float vX) {
@@ -473,11 +483,14 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     @Override
     public void setPosition(Vector2f position) {
         this.position.set(position.getX(), position.getY());
-
     }
 
     @Override
     public void setVelocity(Vector2f velocity) {
         this.velocity.set(velocity.getX(), velocity.getY());
+    }
+
+    public void addVelocity(Vector2f toVector) {
+        this.velocity.set(this.velocity.getX() + toVector.getX(), this.velocity.getY() + toVector.getY());
     }
 }
