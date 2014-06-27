@@ -91,7 +91,7 @@ public class World implements IRenderObject {
         for (Point point : right3D) {
             int x = point.x;
             int y = point.y;
-            for (int offX = 0; offX < 10; offX++) {
+            for (int offX = 0; offX < 11; offX++) {
                 if (x - offX < 0 || x - offX >= this.terrainData.length || !this.terrainData[x - offX][y]) {
                     continue;
                 }
@@ -110,8 +110,8 @@ public class World implements IRenderObject {
         for (Point point : left3D) {
             int x = point.x;
             int y = point.y;
-            for (int offX = 0; offX < 8; offX++) {
-                if (x - offX < 0 || x - offX >= this.terrainData.length || !this.terrainData[x - offX][y]) {
+            for (int offX = 0; offX < 6; offX++) {
+                if (x + offX < 0 || x + offX >= this.terrainData.length || !this.terrainData[x + offX][y]) {
                     continue;
                 }
                 int r = this.terrainTexture.getR(x + offX, y);
