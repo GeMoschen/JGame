@@ -49,9 +49,11 @@ public class EntityBazooka extends EntityWeapon {
 
         glTranslatef(this.position.getX(), this.position.getY(), 0);
         glRotatef(this.angle - 180, 0, 0, 1);
-        glTranslatef(1, 1, 0);
+        glTranslatef(3, 1, 0);
         texture.render(1, 1, 1, 1);
     }
+
+    int i = 0;
 
     @Override
     public void updatePhysics(int delta) {
@@ -69,9 +71,13 @@ public class EntityBazooka extends EntityWeapon {
         int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX), (int) (this.position.getY() + vY));
         if (raycast == null) {
             // create clouds behind
-            Vector2f spawnPosition = this.position.clone();
-            spawnPosition.move(-vX / 6, -vY / 6);
-            new EntityCloud(this.world, spawnPosition);
+            i++;
+            if (i == 2) {
+                Vector2f spawnPosition = this.position.clone();
+                spawnPosition.move(-vX / 6, -vY / 6);
+                new EntityCloud(this.world, spawnPosition);
+                i = 0;
+            }
 
             // advance position
             this.position.move(vX, vY);

@@ -2,9 +2,10 @@ package de.gemo.game.terrain.entities.weapons;
 
 import java.awt.Font;
 import java.io.*;
-import java.util.*;
+import java.util.List;
 
 import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.*;
 
 import de.gemo.game.terrain.entities.*;
@@ -43,7 +44,7 @@ public class EntityGrenade extends EntityWeapon {
     @Override
     protected void init(float angle, float power) {
         this.gravity = 0.015f;
-        this.maxPower = 1.25f;
+        this.maxPower = 1.4f;
 
         // construct velocity
         this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * 16));
@@ -56,15 +57,15 @@ public class EntityGrenade extends EntityWeapon {
 
     @Override
     public void render() {
+
+        glTranslatef(this.position.getX(), this.position.getY(), 0);
+
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
-
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
         glPushMatrix();
         {
-            glRotatef(this.angle - 180, 0, 0, 1);
-            glTranslatef(1, 1, 0);
+            glTranslatef(3, 2, 0);
             texture.render(1, 1, 1, 1);
         }
         glPopMatrix();
@@ -78,8 +79,8 @@ public class EntityGrenade extends EntityWeapon {
 
             int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
             if (timeLeft > 0) {
-                TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
-                glTranslatef(-font.getWidth("" + timeLeft) / 2 + 3, -24, 0);
+                TrueTypeFont font = FontManager.getStandardFont(20, Font.BOLD);
+                glTranslatef(-font.getWidth("" + timeLeft) / 2, -35, 0);
                 font.drawString(0, 0, "" + timeLeft, Color.green);
             }
         }
@@ -118,7 +119,7 @@ public class EntityGrenade extends EntityWeapon {
             signumY = +1;
         }
 
-        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX + 9 * signumX), (int) (this.position.getY() + vY + 9 * signumY));
+        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX + 5 * signumX), (int) (this.position.getY() + vY + 5 * signumY));
         if (raycast == null) {
             // advance position
             this.position.move(vX, vY);
@@ -140,7 +141,7 @@ public class EntityGrenade extends EntityWeapon {
             this.velocity.move(-normal.getX() * f, -normal.getY() * f);
 
             // friction bounciness
-            float bounceFriction = 0.48f;
+            float bounceFriction = 0.4f;
             this.velocity.set(this.velocity.getX() * bounceFriction, this.velocity.getY() * bounceFriction);
             return;
         }
