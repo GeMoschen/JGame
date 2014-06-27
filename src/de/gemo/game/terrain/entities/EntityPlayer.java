@@ -142,7 +142,9 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             vY = this.getMaxAdvanceY(vY);
         } else {
             // is on ground.. if vY < 0, we are jumping or flying high
-            this.pushedByWeapon = false;
+            if (Math.abs(vX) < 1.75f) {
+                this.pushedByWeapon = false;
+            }
             if (vY > 0) {
                 vY = -0.0005f;
 
@@ -158,10 +160,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             if (!this.onGround) {
                 vX *= 0.97f;
             } else {
-                vX *= 0.1f;
+                vX *= 0.99f;
             }
         } else {
-            vX *= 0.9999f;
+            vX *= 0.99f;
         }
 
         if (this.onGround) {
@@ -193,9 +195,14 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         this.onGround = !this.canFall();
-        if (this.onGround && !this.movement[LEFT] && !this.movement[RIGHT]) {
-            this.velocity.setX(0);
+        if (this.onGround) {
+            if ((!this.movement[LEFT] && !this.movement[RIGHT]) || this.pushedByWeapon) {
+                this.velocity.setX(vX * 0.95f);
+            } else {
+                this.velocity.setX(0);
+            }
         }
+
     }
 
     public void setPushedByWeapon(boolean pushedByWeapon) {
