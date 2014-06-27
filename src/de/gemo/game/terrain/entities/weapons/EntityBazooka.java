@@ -42,6 +42,18 @@ public class EntityBazooka extends EntityWeapon {
     }
 
     @Override
+    public void render() {
+        glEnable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_DEPTH_TEST);
+
+        glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glRotatef(this.angle - 180, 0, 0, 1);
+        glTranslatef(1, 1, 0);
+        texture.render(1, 1, 1, 1);
+    }
+
+    @Override
     public void updatePhysics(int delta) {
         delta = 16;
         // get velocity
@@ -56,6 +68,9 @@ public class EntityBazooka extends EntityWeapon {
 
         int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX), (int) (this.position.getY() + vY));
         if (raycast == null) {
+            // create clouds behind
+            new EntityCloud(this.world, this.position);
+
             // advance position
             this.position.move(vX, vY);
 
@@ -89,14 +104,4 @@ public class EntityBazooka extends EntityWeapon {
         }
     }
 
-    @Override
-    public void render() {
-        glEnable(GL_BLEND);
-        glEnable(GL_TEXTURE_2D);
-
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
-        glRotatef(this.angle - 180, 0, 0, 1);
-        glTranslatef(1, 1, 0);
-        texture.render(1, 1, 1, 1);
-    }
 }

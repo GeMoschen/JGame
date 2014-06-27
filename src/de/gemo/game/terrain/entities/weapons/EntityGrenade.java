@@ -52,6 +52,36 @@ public class EntityGrenade extends EntityWeapon {
     }
 
     @Override
+    public void render() {
+        glEnable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_DEPTH_TEST);
+
+        glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glPushMatrix();
+        {
+            glRotatef(this.angle - 180, 0, 0, 1);
+            glTranslatef(1, 1, 0);
+            texture.render(1, 1, 1, 1);
+        }
+        glPopMatrix();
+
+        glPushMatrix();
+        {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
+            TextureImpl.bindNone();
+
+            glTranslatef(-4, -24, 0);
+            TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
+            int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
+            font.drawString(0, 0, "" + timeLeft, Color.green);
+        }
+        glPopMatrix();
+    }
+
+    @Override
     public void updatePhysics(int delta) {
 
         if (System.currentTimeMillis() - timer * 1000 >= this.startTime) {
@@ -97,7 +127,7 @@ public class EntityGrenade extends EntityWeapon {
             this.velocity.move(-normal.getX() * f, -normal.getY() * f);
 
             // friction bounciness
-            float bounceFriction = 0.68f;
+            float bounceFriction = 0.73f;
             this.velocity.set(this.velocity.getX() * bounceFriction, this.velocity.getY() * bounceFriction);
             return;
         }
@@ -117,34 +147,5 @@ public class EntityGrenade extends EntityWeapon {
             int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
             player.addHealth(-damage);
         }
-    }
-
-    @Override
-    public void render() {
-        glEnable(GL_BLEND);
-        glEnable(GL_TEXTURE_2D);
-
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
-        glPushMatrix();
-        {
-            glRotatef(this.angle - 180, 0, 0, 1);
-            glTranslatef(1, 1, 0);
-            texture.render(1, 1, 1, 1);
-        }
-        glPopMatrix();
-
-        glPushMatrix();
-        {
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glEnable(GL_TEXTURE_2D);
-            TextureImpl.bindNone();
-
-            glTranslatef(-4, -24, 0);
-            TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
-            int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
-            font.drawString(0, 0, "" + timeLeft, Color.green);
-        }
-        glPopMatrix();
     }
 }
