@@ -40,7 +40,7 @@ public class World implements IRenderObject {
 
         this.generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
         this.terrainTexture = new BufferedTexture(this.getWidth(), this.getHeight());
-        this.terrainData = generator.generate("GeMoschenIsDa");
+        this.terrainData = generator.generate(3);
         this.paintTerrain();
         this.createFX();
         this.createBridge();
@@ -181,7 +181,6 @@ public class World implements IRenderObject {
     }
 
     private void fillCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType) {
-        long start = System.nanoTime();
         int innerRadius = radius - wallThickness;
         innerRadius = innerRadius * innerRadius;
         int radiusSquared = radius * radius;
@@ -221,9 +220,6 @@ public class World implements IRenderObject {
                 }
             }
         }
-        long d = System.nanoTime() - start;
-        float dur = d / 1000000f;
-        System.out.println("Circle Duration: " + dur);
     }
 
     public boolean isPixelSolid(int x, int y) {
@@ -249,7 +245,7 @@ public class World implements IRenderObject {
 
     public Vector2f getNormal(int x, int y) {
         Vector2f average = new Vector2f();
-        int normalSize = 2;
+        int normalSize = 5;
         for (int i = -normalSize; i <= normalSize; i++) {
             for (int j = -normalSize; j <= normalSize; j++) {
                 if (this.isPixelSolid(x + i, y + j)) {

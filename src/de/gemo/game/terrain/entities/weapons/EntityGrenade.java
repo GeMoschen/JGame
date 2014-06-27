@@ -76,10 +76,12 @@ public class EntityGrenade extends EntityWeapon {
             glEnable(GL_TEXTURE_2D);
             TextureImpl.bindNone();
 
-            TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
             int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
-            glTranslatef(-font.getWidth("" + timeLeft) / 2 + 3, -24, 0);
-            font.drawString(0, 0, "" + timeLeft, Color.green);
+            if (timeLeft > 0) {
+                TrueTypeFont font = FontManager.getStandardFont(14, Font.BOLD);
+                glTranslatef(-font.getWidth("" + timeLeft) / 2 + 3, -24, 0);
+                font.drawString(0, 0, "" + timeLeft, Color.green);
+            }
         }
         glPopMatrix();
     }
