@@ -76,7 +76,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
         glEnable(GL_DEPTH_TEST);
         glPushMatrix();
         {
-            glTranslatef(1, -3, 0);
+            glTranslatef(1, 0, 0);
             texture.render(1, 1, 1, 1);
         }
         glPopMatrix();
@@ -179,9 +179,9 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             // add momentum
             Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
             toVector = Vector2f.normalize(toVector);
-            toVector.setY(toVector.getY() - 0.35f);
-            toVector.setX(toVector.getX() * 4.5f);
-            toVector.setY(toVector.getY() * 4.5f);
+            toVector.setY(toVector.getY() - 0.7f);
+            toVector.setX(toVector.getX() * 5f);
+            toVector.setY(toVector.getY() * 5f);
             player.setPushedByWeapon(true);
             player.addVelocity(toVector);
         }
