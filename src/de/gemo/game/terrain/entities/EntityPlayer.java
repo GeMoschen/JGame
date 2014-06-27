@@ -27,7 +27,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private boolean onGround, shotFired = false, pushedByWeapon = false;
     private SingleTexture crosshair;
 
-    private Class<? extends EntityWeapon> currentWeapon = EntityGrenade.class;
+    private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
 
     private int health = 100;
 
@@ -84,17 +84,12 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     public boolean canFall() {
-        int bottomY = (int) (this.position.getY() + this.playerHeight) + 1;
-        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
-                return false;
-            }
-        }
-
-        bottomY = (int) (this.position.getY() + this.playerHeight) + 2;
-        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
-                return false;
+        for (int tY = 1; tY < 2; tY++) {
+            int bottomY = (int) (this.position.getY() + this.playerHeight + tY);
+            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
+                if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -142,7 +137,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             vY = this.getMaxAdvanceY(vY);
         } else {
             // is on ground.. if vY < 0, we are jumping or flying high
-            if (Math.abs(vX) < 1.75f) {
+            if (Math.abs(vX) < 0.1f) {
                 this.pushedByWeapon = false;
             }
             if (vY > 0) {
@@ -166,6 +161,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             vX *= 0.99f;
         }
 
+        // WALKING LEFT OR RIGHT
         if (this.onGround) {
             float walkSpeed = 0.03f;
             if (this.movement[LEFT] && !this.movement[RIGHT]) {
@@ -196,11 +192,15 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
         this.onGround = !this.canFall();
         if (this.onGround) {
-            if ((!this.movement[LEFT] && !this.movement[RIGHT]) || this.pushedByWeapon) {
-                this.velocity.setX(vX * 0.95f);
+            if ((!this.movement[LEFT] && !this.movement[RIGHT] && !this.pushedByWeapon) || (!this.pushedByWeapon)) {
+                vX = 0f;
             } else {
-                this.velocity.setX(0);
+                vX *= 0.98f;
             }
+            this.velocity.set(vX, vY);
+        } else {
+            vX *= 0.99f;
+            this.velocity.set(vX, vY);
         }
 
     }
