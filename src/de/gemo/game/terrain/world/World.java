@@ -40,7 +40,7 @@ public class World implements IRenderObject {
 
         this.generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
         this.terrainTexture = new BufferedTexture(this.getWidth(), this.getHeight());
-        this.terrainData = generator.generate(0);
+        this.terrainData = generator.generate();
         this.paintTerrain();
         this.createFX();
         this.createBridge();

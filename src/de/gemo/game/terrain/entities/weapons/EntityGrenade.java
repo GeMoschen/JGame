@@ -103,7 +103,7 @@ public class EntityGrenade extends EntityWeapon {
         vX *= 0.999f;
         vY *= 0.999f;
 
-        int signumX = 1, signumY = 1;
+        int signumX = 0, signumY = 0;
         if (vX < 0) {
             signumX = -1;
         }
@@ -111,7 +111,14 @@ public class EntityGrenade extends EntityWeapon {
             signumY = -1;
         }
 
-        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX + 5 * signumX), (int) (this.position.getY() + vY + 5 * signumY));
+        if (vX > 0) {
+            signumX = +1;
+        }
+        if (vY > 0) {
+            signumY = +1;
+        }
+
+        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX + 9 * signumX), (int) (this.position.getY() + vY + 9 * signumY));
         if (raycast == null) {
             // advance position
             this.position.move(vX, vY);
@@ -127,6 +134,7 @@ public class EntityGrenade extends EntityWeapon {
 
             this.angle = this.position.getAngle(this.position.getX() + vX, this.position.getY() + vY);
         } else {
+            // get normal
             Vector2f normal = this.world.getNormal(raycast[0], raycast[1]);
             float f = 2F * (this.velocity.getX() * normal.getX() + this.velocity.getY() * normal.getY());
             this.velocity.move(-normal.getX() * f, -normal.getY() * f);
