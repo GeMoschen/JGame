@@ -1,14 +1,10 @@
 package de.gemo.gameengine.manager;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
-import de.gemo.gameengine.events.mouse.MouseClickEvent;
-import de.gemo.gameengine.events.mouse.MouseDragEvent;
-import de.gemo.gameengine.events.mouse.MouseMoveEvent;
-import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
-import de.gemo.gameengine.events.mouse.MouseWheelEvent;
-import de.gemo.gameengine.gui.GUIElement;
+import de.gemo.gameengine.events.mouse.*;
+import de.gemo.gameengine.gui.*;
 
 public class GUIManager {
     public static GUIManager INSTANCE = null;
@@ -228,6 +224,24 @@ public class GUIManager {
             int eventX = (int) (event.getX() - element.getPosition().getX());
             int eventY = (int) (event.getY() - element.getPosition().getY());
             element.onMouseDrag(new MouseDragEvent(eventX, eventY, event.getDifX(), event.getDifY(), event.getButton()));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean onMouseHold(MouseHoldEvent event) {
+        GUIElement element = this.getElementUnderMouse();
+        if (element != null) {
+            if (!element.equals(this.focusedElement)) {
+                if (this.focusedElement != null) {
+                    this.focusedElement.onFocusLost();
+                }
+                this.focusedElement = element;
+                this.focusedElement.onFocusGained();
+            }
+            int eventX = (int) (event.getX() - element.getPosition().getX());
+            int eventY = (int) (event.getY() - element.getPosition().getY());
+            element.onMouseHold(new MouseHoldEvent(eventX, eventY, event.getButton()));
             return true;
         }
         return false;

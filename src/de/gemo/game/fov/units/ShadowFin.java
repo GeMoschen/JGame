@@ -26,7 +26,7 @@ public class ShadowFin {
     public ShadowFin(Vector2f... vectors) {
         this.vectorList = new ArrayList<Vector3f>();
         for (Vector2f vector : vectors) {
-            this.vectorList.add(new Vector3f(vector.x, vector.y, 0));
+            this.vectorList.add(new Vector3f(vector.x, 0, vector.y));
         }
     }
 
@@ -39,7 +39,7 @@ public class ShadowFin {
         {
             glColor4f(r, g, b, alpha);
             for (Vector3f vector : this.vectorList) {
-                glVertex3f(vector.getX(), vector.getY(), vector.getZ());
+                glVertex3f(vector.getX(), 0, vector.getY());
             }
         }
         glEnd();

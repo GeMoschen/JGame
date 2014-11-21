@@ -72,12 +72,12 @@ public class EntityBazooka extends EntityWeapon {
         if (raycast == null) {
             // create clouds behind
             i++;
-            if (i == 2) {
-                Vector2f spawnPosition = this.position.clone();
-                spawnPosition.move(-vX / 6, -vY / 6);
-                new EntityCloud(this.world, spawnPosition);
-                i = 0;
-            }
+            // if (i == 0) {
+            Vector2f spawnPosition = this.position.clone();
+            spawnPosition.move(-vX / 6, -vY / 6);
+            new EntityCloud(this.world, spawnPosition);
+            i = 0;
+            // }
 
             // advance position
             this.position.move(vX, vY);

@@ -158,7 +158,10 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onMouseMove(boolean handled, MouseMoveEvent event) {
         if (MouseManager.INSTANCE.isButtonDown(MouseButton.MIDDLE.getID())) {
-            offset.move(event.getDifX(), event.getDifY());
+            System.out.println(offset);
+            if (offset.getX() + event.getDifX() < this.VIEW_WIDTH / 2 && offset.getX() + event.getDifX() > -this.world.getWidth() + this.VIEW_WIDTH / 2) {
+                offset.move(event.getDifX(), event.getDifY());
+            }
         }
     }
 

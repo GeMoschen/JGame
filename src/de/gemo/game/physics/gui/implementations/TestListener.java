@@ -2,11 +2,7 @@ package de.gemo.game.physics.gui.implementations;
 
 import org.lwjgl.input.Keyboard;
 
-import de.gemo.gameengine.events.mouse.MouseClickEvent;
-import de.gemo.gameengine.events.mouse.MouseDragEvent;
-import de.gemo.gameengine.events.mouse.MouseMoveEvent;
-import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
-import de.gemo.gameengine.events.mouse.MouseWheelEvent;
+import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.gui.GUIElement;
 import de.gemo.gameengine.interfaces.listener.FocusListener;
 import de.gemo.gameengine.interfaces.listener.MouseListener;
@@ -70,6 +66,11 @@ public class TestListener implements MouseListener, FocusListener {
         } else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && event.isDown()) {
             element.setAngle(element.getAngle() + 10f);
         }
+    }
+
+    @Override
+    public void onMouseHold(GUIElement element, MouseHoldEvent event) {
+        // TODO Auto-generated method stub
     }
 
 }

@@ -3,6 +3,7 @@ package de.gemo.game.fov.units;
 import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
+import org.newdawn.slick.*;
 
 import de.gemo.game.fov.navigation.*;
 import de.gemo.gameengine.collision.*;
@@ -108,7 +109,6 @@ public class Enemy {
 
             float dimX = this.hitbox.getAABB().getRight() - this.hitbox.getAABB().getLeft();
             if (dimX < this.minX) {
-                System.out.println("min: " + minX);
                 this.minX = dimX;
             }
 
@@ -245,7 +245,7 @@ public class Enemy {
         // bind shader
         coneShader.bind();
 
-        glUniform2f(glGetUniformLocation(coneShader.getID(), "lightLocation"), this.hitbox.getCenter().getX(), height - this.hitbox.getCenter().getY());
+        glUniform2f(glGetUniformLocation(coneShader.getID(), "center"), this.hitbox.getCenter().getX(), height - this.hitbox.getCenter().getY());
         if (!alerted) {
             glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.1f, 0.4f, 0.0f);
             glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.05f, 0.2f, 0.0f);
@@ -261,13 +261,13 @@ public class Enemy {
         // render cone
         glPushMatrix();
         {
-            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getY(), this.hitbox.getCenter().getZ());
-            glRotatef(this.getHitbox().getAngle(), 0, 0, 1);
+            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getZ(), this.hitbox.getCenter().getY());
+            glRotatef(-this.getHitbox().getAngle(), 0, 1, 0);
             glBegin(GL_POLYGON);
             {
-                glVertex2f(0, 0);
-                glVertex2f(-100, -270);
-                glVertex2f(+100, -270);
+                glVertex3f(0, 0, 0);
+                glVertex3f(-100, 0, -270);
+                glVertex3f(+100, 0, -270);
             }
             glEnd();
         }
@@ -279,81 +279,55 @@ public class Enemy {
         glClear(GL_STENCIL_BUFFER_BIT);
         glDisable(GL_STENCIL_TEST);
 
-        // // render ShadowFins
-        // List<PolyDefault> shadows = new ArrayList<PolyDefault>();
-        // for (Tile block : blocks) {
-        // PolyDefault shadowPoly = new PolyDefault();
-        // boolean foundShadow = false;
-        // Vector2f[] vertices = block.getVertices();
-        // for (int i = 0; i < vertices.length; i++) {
-        // Vector2f currentVertex = vertices[i];
-        // Vector2f nextVertex = vertices[(i + 1) % vertices.length];
-        // Vector2f edge = Vector2f.sub(nextVertex, currentVertex, null);
-        // Vector2f normal = new Vector2f(edge.getY(), -edge.getX());
-        // Vector2f lightToCurrent = Vector2f.sub(currentVertex, this.location,
-        // null);
-        // if (Vector2f.dot(normal, lightToCurrent) > 0) {
-        // PolyDefault finPoly = new PolyDefault();
-        // Vector2f point1 = Vector2f.add(currentVertex, (Vector2f)
-        // Vector2f.sub(currentVertex, this.location, null).scale(width), null);
-        // Vector2f point2 = Vector2f.add(nextVertex, (Vector2f)
-        // Vector2f.sub(nextVertex, this.location, null).scale(width), null);
-        // finPoly.add(new Point2D(currentVertex.x, currentVertex.y));
-        // finPoly.add(new Point2D(point1.x, point1.y));
-        // finPoly.add(new Point2D(point2.x, point2.y));
-        // finPoly.add(new Point2D(nextVertex.x, nextVertex.y));
-        // shadowPoly = (PolyDefault) shadowPoly.union(finPoly);
-        // foundShadow = true;
-        // }
-        // }
-        //
-        // if (foundShadow) {
-        // shadows.add(shadowPoly);
-        // }
-        // }
-        // PolyDefault polygon = new PolyDefault();
-        // for (Vector3f vector : this.hitbox.getPoints()) {
-        // polygon.add(vector.getX(), vector.getY());
-        // }
-        //
-        // for (PolyDefault shadow : shadows) {
-        // if (!polygon.isHole()) {
-        // polygon = (PolyDefault) polygon.difference(shadow);
-        // }
-        // }
-
-        // this.hitbox.render();
-        // glBegin(GL_LINE_LOOP);
-        // {
-        // if (this.alerted) {
-        // glColor4f(1, 0, 0, 0.5f);
-        // } else {
-        // glColor4f(0, 1, 0, 0.5f);
-        // }
-        // for (int i = 0; i < polygon.getNumPoints(); i++) {
-        // glVertex2f((float) polygon.getX(i), (float) polygon.getY(i));
-        // }
-        // }
-        // glEnd();
-
         if (this.path != null) {
             this.path.render(this.waypointIndex);
         }
-        // this.hitbox.render();
+        this.renderHitbox();
 
         glPushMatrix();
         {
             glColor4f(1, 1, 1, 1);
-            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getY(), this.hitbox.getCenter().getZ());
+            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getZ(), this.hitbox.getCenter().getY());
             glBegin(GL_QUADS);
             {
                 int block = 3;
-                glVertex2f(-block, -block);
-                glVertex2f(+block, -block);
-                glVertex2f(+block, +block);
-                glVertex2f(-block, +block);
+                glVertex3f(-block, 0, -block);
+                glVertex3f(+block, 0, -block);
+                glVertex3f(+block, 0, +block);
+                glVertex3f(-block, 0, +block);
             }
             glEnd();
+        }
+        glPopMatrix();
+
+    }
+
+    private void renderHitbox() {
+        // translate to center
+        glPushMatrix();
+        {
+            glDisable(GL_LIGHTING);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
+            glLineWidth(1f);
+
+            // render hitbox
+            glPushMatrix();
+            {
+                Color.green.bind();
+                glBegin(GL_LINE_LOOP);
+                for (Vector3f vector : this.hitbox.getPoints()) {
+                    glVertex3f(vector.getX(), 0, vector.getY());
+                }
+                glEnd();
+            }
+            glPopMatrix();
+
+            // render AABB
+            // this.aabb.render();
+
+            glEnable(GL_BLEND);
+            glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
 

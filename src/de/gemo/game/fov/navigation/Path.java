@@ -30,7 +30,7 @@ public class Path {
     }
 
     public void render(int startIndex) {
-        glColor4f(1, 0, 1, 1);
+        glColor4f(0, 0, 1, 0.4f);
 
         glDisable(GL_LIGHTING);
         glDisable(GL_TEXTURE_2D);
@@ -44,8 +44,8 @@ public class Path {
             for (int i = startIndex; i < this.path.size(); i++) {
                 Vector3f current = this.path.get(i);
                 Vector3f last = this.path.get(i - 1);
-                glVertex2f(last.getX(), last.getY());
-                glVertex2f(current.getX(), current.getY());
+                glVertex3f(last.getX(), 0, last.getY());
+                glVertex3f(current.getX(), 0, current.getY());
             }
         }
         glEnd();

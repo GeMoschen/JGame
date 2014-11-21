@@ -327,7 +327,7 @@ public class GameEngine {
         glViewport(0, 0, Display.getWidth(), Display.getHeight());
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        GLU.gluPerspective(68f, (float) Display.getWidth() / (float) Display.getHeight(), 0.3f, 512);
+        GLU.gluPerspective(68f, (float) Display.getWidth() / (float) Display.getHeight(), 0.3f, 2048);
         // return to modelview matrix
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
     }
@@ -465,6 +465,10 @@ public class GameEngine {
         this.onMouseDrag(this.guiManager.onMouseDrag(event), event);
     }
 
+    public final void handleMouseHold(MouseHoldEvent event) {
+        this.onMouseHold(this.guiManager.onMouseHold(event), event);
+    }
+
     public void onMouseMove(boolean handled, MouseMoveEvent event) {
     }
 
@@ -478,6 +482,9 @@ public class GameEngine {
     }
 
     public void onMouseDrag(boolean handled, MouseDragEvent event) {
+    }
+
+    public void onMouseHold(boolean handled, MouseHoldEvent event) {
     }
 
     // ////////////////////////////////////////

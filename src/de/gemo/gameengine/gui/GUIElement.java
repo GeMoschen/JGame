@@ -448,6 +448,13 @@ public class GUIElement implements IRenderable {
         this.mouseListener.onMouseDrag(this, event);
     }
 
+    public final void onMouseHold(MouseHoldEvent event) {
+        if (this.mouseListener == null) {
+            return;
+        }
+        this.mouseListener.onMouseHold(this, event);
+    }
+
     // ////////////////////////////////////////
     //
     // KEYBOARD EVENTS

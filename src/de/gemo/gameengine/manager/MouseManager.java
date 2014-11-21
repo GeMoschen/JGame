@@ -1,18 +1,12 @@
 package de.gemo.gameengine.manager;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
-import org.lwjgl.input.Mouse;
+import org.lwjgl.input.*;
 
-import de.gemo.gameengine.collision.Hitbox;
-import de.gemo.gameengine.core.GameEngine;
-import de.gemo.gameengine.events.mouse.MouseButton;
-import de.gemo.gameengine.events.mouse.MouseClickEvent;
-import de.gemo.gameengine.events.mouse.MouseDragEvent;
-import de.gemo.gameengine.events.mouse.MouseMoveEvent;
-import de.gemo.gameengine.events.mouse.MouseReleaseEvent;
-import de.gemo.gameengine.events.mouse.MouseWheelEvent;
+import de.gemo.gameengine.collision.*;
+import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.units.*;
 
 public class MouseManager {
@@ -154,6 +148,9 @@ public class MouseManager {
 
             for (int currentKey : this.holdButtons) {
                 if (Mouse.isButtonDown(currentKey)) {
+                    // hold button
+                    engine.handleMouseHold(new MouseHoldEvent(correctedX, correctedY, MouseButton.byID(currentKey)));
+
                     // hold button
                     if (correctedDX != 0f || correctedDY != 0f) {
                         engine.handleMouseDrag(new MouseDragEvent(correctedX, correctedY, correctedDX, correctedDY, MouseButton.byID(currentKey)));
