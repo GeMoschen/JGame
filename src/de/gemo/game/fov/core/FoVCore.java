@@ -15,7 +15,6 @@ import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
 
 public class FoVCore extends GameEngine {
 
@@ -23,9 +22,9 @@ public class FoVCore extends GameEngine {
     private ArrayList<Tile> tiles = new ArrayList<Tile>();
     private NavMesh navMesh;
 
-    private Shader coneShader, ambientShader;
-
     private Camera cam = new Camera();
+    private Vector2f mouseRightDownVector = new Vector2f();
+    private Vector2f mouseLeftDownVector = new Vector2f();
 
     public FoVCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
@@ -33,8 +32,8 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int enemyCount = 5;
-        int blockCount = 80;
+        int enemyCount = 6;
+        int blockCount = 50;
 
         for (int i = 1; i <= blockCount; i++) {
             int width = 15;
@@ -59,25 +58,35 @@ public class FoVCore extends GameEngine {
             }
             enemies.add(new Enemy(location));
         }
-
-        coneShader = new Shader();
-        coneShader.loadPixelShader("shaders/viewcone.frag");
-
-        ambientShader = new Shader();
-        ambientShader.loadPixelShader("shaders/ambientLight.frag");
-
         this.navMesh = new NavMesh(this.tiles);
     }
 
     @Override
     public void onKeyReleased(KeyEvent event) {
-        if (event.getKey() == Keyboard.KEY_W) {
-            this.cam.walkForward(10);
-        }
+        super.onKeyReleased(event);
     }
 
-    private Vector2f mouseRightDownVector = new Vector2f();
-    private Vector2f mouseLeftDownVector = new Vector2f();
+    @Override
+    public void onKeyHold(KeyEvent event) {
+        if (event.getKey() == Keyboard.KEY_Q) {
+            this.cam.addRoll(-1);
+        } else if (event.getKey() == Keyboard.KEY_E) {
+            this.cam.addRoll(1);
+        } else if (event.getKey() == Keyboard.KEY_W) {
+            this.cam.walkForward(5);
+        } else if (event.getKey() == Keyboard.KEY_S) {
+            this.cam.walkBackwards(5);
+        } else if (event.getKey() == Keyboard.KEY_A) {
+            this.cam.strafeLeft(5);
+        } else if (event.getKey() == Keyboard.KEY_D) {
+            this.cam.strafeRight(5);
+        } else if (event.getKey() == Keyboard.KEY_X) {
+            this.cam.goUp(5);
+        } else if (event.getKey() == Keyboard.KEY_C) {
+            this.cam.goUp(-5);
+        }
+        super.onKeyHold(event);
+    }
 
     @Override
     public void onMouseHold(boolean handled, MouseHoldEvent event) {
@@ -158,10 +167,11 @@ public class FoVCore extends GameEngine {
         }
 
         if (event.isMiddleButton()) {
-            for (Enemy enemy : this.enemies) {
-                // enemy.update(this.navMesh, this.tiles);
-                enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0), navMesh, this.tiles);
-            }
+            // for (Enemy enemy : this.enemies) {
+            // // enemy.update(this.navMesh, this.tiles);
+            // enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0),
+            // navMesh, this.tiles);
+            // }
         }
         if (event.isRightButton()) {
             mouseRightDownVector.setX(event.getX());
@@ -170,11 +180,14 @@ public class FoVCore extends GameEngine {
     }
 
     @Override
-    public void onMouseWheel(boolean handled, MouseWheelEvent event) {
-        if (event.isUp()) {
-            this.cam.goUp(10);
-        } else {
-            this.cam.goUp(-10);
+    public void onMouseDrag(boolean handled, MouseDragEvent event) {
+        if (event.isMiddleButton()) {
+            float distance = 10;
+            if (event.getDifY() > 0) {
+                this.cam.goUp(distance);
+            } else if (event.getDifY() < 0) {
+                this.cam.goUp(-distance);
+            }
         }
     }
 
@@ -239,8 +252,6 @@ public class FoVCore extends GameEngine {
         // AMBIENT
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        ambientShader.bind();
-        glUniform4f(glGetUniformLocation(ambientShader.getID(), "ambientColor"), 0.3f, 0.3f, 0.7f, 1f);
 
         glColor4f(0.3f, 0.3f, 0.7f, 0.5f);
         glBegin(GL_QUADS);
@@ -251,12 +262,11 @@ public class FoVCore extends GameEngine {
             glVertex2f(0, this.VIEW_HEIGHT);
         }
         glEnd();
-        ambientShader.unbind();
         glDisable(GL_BLEND);
 
         // render lightcones
         for (Enemy enemy : enemies) {
-            enemy.render(this.tiles, this.coneShader, this.ambientShader, this.VIEW_WIDTH, this.VIEW_HEIGHT);
+            enemy.render(this.tiles, this.VIEW_WIDTH, this.VIEW_HEIGHT);
         }
         // this.navMesh.render();
         glPopMatrix();
@@ -271,14 +281,16 @@ public class FoVCore extends GameEngine {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         Font font = FontManager.getStandardFont();
-        font.drawString(10, 10, "Yaw: " + this.cam.getYaw());
-        font.drawString(10, 20, "Roll: " + this.cam.getRoll());
-        font.drawString(10, 30, "Pitch: " + this.cam.getPitch());
-    }
+        font.drawString(10, 10, "Pitch: " + this.cam.getYaw());
+        font.drawString(85, 10, "Yaw: " + this.cam.getRoll());
+        font.drawString(200, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
 
-    @Override
-    protected void onShutdown(boolean error) {
-        this.coneShader.cleanup();
-        this.ambientShader.cleanup();
+        int base = 20;
+        font.drawString(10, base, "________________________________________");
+        font.drawString(10, base + 15, "                       Controls");
+        font.drawString(10, base + 20, "________________________________________");
+        font.drawString(10, base + 35, "Rotate:   Q/E or left MB & move");
+        font.drawString(10, base + 48, "Move:     W/A/S/D or right MB & move");
+        font.drawString(10, base + 61, "Height:    X/C or middle MB & move");
     }
 }

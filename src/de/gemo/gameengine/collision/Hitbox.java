@@ -59,14 +59,19 @@ public class Hitbox {
         return this.points.get(index);
     }
 
-    public final void addPoint(Vector3f vector) {
-        this.addPoint(vector.getX(), vector.getY());
+    public final Vector3f addPoint(Vector3f vector) {
+        return this.addPoint(vector.getX(), vector.getY());
     }
 
-    public final void addPoint(float x, float y) {
+    public final Vector3f calculatePoint(float x, float y) {
+        return new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
+    }
+
+    public final Vector3f addPoint(float x, float y) {
         Vector3f vector = new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
         this.points.add(vector);
         this.aabb.addPoint(vector.getX(), vector.getY());
+        return vector;
     }
 
     public final Vector3f getCenter() {

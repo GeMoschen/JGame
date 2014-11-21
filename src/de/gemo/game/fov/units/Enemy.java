@@ -3,7 +3,6 @@ package de.gemo.game.fov.units;
 import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
-import org.newdawn.slick.*;
 
 import de.gemo.game.fov.navigation.*;
 import de.gemo.gameengine.collision.*;
@@ -11,14 +10,13 @@ import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.units.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
 
 public class Enemy {
     // private Vector3f location;
     private float currentAngle = 0f, wantedAngle = 0f, momentum = 0f, viewAngle = 0;
 
     public Vector3f velocity = new Vector3f();
-    private Hitbox hitbox;
+    private Hitbox farHitbox, nearHitbox;
     private boolean alerted = false;
 
     private Path path = null;
@@ -38,36 +36,64 @@ public class Enemy {
     }
 
     private void createHitbox(Vector3f location) {
-        this.hitbox = new Hitbox(location);
-        this.hitbox.addPoint(0, 0);
-        this.hitbox.addPoint(-94, -252);
-        this.hitbox.addPoint(-70, -261);
-        this.hitbox.addPoint(-47, -265);
-        this.hitbox.addPoint(-24, -269);
-        this.hitbox.addPoint(0, -270);
-        this.hitbox.addPoint(+24, -269);
-        this.hitbox.addPoint(+47, -265);
-        this.hitbox.addPoint(+70, -261);
-        this.hitbox.addPoint(+94, -252);
+        this.farHitbox = new Hitbox(location);
+        this.nearHitbox = new Hitbox(location.clone());
+
+        int nearDistance = 100;
+        int farDistance = 250;
+        int points = 12;
+        float maxAngle = 42f;
+        float stepAngle = maxAngle / (points - 1);
+        float halfAngle = maxAngle / 2f;
+
+        this.nearHitbox.rotate(-halfAngle);
+        this.farHitbox.rotate(-halfAngle);
+
+        this.nearHitbox.addPoint(0, 0);
+        this.nearHitbox.addPoint(0, -nearDistance);
+        this.farHitbox.addPoint(0, -farDistance);
+
+        // construct near hitbox
+        for (int i = 0; i < points - 1; i++) {
+            this.nearHitbox.rotate(stepAngle);
+            this.nearHitbox.addPoint(0, -nearDistance);
+        }
+
+        // construct far hitbox
+        for (int i = 0; i < points - 1; i++) {
+            this.farHitbox.rotate(stepAngle);
+            this.farHitbox.addPoint(0, -farDistance);
+        }
+
+        this.farHitbox.setAngle(0);
+        this.farHitbox.rotate(halfAngle + stepAngle);
+        for (int i = 0; i < points - 1; i++) {
+            this.farHitbox.rotate(-stepAngle);
+            this.farHitbox.addPoint(0, -nearDistance);
+        }
+        this.farHitbox.rotate(-stepAngle);
+        this.farHitbox.addPoint(0, -nearDistance);
     }
 
     public void setAngle(float angle) {
         this.updateViewAngle();
-        this.hitbox.setAngle(angle + this.viewAngle);
-        this.currentAngle = this.hitbox.getAngle() - this.viewAngle;
+        this.farHitbox.setAngle(angle + this.viewAngle);
+        this.nearHitbox.setAngle(angle + this.viewAngle);
+        this.currentAngle = this.farHitbox.getAngle() - this.viewAngle;
     }
 
     private void updateViewAngle() {
-        float moveSpeed = 0.25f;
+        float rotationSpeed = 0.5f;
         if (this.momentum == 1) {
-            this.viewAngle += moveSpeed;
+            this.viewAngle += rotationSpeed;
         } else {
-            this.viewAngle -= moveSpeed;
+            this.viewAngle -= rotationSpeed;
         }
 
-        if (this.viewAngle >= 60) {
+        int maxAngle = 30;
+        if (this.viewAngle >= maxAngle) {
             this.momentum = 0;
-        } else if (this.viewAngle <= -60) {
+        } else if (this.viewAngle <= -maxAngle) {
             this.momentum = 1;
         }
     }
@@ -78,7 +104,7 @@ public class Enemy {
         this.velocity = new Vector3f(0, 0, 0);
 
         if (this.currentWaypoint != null) {
-            this.setAngle(this.currentWaypoint.getAngle(this.hitbox.getCenter()));
+            this.setAngle(this.currentWaypoint.getAngle(this.farHitbox.getCenter()));
 
             // this.setAngle(0);
 
@@ -102,12 +128,12 @@ public class Enemy {
             float maxForce = 0.3f;
             float mass = 1f;
             Vector3f desired = new Vector3f();
-            Vector3f.sub(currentWaypoint, this.hitbox.getCenter(), desired);
+            Vector3f.sub(currentWaypoint, this.farHitbox.getCenter(), desired);
             if (desired.getX() != 0 && desired.getY() != 0) {
                 Vector3f.normalize(desired).scale(maxVelocity);
             }
 
-            float dimX = this.hitbox.getAABB().getRight() - this.hitbox.getAABB().getLeft();
+            float dimX = this.farHitbox.getAABB().getRight() - this.farHitbox.getAABB().getLeft();
             if (dimX < this.minX) {
                 this.minX = dimX;
             }
@@ -127,7 +153,7 @@ public class Enemy {
                         this.findRandomGoal(navMesh, tileList);
                     } else {
                         this.currentWaypoint = this.path.getNode(this.waypointIndex);
-                        this.wantedAngle = this.currentWaypoint.getAngle(this.hitbox.getCenter());
+                        this.wantedAngle = this.currentWaypoint.getAngle(this.farHitbox.getCenter());
                         this.viewAngle -= 0;
                     }
                 }
@@ -149,8 +175,8 @@ public class Enemy {
 
             // create raycast
             Hitbox raycast = new Hitbox(0, 0);
-            raycast.addPoint(this.hitbox.getCenter());
-            raycast.addPoint(Vector3f.add(this.hitbox.getCenter(), new Vector3f(1, 1, 0)));
+            raycast.addPoint(this.farHitbox.getCenter());
+            raycast.addPoint(Vector3f.add(this.farHitbox.getCenter(), new Vector3f(1, 1, 0)));
 
             // check for colliding polys
             canSeeTarget = true;
@@ -163,11 +189,11 @@ public class Enemy {
                 }
             }
             if (canSeeTarget) {
-                this.path = navMesh.findPath(this.hitbox.getCenter(), goal, tileList);
+                this.path = navMesh.findPath(this.farHitbox.getCenter(), goal, tileList);
                 if (this.path != null) {
                     this.waypointIndex++;
                     this.currentWaypoint = this.path.getNode(this.waypointIndex);
-                    this.wantedAngle = this.currentWaypoint.getAngle(this.hitbox.getCenter());
+                    this.wantedAngle = this.currentWaypoint.getAngle(this.farHitbox.getCenter());
                     return;
                 }
             }
@@ -178,8 +204,8 @@ public class Enemy {
     public void setTarget(Vector3f goal, NavMesh navMesh, List<Tile> tileList) {
         // create raycast
         Hitbox raycast = new Hitbox(0, 0);
-        raycast.addPoint(this.hitbox.getCenter());
-        raycast.addPoint(Vector3f.add(this.hitbox.getCenter(), new Vector3f(1, 1, 0)));
+        raycast.addPoint(this.farHitbox.getCenter());
+        raycast.addPoint(Vector3f.add(this.farHitbox.getCenter(), new Vector3f(1, 1, 0)));
         boolean canSeeTarget = true;
         this.waypointIndex = 0;
         this.path = null;
@@ -192,7 +218,7 @@ public class Enemy {
             }
         }
         if (canSeeTarget) {
-            this.path = navMesh.findPath(this.hitbox.getCenter(), goal, tileList);
+            this.path = navMesh.findPath(this.farHitbox.getCenter(), goal, tileList);
             if (this.path != null) {
                 this.waypointIndex++;
                 this.currentWaypoint = this.path.getNode(this.waypointIndex);
@@ -200,7 +226,7 @@ public class Enemy {
         }
     }
 
-    public void render(List<Tile> blocks, Shader coneShader, Shader ambientShader, int width, int height) {
+    public void render(List<Tile> blocks, int width, int height) {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_STENCIL_TEST);
         glColorMask(false, false, false, false);
@@ -221,10 +247,10 @@ public class Enemy {
                 Vector3f nextVertex = vertices.get((i + 1) % vertices.size());
                 Vector3f edge = Vector3f.sub(nextVertex, currentVertex);
                 Vector3f normal = new Vector3f(edge.getY(), -edge.getX(), 0);
-                Vector3f lightToCurrent = Vector3f.sub(currentVertex, this.hitbox.getCenter());
+                Vector3f lightToCurrent = Vector3f.sub(currentVertex, this.farHitbox.getCenter());
                 if (Vector3f.dot(normal, lightToCurrent) > 0) {
-                    Vector3f point1 = Vector3f.add(currentVertex, Vector3f.sub(currentVertex, this.hitbox.getCenter(), null).scale(width), null);
-                    Vector3f point2 = Vector3f.add(nextVertex, Vector3f.sub(nextVertex, this.hitbox.getCenter(), null).scale(width), null);
+                    Vector3f point1 = Vector3f.add(currentVertex, Vector3f.sub(currentVertex, this.farHitbox.getCenter(), null).scale(width), null);
+                    Vector3f point2 = Vector3f.add(nextVertex, Vector3f.sub(nextVertex, this.farHitbox.getCenter(), null).scale(width), null);
                     ShadowFin fin = new ShadowFin(currentVertex, point1, point2, nextVertex);
                     fin.render(0, 0, 0, 1f);
                     fins.add(fin);
@@ -242,52 +268,32 @@ public class Enemy {
         // draw only where stencil's value is 1
         glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-        // bind shader
-        coneShader.bind();
-
-        glUniform2f(glGetUniformLocation(coneShader.getID(), "center"), this.hitbox.getCenter().getX(), height - this.hitbox.getCenter().getY());
-        if (!alerted) {
-            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.1f, 0.4f, 0.0f);
-            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.05f, 0.2f, 0.0f);
-        } else {
-            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorOne"), 0.4f, 0.1f, 0.0f);
-            glUniform3f(glGetUniformLocation(coneShader.getID(), "lightColorTwo"), 0.2f, 0.05f, 0.0f);
-        }
-
         // enable blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
 
-        // render cone
+        // render viewcones
         glPushMatrix();
         {
-            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getZ(), this.hitbox.getCenter().getY());
-            glRotatef(-this.getHitbox().getAngle(), 0, 1, 0);
-            glBegin(GL_POLYGON);
-            {
-                glVertex3f(0, 0, 0);
-                glVertex3f(-100, 0, -270);
-                glVertex3f(+100, 0, -270);
-            }
-            glEnd();
+            this.renderHitbox(this.farHitbox);
+            this.renderHitbox(this.nearHitbox);
         }
         glPopMatrix();
 
-        // disable blending, shader and stencil
+        // disable blending and stencil
         glDisable(GL_BLEND);
-        coneShader.unbind();
         glClear(GL_STENCIL_BUFFER_BIT);
         glDisable(GL_STENCIL_TEST);
 
         if (this.path != null) {
             this.path.render(this.waypointIndex);
         }
-        this.renderHitbox();
+        // this.renderHitbox();
 
         glPushMatrix();
         {
             glColor4f(1, 1, 1, 1);
-            glTranslatef(this.hitbox.getCenter().getX(), this.hitbox.getCenter().getZ(), this.hitbox.getCenter().getY());
+            glTranslatef(this.farHitbox.getCenter().getX(), this.farHitbox.getCenter().getZ(), this.farHitbox.getCenter().getY());
             glBegin(GL_QUADS);
             {
                 int block = 3;
@@ -302,22 +308,29 @@ public class Enemy {
 
     }
 
-    private void renderHitbox() {
+    private void renderHitbox(Hitbox hitbox) {
         // translate to center
         glPushMatrix();
         {
-            glDisable(GL_LIGHTING);
-            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            // glDisable(GL_LIGHTING);
+            // glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
-            glLineWidth(1f);
+            // glLineWidth(1f);
 
             // render hitbox
             glPushMatrix();
             {
-                Color.green.bind();
-                glBegin(GL_LINE_LOOP);
-                for (Vector3f vector : this.hitbox.getPoints()) {
-                    glVertex3f(vector.getX(), 0, vector.getY());
+                if (hitbox == this.nearHitbox) {
+                    glColor4f(0, .7f, 0, .5f);
+                } else {
+                    glColor4f(0, .7f, 0, .2f);
+                }
+                glBegin(GL_POLYGON);
+                for (Vector3f vector : hitbox.getPoints()) {
+                    glVertex3f(vector.getX(), vector.getZ(), vector.getY());
                 }
                 glEnd();
             }
@@ -326,15 +339,15 @@ public class Enemy {
             // render AABB
             // this.aabb.render();
 
-            glEnable(GL_BLEND);
-            glEnable(GL_TEXTURE_2D);
+            // glEnable(GL_BLEND);
+            // glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
 
     }
 
     public Hitbox getHitbox() {
-        return hitbox;
+        return farHitbox;
     }
 
     public boolean exists(List<Vector2f> list, Vector2f search) {
@@ -353,11 +366,12 @@ public class Enemy {
     }
 
     private void move(Vector3f velocity2) {
-        this.hitbox.move(this.velocity.getX() * 2, this.velocity.getY() * 2);
+        this.farHitbox.move(this.velocity.getX() * 2, this.velocity.getY() * 2);
+        this.nearHitbox.move(this.velocity.getX() * 2, this.velocity.getY() * 2);
     }
 
     private boolean isNearTarget(float radius) {
-        return this.hitbox.getCenter().distanceTo(this.currentWaypoint) < radius;
+        return this.farHitbox.getCenter().distanceTo(this.currentWaypoint) < radius;
     }
 
     public void setAlerted(boolean alerted) {
@@ -365,10 +379,10 @@ public class Enemy {
     }
 
     public boolean collides(Enemy other) {
-        return CollisionHelper.isVectorInHitbox(other.getLocation(), this.hitbox);
+        return CollisionHelper.isVectorInHitbox(other.getLocation(), this.farHitbox);
     }
 
     public Vector3f getLocation() {
-        return this.hitbox.getCenter();
+        return this.farHitbox.getCenter();
     }
 }

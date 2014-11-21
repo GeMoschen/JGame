@@ -1,15 +1,18 @@
 package de.gemo.game.fov.core;
 
 import de.gemo.gameengine.units.*;
+
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
 
 public class Camera {
 
     private Vector3f position, rotation;
 
+    public static Camera $;
+
     public Camera() {
-        this.position = new Vector3f(0, 0, -700); // x, y, z
+        $ = this;
+        this.position = new Vector3f(-530, -250, -420); // x, y, z
         this.rotation = new Vector3f(0, 0, 0); // yaw, roll, pitch
     }
 
@@ -74,18 +77,19 @@ public class Camera {
     }
 
     public void goUp(float distance) {
+        if ((this.position.getY() > -150 && distance > 0) || (this.position.getY() < -800 && distance < 0)) {
+            return;
+        }
         this.position.move(0, distance, 0);
     }
 
     public void lookThrough() {
-        this.rotation.setX(45);
+        this.rotation.setX(68 / 3 * 2);
 
-        // glRotatef(this.rotation.getZ(), 0.0f, 0.0f, 1.0f);
         // roatate the yaw around the Y axis
-        glRotatef(this.rotation.getY(), 0.0f, 0.5f, .5f);
+        glRotatef(this.rotation.getY(), 0f, 1f, 1f);
         // roatate the roll around the Z axis
-        glRotatef(this.rotation.getX(), 1.0f, 0.0f, 0.0f);
-        // roatate the pitch around the X axis
+        glRotatef(this.rotation.getX(), 1f, 0f, 0f);
 
         // translate to the position vector's location
         glTranslatef(this.position.getX(), this.position.getY(), this.position.getZ());
