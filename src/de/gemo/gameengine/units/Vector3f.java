@@ -80,7 +80,23 @@ public class Vector3f implements Serializable {
         this.z += z;
         this.dirty = true;
     }
-
+    
+    public void add(float x, float y, float z) {
+        this.move(x, y, z);
+    }
+    
+    public void addX(float x) {
+        this.move(x, 0, 0);
+    }
+    
+    public void addY(float y) {
+        this.move(0, y, 0);
+    }
+    
+    public void addZ(float z) {
+        this.move(0, 0, z);
+    }
+    
     /**
      * @return the x
      */
