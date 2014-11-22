@@ -69,9 +69,9 @@ public class FoVCore extends GameEngine {
     @Override
     public void onKeyHold(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_Q) {
-            this.cam.addRoll(-1);
+            this.cam.addYaw(-1);
         } else if (event.getKey() == Keyboard.KEY_E) {
-            this.cam.addRoll(1);
+            this.cam.addYaw(1);
         } else if (event.getKey() == Keyboard.KEY_W) {
             this.cam.walkForward(5);
         } else if (event.getKey() == Keyboard.KEY_S) {
@@ -111,7 +111,7 @@ public class FoVCore extends GameEngine {
 
         if (event.isLeftButton()) {
             float distX = (event.getX() - mouseLeftDownVector.getX());
-            this.cam.addRoll(distX / (factor * 6));
+            this.cam.addYaw(distX / (factor * 6));
             this.renderMouseTemp(this.mouseLeftDownVector);
         }
     }
@@ -281,9 +281,10 @@ public class FoVCore extends GameEngine {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         Font font = FontManager.getStandardFont();
-        font.drawString(10, 10, "Pitch: " + this.cam.getYaw());
-        font.drawString(85, 10, "Yaw: " + this.cam.getRoll());
+        font.drawString(10, 10, "Pitch: " + this.cam.getPitch());
+        font.drawString(85, 10, "Yaw: " + this.cam.getYaw());
         font.drawString(200, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+        font.drawString(300, 10, "Height: " + (-this.cam.getPosition().getY()));
 
         int base = 20;
         font.drawString(10, base, "________________________________________");

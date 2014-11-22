@@ -6,26 +6,17 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Camera {
 
-    private Vector3f position, rotation;
+    private Vector3f position;
+    private float pitch, yaw, roll;
 
     public static Camera $;
 
     public Camera() {
         $ = this;
         this.position = new Vector3f(-530, -250, -420); // x, y, z
-        this.rotation = new Vector3f(0, 0, 0); // yaw, roll, pitch
-    }
-
-    public float getYaw() {
-        return this.rotation.getX();
-    }
-
-    public float getRoll() {
-        return this.rotation.getY();
-    }
-
-    public float getPitch() {
-        return this.rotation.getZ();
+        this.pitch = 45;
+        this.yaw = 0;
+        this.roll = 0;
     }
 
     public Vector3f getPosition() {
@@ -37,15 +28,28 @@ public class Camera {
     }
 
     public void addYaw(float yaw) {
-        this.rotation.move(yaw, 0, 0);
+        this.yaw += yaw;
+        if (this.yaw >= 360) {
+            this.yaw -= 360;
+        }
+        if (this.yaw < 0) {
+            this.yaw += 360;
+        }
     }
 
     public void addRoll(float roll) {
-        this.rotation.move(0, roll, 0);
+        this.roll += roll;
     }
 
     public void addPitch(float pitch) {
-        this.rotation.move(0, 0, pitch);
+        this.setPitch(this.pitch + pitch);
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+        if (this.pitch > 80) {
+            this.pitch = 80;
+        }
     }
 
     public void move(Vector3f move) {
@@ -58,40 +62,57 @@ public class Camera {
 
     // moves the camera forward relative to its current rotation (yaw)
     public void walkForward(float distance) {
-        this.position.move(-(distance * (float) Math.sin(Math.toRadians(this.rotation.getY()))), 0, +(distance * (float) Math.cos(Math.toRadians(this.rotation.getY()))));
+        this.position.addX(-(distance * (float) Math.sin(Math.toRadians(yaw))));
+        this.position.addZ(+(distance * (float) Math.cos(Math.toRadians(yaw))));
     }
 
     // moves the camera backward relative to its current rotation (yaw)
     public void walkBackwards(float distance) {
-        this.position.move((distance * (float) Math.sin(Math.toRadians(this.rotation.getY()))), 0, -(distance * (float) Math.cos(Math.toRadians(this.rotation.getY()))));
+        this.position.addX(+(distance * (float) Math.sin(Math.toRadians(yaw))));
+        this.position.addZ(-(distance * (float) Math.cos(Math.toRadians(yaw))));
     }
 
     // strafes the camera left relitive to its current rotation (yaw)
     public void strafeLeft(float distance) {
-        this.position.move(+(distance * (float) Math.cos(Math.toRadians(this.rotation.getY()))), 0, +(distance * (float) Math.sin(Math.toRadians(this.rotation.getY()))));
+        this.position.addX(-(distance * (float) Math.sin(Math.toRadians(yaw - 90))));
+        this.position.addZ(+(distance * (float) Math.cos(Math.toRadians(yaw - 90))));
     }
 
     // strafes the camera right relitive to its current rotation (yaw)
     public void strafeRight(float distance) {
-        this.position.move(-(distance * (float) Math.cos(Math.toRadians(this.rotation.getY()))), 0, -(distance * (float) Math.sin(Math.toRadians(this.rotation.getY()))));
+        this.position.addX(-(distance * (float) Math.sin(Math.toRadians(yaw + 90))));
+        this.position.addZ(+(distance * (float) Math.cos(Math.toRadians(yaw + 90))));
     }
 
     public void goUp(float distance) {
-        if ((this.position.getY() > -150 && distance > 0) || (this.position.getY() < -800 && distance < 0)) {
-            return;
-        }
         this.position.move(0, distance, 0);
+
+        if (this.position.getY() > -100) {
+            this.position.setY(-100);
+        }
+        if (this.position.getY() < -800) {
+            this.position.setY(-800);
+        }
+
+        this.setPitch((-this.position.getY()) / 8);
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 
     public void lookThrough() {
-        this.rotation.setX(68 / 3 * 2);
-
-        // roatate the yaw around the Y axis
-        glRotatef(this.rotation.getY(), 0f, 1f, 1f);
-        // roatate the roll around the Z axis
-        glRotatef(this.rotation.getX(), 1f, 0f, 0f);
-
-        // translate to the position vector's location
+        // pitch
+        glRotatef(this.pitch, 1f, 0f, 0f);
+        // roll
+        glRotatef(this.roll, 0f, 0f, 1f);
+        // yaw
+        glRotatef(this.yaw, 0f, 1f, 0f);
+        // translate to position
         glTranslatef(this.position.getX(), this.position.getY(), this.position.getZ());
     }
 }
