@@ -53,10 +53,10 @@ public class NavNode implements Comparable<NavNode> {
             glColor4f(0, 1, 1, 0.3f);
             glBegin(GL_LINE_LOOP);
             {
-                glVertex2f(this.position.getX() - 2, this.position.getY() - 2);
-                glVertex2f(this.position.getX() - 2, this.position.getY() + 2);
-                glVertex2f(this.position.getX() + 2, this.position.getY() + 2);
-                glVertex2f(this.position.getX() + 2, this.position.getY() - 2);
+                glVertex3f(this.position.getX() - 2, 0, this.position.getY() - 2);
+                glVertex3f(this.position.getX() - 2, 0, this.position.getY() + 2);
+                glVertex3f(this.position.getX() + 2, 0, this.position.getY() + 2);
+                glVertex3f(this.position.getX() + 2, 0, this.position.getY() - 2);
             }
             glEnd();
 
@@ -65,8 +65,8 @@ public class NavNode implements Comparable<NavNode> {
             glBegin(GL_LINES);
             {
                 for (NavNode neighbor : this.neighbors) {
-                    glVertex2f(this.position.getX(), this.position.getY());
-                    glVertex2f(neighbor.position.getX(), neighbor.position.getY());
+                    glVertex3f(this.position.getX(), 0, this.position.getY());
+                    glVertex3f(neighbor.position.getX(), 0, neighbor.position.getY());
                 }
             }
             glEnd();
@@ -87,10 +87,10 @@ public class NavNode implements Comparable<NavNode> {
             glColor4f(1, 0, 0, 1f);
             glBegin(GL_LINE_LOOP);
             {
-                glVertex2f(this.position.getX() - 2, this.position.getY() - 2);
-                glVertex2f(this.position.getX() - 2, this.position.getY() + 2);
-                glVertex2f(this.position.getX() + 2, this.position.getY() + 2);
-                glVertex2f(this.position.getX() + 2, this.position.getY() - 2);
+                glVertex3f(this.position.getX() - 2, 0, this.position.getY() - 2);
+                glVertex3f(this.position.getX() - 2, 0, this.position.getY() + 2);
+                glVertex3f(this.position.getX() + 2, 0, this.position.getY() + 2);
+                glVertex3f(this.position.getX() + 2, 0, this.position.getY() - 2);
             }
             glEnd();
 

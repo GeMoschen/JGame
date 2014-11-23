@@ -32,8 +32,11 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int enemyCount = 6;
-        int blockCount = 50;
+        int enemyCount = 3;
+        int blockCount = 80;
+
+        enemies.clear();
+        tiles.clear();
 
         for (int i = 1; i <= blockCount; i++) {
             int width = 15;
@@ -63,6 +66,9 @@ public class FoVCore extends GameEngine {
 
     @Override
     public void onKeyReleased(KeyEvent event) {
+        if (event.getKey() == Keyboard.KEY_R) {
+            this.createManager();
+        }
         super.onKeyReleased(event);
     }
 
@@ -162,7 +168,7 @@ public class FoVCore extends GameEngine {
             mouseLeftDownVector.setY(event.getY());
 
             for (Enemy enemy : this.enemies) {
-                enemy.update(this.navMesh, this.tiles);
+                enemy.update(this.enemies, this.navMesh, this.tiles);
             }
         }
 
@@ -191,51 +197,18 @@ public class FoVCore extends GameEngine {
         }
     }
 
-    private void updateLights() {
+    private void updateEnemies() {
         // lights.get(0).setAngle(getAngle(lights.get(0).getLocation(),
         // MouseManager.INSTANCE.getMouseVector()));
         int i = 0;
         for (Enemy enemy : this.enemies) {
-
-            if (i == 0) {
-                enemy.setAlerted(true);
-            }
-            i++;
-            enemy.update(this.navMesh, this.tiles);
-
-            // if (!cone.collides(lights.get(0))) {
-            // cone.update();
-            // // cone.setAlerted(false);
-            // } else {
-            // // create raycast
-            // Hitbox raycast = new Hitbox(0, 0);
-            // raycast.addPoint(cone.getLocation());
-            // raycast.addPoint(lights.get(0).getLocation());
-            //
-            // // check for colliding polys
-            // boolean canSeeTarget = false;
-            // for (Tile block : this.blocks) {
-            // if (CollisionHelper.findIntersection(raycast, block.getHitbox())
-            // != null) {
-            // canSeeTarget = true;
-            // break;
-            // }
-            // }
-            // if (canSeeTarget) {
-            // cone.update();
-            // cone.setAlerted(false);
-            // } else {
-            // cone.setAlerted(true);
-            // cone.setAngle(getAngle(cone.getLocation(),
-            // lights.get(0).getLocation()));
-            // }
-            // }
+            enemy.update(this.enemies, this.navMesh, this.tiles);
         }
     }
 
     @Override
     protected void updateGame(int delta) {
-        this.updateLights();
+        this.updateEnemies();
     }
 
     @Override
@@ -243,31 +216,18 @@ public class FoVCore extends GameEngine {
         glPushMatrix();
         this.cam.lookThrough();
         glPushMatrix();
+
+        // render lightcones
+        for (Enemy enemy : enemies) {
+            enemy.render(this.tiles, this.VIEW_WIDTH, this.VIEW_HEIGHT);
+        }
+
         // blocks
         for (Tile block : tiles) {
             glColor4f(1f, 1f, 1f, 0.5f);
             block.render();
         }
 
-        // AMBIENT
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glColor4f(0.3f, 0.3f, 0.7f, 0.5f);
-        glBegin(GL_QUADS);
-        {
-            glVertex2f(0, 0);
-            glVertex2f(this.VIEW_WIDTH, 0);
-            glVertex2f(this.VIEW_WIDTH, this.VIEW_HEIGHT);
-            glVertex2f(0, this.VIEW_HEIGHT);
-        }
-        glEnd();
-        glDisable(GL_BLEND);
-
-        // render lightcones
-        for (Enemy enemy : enemies) {
-            enemy.render(this.tiles, this.VIEW_WIDTH, this.VIEW_HEIGHT);
-        }
         // this.navMesh.render();
         glPopMatrix();
         glPopMatrix();

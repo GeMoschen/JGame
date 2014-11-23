@@ -4,9 +4,11 @@ import java.util.*;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import de.gemo.game.fov.core.*;
 import de.gemo.game.fov.navigation.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.manager.*;
 import de.gemo.gameengine.units.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -14,14 +16,19 @@ import static org.lwjgl.opengl.GL11.*;
 public class Enemy {
     // private Vector3f location;
     private float currentAngle = 0f, wantedAngle = 0f, momentum = 0f, viewAngle = 0;
+    private Enemy currentInView = null;
+    private float height = 20;
 
     public Vector3f velocity = new Vector3f();
     private Hitbox farHitbox, nearHitbox;
     private boolean alerted = false;
 
+    private float minX = Float.MAX_VALUE;
+
     private Path path = null;
     private int waypointIndex = 0;
     private Vector3f currentWaypoint = null;
+    private PatrolState patrolState = PatrolState.NORMAL;
 
     public Enemy(Vector3f location) {
         this.momentum = 1;
@@ -41,7 +48,7 @@ public class Enemy {
 
         int nearDistance = 100;
         int farDistance = 250;
-        int points = 12;
+        int points = 9;
         float maxAngle = 42f;
         float stepAngle = maxAngle / (points - 1);
         float halfAngle = maxAngle / 2f;
@@ -98,35 +105,96 @@ public class Enemy {
         }
     }
 
-    float minX = Float.MAX_VALUE;
+    private void canSeeAnyone(List<Enemy> enemies, NavMesh navMesh, List<Tile> tileList) {
+        boolean near, far;
+        ArrayList<Vector3f> intersections;
+        Enemy target = null;
+        for (Enemy enemy : enemies) {
+            if (enemy != this) {
+                if ((near = CollisionHelper.isVectorInHitbox(enemy.getLocation(), this.nearHitbox)) || (far = CollisionHelper.isVectorInHitbox(enemy.getLocation(), this.farHitbox))) {
+                    // create raycast
+                    Hitbox raycast = new Hitbox(0, 0);
+                    raycast.addPoint(this.getLocation());
+                    raycast.addPoint(enemy.getLocation());
 
-    public void update(NavMesh navMesh, List<Tile> tileList) {
+                    // check for colliding polys
+                    boolean canSeeTarget = true;
+                    for (Tile tile : tileList) {
+                        intersections = CollisionHelper.findIntersection(raycast, tile.getHitbox());
+                        if (intersections != null && enemy.getHeight() <= tile.getHitbox().getHeight()) {
+                            canSeeTarget = false;
+                        }
+                    }
+                    if (canSeeTarget) {
+                        target = enemy;
+                    }
+                }
+            }
+        }
+
+        if (target != null) {
+            this.setAlerted(true);
+            this.farHitbox.setAngle(target.getLocation().getAngle(this.getLocation()));
+            this.nearHitbox.setAngle(target.getLocation().getAngle(this.getLocation()));
+            this.currentAngle = this.farHitbox.getAngle();
+            this.currentInView = target;
+            this.patrolState = PatrolState.ALERTED;
+        } else {
+            if (this.alerted) {
+                this.setTarget(this.currentInView.getLocation(), navMesh, tileList);
+                this.patrolState = PatrolState.SEEKING;
+            }
+
+            if (this.currentInView == null) {
+                this.patrolState = PatrolState.NORMAL;
+            }
+            this.currentInView = null;
+            this.setAlerted(false);
+        }
+    }
+
+    public void update(List<Enemy> enemies, NavMesh navMesh, List<Tile> tileList) {
         this.velocity = new Vector3f(0, 0, 0);
 
         if (this.currentWaypoint != null) {
+
+            if (this.alerted) {
+                this.canSeeAnyone(enemies, navMesh, tileList);
+                return;
+            }
+
             this.setAngle(this.currentWaypoint.getAngle(this.farHitbox.getCenter()));
 
             // this.setAngle(0);
-
-            // float factor = 1.002f;
-            // float invFactor = 1 / factor;
+            //
+            // double factor = 1.002d;
+            // double invFactor = 1d / factor;
             // if (this.momentum > 0) {
             // if (this.viewAngle < 0) {
-            // this.hitbox.scale(factor, factor);
+            // this.nearHitbox.scale((float) factor, (float) factor);
+            // this.farHitbox.scale((float) factor, (float) factor);
             // } else if (this.viewAngle > 0) {
-            // this.hitbox.scale(invFactor, invFactor);
+            // this.nearHitbox.scale((float) invFactor, (float) invFactor);
+            // this.farHitbox.scale((float) invFactor, (float) invFactor);
             // }
             // } else {
             // if (this.viewAngle > 0) {
-            // this.hitbox.scale(factor, factor);
+            // this.nearHitbox.scale((float) factor, (float) factor);
+            // this.farHitbox.scale((float) factor, (float) factor);
             // } else if (this.viewAngle < 0) {
-            // this.hitbox.scale(invFactor, invFactor);
+            // this.nearHitbox.scale((float) invFactor, (float) invFactor);
+            // this.farHitbox.scale((float) invFactor, (float) invFactor);
             // }
             // }
 
             float maxVelocity = 0.02f;
             float maxForce = 0.3f;
             float mass = 1f;
+
+            if (currentInView != null) {
+                maxForce = 0.6f;
+            }
+
             Vector3f desired = new Vector3f();
             Vector3f.sub(currentWaypoint, this.farHitbox.getCenter(), desired);
             if (desired.getX() != 0 && desired.getY() != 0) {
@@ -150,6 +218,7 @@ public class Enemy {
                 this.waypointIndex++;
                 if (this.path != null) {
                     if (this.waypointIndex == this.path.getPath().size()) {
+                        this.patrolState = PatrolState.NORMAL;
                         this.findRandomGoal(navMesh, tileList);
                     } else {
                         this.currentWaypoint = this.path.getNode(this.waypointIndex);
@@ -159,8 +228,11 @@ public class Enemy {
                 }
             }
         } else {
+            this.patrolState = PatrolState.NORMAL;
             this.findRandomGoal(navMesh, tileList);
         }
+
+        this.canSeeAnyone(enemies, navMesh, tileList);
     }
 
     public void findRandomGoal(NavMesh navMesh, List<Tile> tileList) {
@@ -292,15 +364,23 @@ public class Enemy {
 
         glPushMatrix();
         {
+            this.height = 20;
             glColor4f(1, 1, 1, 1);
             glTranslatef(this.farHitbox.getCenter().getX(), this.farHitbox.getCenter().getZ(), this.farHitbox.getCenter().getY());
             glBegin(GL_QUADS);
             {
                 int block = 3;
-                glVertex3f(-block, 0, -block);
-                glVertex3f(+block, 0, -block);
-                glVertex3f(+block, 0, +block);
-                glVertex3f(-block, 0, +block);
+                glVertex3f(-block, this.height, -block);
+                glVertex3f(+block, this.height, -block);
+                glVertex3f(+block, this.height, +block);
+                glVertex3f(-block, this.height, +block);
+            }
+            glEnd();
+
+            glBegin(GL_LINES);
+            {
+                glVertex3f(0, 0, 0);
+                glVertex3f(0, this.height, 0);
             }
             glEnd();
         }
@@ -325,14 +405,31 @@ public class Enemy {
             {
                 if (hitbox == this.nearHitbox) {
                     glColor4f(0, .7f, 0, .5f);
+                    if (this.alerted) {
+                        glColor4f(.7f, 0, 0, .5f);
+                    }
                 } else {
                     glColor4f(0, .7f, 0, .2f);
+                    if (this.alerted) {
+                        glColor4f(.7f, 0, 0, .2f);
+                    }
                 }
                 glBegin(GL_POLYGON);
                 for (Vector3f vector : hitbox.getPoints()) {
                     glVertex3f(vector.getX(), vector.getZ(), vector.getY());
                 }
                 glEnd();
+            }
+            glPopMatrix();
+
+            // translate & render center
+            glPushMatrix();
+            {
+                glEnable(GL_BLEND);
+                glEnable(GL_TEXTURE_2D);
+                glTranslatef(this.getLocation().getX(), this.height + 0.2f, this.getLocation().getY());
+                glRotatef(90, 1, 0, 0);
+                FontManager.getStandardFont().drawString(-5, -7, this.patrolState.name());
             }
             glPopMatrix();
 
@@ -384,5 +481,9 @@ public class Enemy {
 
     public Vector3f getLocation() {
         return this.farHitbox.getCenter();
+    }
+
+    public float getHeight() {
+        return height;
     }
 }

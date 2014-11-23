@@ -246,7 +246,6 @@ public class NavMesh {
 
         // if we have too less points, we simply add all points
         if (points.size() < minPointsToFind) {
-            System.out.println("all points");
             points = this.allPoints;
         }
 

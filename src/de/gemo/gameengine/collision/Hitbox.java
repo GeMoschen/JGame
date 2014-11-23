@@ -33,10 +33,10 @@ public class Hitbox {
         return hitbox;
     }
 
-    private AABB aabb;
-    private List<Vector3f> points = new ArrayList<Vector3f>();
-    private Vector3f center;
-    private float angle = 0f;
+    protected AABB aabb;
+    protected List<Vector3f> points = new ArrayList<Vector3f>();
+    protected Vector3f center;
+    protected float angle = 0f;
 
     public Hitbox(Vector3f center) {
         this.center = center;
@@ -59,19 +59,19 @@ public class Hitbox {
         return this.points.get(index);
     }
 
-    public final Vector3f addPoint(Vector3f vector) {
+    public Vector3f addPoint(Vector3f vector) {
         return this.addPoint(vector.getX(), vector.getY());
     }
 
-    public final Vector3f calculatePoint(float x, float y) {
-        return new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
-    }
-
-    public final Vector3f addPoint(float x, float y) {
+    public Vector3f addPoint(float x, float y) {
         Vector3f vector = new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
         this.points.add(vector);
         this.aabb.addPoint(vector.getX(), vector.getY());
         return vector;
+    }
+
+    public final Vector3f calculatePoint(float x, float y) {
+        return new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
     }
 
     public final Vector3f getCenter() {
@@ -154,7 +154,7 @@ public class Hitbox {
         this.rotate(-this.angle + angle);
     }
 
-    private final void renderCenter() {
+    protected void renderCenter() {
         // render center
         Color.red.bind();
         glBegin(GL_LINE_LOOP);
@@ -166,7 +166,6 @@ public class Hitbox {
     }
 
     public void render() {
-        // translate to center
         glPushMatrix();
         {
             glDisable(GL_LIGHTING);
@@ -174,7 +173,7 @@ public class Hitbox {
             glDisable(GL_TEXTURE_2D);
             glLineWidth(1f);
 
-            // render center
+            // translate & render center
             glPushMatrix();
             {
                 glTranslatef(this.center.getX(), this.center.getY(), 0);

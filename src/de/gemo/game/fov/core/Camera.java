@@ -17,6 +17,7 @@ public class Camera {
         this.pitch = 45;
         this.yaw = 0;
         this.roll = 0;
+        this.goUp(0);
     }
 
     public Vector3f getPosition() {
@@ -106,10 +107,10 @@ public class Camera {
     }
 
     public void lookThrough() {
-        // pitch
-        glRotatef(this.pitch, 1f, 0f, 0f);
         // roll
         glRotatef(this.roll, 0f, 0f, 1f);
+        // pitch
+        glRotatef(this.pitch, 1f, 0f, 0f);
         // yaw
         glRotatef(this.yaw, 0f, 1f, 0f);
         // translate to position
