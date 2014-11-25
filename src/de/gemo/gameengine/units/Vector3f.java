@@ -57,6 +57,45 @@ public class Vector3f implements Serializable {
         return (float) Math.sqrt(xDist * xDist + yDist * yDist);
     }
 
+    public void roll(Vector3f vector, float angle) {
+        double rad = -Math.toRadians(angle);
+        double sin = Math.sin(rad);
+        double cos = Math.cos(rad);
+
+        double tempx = vector.getX() + (cos * (x - vector.getX()) - sin * (y - vector.getY()));
+        double tempy = vector.getY() + (sin * (x - vector.getX()) + cos * (y - vector.getY()));
+
+        x = (float) tempx;
+        y = (float) tempy;
+        this.dirty = true;
+    }
+
+    public void yaw(Vector3f vector, float angle) {
+        double rad = Math.toRadians(angle);
+        double sin = Math.sin(rad);
+        double cos = Math.cos(rad);
+
+        double tempx = vector.getX() + (cos * (x - vector.getX()) - sin * (z - vector.getZ()));
+        double tempz = vector.getZ() + (sin * (x - vector.getX()) + cos * (z - vector.getZ()));
+
+        x = (float) tempx;
+        z = (float) tempz;
+        this.dirty = true;
+    }
+
+    public void pitch(Vector3f vector, float angle) {
+        double rad = Math.toRadians(angle);
+        double sin = Math.sin(rad);
+        double cos = Math.cos(rad);
+
+        double tempy = vector.getY() + (cos * (y - vector.getY()) - sin * (z - vector.getZ()));
+        double tempz = vector.getZ() + (sin * (y - vector.getY()) + cos * (z - vector.getZ()));
+
+        y = (float) tempy;
+        z = (float) tempz;
+        this.dirty = true;
+    }
+
     public void rotateAround(Vector3f vector, float angle) {
         double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);

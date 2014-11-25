@@ -221,6 +221,10 @@ public class MouseManager {
         return pressedButtons.get(button);
     }
 
+    public boolean isButtonDown(MouseButton button) {
+        return this.isButtonDown(button.getID());
+    }
+
     public Vector3f getMouseVector() {
         return this.hitBox.getCenter();
     }
