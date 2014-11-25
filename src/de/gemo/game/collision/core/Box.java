@@ -1,5 +1,6 @@
 package de.gemo.game.collision.core;
 
+import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -7,10 +8,12 @@ import static org.lwjgl.opengl.GL11.*;
 public class Box {
     private Vector3f center;
     private Vector3f[] vectors;
+    private AABB aabb;
 
     public Box(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
+        this.createAABB();
     }
 
     private void createBox(float halfWidth, float halfHeight, float halfDepth) {
@@ -27,21 +30,34 @@ public class Box {
         this.vectors[7] = new Vector3f(this.center.getX() - halfWidth, this.center.getY() + halfHeight, this.center.getZ() + halfDepth);
     }
 
+    public void createAABB() {
+        this.aabb = new AABB();
+        for (Vector3f vector : this.vectors) {
+            this.aabb.addPoint(this.center.getX() + vector.getX(), this.center.getY() + vector.getY(), this.center.getZ() + vector.getZ());
+        }
+    }
+
     public void roll(float roll) {
+        this.aabb.reset();
         for (Vector3f vector : this.vectors) {
             vector.roll(this.center, roll);
+            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
     }
 
     public void yaw(float yaw) {
+        this.aabb.reset();
         for (Vector3f vector : this.vectors) {
             vector.yaw(this.center, yaw);
+            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
     }
 
     public void pitch(float pitch) {
+        this.aabb.reset();
         for (Vector3f vector : this.vectors) {
             vector.pitch(this.center, pitch);
+            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
     }
 
@@ -76,6 +92,8 @@ public class Box {
             glEnd();
         }
         glPopMatrix();
+
+        this.aabb.render();
     }
 
     private void renderPlane(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f v4) {

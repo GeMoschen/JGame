@@ -88,8 +88,8 @@ public class Camera {
     public void goUp(float distance) {
         this.position.move(0, distance, 0);
 
-        if (this.position.getY() > -100) {
-            this.position.setY(-100);
+        if (this.position.getY() > -10) {
+            this.position.setY(-10);
         }
         if (this.position.getY() < -800) {
             this.position.setY(-800);
