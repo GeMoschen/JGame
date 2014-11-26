@@ -314,6 +314,7 @@ public class CollisionCore extends GameEngine {
         font.drawString(10, base + 48, "Move:     W/A/S/D or right MB & move");
         font.drawString(10, base + 61, "Height:    X/C or middle MB & move");
 
-        font.drawString(10, base + 81, "AABB colliding: " + this.box.getAABB().collides(this.box2.getAABB()));
+        font.drawString(10, base + 81, "AABB colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
+        font.drawString(10, base + 94, "Vertex colliding: " + CollisionHelper3D.collides(this.box, this.box2));
     }
 }
