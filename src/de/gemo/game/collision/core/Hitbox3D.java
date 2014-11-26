@@ -5,12 +5,12 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Box {
+public class Hitbox3D {
     private Vector3f center;
     private Vector3f[] vectors;
     private AABB aabb;
 
-    public Box(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
+    public Hitbox3D(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
         this.createAABB();

@@ -22,9 +22,9 @@ public class CollisionCore extends GameEngine {
     private Vector2f mouseLeftDownVector = new Vector2f();
     private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
-    private Box box;
+    private Hitbox3D box;
 
-    private Box box2;
+    private Hitbox3D box2;
 
     public CollisionCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
@@ -32,8 +32,8 @@ public class CollisionCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.box = new Box(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new Box(new Vector3f(13, 0, 0), 10, 30, 20);
+        this.box = new Hitbox3D(new Vector3f(0, 0, 0), 10, 30, 20);
+        this.box2 = new Hitbox3D(new Vector3f(13, 0, 0), 10, 30, 20);
     }
 
     @Override
