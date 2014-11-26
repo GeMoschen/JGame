@@ -22,9 +22,8 @@ public class CollisionCore extends GameEngine {
     private Vector2f mouseLeftDownVector = new Vector2f();
     private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
-    private Hitbox3D box;
-
-    private Hitbox3D box2;
+    private Hitbox3D box, box2;
+    private int DL_STATIC_WORLD = -1;
 
     public CollisionCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
@@ -34,6 +33,13 @@ public class CollisionCore extends GameEngine {
     protected void createManager() {
         this.box = new Hitbox3D(new Vector3f(0, 0, 0), 10, 30, 20);
         this.box2 = new Hitbox3D(new Vector3f(13, 0, 0), 10, 30, 20);
+
+        // create displaylist
+        this.DL_STATIC_WORLD = glGenLists(1);
+        glNewList(this.DL_STATIC_WORLD, GL_COMPILE);
+        this.renderGrid();
+        this.renderWorldCenter();
+        glEndList();
     }
 
     @Override
@@ -178,8 +184,10 @@ public class CollisionCore extends GameEngine {
             this.camera.lookThrough();
             glPushMatrix();
             {
-                this.renderGrid();
-                this.renderWorldCenter();
+                // render world
+                glCallList(this.DL_STATIC_WORLD);
+
+                // render boxes
                 this.box.render();
                 this.box2.render();
             }
@@ -296,8 +304,6 @@ public class CollisionCore extends GameEngine {
 
     @Override
     protected void renderGame2D() {
-        // this.navMesh.createNavMesh(this.tiles);
-        // this.navMesh.render();
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         Font font = FontManager.getStandardFont();
