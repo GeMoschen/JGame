@@ -67,7 +67,7 @@ public class AABB {
     }
 
     public boolean collides(AABB other) {
-        return this.right < other.left || this.left > other.right || this.top < other.bottom || this.bottom > other.top || this.far < other.near || this.near > other.far;
+        return !(this.right < other.left || this.left > other.right || this.top > other.bottom || this.bottom < other.top || this.near > other.far || this.far < other.near);
     }
 
     public void render() {

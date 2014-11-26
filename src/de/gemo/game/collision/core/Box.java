@@ -30,7 +30,11 @@ public class Box {
         this.vectors[7] = new Vector3f(this.center.getX() - halfWidth, this.center.getY() + halfHeight, this.center.getZ() + halfDepth);
     }
 
-    public void createAABB() {
+    public AABB getAABB() {
+        return aabb;
+    }
+
+    private void createAABB() {
         this.aabb = new AABB();
         for (Vector3f vector : this.vectors) {
             this.aabb.addPoint(this.center.getX() + vector.getX(), this.center.getY() + vector.getY(), this.center.getZ() + vector.getZ());

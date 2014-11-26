@@ -5,7 +5,7 @@ import java.util.*;
 @SuppressWarnings("rawtypes")
 public class UpdateHeapAndHash<T extends Comparable<T>> extends UpdateHeap<T> {
 
-    private Set<T> hashSet = new HashSet<>();
+    private Set<T> hashSet = new HashSet<T>();
 
     public UpdateHeapAndHash() {
         super();

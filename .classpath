@@ -4,12 +4,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jars/lwjgl_util.jar" sourcepath="lib/jars/lwjgl-source-2.9.0.zip">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="GameEngine/lib/natives-windows"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JGame/lib/natives-windows"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jars/lwjgl.jar" sourcepath="lib/jars/lwjgl-source-2.9.0.zip">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="GameEngine/lib/natives-windows"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JGame/lib/natives-windows"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jars/slick.jar"/>

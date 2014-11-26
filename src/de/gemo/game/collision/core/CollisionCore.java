@@ -33,7 +33,7 @@ public class CollisionCore extends GameEngine {
     @Override
     protected void createManager() {
         this.box = new Box(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new Box(new Vector3f(40, 0, 40), 10, 30, 20);
+        this.box2 = new Box(new Vector3f(13, 0, 0), 10, 30, 20);
     }
 
     @Override
@@ -313,5 +313,7 @@ public class CollisionCore extends GameEngine {
         font.drawString(10, base + 35, "Rotate:   Q/E or left MB & move");
         font.drawString(10, base + 48, "Move:     W/A/S/D or right MB & move");
         font.drawString(10, base + 61, "Height:    X/C or middle MB & move");
+
+        font.drawString(10, base + 81, "AABB colliding: " + this.box.getAABB().collides(this.box2.getAABB()));
     }
 }
