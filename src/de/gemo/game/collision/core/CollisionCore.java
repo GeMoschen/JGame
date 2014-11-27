@@ -32,7 +32,7 @@ public class CollisionCore extends GameEngine {
     @Override
     protected void createManager() {
         this.box = new Hitbox3D(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new Hitbox3D(new Vector3f(13, 0, 0), 10, 30, 20);
+        this.box2 = new Hitbox3D(new Vector3f(23, 0, 0), 10, 30, 20);
 
         // create displaylist
         this.DL_STATIC_WORLD = glGenLists(1);
@@ -53,14 +53,14 @@ public class CollisionCore extends GameEngine {
             this.camera.addYaw(-1);
         } else if (event.getKey() == Keyboard.KEY_E) {
             this.camera.addYaw(1);
-        } else if (event.getKey() == Keyboard.KEY_W) {
-            this.camera.walkForward(5);
-        } else if (event.getKey() == Keyboard.KEY_S) {
-            this.camera.walkBackwards(5);
-        } else if (event.getKey() == Keyboard.KEY_A) {
-            this.camera.strafeLeft(5);
-        } else if (event.getKey() == Keyboard.KEY_D) {
-            this.camera.strafeRight(5);
+            // } else if (event.getKey() == Keyboard.KEY_W) {
+            // this.camera.walkForward(5);
+            // } else if (event.getKey() == Keyboard.KEY_S) {
+            // this.camera.walkBackwards(5);
+            // } else if (event.getKey() == Keyboard.KEY_A) {
+            // this.camera.strafeLeft(5);
+            // } else if (event.getKey() == Keyboard.KEY_D) {
+            // this.camera.strafeRight(5);
         } else if (event.getKey() == Keyboard.KEY_X) {
             this.camera.goUp(5);
         } else if (event.getKey() == Keyboard.KEY_C) {
@@ -81,12 +81,15 @@ public class CollisionCore extends GameEngine {
             this.box.move(-1, 0, 0);
         } else if (event.getKey() == Keyboard.KEY_RIGHT) {
             this.box.move(+1, 0, 0);
+        } else if (event.getKey() == Keyboard.KEY_A) {
+            this.box2.yaw(-1);
+        } else if (event.getKey() == Keyboard.KEY_D) {
+            this.box2.yaw(+1);
+        } else if (event.getKey() == Keyboard.KEY_W) {
+            this.box2.pitch(-1);
+        } else if (event.getKey() == Keyboard.KEY_S) {
+            this.box2.pitch(+1);
         }
-        // else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
-        // this.box.roll(-1);
-        // } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
-        // this.box.roll(+1);
-        // }
         super.onKeyHold(event);
     }
 
@@ -185,11 +188,12 @@ public class CollisionCore extends GameEngine {
     protected void updateGame(int delta) {
     }
 
+    private Vector3f pos = new Vector3f();
+
     @Override
     protected void renderGame3D() {
         glPushMatrix();
         {
-
             this.camera.lookThrough();
             glPushMatrix();
             {
@@ -198,7 +202,18 @@ public class CollisionCore extends GameEngine {
 
                 // render boxes
                 this.box.render();
-                // this.box2.render();
+                this.box2.render();
+
+                glPushMatrix();
+                {
+                    glTranslatef(pos.getX(), pos.getY(), pos.getZ());
+                    glDisable(GL_TEXTURE_2D);
+                    glDisable(GL_BLEND);
+                    glColor4f(0, 1, 0, 1);
+                    Sphere sphere = new Sphere();
+                    sphere.draw(0.5f, 8, 8);
+                }
+                glPopMatrix();
             }
             glPopMatrix();
 
@@ -331,6 +346,6 @@ public class CollisionCore extends GameEngine {
 
         font.drawString(10, base + 81, "AABB colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
         font.drawString(10, base + 94, "Vertex colliding: " + CollisionHelper3D.collides(this.box, this.box2));
-        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.vectorInHitbox(new Vector3f(), this.box));
+        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.vectorInHitbox(this.pos, this.box));
     }
 }

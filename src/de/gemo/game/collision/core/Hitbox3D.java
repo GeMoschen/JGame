@@ -15,10 +15,11 @@ public class Hitbox3D {
     public Hitbox3D(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
-        this.createAABB();
+
         this.normals = new Vector3f[6];
         this.normalsPos = new Vector3f[6];
         this.createNormals();
+        this.createAABB();
     }
 
     private void createBox(float halfWidth, float halfHeight, float halfDepth) {
@@ -45,9 +46,12 @@ public class Hitbox3D {
 
     private void createAABB() {
         this.aabb = new AABB();
-        for (Vector3f vector : this.vectors) {
-            this.aabb.addPoint(this.center.getX() + vector.getX(), this.center.getY() + vector.getY(), this.center.getZ() + vector.getZ());
-        }
+        this.move(0, 0, 0);
+        // for (Vector3f vector : this.vectors) {
+        // this.aabb.addPoint(this.center.getX() + vector.getX(),
+        // this.center.getY() + vector.getY(), this.center.getZ() +
+        // vector.getZ());
+        // }
     }
 
     public void roll(float roll) {
@@ -100,9 +104,6 @@ public class Hitbox3D {
             glDisable(GL_TEXTURE_2D);
             glLineWidth(1f);
 
-            // tranlaste
-            glTranslatef(this.center.getX(), this.center.getY(), this.center.getZ());
-
             // set color
             glColor4f(1, 0, 0, 0.5f);
 
@@ -124,10 +125,10 @@ public class Hitbox3D {
             glEnd();
 
             this.renderNormals();
+            this.aabb.render();
         }
         glPopMatrix();
 
-        // this.aabb.render();
     }
 
     private void renderNormals() {
@@ -145,7 +146,6 @@ public class Hitbox3D {
             }
         }
         glEnd();
-
     }
 
     public void move(int x, int y, int z) {

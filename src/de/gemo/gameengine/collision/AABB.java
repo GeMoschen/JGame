@@ -29,12 +29,12 @@ public class AABB {
     }
 
     public void reset() {
-        this.top = Float.MAX_VALUE;
-        this.bottom = Float.MIN_VALUE;
-        this.left = Float.MAX_VALUE;
-        this.right = Float.MIN_VALUE;
-        this.near = Float.MAX_VALUE;
-        this.far = Float.MIN_VALUE;
+        this.top = Integer.MAX_VALUE;
+        this.bottom = Integer.MIN_VALUE;
+        this.left = Integer.MAX_VALUE;
+        this.right = Integer.MIN_VALUE;
+        this.near = Integer.MAX_VALUE;
+        this.far = Integer.MIN_VALUE;
     }
 
     public void addPoint(Vector2f vector) {
