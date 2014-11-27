@@ -30,6 +30,10 @@ public class Hitbox3D {
         this.vectors[7] = new Vector3f(this.center.getX() - halfWidth, this.center.getY() + halfHeight, this.center.getZ() + halfDepth);
     }
 
+    public Vector3f getVector(int index) {
+        return vectors[index];
+    }
+
     public AABB getAABB() {
         return aabb;
     }
@@ -97,7 +101,16 @@ public class Hitbox3D {
         }
         glPopMatrix();
 
-        this.aabb.render();
+        // this.aabb.render();
+    }
+
+    public void move(int x, int y, int z) {
+        this.aabb.reset();
+        this.center.move(x, y, z);
+        for (Vector3f vector : this.vectors) {
+            vector.move(x, y, z);
+            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
+        }
     }
 
     private void renderPlane(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f v4) {

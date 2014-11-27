@@ -272,6 +272,9 @@ public class Vector3f implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
+        if (this != obj) {
+            return false;
+        }
         if (obj != null && obj instanceof Vector3f) {
             Vector3f other = (Vector3f) obj;
             return other.x == this.x && other.y == this.y && other.z == this.z;
@@ -316,12 +319,11 @@ public class Vector3f implements Serializable {
      * @return the sum of left and right in dest
      */
     public static Vector3f add(Vector3f left, Vector3f right, Vector3f dest) {
-        if (dest == null)
-            return new Vector3f(left.x + right.x, left.y + right.y, left.z + right.z);
-        else {
-            dest.set(left.x + right.x, left.y + right.y, left.z + right.z);
-            return dest;
+        if (dest == null) {
+            dest = new Vector3f();
         }
+        dest.set(left.x + right.x, left.y + right.y, left.z + right.z);
+        return dest;
     }
 
     /**
@@ -355,12 +357,11 @@ public class Vector3f implements Serializable {
      * @return left minus right in dest
      */
     public static Vector3f sub(Vector3f left, Vector3f right, Vector3f dest) {
-        if (dest == null)
-            return new Vector3f(left.x - right.x, left.y - right.y, left.z + right.z);
-        else {
-            dest.set(left.x - right.x, left.y - right.y, left.z + right.z);
-            return dest;
+        if (dest == null) {
+            dest = new Vector3f();
         }
+        dest.set(left.x - right.x, left.y - right.y, left.z - right.z);
+        return dest;
     }
 
     /**
@@ -375,6 +376,42 @@ public class Vector3f implements Serializable {
      */
     public static float dot(Vector3f left, Vector3f right) {
         return left.x * right.x + left.y * right.y + left.z * right.z;
+    }
+
+    /**
+     * The cross product of two vectors is calculated as ; x = v1.y * v2.z -
+     * v1.z * v2.y ; y = v1.z * v2.x - v1.x * v2.z ; z = v1.x * v2.y - v1.y *
+     * v2.x
+     * 
+     * @param left
+     *            The LHS vector
+     * @param right
+     *            The RHS vector
+     * @return left x right
+     */
+    public static Vector3f cross(Vector3f left, Vector3f right) {
+        return Vector3f.cross(left, right, null);
+    }
+
+    /**
+     * The cross product of two vectors is calculated as ; x = v1.y * v2.z -
+     * v1.z * v2.y ; y = v1.z * v2.x - v1.x * v2.z ; z = v1.x * v2.y - v1.y *
+     * v2.x
+     * 
+     * @param left
+     *            The LHS vector
+     * @param right
+     *            The RHS vector
+     * @return left x right
+     */
+    public static Vector3f cross(Vector3f left, Vector3f right, Vector3f result) {
+        if (result == null) {
+            result = new Vector3f();
+        }
+        result.setX(left.y * right.z - left.z * right.y);
+        result.setY(left.z * right.x - left.x * right.z);
+        result.setZ(left.x * right.y - left.y * right.x);
+        return result;
     }
 
     public static Vector3f normalize(Vector3f vector) {

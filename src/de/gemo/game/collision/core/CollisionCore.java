@@ -65,19 +65,28 @@ public class CollisionCore extends GameEngine {
             this.camera.goUp(5);
         } else if (event.getKey() == Keyboard.KEY_C) {
             this.camera.goUp(-5);
-        } else if (event.getKey() == Keyboard.KEY_LEFT) {
-            this.box.yaw(-1);
-        } else if (event.getKey() == Keyboard.KEY_RIGHT) {
-            this.box.yaw(+1);
-        } else if (event.getKey() == Keyboard.KEY_UP) {
-            this.box.pitch(-1);
-        } else if (event.getKey() == Keyboard.KEY_DOWN) {
-            this.box.pitch(+1);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
-            this.box.roll(-1);
+            this.box.yaw(-1);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
-            this.box.roll(+1);
+            this.box.yaw(+1);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD8) {
+            this.box.pitch(-1);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD2) {
+            this.box.pitch(+1);
+        } else if (event.getKey() == Keyboard.KEY_UP) {
+            this.box.move(0, +1, 0);
+        } else if (event.getKey() == Keyboard.KEY_DOWN) {
+            this.box.move(0, -1, 0);
+        } else if (event.getKey() == Keyboard.KEY_LEFT) {
+            this.box.move(-1, 0, 0);
+        } else if (event.getKey() == Keyboard.KEY_RIGHT) {
+            this.box.move(+1, 0, 0);
         }
+        // else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
+        // this.box.roll(-1);
+        // } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
+        // this.box.roll(+1);
+        // }
         super.onKeyHold(event);
     }
 
@@ -189,7 +198,7 @@ public class CollisionCore extends GameEngine {
 
                 // render boxes
                 this.box.render();
-                this.box2.render();
+                // this.box2.render();
             }
             glPopMatrix();
 
@@ -322,5 +331,6 @@ public class CollisionCore extends GameEngine {
 
         font.drawString(10, base + 81, "AABB colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
         font.drawString(10, base + 94, "Vertex colliding: " + CollisionHelper3D.collides(this.box, this.box2));
+        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.vectorInHitbox(new Vector3f(), this.box));
     }
 }
