@@ -78,7 +78,7 @@ public class Hitbox3D {
     }
 
     private void createNormals() {
-        float scale = 5f;
+        float scale = 10f;
         this.normals[0] = Vector3f.cross(Vector3f.sub(this.getVector(1), this.getVector(0)), Vector3f.sub(this.getVector(2), this.getVector(0))).normalize().scale(scale);
         this.normals[1] = Vector3f.cross(Vector3f.sub(this.getVector(6), this.getVector(4)), Vector3f.sub(this.getVector(5), this.getVector(4))).normalize().scale(scale);
         this.normals[2] = Vector3f.cross(Vector3f.sub(this.getVector(2), this.getVector(6)), Vector3f.sub(this.getVector(3), this.getVector(6))).normalize().scale(scale);
@@ -126,24 +126,26 @@ public class Hitbox3D {
             this.renderNormals();
         }
         glPopMatrix();
-        
-        
 
         // this.aabb.render();
     }
 
     private void renderNormals() {
-        // set color
-        glColor4f(1, 1, 1, 0.5f);
-
-        // SIDES
+        // NORMALS
         glBegin(GL_LINES);
         {
             for (int index = 0; index < 6; index++) {
-                this.renderLine(this.normalsPos[index], Vector3f.add(this.normalsPos[index], this.normals[index]));
+                // set color
+                glColor4f(1, 1, 1, 1f);
+                this.normalsPos[index].render();
+
+                // set color
+                glColor4f(0, 0, 0, 0f);
+                Vector3f.add(this.normalsPos[index], this.normals[index]).render();
             }
         }
         glEnd();
+
     }
 
     public void move(int x, int y, int z) {
