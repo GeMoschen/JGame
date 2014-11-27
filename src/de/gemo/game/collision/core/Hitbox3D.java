@@ -8,12 +8,17 @@ import static org.lwjgl.opengl.GL11.*;
 public class Hitbox3D {
     private Vector3f center;
     private Vector3f[] vectors;
+    private Vector3f[] normals;
+    private Vector3f[] normalsPos;
     private AABB aabb;
 
     public Hitbox3D(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
         this.createAABB();
+        this.normals = new Vector3f[6];
+        this.normalsPos = new Vector3f[6];
+        this.createNormals();
     }
 
     private void createBox(float halfWidth, float halfHeight, float halfDepth) {
@@ -51,6 +56,7 @@ public class Hitbox3D {
             vector.roll(this.center, roll);
             this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
+        this.createNormals();
     }
 
     public void yaw(float yaw) {
@@ -59,6 +65,7 @@ public class Hitbox3D {
             vector.yaw(this.center, yaw);
             this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
+        this.createNormals();
     }
 
     public void pitch(float pitch) {
@@ -67,6 +74,23 @@ public class Hitbox3D {
             vector.pitch(this.center, pitch);
             this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
+        this.createNormals();
+    }
+
+    private void createNormals() {
+        float scale = 5f;
+        this.normals[0] = Vector3f.cross(Vector3f.sub(this.getVector(1), this.getVector(0)), Vector3f.sub(this.getVector(2), this.getVector(0))).normalize().scale(scale);
+        this.normals[1] = Vector3f.cross(Vector3f.sub(this.getVector(6), this.getVector(4)), Vector3f.sub(this.getVector(5), this.getVector(4))).normalize().scale(scale);
+        this.normals[2] = Vector3f.cross(Vector3f.sub(this.getVector(2), this.getVector(6)), Vector3f.sub(this.getVector(3), this.getVector(6))).normalize().scale(scale);
+        this.normals[3] = Vector3f.cross(Vector3f.sub(this.getVector(0), this.getVector(4)), Vector3f.sub(this.getVector(1), this.getVector(4))).normalize().scale(scale);
+        this.normals[4] = Vector3f.cross(Vector3f.sub(this.getVector(5), this.getVector(1)), Vector3f.sub(this.getVector(2), this.getVector(1))).normalize().scale(scale);
+        this.normals[5] = Vector3f.cross(Vector3f.sub(this.getVector(3), this.getVector(0)), Vector3f.sub(this.getVector(4), this.getVector(0))).normalize().scale(scale);
+        this.normalsPos[0] = Vector3f.add(this.getVector(0), Vector3f.sub(this.getVector(2), this.getVector(0)).scale(0.5f));
+        this.normalsPos[1] = Vector3f.add(this.getVector(4), Vector3f.sub(this.getVector(6), this.getVector(4)).scale(0.5f));
+        this.normalsPos[2] = Vector3f.add(this.getVector(0), Vector3f.sub(this.getVector(5), this.getVector(0)).scale(0.5f));
+        this.normalsPos[3] = Vector3f.add(this.getVector(3), Vector3f.sub(this.getVector(6), this.getVector(3)).scale(0.5f));
+        this.normalsPos[4] = Vector3f.add(this.getVector(1), Vector3f.sub(this.getVector(6), this.getVector(1)).scale(0.5f));
+        this.normalsPos[5] = Vector3f.add(this.getVector(0), Vector3f.sub(this.getVector(7), this.getVector(0)).scale(0.5f));
     }
 
     public void render() {
@@ -98,10 +122,28 @@ public class Hitbox3D {
                 this.renderLine(this.vectors[2], this.vectors[6]);
             }
             glEnd();
+
+            this.renderNormals();
         }
         glPopMatrix();
+        
+        
 
         // this.aabb.render();
+    }
+
+    private void renderNormals() {
+        // set color
+        glColor4f(1, 1, 1, 0.5f);
+
+        // SIDES
+        glBegin(GL_LINES);
+        {
+            for (int index = 0; index < 6; index++) {
+                this.renderLine(this.normalsPos[index], Vector3f.add(this.normalsPos[index], this.normals[index]));
+            }
+        }
+        glEnd();
     }
 
     public void move(int x, int y, int z) {
@@ -111,6 +153,7 @@ public class Hitbox3D {
             vector.move(x, y, z);
             this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
+        this.createNormals();
     }
 
     private void renderPlane(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f v4) {

@@ -27,6 +27,10 @@ public class Vector3f implements Serializable {
         this.dirty = true;
     }
 
+    public Vector3f normalize() {        
+        return Vector3f.normalize(this);
+    }
+    
     public void rotate(float sin, float cos) {
         float tempx = (cos * x) - (sin * y);
         float tempy = (sin * x) + (cos * y);
