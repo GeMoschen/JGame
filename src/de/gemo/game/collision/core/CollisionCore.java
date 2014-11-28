@@ -62,9 +62,9 @@ public class CollisionCore extends GameEngine {
             // } else if (event.getKey() == Keyboard.KEY_D) {
             // this.camera.strafeRight(5);
         } else if (event.getKey() == Keyboard.KEY_X) {
-            this.camera.goUp(5);
+            this.camera.goUp(1);
         } else if (event.getKey() == Keyboard.KEY_C) {
-            this.camera.goUp(-5);
+            this.camera.goUp(-1);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
             this.box.yaw(-1);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
@@ -236,10 +236,7 @@ public class CollisionCore extends GameEngine {
 
                 this.nearVector = new Vector3f(near.get(0), near.get(1), near.get(2));
                 this.farVector = new Vector3f(far.get(0), far.get(1), far.get(2));
-
-                System.out.println();
-                System.out.println("Near: " + this.nearVector);
-                System.out.println("Far: " + this.farVector);
+                this.collisionVector = CollisionHelper3D.lineHitsBox(this.nearVector, this.farVector, this.box);
             }
             if (this.nearVector != null) {
                 glDisable(GL_LIGHTING);
@@ -255,7 +252,6 @@ public class CollisionCore extends GameEngine {
                 glEnd();
 
                 if (this.collisionVector != null) {
-                    System.out.println(this.collisionVector);
                     glColor4f(0, 1, 1, 1);
 
                     glTranslatef(this.collisionVector.getX(), this.collisionVector.getY(), this.collisionVector.getZ());
@@ -346,6 +342,6 @@ public class CollisionCore extends GameEngine {
 
         font.drawString(10, base + 81, "AABB colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
         font.drawString(10, base + 94, "Vertex colliding: " + CollisionHelper3D.collides(this.box, this.box2));
-        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.vectorInHitbox(this.pos, this.box));
+        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.isVectorInHitbox(this.pos, this.box));
     }
 }
