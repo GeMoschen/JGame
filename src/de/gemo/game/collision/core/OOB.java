@@ -5,7 +5,7 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Hitbox3D {
+public class OOB {
     private Vector3f center;
     private Vector3f[] vectors;
     private Vector3f[] normals;
@@ -13,7 +13,7 @@ public class Hitbox3D {
     private float yaw = 0f, roll = 0f, pitch = 0f;
     private AABB aabb;
 
-    public Hitbox3D(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
+    public OOB(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
 
@@ -157,6 +157,48 @@ public class Hitbox3D {
         }
         glPopMatrix();
 
+        this.renderOrientationCenter();
+    }
+
+    private void renderOrientationCenter() {
+        glPushMatrix();
+        {
+            // translate to position
+            glTranslatef(this.center.getX(), this.center.getY(), this.center.getZ());
+            // yaw
+            glRotatef(this.yaw, 0f, 1f, 0f);
+            // pitch
+            glRotatef(this.pitch, 1f, 0f, 0f);
+            // roll
+            glRotatef(this.roll, 0f, 0f, 1f);
+            int length = 3;
+            glDisable(GL_LIGHTING);
+            glDisable(GL_TEXTURE_2D);
+            glLineWidth(1.5f);
+
+            glBegin(GL_LINES);
+            {
+                // X
+                glColor4f(1, 0, 0, 1);
+                glVertex3f(0, 0, 0);
+                glColor4f(0, 0, 0, 1);
+                glVertex3f(length, 0, 0);
+
+                // Y
+                glColor4f(0, 1, 0, 1);
+                glVertex3f(0, 0, 0);
+                glColor4f(0, 0, 0, 1);
+                glVertex3f(0, length, 0);
+
+                // Z
+                glColor4f(0, 0, 1, 1);
+                glVertex3f(0, 0, 0);
+                glColor4f(0, 0, 0, 1);
+                glVertex3f(0, 0, length);
+            }
+            glEnd();
+        }
+        glPopMatrix();
     }
 
     private void renderNormals() {

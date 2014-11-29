@@ -24,7 +24,7 @@ public class CollisionCore extends GameEngine {
     private Vector2f mouseRightDownVector = new Vector2f();
     private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
-    private Hitbox3D box, box2;
+    private OOB box, box2;
     private int DL_STATIC_WORLD = -1;
 
     public CollisionCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
@@ -33,8 +33,8 @@ public class CollisionCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.box = new Hitbox3D(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new Hitbox3D(new Vector3f(23, 0, 0), 10, 30, 20);
+        this.box = new OOB(new Vector3f(0, 0, 0), 10, 30, 20);
+        this.box2 = new OOB(new Vector3f(23, 0, 0), 10, 30, 20);
 
         // create displaylist
         this.DL_STATIC_WORLD = glGenLists(1);
@@ -348,16 +348,19 @@ public class CollisionCore extends GameEngine {
             // X
             glColor4f(1, 0, 0, 1);
             glVertex3f(0, 0, 0);
+            glColor4f(0, 0, 0, 1);
             glVertex3f(length, 0, 0);
 
             // Y
             glColor4f(0, 1, 0, 1);
             glVertex3f(0, 0, 0);
+            glColor4f(0, 0, 0, 1);
             glVertex3f(0, length, 0);
 
             // Z
             glColor4f(0, 0, 1, 1);
             glVertex3f(0, 0, 0);
+            glColor4f(0, 0, 0, 1);
             glVertex3f(0, 0, length);
         }
         glEnd();

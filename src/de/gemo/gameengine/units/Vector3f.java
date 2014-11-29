@@ -101,7 +101,7 @@ public class Vector3f implements Serializable {
     }
 
     private void doRoll(Vector3f vector, float angle) {
-        double rad = -Math.toRadians(angle);
+        double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
 
@@ -115,7 +115,7 @@ public class Vector3f implements Serializable {
     }
 
     private void doYaw(Vector3f vector, float angle) {
-        double rad = Math.toRadians(angle);
+        double rad = -Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
 
