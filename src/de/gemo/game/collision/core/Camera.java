@@ -13,9 +13,9 @@ public class Camera {
 
     public Camera() {
         $ = this;
-        this.position = new Vector3f(-530, -250, -420); // x, y, z
-        this.pitch = 45;
-        this.yaw = 0;
+        this.position = new Vector3f(+530, -250, +420); // x, y, z
+        this.addPitch(45);
+        this.addYaw(135);
         this.roll = 0;
         this.goUp(0);
     }

@@ -134,14 +134,15 @@ public class OOB {
             glLineWidth(1f);
 
             // set color
-            glColor4f(1, 0, 0, 0.5f);
+            if (CollisionCore.$.selectedOOB == this) {
+                glColor4f(1, 1, 1, 1f);
+            } else {
+                glColor4f(0, 1, 1, 0.25f);
+            }
 
             // DOWN & UP
             this.renderPlane(this.vectors[0], this.vectors[1], this.vectors[2], this.vectors[3]);
             this.renderPlane(this.vectors[4], this.vectors[5], this.vectors[6], this.vectors[7]);
-
-            // set color
-            glColor4f(1, 0, 0, 0.5f);
 
             // SIDES
             glBegin(GL_LINES);
@@ -152,12 +153,11 @@ public class OOB {
                 this.renderLine(this.vectors[2], this.vectors[6]);
             }
             glEnd();
-
             this.renderNormals();
+            this.renderOrientationCenter();
+            // this.aabb.render();
         }
         glPopMatrix();
-
-        this.renderOrientationCenter();
     }
 
     private void renderOrientationCenter() {
@@ -207,7 +207,12 @@ public class OOB {
         {
             for (int index = 0; index < 6; index++) {
                 // set color
-                glColor4f(1, 1, 1, 1f);
+                // set color
+                if (CollisionCore.$.selectedOOB == this) {
+                    glColor4f(1, 1, 1, 1f);
+                } else {
+                    glColor4f(0, 1, 1, 0.25f);
+                }
                 this.normalsPos[index].render();
 
                 // set color
