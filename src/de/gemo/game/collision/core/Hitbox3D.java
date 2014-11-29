@@ -125,7 +125,6 @@ public class Hitbox3D {
             glEnd();
 
             this.renderNormals();
-            this.aabb.render();
         }
         glPopMatrix();
 
@@ -148,7 +147,7 @@ public class Hitbox3D {
         glEnd();
     }
 
-    public void move(int x, int y, int z) {
+    public void move(float x, float y, float z) {
         this.aabb.reset();
         this.center.move(x, y, z);
         for (Vector3f vector : this.vectors) {

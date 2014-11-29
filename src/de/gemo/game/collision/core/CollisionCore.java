@@ -1,6 +1,7 @@
 package de.gemo.game.collision.core;
 
 import java.nio.*;
+import java.util.*;
 
 import org.lwjgl.*;
 import org.lwjgl.input.*;
@@ -66,21 +67,21 @@ public class CollisionCore extends GameEngine {
         } else if (event.getKey() == Keyboard.KEY_C) {
             this.camera.goUp(-1);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
-            this.box.yaw(-1);
+            this.box.yaw(-1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
-            this.box.yaw(+1);
+            this.box.yaw(+1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD8) {
-            this.box.pitch(-1);
+            this.box.pitch(-1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD2) {
-            this.box.pitch(+1);
+            this.box.pitch(+1f);
         } else if (event.getKey() == Keyboard.KEY_UP) {
-            this.box.move(0, +1, 0);
+            this.box.move(0, .1f, 0);
         } else if (event.getKey() == Keyboard.KEY_DOWN) {
-            this.box.move(0, -1, 0);
+            this.box.move(0, -.1f, 0);
         } else if (event.getKey() == Keyboard.KEY_LEFT) {
-            this.box.move(-1, 0, 0);
+            this.box.move(-.1f, 0, 0);
         } else if (event.getKey() == Keyboard.KEY_RIGHT) {
-            this.box.move(+1, 0, 0);
+            this.box.move(+.1f, 0, 0);
         } else if (event.getKey() == Keyboard.KEY_A) {
             this.box2.yaw(-1);
         } else if (event.getKey() == Keyboard.KEY_D) {
@@ -217,6 +218,33 @@ public class CollisionCore extends GameEngine {
             }
             glPopMatrix();
 
+            ArrayList<Vector3f> collisions = CollisionHelper3D.testCollides(this.box, this.box2);
+
+            for (Vector3f vector : collisions) {
+                glPushMatrix();
+                {
+                    glColor4f(0, 1, 1, 1);
+
+                    glTranslatef(vector.getX(), vector.getY(), vector.getZ());
+                    glLineWidth(2f);
+                    glBegin(GL_LINES);
+                    glVertex3f(-1, 0, 0);
+                    glVertex3f(+1, 0, -0);
+                    glEnd();
+
+                    glBegin(GL_LINES);
+                    glVertex3f(0, -1, 0);
+                    glVertex3f(0, +1, 0);
+                    glEnd();
+
+                    glBegin(GL_LINES);
+                    glVertex3f(0, 0, -1);
+                    glVertex3f(0, 0, +1);
+                    glEnd();
+                }
+                glPopMatrix();
+            }
+
             if (KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE)) {
                 FloatBuffer projection = BufferUtils.createFloatBuffer(16);
                 FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
@@ -236,7 +264,7 @@ public class CollisionCore extends GameEngine {
 
                 this.nearVector = new Vector3f(near.get(0), near.get(1), near.get(2));
                 this.farVector = new Vector3f(far.get(0), far.get(1), far.get(2));
-                this.collisionVector = CollisionHelper3D.lineHitsBox(this.nearVector, this.farVector, this.box);
+                this.collisionVector = CollisionHelper3D.getLineWithBoxCollision(this.nearVector, this.farVector, this.box);
             }
             if (this.nearVector != null) {
                 glDisable(GL_LIGHTING);

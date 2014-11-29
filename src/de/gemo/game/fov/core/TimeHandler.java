@@ -13,7 +13,7 @@ public class TimeHandler {
         Measurement measurement = map.get(name.toLowerCase());
         if (measurement != null) {
             measurement.stop();
-            // System.out.println(name + " : " + measurement.getMS());
+            System.out.println(name + " : " + measurement.getMS());
             map.remove(name.toLowerCase());
         }
     }

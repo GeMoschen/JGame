@@ -2,6 +2,7 @@ package de.gemo.game.collision.core;
 
 import java.util.*;
 
+import de.gemo.game.fov.core.*;
 import de.gemo.gameengine.collision.*;
 import de.gemo.gameengine.units.*;
 
@@ -11,23 +12,55 @@ public class CollisionHelper3D {
         return aabb.collides(other);
     }
 
+    public static ArrayList<Vector3f> testCollides(Hitbox3D hitbox, Hitbox3D other) {
+        ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
+
+        // now: check all lines of both boxes
+        for (int counter = 0; counter < 12; counter++) {
+            int firstIndex = counter;
+            int nextIndex = firstIndex + 1;
+            if (firstIndex == 3 || firstIndex == 7) {
+                nextIndex = firstIndex - 3;
+            }
+
+            if (firstIndex > 7) {
+                firstIndex -= 4;
+                nextIndex = firstIndex - 4;
+            }
+
+            collisions.addAll(getAllLineWithBoxCollisions(hitbox.getVector(firstIndex), hitbox.getVector(nextIndex), other));
+            collisions.addAll(getAllLineWithBoxCollisions(other.getVector(firstIndex), other.getVector(nextIndex), hitbox));
+        }
+        return collisions;
+    }
+
     public static boolean collides(Hitbox3D hitbox, Hitbox3D other) {
         // check AABBs first
         if (!CollisionHelper3D.collides(hitbox.getAABB(), other.getAABB())) {
             return false;
         }
 
-        // check all points of both hitboxes
-        // NOTE: This does not cover all cases of rotated boxes.. still TODO
-        for (int index = 0; index < 8; index++) {
-            if (CollisionHelper3D.isVectorInHitbox(hitbox.getVector(index), other) || CollisionHelper3D.isVectorInHitbox(other.getVector(index), hitbox)) {
+        // check all lines of both boxes
+        for (int counter = 0; counter < 12; counter++) {
+            int firstIndex = counter;
+            int nextIndex = firstIndex + 1;
+            if (firstIndex == 3 || firstIndex == 7) {
+                nextIndex = firstIndex - 3;
+            }
+
+            if (firstIndex > 7) {
+                firstIndex -= 4;
+                nextIndex = firstIndex - 4;
+            }
+
+            if (lineHitsBox(hitbox.getVector(firstIndex), hitbox.getVector(nextIndex), other) || lineHitsBox(other.getVector(firstIndex), other.getVector(nextIndex), hitbox)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean isVectorInFrontOfPlane(Vector3f vector, Vector3f p0, Vector3f p1, Vector3f p2) {
+    private static boolean isVectorInFrontOfPlane(Vector3f vector, Vector3f p0, Vector3f p1, Vector3f p2) {
         Vector3f normal = new Vector3f();
         Vector3f dirVector = new Vector3f();
         normal = Vector3f.cross(Vector3f.sub(p1, p0), Vector3f.sub(p2, p0)).normalize();
@@ -35,7 +68,7 @@ public class CollisionHelper3D {
         return (Vector3f.dot(normal, dirVector) > 0);
     }
 
-    public static Vector3f lineHitsPlane(Vector3f p0, Vector3f p1, Vector3f planeCoordinate, Vector3f planeNormal) {
+    private static Vector3f lineHitsPlane(Vector3f p0, Vector3f p1, Vector3f planeCoordinate, Vector3f planeNormal) {
         Vector3f u = Vector3f.sub(p1, p0);
         Vector3f w = Vector3f.sub(p0, planeCoordinate);
         float dot = Vector3f.dot(planeNormal, u);
@@ -49,59 +82,147 @@ public class CollisionHelper3D {
         return Vector3f.cross(Vector3f.sub(p1, p0), Vector3f.sub(p2, p0)).normalize();
     }
 
-    public static Vector3f lineHitsBox(Vector3f p0, Vector3f p1, Hitbox3D hitbox) {
-        System.out.println("-----------------");
+    private static boolean isPointOnLine(Vector3f p0, Vector3f p1, Vector3f point) {
+        float dist_0 = p0.getDistance(point);
+        float dist_1 = p1.getDistance(point);
+        float distances = Math.abs(dist_0 + dist_1 - p0.getDistance(p1));
+        return (distances < 0.1f);
+    }
+
+    public static boolean lineHitsBox(Vector3f p0, Vector3f p1, Hitbox3D hitbox) {
+        // bottom
+        Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
+        Vector3f test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        // top
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(4), hitbox.getVector(5), hitbox.getVector(7));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(4), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        // front
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(1), hitbox.getVector(5), hitbox.getVector(0));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(1), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        // back
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(3), hitbox.getVector(6));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        // left
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(3), hitbox.getVector(0), hitbox.getVector(7));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(3), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        // right
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(6), hitbox.getVector(5), hitbox.getVector(2));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(6), normal);
+        if (test != null && CollisionHelper3D.isPointOnLine(p0, p1, test) && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static ArrayList<Vector3f> getAllLineWithBoxCollisions(Vector3f p0, Vector3f p1, Hitbox3D hitbox) {
         ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
         // bottom
         Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
         Vector3f test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits BOTTOM : " + lineHitsPlane(p0, p1, hitbox.getVector(2), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
         // top
         normal = CollisionHelper3D.getNormal(hitbox.getVector(4), hitbox.getVector(5), hitbox.getVector(7));
         test = lineHitsPlane(p0, p1, hitbox.getVector(4), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits TOP : " + lineHitsPlane(p0, p1, hitbox.getVector(4), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
         // front
         normal = CollisionHelper3D.getNormal(hitbox.getVector(1), hitbox.getVector(5), hitbox.getVector(0));
         test = lineHitsPlane(p0, p1, hitbox.getVector(1), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits FRONT : " + lineHitsPlane(p0, p1, hitbox.getVector(1), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
         // back
         normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(3), hitbox.getVector(6));
         test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits BACK : " + lineHitsPlane(p0, p1, hitbox.getVector(2), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
         // left
         normal = CollisionHelper3D.getNormal(hitbox.getVector(3), hitbox.getVector(0), hitbox.getVector(7));
         test = lineHitsPlane(p0, p1, hitbox.getVector(3), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits LEFT : " + lineHitsPlane(p0, p1, hitbox.getVector(3), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
         // right
         normal = CollisionHelper3D.getNormal(hitbox.getVector(6), hitbox.getVector(5), hitbox.getVector(2));
         test = lineHitsPlane(p0, p1, hitbox.getVector(6), normal);
-        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox)) {
-            System.out.println("Ray hits RIGHT : " + lineHitsPlane(p0, p1, hitbox.getVector(6), normal));
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
+        }
+        return collisions;
+    }
+
+    public static Vector3f getLineWithBoxCollision(Vector3f p0, Vector3f p1, Hitbox3D hitbox) {
+        ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
+        // bottom
+        Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
+        Vector3f test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
             collisions.add(test);
         }
 
-        if (collisions.size() == 0) {
-            return null;
+        // top
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(4), hitbox.getVector(5), hitbox.getVector(7));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(4), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
+        }
+
+        // front
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(1), hitbox.getVector(5), hitbox.getVector(0));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(1), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
+        }
+
+        // back
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(3), hitbox.getVector(6));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(2), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
+        }
+
+        // left
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(3), hitbox.getVector(0), hitbox.getVector(7));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(3), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
+        }
+
+        // right
+        normal = CollisionHelper3D.getNormal(hitbox.getVector(6), hitbox.getVector(5), hitbox.getVector(2));
+        test = lineHitsPlane(p0, p1, hitbox.getVector(6), normal);
+        if (test != null && CollisionHelper3D.isVectorInHitbox(test, hitbox) && CollisionHelper3D.isPointOnLine(p0, p1, test)) {
+            collisions.add(test);
         }
 
         Vector3f minimum = null;
@@ -127,35 +248,13 @@ public class CollisionHelper3D {
         // In other words:
         // If the the vector is behind ALL planes, it is inside.
 
-        // bottom
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3))) {
-            return false;
-        }
+        boolean behindBottom = !isVectorInFrontOfPlane(vector, hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
+        boolean behindTop = !isVectorInFrontOfPlane(vector, hitbox.getVector(4), hitbox.getVector(5), hitbox.getVector(7));
+        boolean behindFront = !isVectorInFrontOfPlane(vector, hitbox.getVector(1), hitbox.getVector(5), hitbox.getVector(0));
+        boolean behindBack = !isVectorInFrontOfPlane(vector, hitbox.getVector(2), hitbox.getVector(3), hitbox.getVector(6));
+        boolean behindLeft = !isVectorInFrontOfPlane(vector, hitbox.getVector(3), hitbox.getVector(0), hitbox.getVector(7));
+        boolean behindRight = !isVectorInFrontOfPlane(vector, hitbox.getVector(6), hitbox.getVector(5), hitbox.getVector(2));
 
-        // top
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(4), hitbox.getVector(5), hitbox.getVector(7))) {
-            return false;
-        }
-
-        // front
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(1), hitbox.getVector(5), hitbox.getVector(0))) {
-            return false;
-        }
-
-        // back
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(2), hitbox.getVector(3), hitbox.getVector(6))) {
-            return false;
-        }
-
-        // left
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(3), hitbox.getVector(0), hitbox.getVector(7))) {
-            return false;
-        }
-
-        // right
-        if (isVectorInFrontOfPlane(vector, hitbox.getVector(6), hitbox.getVector(5), hitbox.getVector(2))) {
-            return false;
-        }
-        return true;
+        return (behindBottom && behindTop && behindFront && behindBack && behindLeft && behindRight);
     }
 }

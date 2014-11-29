@@ -58,7 +58,15 @@ public class Vector3f implements Serializable {
     public float getDistance(Vector3f other) {
         float xDist = other.x - this.x;
         float yDist = other.y - this.y;
-        return (float) Math.sqrt(xDist * xDist + yDist * yDist);
+        float zDist = other.z - this.z;
+        return (float) Math.sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
+    }
+
+    public float getReducedDistance(Vector3f other) {
+        float xDist = other.x - this.x;
+        float yDist = other.y - this.y;
+        float zDist = other.z - this.z;
+        return (float) xDist + yDist + zDist;
     }
 
     public void roll(Vector3f vector, float angle) {
