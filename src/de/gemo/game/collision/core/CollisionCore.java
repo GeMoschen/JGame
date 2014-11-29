@@ -19,8 +19,9 @@ import static org.lwjgl.opengl.GL11.*;
 public class CollisionCore extends GameEngine {
 
     private Camera camera = new Camera();
-    private Vector2f mouseRightDownVector = new Vector2f();
     private Vector2f mouseLeftDownVector = new Vector2f();
+    private Vector2f mouseMiddleDownVector = new Vector2f();
+    private Vector2f mouseRightDownVector = new Vector2f();
     private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
     private Hitbox3D box, box2;
@@ -101,15 +102,15 @@ public class CollisionCore extends GameEngine {
             float distX = (event.getX() - mouseRightDownVector.getX());
             float distY = (int) (event.getY() - mouseRightDownVector.getY());
             if (distY > 0) {
-                this.camera.walkBackwards(distY / factor);
+                this.camera.walkBackwards(distY / (factor));
             } else if (distY < 0) {
-                this.camera.walkForward(-distY / factor);
+                this.camera.walkForward(-distY / (factor));
             }
 
             if (distX > 0) {
-                this.camera.strafeRight(distX / factor);
+                this.camera.strafeRight(distX / (factor));
             } else if (distX < 0) {
-                this.camera.strafeLeft(-distX / factor);
+                this.camera.strafeLeft(-distX / (factor));
             }
 
             this.renderMouseTemp(this.mouseRightDownVector);
@@ -119,6 +120,12 @@ public class CollisionCore extends GameEngine {
             float distX = (event.getX() - mouseLeftDownVector.getX());
             this.camera.addYaw(distX / (factor * 6));
             this.renderMouseTemp(this.mouseLeftDownVector);
+        }
+
+        if (event.isMiddleButton()) {
+            float distY = (event.getY() - mouseMiddleDownVector.getY());
+            this.camera.goUp(distY / (factor * 2));
+            this.renderMouseTemp(this.mouseMiddleDownVector);
         }
     }
 
@@ -171,25 +178,15 @@ public class CollisionCore extends GameEngine {
             mouseRightDownVector.setX(event.getX());
             mouseRightDownVector.setY(event.getY());
         }
-    }
-
-    @Override
-    public void onMouseDrag(boolean handled, MouseDragEvent event) {
         if (event.isMiddleButton()) {
-            float distance = 10;
-            if (event.getDifY() > 0) {
-                this.camera.goUp(distance);
-            } else if (event.getDifY() < 0) {
-                this.camera.goUp(-distance);
-            }
+            mouseMiddleDownVector.setX(event.getX());
+            mouseMiddleDownVector.setY(event.getY());
         }
     }
 
     @Override
     protected void updateGame(int delta) {
     }
-
-    private Vector3f pos = new Vector3f();
 
     @Override
     protected void renderGame3D() {
@@ -204,17 +201,6 @@ public class CollisionCore extends GameEngine {
                 // render boxes
                 this.box.render();
                 this.box2.render();
-
-                glPushMatrix();
-                {
-                    glTranslatef(pos.getX(), pos.getY(), pos.getZ());
-                    glDisable(GL_TEXTURE_2D);
-                    glDisable(GL_BLEND);
-                    glColor4f(0, 1, 0, 1);
-                    Sphere sphere = new Sphere();
-                    sphere.draw(0.5f, 8, 8);
-                }
-                glPopMatrix();
             }
             glPopMatrix();
 
@@ -369,7 +355,6 @@ public class CollisionCore extends GameEngine {
         font.drawString(10, base + 61, "Height:    X/C or middle MB & move");
 
         font.drawString(10, base + 81, "AABB colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
-        font.drawString(10, base + 94, "Vertex colliding: " + CollisionHelper3D.collides(this.box, this.box2));
-        font.drawString(10, base + 107, "Center colliding: " + CollisionHelper3D.isVectorInHitbox(this.pos, this.box));
+        font.drawString(10, base + 94, "Boxes colliding: " + CollisionHelper3D.collides(this.box, this.box2));
     }
 }
