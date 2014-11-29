@@ -52,23 +52,23 @@ public class CollisionCore extends GameEngine {
     @Override
     public void onKeyHold(KeyEvent event) {
         // controls for camera
-        if (event.getKey() == Keyboard.KEY_Q) {
-            this.camera.addYaw(-1);
-        } else if (event.getKey() == Keyboard.KEY_E) {
-            this.camera.addYaw(1);
-            // } else if (event.getKey() == Keyboard.KEY_W) {
-            // this.camera.walkForward(5);
-            // } else if (event.getKey() == Keyboard.KEY_S) {
-            // this.camera.walkBackwards(5);
-            // } else if (event.getKey() == Keyboard.KEY_A) {
-            // this.camera.strafeLeft(5);
-            // } else if (event.getKey() == Keyboard.KEY_D) {
-            // this.camera.strafeRight(5);
-        } else if (event.getKey() == Keyboard.KEY_X) {
-            this.camera.goUp(1);
-        } else if (event.getKey() == Keyboard.KEY_C) {
-            this.camera.goUp(-1);
-        }
+        // if (event.getKey() == Keyboard.KEY_Q) {
+        // this.camera.addYaw(-1);
+        // } else if (event.getKey() == Keyboard.KEY_E) {
+        // this.camera.addYaw(1);
+        // } else if (event.getKey() == Keyboard.KEY_W) {
+        // this.camera.walkForward(5);
+        // } else if (event.getKey() == Keyboard.KEY_S) {
+        // this.camera.walkBackwards(5);
+        // } else if (event.getKey() == Keyboard.KEY_A) {
+        // this.camera.strafeLeft(5);
+        // } else if (event.getKey() == Keyboard.KEY_D) {
+        // this.camera.strafeRight(5);
+        // } else if (event.getKey() == Keyboard.KEY_X) {
+        // this.camera.goUp(1);
+        // } else if (event.getKey() == Keyboard.KEY_C) {
+        // this.camera.goUp(-1);
+        // }
 
         // controls for "box"
         if (event.getKey() == Keyboard.KEY_NUMPAD4) {
@@ -112,6 +112,12 @@ public class CollisionCore extends GameEngine {
             this.box2.doRoll(-1f);
         } else if (event.getKey() == Keyboard.KEY_E) {
             this.box2.doRoll(+1f);
+        } else if (event.getKey() == Keyboard.KEY_X) {
+            this.box2.move(0, +.3f, 0);
+        } else if (event.getKey() == Keyboard.KEY_C) {
+            this.box2.move(0, -.3f, 0);
+        } else if (event.getKey() == Keyboard.KEY_R) {
+            this.box2.resetRotation();
         }
         super.onKeyHold(event);
     }
