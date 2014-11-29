@@ -12,6 +12,8 @@ public class Vector3f implements Serializable {
     private boolean dirty = true;
     private float length = 0f;
 
+    private float yaw = 0f, roll = 0f, pitch = 0f;
+
     public static Vector3f FromPoint(float x, float y, float z) {
         return new Vector3f(x, y, z);
     }
@@ -69,7 +71,36 @@ public class Vector3f implements Serializable {
         return (float) xDist + yDist + zDist;
     }
 
+    public void rotate(Vector3f vector, float yaw, float roll, float pitch) {
+        // calculate new angles
+        float newYaw = this.yaw + yaw;
+        float newRoll = this.roll + roll;
+        float newPitch = this.pitch + pitch;
+
+        // revert yaw and pitch
+        this.doYaw(vector, -this.yaw);
+        this.doPitch(vector, -this.pitch);
+        this.doRoll(vector, -this.roll);
+
+        // rotate to new angles
+        this.doRoll(vector, newRoll);
+        this.doPitch(vector, newPitch);
+        this.doYaw(vector, newYaw);
+    }
+
     public void roll(Vector3f vector, float angle) {
+        this.rotate(vector, 0, angle, 0);
+    }
+
+    public void yaw(Vector3f vector, float angle) {
+        this.rotate(vector, angle, 0, 0);
+    }
+
+    public void pitch(Vector3f vector, float angle) {
+        this.rotate(vector, 0, 0, angle);
+    }
+
+    private void doRoll(Vector3f vector, float angle) {
         double rad = -Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
@@ -79,10 +110,11 @@ public class Vector3f implements Serializable {
 
         x = (float) tempx;
         y = (float) tempy;
+        this.roll += angle;
         this.dirty = true;
     }
 
-    public void yaw(Vector3f vector, float angle) {
+    private void doYaw(Vector3f vector, float angle) {
         double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
@@ -92,10 +124,11 @@ public class Vector3f implements Serializable {
 
         x = (float) tempx;
         z = (float) tempz;
+        this.yaw += angle;
         this.dirty = true;
     }
 
-    public void pitch(Vector3f vector, float angle) {
+    private void doPitch(Vector3f vector, float angle) {
         double rad = Math.toRadians(angle);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
@@ -105,6 +138,7 @@ public class Vector3f implements Serializable {
 
         y = (float) tempy;
         z = (float) tempz;
+        this.pitch += angle;
         this.dirty = true;
     }
 
@@ -212,6 +246,27 @@ public class Vector3f implements Serializable {
      */
     public float getZ() {
         return z;
+    }
+
+    /**
+     * @return the yaw
+     */
+    public float getYaw() {
+        return yaw;
+    }
+
+    /**
+     * @return the roll
+     */
+    public float getRoll() {
+        return roll;
+    }
+
+    /**
+     * @return the pitch
+     */
+    public float getPitch() {
+        return pitch;
     }
 
     /**

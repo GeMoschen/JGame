@@ -51,6 +51,7 @@ public class CollisionCore extends GameEngine {
 
     @Override
     public void onKeyHold(KeyEvent event) {
+        // controls for camera
         if (event.getKey() == Keyboard.KEY_Q) {
             this.camera.addYaw(-1);
         } else if (event.getKey() == Keyboard.KEY_E) {
@@ -67,30 +68,50 @@ public class CollisionCore extends GameEngine {
             this.camera.goUp(1);
         } else if (event.getKey() == Keyboard.KEY_C) {
             this.camera.goUp(-1);
-        } else if (event.getKey() == Keyboard.KEY_NUMPAD4) {
-            this.box.yaw(-1f);
+        }
+
+        // controls for "box"
+        if (event.getKey() == Keyboard.KEY_NUMPAD4) {
+            this.box.doYaw(-1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD6) {
-            this.box.yaw(+1f);
+            this.box.doYaw(+1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD8) {
-            this.box.pitch(-1f);
+            this.box.doPitch(-1f);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD2) {
-            this.box.pitch(+1f);
+            this.box.doPitch(+1f);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD7) {
+            this.box.doRoll(-1f);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD9) {
+            this.box.doRoll(+1f);
         } else if (event.getKey() == Keyboard.KEY_UP) {
-            this.box.move(0, .1f, 0);
+            this.box.move(0, 0, +.3f);
         } else if (event.getKey() == Keyboard.KEY_DOWN) {
-            this.box.move(0, -.1f, 0);
+            this.box.move(0, 0, -.3f);
         } else if (event.getKey() == Keyboard.KEY_LEFT) {
-            this.box.move(-.1f, 0, 0);
+            this.box.move(-.3f, 0, 0);
         } else if (event.getKey() == Keyboard.KEY_RIGHT) {
-            this.box.move(+.1f, 0, 0);
-        } else if (event.getKey() == Keyboard.KEY_A) {
-            this.box2.yaw(-1);
+            this.box.move(+.3f, 0, 0);
+        } else if (event.getKey() == Keyboard.KEY_PRIOR) {
+            this.box.move(0, +.3f, 0);
+        } else if (event.getKey() == Keyboard.KEY_NEXT) {
+            this.box.move(0, -.3f, 0);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD5) {
+            this.box.resetRotation();
+        }
+
+        // controls for "box2"
+        if (event.getKey() == Keyboard.KEY_A) {
+            this.box2.doYaw(-1f);
         } else if (event.getKey() == Keyboard.KEY_D) {
-            this.box2.yaw(+1);
+            this.box2.doYaw(+1f);
         } else if (event.getKey() == Keyboard.KEY_W) {
-            this.box2.pitch(-1);
+            this.box2.doPitch(-1f);
         } else if (event.getKey() == Keyboard.KEY_S) {
-            this.box2.pitch(+1);
+            this.box2.doPitch(+1f);
+        } else if (event.getKey() == Keyboard.KEY_Q) {
+            this.box2.doRoll(-1f);
+        } else if (event.getKey() == Keyboard.KEY_E) {
+            this.box2.doRoll(+1f);
         }
         super.onKeyHold(event);
     }

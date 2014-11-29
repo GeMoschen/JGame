@@ -10,6 +10,7 @@ public class Hitbox3D {
     private Vector3f[] vectors;
     private Vector3f[] normals;
     private Vector3f[] normalsPos;
+    private float yaw = 0f, roll = 0f, pitch = 0f;
     private AABB aabb;
 
     public Hitbox3D(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
@@ -54,31 +55,47 @@ public class Hitbox3D {
         // }
     }
 
-    public void roll(float roll) {
+    public void rotate(float yaw, float roll, float pitch) {
         this.aabb.reset();
         for (Vector3f vector : this.vectors) {
-            vector.roll(this.center, roll);
+            vector.rotate(this.center, yaw, roll, pitch);
             this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
         }
         this.createNormals();
+        this.yaw += yaw;
+        this.roll += roll;
+        this.pitch += pitch;
     }
 
-    public void yaw(float yaw) {
-        this.aabb.reset();
-        for (Vector3f vector : this.vectors) {
-            vector.yaw(this.center, yaw);
-            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
-        }
-        this.createNormals();
+    public void resetRotation() {
+        this.rotate(-this.yaw, -this.roll, -this.pitch);
     }
 
-    public void pitch(float pitch) {
-        this.aabb.reset();
-        for (Vector3f vector : this.vectors) {
-            vector.pitch(this.center, pitch);
-            this.aabb.addPoint(vector.getX(), vector.getY(), vector.getZ());
-        }
-        this.createNormals();
+    public void setYaw(float yaw) {
+        float difference = yaw - this.yaw;
+        this.rotate(difference, 0, 0);
+    }
+
+    public void setRoll(float roll) {
+        float difference = roll - this.roll;
+        this.rotate(0, difference, 0);
+    }
+
+    public void setPitch(float pitch) {
+        float difference = pitch - this.pitch;
+        this.rotate(0, 0, difference);
+    }
+
+    public void doYaw(float yaw) {
+        this.rotate(yaw, 0, 0);
+    }
+
+    public void doRoll(float roll) {
+        this.rotate(0, roll, 0);
+    }
+
+    public void doPitch(float pitch) {
+        this.rotate(0, 0, pitch);
     }
 
     private void createNormals() {
@@ -95,6 +112,18 @@ public class Hitbox3D {
         this.normalsPos[3] = Vector3f.add(this.getVector(3), Vector3f.sub(this.getVector(6), this.getVector(3)).scale(0.5f));
         this.normalsPos[4] = Vector3f.add(this.getVector(1), Vector3f.sub(this.getVector(6), this.getVector(1)).scale(0.5f));
         this.normalsPos[5] = Vector3f.add(this.getVector(0), Vector3f.sub(this.getVector(7), this.getVector(0)).scale(0.5f));
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getRoll() {
+        return roll;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 
     public void render() {
