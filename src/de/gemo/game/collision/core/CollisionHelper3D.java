@@ -14,6 +14,11 @@ public class CollisionHelper3D {
     public static ArrayList<Vector3f> testCollides(OOBB hitbox, OOBB other) {
         ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
 
+        // check AABBs first
+        if (!CollisionHelper3D.collides(hitbox.getAABB(), other.getAABB())) {
+            return collisions;
+        }
+
         // now: check all lines of both boxes
         for (int counter = 0; counter < 12; counter++) {
             int firstIndex = counter;
@@ -245,6 +250,11 @@ public class CollisionHelper3D {
      * @return
      */
     public static boolean isVectorInHitbox(Vector3f vector, OOBB hitbox) {
+        // nullvectors are not allowed
+        if (vector == null) {
+            return false;
+        }
+
         // DESCRIPTION OF THE ALGORITHM:
         // If the vector is in front of at least one plane of the hitbox,
         // it MUST be outside of the box.

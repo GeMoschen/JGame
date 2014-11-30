@@ -230,31 +230,11 @@ public class GameEngine {
                 // clear screen
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-                delta = updateDelta();
-                tempFPS++;
-
-                if (startTimer <= System.currentTimeMillis()) {
-                    tick = true;
-                    startTimer = System.currentTimeMillis() + this.tickTime;
-                }
-
-                keyManager.update();
-                mouseManager.update();
-
-                // update game
-                this.updateGame(this.delta);
-
-                // tick GUI-Managers
-
-                // update GUI-Managers
-                if (tick) {
-                    this.tickGame(delta);
-                }
-
-                // render gamefield-content
+                // render 3D
                 this.setPerspective();
                 this.renderGame3D();
 
+                // render 2D
                 this.setOrtho();
                 glPushMatrix();
                 {
@@ -285,6 +265,29 @@ public class GameEngine {
 
                 }
                 glPopMatrix();
+
+                // update delta
+                delta = updateDelta();
+                tempFPS++;
+
+                if (startTimer <= System.currentTimeMillis()) {
+                    tick = true;
+                    startTimer = System.currentTimeMillis() + this.tickTime;
+                }
+
+                // update managers
+                keyManager.update();
+                mouseManager.update();
+
+                // update game
+                this.updateGame(this.delta);
+
+                // tick GUI-Managers
+
+                // update GUI-Managers
+                if (tick) {
+                    this.tickGame(delta);
+                }
 
                 // update ...
                 Display.update();
@@ -615,5 +618,10 @@ public class GameEngine {
     public final void setDebugMonitor(AbstractDebugMonitor debugMonitor) {
         this.debugMonitor = debugMonitor;
         this.hasDebugMonitor = (this.debugMonitor != null);
+    }
+
+    public void setTicksPerSecond(int ticksPerSecond) {
+        this.ticksPerSecond = ticksPerSecond;
+        this.tickTime = (int) (1000f / (float) (this.ticksPerSecond));
     }
 }

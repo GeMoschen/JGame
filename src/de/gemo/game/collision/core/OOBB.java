@@ -129,15 +129,17 @@ public class OOBB {
     public void render() {
         glPushMatrix();
         {
+            glEnable(GL_DEPTH_TEST);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
             glLineWidth(1f);
 
             // set color
             if (CollisionCore.$.selectedOOB == this) {
-                glColor4f(1, 1, 1, 1f);
+                glColor4f(0, 0.7f, 0, 1f);
             } else {
-                glColor4f(0, 1, 1, 0.25f);
+                glColor4f(0.5f, 0.5f, 0.5f, 1f);
             }
 
             // DOWN & UP
@@ -207,12 +209,12 @@ public class OOBB {
         {
             for (int index = 0; index < 6; index++) {
                 // set color
-                // set color
                 if (CollisionCore.$.selectedOOB == this) {
-                    glColor4f(1, 1, 1, 1f);
+                    glColor4f(0, 0.7f, 0, 1f);
                 } else {
-                    glColor4f(0, 1, 1, 0.25f);
+                    glColor4f(0.5f, 0.5f, 0.5f, 1f);
                 }
+
                 this.normalsPos[index].render();
 
                 // set color

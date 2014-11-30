@@ -22,14 +22,15 @@ public class CollisionCore extends GameEngine {
     private Vector2f mouseLeftDownVector = new Vector2f();
     private Vector2f mouseMiddleDownVector = new Vector2f();
     private Vector2f mouseRightDownVector = new Vector2f();
-    private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
-    private OOBB box, box2;
+    private OOBB[] boxes;
     public OOBB selectedOOB = null;
 
     public static CollisionCore $;
 
     private int DL_STATIC_WORLD = -1;
+    private boolean collisionAABB = false, collisionHull = false;
+    private ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
 
     public CollisionCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, fullscreen);
@@ -38,8 +39,13 @@ public class CollisionCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.box = new OOBB(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new OOBB(new Vector3f(23, 0, 0), 10, 30, 20);
+        // set TPS
+        this.setTicksPerSecond(20);
+
+        // create boxes
+        this.boxes = new OOBB[2];
+        this.boxes[0] = new OOBB(new Vector3f(0, 0, 0), 10, 30, 20);
+        this.boxes[1] = new OOBB(new Vector3f(23, 0, 0), 10, 30, 20);
 
         // create displaylist
         this.DL_STATIC_WORLD = glGenLists(1);
@@ -105,20 +111,13 @@ public class CollisionCore extends GameEngine {
                 this.selectedOOB.resetRotation();
             }
         }
-
-        // controls for selection
-        if (event.getKey() == Keyboard.KEY_1) {
-            this.selectedOOB = this.box;
-        } else if (event.getKey() == Keyboard.KEY_2) {
-            this.selectedOOB = this.box2;
-        }
         super.onKeyHold(event);
     }
 
     @Override
     public void onMouseHold(boolean handled, MouseHoldEvent event) {
         float factor = 8;
-        if (event.isRightButton()) {
+        if (event.isRightButton() && !KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
             float distX = (event.getX() - mouseRightDownVector.getX());
             float distY = (int) (event.getY() - mouseRightDownVector.getY());
             if (distY > 0) {
@@ -136,16 +135,16 @@ public class CollisionCore extends GameEngine {
             this.renderMouseTemp(this.mouseRightDownVector);
         }
 
-        if (event.isLeftButton()) {
+        if (event.isLeftButton() && KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
             float distX = (event.getX() - mouseLeftDownVector.getX());
             this.camera.addYaw(distX / (factor * 6));
             this.renderMouseTemp(this.mouseLeftDownVector);
         }
 
-        if (event.isMiddleButton()) {
-            float distY = (event.getY() - mouseMiddleDownVector.getY());
+        if (event.isRightButton() && KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
+            float distY = (event.getY() - mouseRightDownVector.getY());
             this.camera.goUp(distY / (factor * 2));
-            this.renderMouseTemp(this.mouseMiddleDownVector);
+            this.renderMouseTemp(this.mouseRightDownVector);
         }
     }
 
@@ -205,7 +204,95 @@ public class CollisionCore extends GameEngine {
     }
 
     @Override
+    public void onMouseUp(boolean handled, MouseReleaseEvent event) {
+        if (event.isLeftButton() && Math.abs(this.mouseLeftDownVector.getX() - event.getX()) < 5 && Math.abs(this.mouseLeftDownVector.getY() - event.getY()) < 5) {
+            // normal left click...
+
+            // set perspective
+            this.setPerspective();
+
+            // look through camera
+            this.camera.lookThrough();
+
+            FloatBuffer projection = BufferUtils.createFloatBuffer(16);
+            FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
+            IntBuffer viewport = BufferUtils.createIntBuffer(16);
+
+            glGetFloat(GL_PROJECTION_MATRIX, projection);
+            glGetFloat(GL_MODELVIEW_MATRIX, modelview);
+            glGetInteger(GL_VIEWPORT, viewport);
+            float win_x = MouseManager.INSTANCE.getCurrentX();
+            float win_y = Mouse.getY();
+
+            FloatBuffer near = BufferUtils.createFloatBuffer(3);
+            FloatBuffer far = BufferUtils.createFloatBuffer(3);
+
+            GLU.gluUnProject(win_x, win_y, 0f, modelview, projection, viewport, near);
+            GLU.gluUnProject(win_x, win_y, 1f, modelview, projection, viewport, far);
+
+            Vector3f nearVector = new Vector3f(near.get(0), near.get(1), near.get(2));
+            Vector3f farVector = new Vector3f(far.get(0), far.get(1), far.get(2));
+
+            Vector3f collisionVector = null;
+            Vector3f nearestVector = null;
+            this.selectedOOB = null;
+            for (OOBB oobb : this.boxes) {
+                collisionVector = CollisionHelper3D.getLineWithBoxCollision(nearVector, farVector, oobb);
+                if (CollisionHelper3D.isVectorInHitbox(collisionVector, oobb)) {
+                    if (nearestVector == null || collisionVector.distanceTo(nearVector) <= nearestVector.distanceTo(nearVector)) {
+                        this.selectedOOB = oobb;
+                        nearestVector = collisionVector;
+                    }
+                }
+            }
+        }
+        super.onMouseUp(handled, event);
+    }
+
+    @Override
     protected void updateGame(int delta) {
+    }
+
+    @Override
+    protected void tickGame(int delta) {
+        this.collisionAABB = CollisionHelper3D.collides(this.boxes[0].getAABB(), this.boxes[1].getAABB());
+        this.collisionHull = CollisionHelper3D.collides(this.boxes[0], this.boxes[1]);
+        if (this.collisionHull) {
+            this.collisions = CollisionHelper3D.testCollides(this.boxes[0], this.boxes[1]);
+        } else {
+            this.collisions.clear();
+        }
+    }
+
+    @Override
+    protected void renderGame2D() {
+        glEnable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        TrueTypeFont font = FontManager.getStandardFont();
+        font.drawString(10, 10, "Pitch: " + this.camera.getPitch());
+        font.drawString(130, 10, "Yaw: " + this.camera.getYaw());
+        font.drawString(240, 10, "Height: " + (-this.camera.getPosition().getY()));
+        font.drawString(370, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+
+        int base = 20;
+        font.drawString(10, base, "________________________________________");
+        font.drawString(10, base + 15, "                 Controls (hold ALT)");
+        font.drawString(10, base + 20, "________________________________________");
+        font.drawString(10, base + 35, "Rotate:   ALT + Left Mouse + Move");
+        font.drawString(10, base + 48, "Height:   ALT + Right Mouse + Move");
+        font.drawString(10, base + 61, "Move:     Right Mouse + Move");
+
+        font.drawString(10, base + 81, "AABBs colliding: " + this.collisionAABB);
+        font.drawString(10, base + 94, "OOBs colliding: " + this.collisionHull);
+
+        String selectionString = "NONE";
+        for (int index = 0; index < this.boxes.length; index++) {
+            if (this.selectedOOB == this.boxes[index]) {
+                selectionString = "Box " + (index + 1);
+                break;
+            }
+        }
+        font.drawString(10, base + 107, "Selected OOB: " + selectionString);
     }
 
     @Override
@@ -219,12 +306,11 @@ public class CollisionCore extends GameEngine {
                 glCallList(this.DL_STATIC_WORLD);
 
                 // render boxes
-                this.box.render();
-                this.box2.render();
+                for (OOBB oobb : this.boxes) {
+                    oobb.render();
+                }
             }
             glPopMatrix();
-
-            ArrayList<Vector3f> collisions = CollisionHelper3D.testCollides(this.box, this.box2);
 
             for (Vector3f vector : collisions) {
                 glPushMatrix();
@@ -250,62 +336,6 @@ public class CollisionCore extends GameEngine {
                 }
                 glPopMatrix();
             }
-
-            if (KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE)) {
-                FloatBuffer projection = BufferUtils.createFloatBuffer(16);
-                FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
-                IntBuffer viewport = BufferUtils.createIntBuffer(16);
-
-                glGetFloat(GL_PROJECTION_MATRIX, projection);
-                glGetFloat(GL_MODELVIEW_MATRIX, modelview);
-                glGetInteger(GL_VIEWPORT, viewport);
-                float win_x = MouseManager.INSTANCE.getCurrentX();
-                float win_y = Mouse.getY();
-
-                FloatBuffer near = BufferUtils.createFloatBuffer(3);
-                FloatBuffer far = BufferUtils.createFloatBuffer(3);
-
-                GLU.gluUnProject(win_x, win_y, 0f, modelview, projection, viewport, near);
-                GLU.gluUnProject(win_x, win_y, 1f, modelview, projection, viewport, far);
-
-                this.nearVector = new Vector3f(near.get(0), near.get(1), near.get(2));
-                this.farVector = new Vector3f(far.get(0), far.get(1), far.get(2));
-                this.collisionVector = CollisionHelper3D.getLineWithBoxCollision(this.nearVector, this.farVector, this.box);
-            }
-            if (this.nearVector != null) {
-                glDisable(GL_LIGHTING);
-                glDisable(GL_BLEND);
-                glDisable(GL_TEXTURE_2D);
-                // glDisable(GL_DEPTH_TEST);
-                glLineWidth(1f);
-
-                glColor4f(1, 0, 0, 1);
-                glBegin(GL_LINES);
-                glVertex3f(this.nearVector.getX(), this.nearVector.getY(), this.nearVector.getZ());
-                glVertex3f(this.farVector.getX(), this.farVector.getY(), this.farVector.getZ());
-                glEnd();
-
-                if (this.collisionVector != null) {
-                    glColor4f(0, 1, 1, 1);
-
-                    glTranslatef(this.collisionVector.getX(), this.collisionVector.getY(), this.collisionVector.getZ());
-                    glLineWidth(2f);
-                    glBegin(GL_LINES);
-                    glVertex3f(-2, 0, 0);
-                    glVertex3f(+2, 0, -0);
-                    glEnd();
-
-                    glBegin(GL_LINES);
-                    glVertex3f(0, -2, 0);
-                    glVertex3f(0, +2, 0);
-                    glEnd();
-
-                    glBegin(GL_LINES);
-                    glVertex3f(0, 0, -2);
-                    glVertex3f(0, 0, +2);
-                    glEnd();
-                }
-            }
         }
         glPopMatrix();
     }
@@ -327,6 +357,14 @@ public class CollisionCore extends GameEngine {
                 glVertex3f(-500, 0, z);
                 glVertex3f(500, 0, z);
             }
+
+            // Zero-Line
+            glLineWidth(1f);
+            glColor4f(1, 1, 1, 0.5f);
+            glVertex3f(-500, 0, 0);
+            glVertex3f(+500, 0, 0);
+            glVertex3f(0, 0, -500);
+            glVertex3f(0, 0, +500);
         }
         glEnd();
     }
@@ -357,35 +395,5 @@ public class CollisionCore extends GameEngine {
             glVertex3f(0, 0, length);
         }
         glEnd();
-    }
-
-    @Override
-    protected void renderGame2D() {
-        glEnable(GL_BLEND);
-        glEnable(GL_TEXTURE_2D);
-        Font font = FontManager.getStandardFont();
-        font.drawString(10, 10, "Pitch: " + this.camera.getPitch());
-        font.drawString(85, 10, "Yaw: " + this.camera.getYaw());
-        font.drawString(200, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
-        font.drawString(300, 10, "Height: " + (-this.camera.getPosition().getY()));
-
-        int base = 20;
-        font.drawString(10, base, "________________________________________");
-        font.drawString(10, base + 15, "                       Controls");
-        font.drawString(10, base + 20, "________________________________________");
-        font.drawString(10, base + 35, "Rotate:   Q/E or left MB & move");
-        font.drawString(10, base + 48, "Move:     W/A/S/D or right MB & move");
-        font.drawString(10, base + 61, "Height:    X/C or middle MB & move");
-
-        font.drawString(10, base + 81, "AABBs colliding: " + CollisionHelper3D.collides(this.box.getAABB(), this.box2.getAABB()));
-        font.drawString(10, base + 94, "OOBs colliding: " + CollisionHelper3D.collides(this.box, this.box2));
-
-        String selectionString = "NONE";
-        if (this.selectedOOB == this.box) {
-            selectionString = "Box 1";
-        } else if (this.selectedOOB == this.box2) {
-            selectionString = "Box 2";
-        }
-        font.drawString(10, base + 107, "Selected OOB: " + selectionString);
     }
 }
