@@ -24,8 +24,8 @@ public class CollisionCore extends GameEngine {
     private Vector2f mouseRightDownVector = new Vector2f();
     private Vector3f nearVector = null, farVector = null, collisionVector = null;
 
-    private OOB box, box2;
-    public OOB selectedOOB = null;
+    private OOBB box, box2;
+    public OOBB selectedOOB = null;
 
     public static CollisionCore $;
 
@@ -38,8 +38,8 @@ public class CollisionCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.box = new OOB(new Vector3f(0, 0, 0), 10, 30, 20);
-        this.box2 = new OOB(new Vector3f(23, 0, 0), 10, 30, 20);
+        this.box = new OOBB(new Vector3f(0, 0, 0), 10, 30, 20);
+        this.box2 = new OOBB(new Vector3f(23, 0, 0), 10, 30, 20);
 
         // create displaylist
         this.DL_STATIC_WORLD = glGenLists(1);

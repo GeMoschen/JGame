@@ -11,7 +11,7 @@ public class CollisionHelper3D {
         return aabb.collides(other);
     }
 
-    public static ArrayList<Vector3f> testCollides(OOB hitbox, OOB other) {
+    public static ArrayList<Vector3f> testCollides(OOBB hitbox, OOBB other) {
         ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
 
         // now: check all lines of both boxes
@@ -33,7 +33,7 @@ public class CollisionHelper3D {
         return collisions;
     }
 
-    public static boolean collides(OOB hitbox, OOB other) {
+    public static boolean collides(OOBB hitbox, OOBB other) {
         // check AABBs first
         if (!CollisionHelper3D.collides(hitbox.getAABB(), other.getAABB())) {
             return false;
@@ -92,7 +92,7 @@ public class CollisionHelper3D {
         return (distances < 0.1f);
     }
 
-    public static boolean lineHitsBox(Vector3f p0, Vector3f p1, OOB hitbox) {
+    public static boolean lineHitsBox(Vector3f p0, Vector3f p1, OOBB hitbox) {
         // bottom
         Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
         Vector3f possibleCollision = lineToPlanePossibleCollisionPoint(p0, p1, hitbox.getVector(2), normal);
@@ -138,7 +138,7 @@ public class CollisionHelper3D {
         return false;
     }
 
-    public static ArrayList<Vector3f> getAllLineWithBoxCollisions(Vector3f p0, Vector3f p1, OOB hitbox) {
+    public static ArrayList<Vector3f> getAllLineWithBoxCollisions(Vector3f p0, Vector3f p1, OOBB hitbox) {
         ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
         // bottom
         Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
@@ -184,7 +184,7 @@ public class CollisionHelper3D {
         return collisions;
     }
 
-    public static Vector3f getLineWithBoxCollision(Vector3f p0, Vector3f p1, OOB hitbox) {
+    public static Vector3f getLineWithBoxCollision(Vector3f p0, Vector3f p1, OOBB hitbox) {
         ArrayList<Vector3f> collisions = new ArrayList<Vector3f>();
         // bottom
         Vector3f normal = CollisionHelper3D.getNormal(hitbox.getVector(2), hitbox.getVector(1), hitbox.getVector(3));
@@ -244,7 +244,7 @@ public class CollisionHelper3D {
      * @param hitbox
      * @return
      */
-    public static boolean isVectorInHitbox(Vector3f vector, OOB hitbox) {
+    public static boolean isVectorInHitbox(Vector3f vector, OOBB hitbox) {
         // DESCRIPTION OF THE ALGORITHM:
         // If the vector is in front of at least one plane of the hitbox,
         // it MUST be outside of the box.

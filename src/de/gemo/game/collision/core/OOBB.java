@@ -5,7 +5,7 @@ import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class OOB {
+public class OOBB {
     private Vector3f center;
     private Vector3f[] vectors;
     private Vector3f[] normals;
@@ -13,7 +13,7 @@ public class OOB {
     private float yaw = 0f, roll = 0f, pitch = 0f;
     private AABB aabb;
 
-    public OOB(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
+    public OOBB(Vector3f center, float halfWidth, float halfHeight, float halfDepth) {
         this.center = center.clone();
         this.createBox(halfWidth, halfHeight, halfDepth);
 
