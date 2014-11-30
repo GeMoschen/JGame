@@ -23,6 +23,23 @@ public class OOBB {
         this.createAABB();
     }
 
+    public OOBB(Vector3f center, Vector3f... vectors) {
+        this.center = center.clone();
+
+        this.vectors = new Vector3f[8];
+
+        int index = 0;
+        for (Vector3f vector : vectors) {
+            this.vectors[index] = vector;
+            index++;
+        }
+
+        this.normals = new Vector3f[6];
+        this.normalsPos = new Vector3f[6];
+        this.createNormals();
+        this.createAABB();
+    }
+
     private void createBox(float halfWidth, float halfHeight, float halfDepth) {
         this.vectors = new Vector3f[8];
 
@@ -136,7 +153,7 @@ public class OOBB {
             glLineWidth(1f);
 
             // set color
-            if (CollisionCore.$.selectedOOB == this) {
+            if (CollisionCore.$.selectedOOBBs.contains(this)) {
                 glColor4f(0, 0.7f, 0, 1f);
             } else {
                 glColor4f(0.5f, 0.5f, 0.5f, 1f);
@@ -209,7 +226,7 @@ public class OOBB {
         {
             for (int index = 0; index < 6; index++) {
                 // set color
-                if (CollisionCore.$.selectedOOB == this) {
+                if (CollisionCore.$.selectedOOBBs.contains(this)) {
                     glColor4f(0, 0.7f, 0, 1f);
                 } else {
                     glColor4f(0.5f, 0.5f, 0.5f, 1f);

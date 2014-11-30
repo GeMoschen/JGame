@@ -38,6 +38,21 @@ public class CollisionHelper3D {
         return collisions;
     }
 
+    public static boolean fastCollides(OOBB hitbox, OOBB other) {
+        // check AABBs first
+        if (!CollisionHelper3D.collides(hitbox.getAABB(), other.getAABB())) {
+            return false;
+        }
+
+        // check all vectors of both boxes
+        for (int index = 0; index < 8; index++) {
+            if (isVectorInHitbox(hitbox.getVector(index), other) || isVectorInHitbox(other.getVector(index), hitbox)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean collides(OOBB hitbox, OOBB other) {
         // check AABBs first
         if (!CollisionHelper3D.collides(hitbox.getAABB(), other.getAABB())) {

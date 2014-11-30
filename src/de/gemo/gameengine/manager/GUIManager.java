@@ -100,7 +100,7 @@ public class GUIManager {
     public GUIElement getElementUnderMouse() {
         GUIElement activeElement = null;
         for (GUIElement element : this.elements.values()) {
-            if (element.isColliding(MouseManager.INSTANCE.getHitBox())) {
+            if (element.isColliding(MouseManager.$.getHitBox())) {
                 if (activeElement == null || activeElement.getPosition().getZ() <= element.getPosition().getZ()) {
                     activeElement = element;
                 }

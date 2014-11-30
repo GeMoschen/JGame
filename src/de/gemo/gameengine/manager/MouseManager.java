@@ -10,7 +10,7 @@ import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.units.*;
 
 public class MouseManager {
-    public static MouseManager INSTANCE = null;
+    public static MouseManager $ = null;
 
     private final GameEngine engine;
     private HashMap<Integer, Boolean> pressedButtons = new HashMap<Integer, Boolean>();
@@ -25,7 +25,7 @@ public class MouseManager {
     private Hitbox hitBox, movedHitBox, tempHitBox;
 
     public static MouseManager getInstance(GameEngine engine) {
-        if (INSTANCE == null) {
+        if ($ == null) {
             return new MouseManager(engine);
         } else {
             throw new RuntimeException("ERROR: MouseManager is already created!");
@@ -33,7 +33,7 @@ public class MouseManager {
     }
 
     private MouseManager(GameEngine engine) {
-        INSTANCE = this;
+        $ = this;
         this.engine = engine;
         this.holdButtons = new HashSet<Integer>();
         for (int index = 0; index < 20; index++) {

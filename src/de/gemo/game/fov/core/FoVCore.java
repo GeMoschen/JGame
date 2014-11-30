@@ -154,7 +154,7 @@ public class FoVCore extends GameEngine {
                 Color.orange.bind();
                 glBegin(GL_LINES);
                 glVertex3f(vector.getX(), vector.getY(), 0);
-                glVertex3f(MouseManager.INSTANCE.getCurrentX(), MouseManager.INSTANCE.getCurrentY(), 0);
+                glVertex3f(MouseManager.$.getCurrentX(), MouseManager.$.getCurrentY(), 0);
                 glEnd();
             }
             glPopMatrix();
@@ -250,7 +250,7 @@ public class FoVCore extends GameEngine {
                 glGetFloat(GL_PROJECTION_MATRIX, projection);
                 glGetFloat(GL_MODELVIEW_MATRIX, modelview);
                 glGetInteger(GL_VIEWPORT, viewport);
-                float win_x = MouseManager.INSTANCE.getCurrentX();
+                float win_x = MouseManager.$.getCurrentX();
                 float win_y = Mouse.getY();
 
                 FloatBuffer near = BufferUtils.createFloatBuffer(3);

@@ -82,8 +82,8 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
             font.drawString(20, 35, "Scale: " + this.scale);
 
-            int midX = (int) ((MouseManager.INSTANCE.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
-            int midY = (int) ((MouseManager.INSTANCE.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
+            int midX = (int) ((MouseManager.$.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
+            int midY = (int) ((MouseManager.$.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
             font.drawString(20, 50, "Mouse: " + midX + " / " + midY);
 
             font.drawString(20, 80, "Controls");
@@ -157,7 +157,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseMove(boolean handled, MouseMoveEvent event) {
-        if (MouseManager.INSTANCE.isButtonDown(MouseButton.MIDDLE.getID())) {
+        if (MouseManager.$.isButtonDown(MouseButton.MIDDLE.getID())) {
             System.out.println(offset);
             if (offset.getX() + event.getDifX() < this.VIEW_WIDTH / 2 && offset.getX() + event.getDifX() > -this.world.getWidth() + this.VIEW_WIDTH / 2) {
                 offset.move(event.getDifX(), event.getDifY());
