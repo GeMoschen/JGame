@@ -215,81 +215,105 @@ public class CollisionCore extends GameEngine {
 
     @Override
     public void onMouseUp(boolean handled, MouseReleaseEvent event) {
+
         if (event.isLeftButton()) {
-            // normal left click...
+            glPushMatrix();
+            {
 
-            // set perspective
-            this.setPerspective();
+                // normal left click...
 
-            // look through camera
-            this.camera.lookThrough();
+                // set perspective
+                this.setPerspective();
 
-            // create matrices
-            FloatBuffer projection = BufferUtils.createFloatBuffer(16);
-            FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
-            IntBuffer viewport = BufferUtils.createIntBuffer(16);
+                // look through camera
+                this.camera.lookThrough();
 
-            // fill matrices
-            glGetFloat(GL_PROJECTION_MATRIX, projection);
-            glGetFloat(GL_MODELVIEW_MATRIX, modelview);
-            glGetInteger(GL_VIEWPORT, viewport);
+                // create matrices
+                FloatBuffer projection = BufferUtils.createFloatBuffer(16);
+                FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
+                IntBuffer viewport = BufferUtils.createIntBuffer(16);
 
-            int minDistance = 10;
-            // normal mouseclick
-            if (Math.abs(this.mouseLeftDownVector.getX() - event.getX()) < minDistance && Math.abs(this.mouseLeftDownVector.getY() - event.getY()) < minDistance) {
-                float winX = MouseManager.$.getCurrentX();
-                float winY = Mouse.getY();
+                // fill matrices
+                glGetFloat(GL_PROJECTION_MATRIX, projection);
+                glGetFloat(GL_MODELVIEW_MATRIX, modelview);
+                glGetInteger(GL_VIEWPORT, viewport);
 
-                // get projected vectors
-                Vector3f nearVector = this.project2DTo3D(winX, winY, 0, projection, modelview, viewport);
-                Vector3f farVector = this.project2DTo3D(winX, winY, 1, projection, modelview, viewport);
+                int minDistance = 10;
+                // normal mouseclick
+                if (Math.abs(this.mouseLeftDownVector.getX() - event.getX()) < minDistance && Math.abs(this.mouseLeftDownVector.getY() - event.getY()) < minDistance) {
+                    float winX = MouseManager.$.getCurrentX();
+                    float winY = Mouse.getY();
 
-                Vector3f collisionVector = null;
-                Vector3f nearestVector = null;
-                this.selectedOOBBs.clear();
-                OOBB makeSelection = null;
-                for (OOBB oobb : this.boxes) {
-                    collisionVector = CollisionHelper3D.getLineWithBoxCollision(nearVector, farVector, oobb);
-                    if (CollisionHelper3D.isVectorInHitbox(collisionVector, oobb)) {
-                        if (nearestVector == null || collisionVector.distanceTo(nearVector) <= nearestVector.distanceTo(nearVector)) {
-                            makeSelection = oobb;
-                            nearestVector = collisionVector;
+                    // get projected vectors
+                    Vector3f nearVector = this.project2DTo3D(winX, winY, 0, projection, modelview, viewport);
+                    Vector3f farVector = this.project2DTo3D(winX, winY, 1, projection, modelview, viewport);
+
+                    Vector3f collisionVector = null;
+                    Vector3f nearestVector = null;
+                    this.selectedOOBBs.clear();
+                    OOBB makeSelection = null;
+                    for (OOBB oobb : this.boxes) {
+                        collisionVector = CollisionHelper3D.getLineWithBoxCollision(nearVector, farVector, oobb);
+                        if (CollisionHelper3D.isVectorInHitbox(collisionVector, oobb)) {
+                            if (nearestVector == null || collisionVector.distanceTo(nearVector) <= nearestVector.distanceTo(nearVector)) {
+                                makeSelection = oobb;
+                                nearestVector = collisionVector;
+                            }
+                        }
+                    }
+                    if (makeSelection != null) {
+                        this.selectedOOBBs.add(makeSelection);
+                    }
+                } else {
+                    // create a hitbox
+                    float minX = Math.min(this.mouseLeftDownVector.getX(), MouseManager.$.getCurrentX());
+                    float maxX = Math.max(this.mouseLeftDownVector.getX(), MouseManager.$.getCurrentX());
+                    float minY = Math.min(this.mouseLeftDownRealVector.getY(), Mouse.getY());
+                    float maxY = Math.max(this.mouseLeftDownRealVector.getY(), Mouse.getY());
+
+                    Vector3f v0 = this.project2DTo3D(minX, maxY, 0, projection, modelview, viewport);
+                    Vector3f v1 = this.project2DTo3D(maxX, maxY, 0, projection, modelview, viewport);
+                    Vector3f v4 = this.project2DTo3D(minX, minY, 0, projection, modelview, viewport);
+                    Vector3f v5 = this.project2DTo3D(maxX, minY, 0, projection, modelview, viewport);
+
+                    Vector3f v3 = this.project2DTo3D(minX, maxY, 1, projection, modelview, viewport);
+                    Vector3f v2 = this.project2DTo3D(maxX, maxY, 1, projection, modelview, viewport);
+                    Vector3f v7 = this.project2DTo3D(minX, minY, 1, projection, modelview, viewport);
+                    Vector3f v6 = this.project2DTo3D(maxX, minY, 1, projection, modelview, viewport);
+
+                    Vector3f center = this.project2DTo3D(minX, minY, 0, projection, modelview, viewport);
+
+                    OOBB selectionOOB = new OOBB(center, v0, v1, v2, v3, v4, v5, v6, v7);
+                    this.selectedOOBBs.clear();
+                    for (OOBB oobb : this.boxes) {
+                        if (CollisionHelper3D.fastCollides(selectionOOB, oobb)) {
+                            this.selectedOOBBs.add(oobb);
                         }
                     }
                 }
-                if (makeSelection != null) {
-                    this.selectedOOBBs.add(makeSelection);
-                }
-            } else {
-                // create a hitbox
-                float minX = Math.min(this.mouseLeftDownVector.getX(), MouseManager.$.getCurrentX());
-                float maxX = Math.max(this.mouseLeftDownVector.getX(), MouseManager.$.getCurrentX());
-                float minY = Math.min(this.mouseLeftDownRealVector.getY(), Mouse.getY());
-                float maxY = Math.max(this.mouseLeftDownRealVector.getY(), Mouse.getY());
 
-                Vector3f v0 = this.project2DTo3D(minX, maxY, 0, projection, modelview, viewport);
-                Vector3f v1 = this.project2DTo3D(maxX, maxY, 0, projection, modelview, viewport);
-                Vector3f v4 = this.project2DTo3D(minX, minY, 0, projection, modelview, viewport);
-                Vector3f v5 = this.project2DTo3D(maxX, minY, 0, projection, modelview, viewport);
-
-                Vector3f v3 = this.project2DTo3D(minX, maxY, 1, projection, modelview, viewport);
-                Vector3f v2 = this.project2DTo3D(maxX, maxY, 1, projection, modelview, viewport);
-                Vector3f v7 = this.project2DTo3D(minX, minY, 1, projection, modelview, viewport);
-                Vector3f v6 = this.project2DTo3D(maxX, minY, 1, projection, modelview, viewport);
-
-                Vector3f center = this.project2DTo3D(minX, minY, 0, projection, modelview, viewport);
-
-                OOBB selectionOOB = new OOBB(center, v0, v1, v2, v3, v4, v5, v6, v7);
-                this.selectedOOBBs.clear();
-                for (OOBB oobb : this.boxes) {
-                    if (CollisionHelper3D.fastCollides(selectionOOB, oobb)) {
-                        this.selectedOOBBs.add(oobb);
-                    }
-                }
             }
+            glPopMatrix();
 
         }
+
+        if (event.isLeftButton()) {
+            mouseLeftDownVector.setX(event.getX());
+            mouseLeftDownVector.setY(event.getY());
+        }
+        if (event.isRightButton()) {
+            mouseRightDownVector.setX(event.getX());
+            mouseRightDownVector.setY(event.getY());
+        }
+        if (event.isMiddleButton()) {
+            mouseMiddleDownVector.setX(event.getX());
+            mouseMiddleDownVector.setY(event.getY());
+        }
+
         super.onMouseUp(handled, event);
+
+        // set perspective
+        this.setOrtho();
     }
 
     @Override
@@ -330,7 +354,7 @@ public class CollisionCore extends GameEngine {
         font.drawString(10, base + 107, "Selected OOBBs: " + this.selectedOOBBs.size());
 
         // render selection-box
-        if (Mouse.isButtonDown(MouseButton.LEFT.getID())) {
+        if (MouseManager.$.isButtonDown(MouseButton.LEFT)) {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glDisable(GL_LIGHTING);

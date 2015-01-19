@@ -230,6 +230,29 @@ public class GameEngine {
                 // clear screen
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+                // update delta
+                delta = updateDelta();
+                tempFPS++;
+
+                if (startTimer <= System.currentTimeMillis()) {
+                    tick = true;
+                    startTimer = System.currentTimeMillis() + this.tickTime;
+                }
+
+                // tick GUI-Managers
+
+                // update managers
+                keyManager.update();
+                mouseManager.update();
+
+                // update game
+                this.updateGame(this.delta);
+
+                // update GUI-Managers
+                if (tick) {
+                    this.tickGame(delta);
+                }
+
                 // render 3D
                 this.setPerspective();
                 this.renderGame3D();
@@ -262,32 +285,8 @@ public class GameEngine {
                         }
                     }
                     glPopMatrix();
-
                 }
                 glPopMatrix();
-
-                // update delta
-                delta = updateDelta();
-                tempFPS++;
-
-                if (startTimer <= System.currentTimeMillis()) {
-                    tick = true;
-                    startTimer = System.currentTimeMillis() + this.tickTime;
-                }
-
-                // update managers
-                keyManager.update();
-                mouseManager.update();
-
-                // update game
-                this.updateGame(this.delta);
-
-                // tick GUI-Managers
-
-                // update GUI-Managers
-                if (tick) {
-                    this.tickGame(delta);
-                }
 
                 // update ...
                 Display.update();
