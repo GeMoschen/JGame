@@ -77,7 +77,7 @@ public class SimCore extends GameEngine {
     @Override
     protected void renderGame2D() {
         int time = (int) (level.time / 1000000f);
-        Display.setTitle("FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS() + " - " + time);
+        Display.setTitle("FPS: " + GameEngine.$.getDebugMonitor().getFPS() + " - " + time);
         glDisable(GL_TEXTURE_2D);
         glPushMatrix();
         {

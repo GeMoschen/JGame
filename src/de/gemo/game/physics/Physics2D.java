@@ -216,7 +216,7 @@ public class Physics2D extends GameEngine {
             glEnable(GL_BLEND);
             glDisable(GL_DEPTH_TEST);
 
-            FontManager.getStandardFont(16, Font.BOLD).drawString(5, 5, "Prototype ( " + GameEngine.INSTANCE.getDebugMonitor().getFPS() + " fps)", Color.yellow);
+            FontManager.getStandardFont(16, Font.BOLD).drawString(5, 5, "Prototype ( " + GameEngine.$.getDebugMonitor().getFPS() + " fps)", Color.yellow);
             FontManager.getStandardFont().drawString(6, 30, "Left/Right to move", Color.gray);
             FontManager.getStandardFont().drawString(6, 45, "Space : jump", Color.gray);
             FontManager.getStandardFont().drawString(6, 60, "CTRL : use hook", Color.gray);

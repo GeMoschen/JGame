@@ -79,7 +79,7 @@ public class TerrainCore extends GameEngine {
 
             TrueTypeFont font = FontManager.getStandardFont();
 
-            font.drawString(20, 20, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+            font.drawString(20, 20, "FPS: " + GameEngine.$.getDebugMonitor().getFPS());
             font.drawString(20, 35, "Scale: " + this.scale);
 
             int midX = (int) ((MouseManager.$.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
@@ -110,11 +110,11 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void updateGame(int delta) {
-        boolean left = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LEFT);
-        boolean right = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_RIGHT);
-        boolean up = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_UP);
-        boolean down = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_DOWN);
-        boolean space = KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE);
+        boolean left = KeyboardManager.$.isKeyDown(Keyboard.KEY_LEFT);
+        boolean right = KeyboardManager.$.isKeyDown(Keyboard.KEY_RIGHT);
+        boolean up = KeyboardManager.$.isKeyDown(Keyboard.KEY_UP);
+        boolean down = KeyboardManager.$.isKeyDown(Keyboard.KEY_DOWN);
+        boolean space = KeyboardManager.$.isKeyDown(Keyboard.KEY_SPACE);
         this.player.setMovement(left, right, up, down, space);
     }
 
@@ -202,7 +202,7 @@ public class TerrainCore extends GameEngine {
     @Override
     protected void tickGame(int delta) {
         long timeSinceLastTick = System.currentTimeMillis() - this.lastTickTime;
-        int timesToTick = (int) (timeSinceLastTick / GameEngine.INSTANCE.getTickTime());
+        int timesToTick = (int) (timeSinceLastTick / GameEngine.$.getTickTime());
         for (int tick = 0; tick < timesToTick; tick++) {
             this.physicsHandler.updateAll(delta);
         }

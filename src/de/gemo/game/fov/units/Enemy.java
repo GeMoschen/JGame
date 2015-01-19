@@ -243,7 +243,7 @@ public class Enemy {
         this.path = null;
         this.currentWaypoint = null;
         while (!canSeeTarget && tries < 100) {
-            goal = new Vector3f((float) Math.random() * GameEngine.INSTANCE.VIEW_WIDTH, (float) Math.random() * GameEngine.INSTANCE.VIEW_HEIGHT, 0);
+            goal = new Vector3f((float) Math.random() * GameEngine.$.VIEW_WIDTH, (float) Math.random() * GameEngine.$.VIEW_HEIGHT, 0);
 
             // create raycast
             Hitbox raycast = new Hitbox(0, 0);

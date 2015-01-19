@@ -52,8 +52,8 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public void jump() {
         if ((this.onGround)) {
-            this.velocity.setY(-0.17f * GameEngine.INSTANCE.getCurrentDelta());
-            float jumpX = 0.1f * GameEngine.INSTANCE.getCurrentDelta();
+            this.velocity.setY(-0.17f * GameEngine.$.getCurrentDelta());
+            float jumpX = 0.1f * GameEngine.$.getCurrentDelta();
             if (this.lookRight) {
                 this.velocity.setX(jumpX);
             } else {
@@ -67,7 +67,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         if (this.shotFired) {
             return;
         }
-        this.shootPower += (GameEngine.INSTANCE.getCurrentDelta() * 0.0006f);
+        this.shootPower += (GameEngine.$.getCurrentDelta() * 0.0006f);
         if (this.shootPower >= 1 || WeaponDirectShoot.class.isAssignableFrom(currentWeapon)) {
             EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, 1f);
             this.shotFired = true;

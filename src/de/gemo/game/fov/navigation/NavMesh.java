@@ -13,8 +13,8 @@ public class NavMesh {
     private List<NavNode> navPoints;
 
     private List<Point<NavNode>> allPoints = new ArrayList<Point<NavNode>>();
-    private QuadTree<NavNode> pointTree = new QuadTree<NavNode>(-100, -100, GameEngine.INSTANCE.VIEW_WIDTH + 100, GameEngine.INSTANCE.VIEW_HEIGHT + 100);
-    private QuadTree<Tile> tileTree = new QuadTree<Tile>(-100, -100, GameEngine.INSTANCE.VIEW_WIDTH + 100, GameEngine.INSTANCE.VIEW_HEIGHT + 100);
+    private QuadTree<NavNode> pointTree = new QuadTree<NavNode>(-100, -100, GameEngine.$.VIEW_WIDTH + 100, GameEngine.$.VIEW_HEIGHT + 100);
+    private QuadTree<Tile> tileTree = new QuadTree<Tile>(-100, -100, GameEngine.$.VIEW_WIDTH + 100, GameEngine.$.VIEW_HEIGHT + 100);
 
     public NavMesh(List<Tile> tileList) {
         this.navPoints = new ArrayList<NavNode>();
@@ -233,7 +233,7 @@ public class NavMesh {
 
         // find at least "minPointsToFind" Points in a radius around the current
         // node
-        for (int size = 250; size < GameEngine.INSTANCE.VIEW_WIDTH; size = size + 250) {
+        for (int size = 250; size < GameEngine.$.VIEW_WIDTH; size = size + 250) {
             int xmin = (int) (node.getPosition().getX() - 250);
             int xmax = (int) (node.getPosition().getX() + 250);
             int ymin = (int) (node.getPosition().getY() - 250);

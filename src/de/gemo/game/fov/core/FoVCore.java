@@ -241,7 +241,7 @@ public class FoVCore extends GameEngine {
             }
             glPopMatrix();
 
-            if (KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_SPACE)) {
+            if (KeyboardManager.$.isKeyDown(Keyboard.KEY_SPACE)) {
 
                 FloatBuffer projection = BufferUtils.createFloatBuffer(16);
                 FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
@@ -338,7 +338,7 @@ public class FoVCore extends GameEngine {
         Font font = FontManager.getStandardFont();
         font.drawString(10, 10, "Pitch: " + this.cam.getPitch());
         font.drawString(85, 10, "Yaw: " + this.cam.getYaw());
-        font.drawString(200, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+        font.drawString(200, 10, "FPS: " + GameEngine.$.getDebugMonitor().getFPS());
         font.drawString(300, 10, "Height: " + (-this.cam.getPosition().getY()));
 
         int base = 20;

@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class GameEngine {
 
-    public static GameEngine INSTANCE;
+    public static GameEngine $;
 
     // DELTA
     private long lastFrame;
@@ -62,7 +62,7 @@ public class GameEngine {
     // ////////////////////////////////////////
 
     public GameEngine(String windowTitle, int windowWidth, int windowHeight, int viewWidth, int viewHeight, boolean fullscreen) {
-        INSTANCE = this;
+        $ = this;
         this.WIN_TITLE = windowTitle;
         // set window-dimensions
         this.WIN_WIDTH = windowWidth;
@@ -357,7 +357,7 @@ public class GameEngine {
     }
 
     public static final void close(boolean error) {
-        GameEngine.INSTANCE.shutdown(error);
+        GameEngine.$.shutdown(error);
         System.exit(0);
     }
 

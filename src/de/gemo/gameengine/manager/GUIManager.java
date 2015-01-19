@@ -7,11 +7,11 @@ import de.gemo.gameengine.events.mouse.*;
 import de.gemo.gameengine.gui.*;
 
 public class GUIManager {
-    public static GUIManager INSTANCE = null;
+    public static GUIManager $ = null;
 
     public static GUIManager getInstance() {
-        if (INSTANCE == null) {
-            return INSTANCE = new GUIManager();
+        if ($ == null) {
+            return $ = new GUIManager();
         } else {
             throw new RuntimeException("ERROR: GUIManager is already created!");
         }

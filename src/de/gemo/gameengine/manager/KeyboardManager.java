@@ -9,14 +9,14 @@ import de.gemo.gameengine.core.GameEngine;
 import de.gemo.gameengine.events.keyboard.KeyEvent;
 
 public class KeyboardManager {
-    public static KeyboardManager INSTANCE = null;
+    public static KeyboardManager $ = null;
 
     private final GameEngine engine;
     public HashMap<Integer, Boolean> pressedKeys = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Character> holdKeys = new HashMap<Integer, Character>();
 
     public static KeyboardManager getInstance(GameEngine engine) {
-        if (INSTANCE == null) {
+        if ($ == null) {
             return new KeyboardManager(engine);
         } else {
             throw new RuntimeException("ERROR: KeyManager is already created!");
@@ -24,7 +24,7 @@ public class KeyboardManager {
     }
 
     private KeyboardManager(GameEngine engine) {
-        INSTANCE = this;
+        $ = this;
         this.engine = engine;
         this.holdKeys = new HashMap<Integer, Character>();
         for (int index = 0; index < 65536; index++) {

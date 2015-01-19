@@ -37,7 +37,7 @@ public class EntityGrenade extends EntityWeapon {
     public EntityGrenade(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         super(world, owner, position, angle, power);
         this.startTime = System.currentTimeMillis();
-        this.ticksToLive = this.timer * GameEngine.INSTANCE.getTicksPerSecond();
+        this.ticksToLive = this.timer * GameEngine.$.getTicksPerSecond();
     }
 
     @Override

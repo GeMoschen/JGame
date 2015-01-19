@@ -4,21 +4,21 @@ import de.gemo.game.collision.core.*;
 
 public class StartUp extends Thread {
 
-    public static StartUp INSTANCE = null;
+    public static StartUp $ = null;
     private final GameEngine gameEngine;
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        if (INSTANCE == null) {
+        if ($ == null) {
             // StartUp game =
             new StartUp(new CollisionCore("3D-Collision", 1024, 768, false));
         }
     }
 
     public StartUp(GameEngine engine) {
-        INSTANCE = this;
+        $ = this;
         this.gameEngine = engine;
         this.gameEngine.startUp();
         this.gameEngine.run();

@@ -119,7 +119,7 @@ public class CollisionCore extends GameEngine {
     @Override
     public void onMouseHold(boolean handled, MouseHoldEvent event) {
         float factor = 8;
-        if (event.isRightButton() && !KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
+        if (event.isRightButton() && !KeyboardManager.$.isKeyDown(Keyboard.KEY_LMENU)) {
             float distX = (event.getX() - mouseRightDownVector.getX());
             float distY = (int) (event.getY() - mouseRightDownVector.getY());
             if (distY > 0) {
@@ -137,13 +137,13 @@ public class CollisionCore extends GameEngine {
             this.renderMouseTemp(this.mouseRightDownVector);
         }
 
-        if (event.isLeftButton() && KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
+        if (event.isLeftButton() && KeyboardManager.$.isKeyDown(Keyboard.KEY_LMENU)) {
             float distX = (event.getX() - mouseLeftDownVector.getX());
             this.camera.addYaw(distX / (factor * 6));
             this.renderMouseTemp(this.mouseLeftDownVector);
         }
 
-        if (event.isRightButton() && KeyboardManager.INSTANCE.isKeyDown(Keyboard.KEY_LMENU)) {
+        if (event.isRightButton() && KeyboardManager.$.isKeyDown(Keyboard.KEY_LMENU)) {
             float distY = (event.getY() - mouseRightDownVector.getY());
             this.camera.goUp(distY / (factor * 2));
             this.renderMouseTemp(this.mouseRightDownVector);
@@ -339,7 +339,7 @@ public class CollisionCore extends GameEngine {
         font.drawString(10, 10, "Pitch: " + this.camera.getPitch());
         font.drawString(130, 10, "Yaw: " + this.camera.getYaw());
         font.drawString(240, 10, "Height: " + (-this.camera.getPosition().getY()));
-        font.drawString(370, 10, "FPS: " + GameEngine.INSTANCE.getDebugMonitor().getFPS());
+        font.drawString(370, 10, "FPS: " + GameEngine.$.getDebugMonitor().getFPS());
 
         int base = 20;
         font.drawString(10, base, "________________________________________");
