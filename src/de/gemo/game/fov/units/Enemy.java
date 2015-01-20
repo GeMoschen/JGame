@@ -141,11 +141,11 @@ public class Enemy {
             this.patrolState = PatrolState.ALERTED;
         } else {
             if (this.alerted) {
-                this.setTarget(this.currentInView.getLocation(), navMesh, tileList);
+                this.setTarget(this.currentInView.getLocation().clone(), navMesh, tileList);
                 this.patrolState = PatrolState.SEEKING;
             }
 
-            if (this.currentInView == null) {
+            if (this.currentInView == null && !this.patrolState.equals(PatrolState.SEEKING)) {
                 this.patrolState = PatrolState.NORMAL;
             }
             this.currentInView = null;
@@ -212,6 +212,9 @@ public class Enemy {
             steering = (Vector3f) steering.scale(1f / mass);
 
             this.velocity = Vector3f.add(velocity, steering);
+            if (this.patrolState.equals(PatrolState.SEEKING)) {
+                this.velocity.scale(2f);
+            }
             this.move(this.velocity);
 
             if (this.isNearTarget(1.5f)) {

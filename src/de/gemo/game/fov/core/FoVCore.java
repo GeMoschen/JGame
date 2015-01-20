@@ -36,7 +36,7 @@ public class FoVCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        int enemyCount = 3;
+        int enemyCount = 5;
         int blockCount = 80;
 
         enemies.clear();
