@@ -400,13 +400,13 @@ public class GameEngine {
     //
     // ////////////////////////////////////////
 
-    public void onKeyPressed(KeyEvent event) {
+    protected void onKeyPressed(KeyEvent event) {
     }
 
-    public void onKeyHold(KeyEvent event) {
+    protected void onKeyHold(KeyEvent event) {
     }
 
-    public void onKeyReleased(KeyEvent event) {
+    protected void onKeyReleased(KeyEvent event) {
         switch (event.getKey()) {
         case Keyboard.KEY_F1: {
             this.debugMonitor.setUseVSync(!this.debugMonitor.isUseVSync());
@@ -439,6 +439,27 @@ public class GameEngine {
             break;
         }
         }
+    }
+
+    public final void handleKeyPressed(KeyEvent event) {
+        if (this.guiManager.getFocusedElement() != null) {
+            this.guiManager.getFocusedElement().onKeyPressed(event);
+        }
+        this.onKeyPressed(event);
+    }
+
+    public final void handleKeyHold(KeyEvent event) {
+        if (this.guiManager.getFocusedElement() != null) {
+            this.guiManager.getFocusedElement().onKeyHold(event);
+        }
+        this.onKeyHold(event);
+    }
+
+    public final void handleKeyReleased(KeyEvent event) {
+        if (this.guiManager.getFocusedElement() != null) {
+            this.guiManager.getFocusedElement().onKeyReleased(event);
+        }
+        this.onKeyReleased(event);
     }
 
     // ////////////////////////////////////////

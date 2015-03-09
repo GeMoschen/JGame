@@ -1,12 +1,11 @@
 package de.gemo.gameengine.manager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.*;
 
-import de.gemo.gameengine.core.GameEngine;
-import de.gemo.gameengine.events.keyboard.KeyEvent;
+import de.gemo.gameengine.core.*;
+import de.gemo.gameengine.events.keyboard.*;
 
 public class KeyboardManager {
     public static KeyboardManager $ = null;
@@ -38,7 +37,7 @@ public class KeyboardManager {
         for (Map.Entry<Integer, Character> entry : this.holdKeys.entrySet()) {
             if (Keyboard.isKeyDown(entry.getKey())) {
                 // hold key
-                engine.onKeyHold(new KeyEvent(entry.getKey(), entry.getValue(), true));
+                engine.handleKeyHold(new KeyEvent(entry.getKey(), entry.getValue(), true));
             }
         }
 
@@ -50,11 +49,11 @@ public class KeyboardManager {
 
             if (!currentState && oldState) {
                 // released key
-                engine.onKeyReleased(new KeyEvent(key, holdKeys.remove(key), false));
+                engine.handleKeyReleased(new KeyEvent(key, holdKeys.remove(key), false));
             }
             if (currentState && !oldState) {
                 // newly pressed key
-                engine.onKeyPressed(new KeyEvent(key, character, true));
+                engine.handleKeyPressed(new KeyEvent(key, character, true));
                 holdKeys.put(key, character);
             }
             pressedKeys.put(key, currentState);

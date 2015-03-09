@@ -78,19 +78,19 @@ public class Physics2D extends GameEngine {
         GUITextures.load();
 
         // button
-        GUIButton button = new GUIButton(100, 300, 100, 25);
+        GUIButton button = new GUIButton(100, 300, 300, 25);
         TestListener listener = new TestListener();
         button.setMouseListener(listener);
         button.setFocusListener(listener);
         button.setText("Button");
-        // this.addGUIElement("button", button);
+        this.addGUIElement("button", button);
 
         // textfield
         GUITextfield textfield = new GUITextfield(100, 330, 100, 25);
         textfield.setMouseListener(listener);
         textfield.setFocusListener(listener);
         textfield.setText("Textfield");
-        // this.addGUIElement("textfield", textfield);
+        this.addGUIElement("textfield", textfield);
     }
 
     @Override
@@ -249,6 +249,8 @@ public class Physics2D extends GameEngine {
             this.player.setKeyRight(true);
         if (keyUse)
             this.player.setKeyUse(true);
+        
+        super.onKeyPressed(event);
     }
 
     @Override
@@ -277,5 +279,7 @@ public class Physics2D extends GameEngine {
         if (event.getKey() == Keyboard.KEY_ESCAPE) {
             GameEngine.close();
         }
+        
+        super.onKeyReleased(event);
     }
 }

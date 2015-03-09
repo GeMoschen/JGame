@@ -51,6 +51,7 @@ public class TestListener implements MouseListener, FocusListener {
 
     @Override
     public void onHoverEnd(GUIElement element) {
+        System.out.println("hover end");
     }
 
     @Override

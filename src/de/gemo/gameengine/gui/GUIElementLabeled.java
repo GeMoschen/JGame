@@ -15,6 +15,8 @@ public abstract class GUIElementLabeled extends GUIElement implements IFontRende
         LEFT, CENTER, RIGHT;
     }
 
+    protected static String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ц÷дƒь№,;.:-_#'+*~!\"І$%&/()=?}][{\\ба<>| ^";
+    
     protected Font font = FontManager.getStandardFont();
     protected Color fontColor = Color.white;
     protected String text = "";
