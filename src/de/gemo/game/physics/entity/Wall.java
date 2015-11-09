@@ -66,7 +66,7 @@ public class Wall extends EntityCollidable {
 
         glPushMatrix();
         {
-            // translate to center
+            // translate to _center
             glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
             glRotatef(this.getAngle(), 0, 0, 1);
 

@@ -50,7 +50,7 @@ public class EntityGrenade extends EntityWeapon {
         this.velocity.rotateAround(this.position, angle);
         this.velocity = Vector2f.sub(this.velocity, this.position);
 
-        // get angle
+        // get _angle
         this.angle = this.position.getAngle(this.position.getX() + this.velocity.getX(), this.position.getY() + this.velocity.getY());
     }
 

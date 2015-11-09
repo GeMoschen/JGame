@@ -151,7 +151,7 @@ public class CollisionCore extends GameEngine {
     }
 
     private void renderMouseTemp(Vector2f vector) {
-        // translate to center
+        // translate to _center
         glPushMatrix();
         {
             glDisable(GL_LIGHTING);

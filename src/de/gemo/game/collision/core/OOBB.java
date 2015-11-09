@@ -66,8 +66,8 @@ public class OOBB {
         this.aabb = new AABB();
         this.move(0, 0, 0);
         // for (Vector3f vector : this.vectors) {
-        // this.aabb.addPoint(this.center.getX() + vector.getX(),
-        // this.center.getY() + vector.getY(), this.center.getZ() +
+        // this._aabb.addPoint(this._center.getX() + vector.getX(),
+        // this._center.getY() + vector.getY(), this._center.getZ() +
         // vector.getZ());
         // }
     }
@@ -174,7 +174,7 @@ public class OOBB {
             glEnd();
             this.renderNormals();
             this.renderOrientationCenter();
-            // this.aabb.render();
+            // this._aabb.render();
         }
         glPopMatrix();
     }

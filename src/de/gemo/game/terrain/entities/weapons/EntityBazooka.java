@@ -37,7 +37,7 @@ public class EntityBazooka extends EntityWeapon {
         this.velocity.rotateAround(this.position, angle);
         this.velocity = Vector2f.sub(this.velocity, this.position);
 
-        // get angle
+        // get _angle
         this.angle = this.position.getAngle(this.position.getX() + this.velocity.getX(), this.position.getY() + this.velocity.getY());
     }
 
@@ -92,7 +92,7 @@ public class EntityBazooka extends EntityWeapon {
             this.velocity.set(vX, vY);
         } else {
 
-            // update position
+            // updatePosition position
             this.position.set(raycast[0], raycast[1]);
 
             // explode
@@ -105,7 +105,7 @@ public class EntityBazooka extends EntityWeapon {
         RenderHandler.removeObject(this);
         PhysicsHandler.removeObject(this);
 
-        // update world
+        // updatePosition world
         this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
 
         // scan for players

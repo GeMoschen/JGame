@@ -430,7 +430,7 @@ public class QuadTree<T> {
                 break;
 
             } else {
-                // Only child was a leaf: so update node's point and make it a
+                // Only child was a leaf: so updatePosition node's point and make it a
                 // leaf.
                 node.setNodeType(NodeType.LEAF);
                 node.setNw(null);

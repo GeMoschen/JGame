@@ -87,7 +87,7 @@ public class AStar {
                         // remove from openlist
                         openList.remove(neighbor);
 
-                        // update neighbor
+                        // updatePosition neighbor
                         neighbor.setPreviousNode(current);
                         neighbor.setDistanceFromStart(neighborDistanceFromStart);
                         neighbor.setHeuristicDistanceFromGoal(heuristic.getEstimatedDistanceToGoal(neighbor.getPoint(), map.getGoalPoint()));

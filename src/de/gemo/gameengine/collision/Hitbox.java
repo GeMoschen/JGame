@@ -1,161 +1,193 @@
 package de.gemo.gameengine.collision;
 
-import java.io.*;
-import java.util.*;
+import de.gemo.gameengine.units.Vector2f;
+import de.gemo.gameengine.units.Vector3f;
+import org.newdawn.slick.Color;
 
-import org.newdawn.slick.*;
-
-import de.gemo.gameengine.units.*;
+import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Hitbox {
 
-    public static Hitbox createRectangle(float halfWidth, float halfHeight) {
-        Hitbox hitbox = new Hitbox(0, 0);
-        hitbox.addPoint(-halfWidth, -halfHeight);
-        hitbox.addPoint(+halfWidth, -halfHeight);
-        hitbox.addPoint(+halfWidth, +halfHeight);
-        hitbox.addPoint(-halfWidth, +halfHeight);
-        return hitbox;
-    }
+    protected final AABB _aabb;
+    protected final List<Vector3f> _points;
+    protected final List<Line> _lines;
+    protected final Vector3f _center;
+    protected float _angle;
 
-    public static Hitbox createRectangle(Vector2f center, float halfWidth, float halfHeight) {
-        return createRectangle(center.getX(), center.getY(), halfWidth, halfHeight);
-    }
-
-    public static Hitbox createRectangle(float x, float y, float halfWidth, float halfHeight) {
-        Hitbox hitbox = new Hitbox(x, y);
-        hitbox.addPoint(-halfWidth, -halfHeight);
-        hitbox.addPoint(+halfWidth, -halfHeight);
-        hitbox.addPoint(+halfWidth, +halfHeight);
-        hitbox.addPoint(-halfWidth, +halfHeight);
-        return hitbox;
-    }
-
-    protected AABB aabb;
-    protected List<Vector3f> points = new ArrayList<Vector3f>();
-    protected Vector3f center;
-    protected float angle = 0f;
-
-    public Hitbox(Vector3f center) {
-        this.center = center;
-        this.aabb = new AABB();
+    public Hitbox(final Vector3f center) {
+        _center = center;
+        _aabb = new AABB();
+        _points = new ArrayList<Vector3f>();
+        _lines = new ArrayList<>();
     }
 
     public Hitbox(float x, float y) {
         this(new Vector3f(x, y, 0));
     }
 
+    public static Hitbox createRectangle(final float halfWidth, final float halfHeight) {
+        final Hitbox hitbox = new Hitbox(0, 0);
+        hitbox.addPoint(-halfWidth, -halfHeight);
+        hitbox.addPoint(+halfWidth, -halfHeight);
+        hitbox.addPoint(+halfWidth, +halfHeight);
+        hitbox.addPoint(-halfWidth, +halfHeight);
+        return hitbox;
+    }
+
+    public static Hitbox createRectangle(final Vector2f center, final float halfWidth, final float halfHeight) {
+        return createRectangle(center.getX(), center.getY(), halfWidth, halfHeight);
+    }
+
+    public static Hitbox createRectangle(final float x, final float y, final float halfWidth, final float halfHeight) {
+        final Hitbox hitbox = new Hitbox(x, y);
+        hitbox.addPoint(-halfWidth, -halfHeight);
+        hitbox.addPoint(+halfWidth, -halfHeight);
+        hitbox.addPoint(+halfWidth, +halfHeight);
+        hitbox.addPoint(-halfWidth, +halfHeight);
+        return hitbox;
+    }
+
+    public static Hitbox load(Vector3f baseVector, ArrayList<Vector3f> pointList) {
+        Hitbox hitbox = new Hitbox(baseVector);
+        for (Vector3f vector : pointList) {
+            hitbox.addPoint(vector.getX(), vector.getY());
+        }
+        return hitbox;
+    }
+
     public final List<Vector3f> getPoints() {
-        return points;
+        return _points;
+    }
+
+    public List<Line> getLines() {
+        return _lines;
     }
 
     public final int getPointCount() {
-        return this.points.size();
+        return _points.size();
     }
 
     public final Vector3f getPoint(int index) {
-        return this.points.get(index);
+        return _points.get(index);
     }
 
     public Vector3f addPoint(Vector3f vector) {
-        return this.addPoint(vector.getX(), vector.getY());
+        return addPoint(vector.getX(), vector.getY());
     }
 
     public Vector3f addPoint(float x, float y) {
-        Vector3f vector = new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
-        this.points.add(vector);
-        this.aabb.addPoint(vector.getX(), vector.getY());
+        Vector3f vector = new Vector3f(getCenter().getX() + x, getCenter().getY() + y, 0);
+        if (_points.size() > 0) {
+            // remove last line
+            if (_points.size() > 1) {
+                _lines.remove(_lines.size() - 1);
+            }
+            // create new lines
+            final Vector3f lastVector = _points.get(_points.size() - 1);
+            _lines.add(new Line(lastVector, vector));
+            _lines.add(new Line(vector, _points.get(0)));
+        }
+        _points.add(vector);
+        _aabb.addPoint(vector.getX(), vector.getY());
         return vector;
     }
 
     public final Vector3f calculatePoint(float x, float y) {
-        return new Vector3f(this.getCenter().getX() + x, this.getCenter().getY() + y, 0);
+        return calculatePoint(x, y, 0);
+    }
+
+    public final Vector3f calculatePoint(float x, float y, float z) {
+        return new Vector3f(getCenter().getX() + x, getCenter().getY() + y, getCenter().getZ() + z);
     }
 
     public final Vector3f getCenter() {
-        return this.center;
-    }
-
-    public final void setCenter(float x, float y) {
-        float difX = x - this.center.getX();
-        float difY = y - this.center.getY();
-        this.move(difX, difY);
+        return _center;
     }
 
     public final void setCenter(Vector2f vector) {
-        this.setCenter(vector.getX(), vector.getY());
+        setCenter(vector.getX(), vector.getY());
     }
 
     public final void setCenter(Vector3f vector) {
-        this.setCenter(vector.getX(), vector.getY());
+        setCenter(vector.getX(), vector.getY());
+    }
+
+    public final void setCenter(float x, float y) {
+        float difX = x - _center.getX();
+        float difY = y - _center.getY();
+        move(difX, difY);
     }
 
     public final void move(float x, float y) {
-        this.center.move(x, y);
-        this.aabb.reset();
-        for (Vector3f vector : this.points) {
+        _center.move(x, y);
+        _aabb.reset();
+        for (Vector3f vector : _points) {
             vector.move(x, y);
-            this.aabb.addPoint(vector.getX(), vector.getY());
+            _aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
     public final void rotate(float angle) {
-        this.angle += angle;
+        _angle += angle;
 
-        if (this.angle < 0f) {
-            this.angle += 360f;
+        if (_angle < 0f) {
+            _angle += 360f;
         }
-        if (this.angle > 360f) {
-            this.angle -= 360f;
+        if (_angle > 360f) {
+            _angle -= 360f;
         }
 
         float rad = (float) Math.toRadians(angle);
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
-        this.aabb.reset();
-        for (Vector3f vector : this.points) {
-            vector.rotateAround(this.getCenter(), sin, cos);
-            this.aabb.addPoint(vector.getX(), vector.getY());
+        _aabb.reset();
+        for (Vector3f vector : _points) {
+            vector.rotateAround(getCenter(), sin, cos);
+            _aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
     public final void rotateAround(Vector3f center, float angle) {
-        this.angle += angle;
+        _angle += angle;
 
-        if (this.angle < 0f) {
-            this.angle += 360f;
+        if (_angle < 0f) {
+            _angle += 360f;
         }
-        if (this.angle > 360f) {
-            this.angle -= 360f;
+        if (_angle > 360f) {
+            _angle -= 360f;
         }
 
         float rad = (float) Math.toRadians(angle);
         float sin = (float) Math.sin(rad);
         float cos = (float) Math.cos(rad);
-        this.center.rotateAround(center, sin, cos);
-        this.aabb.reset();
-        for (Vector3f vector : this.points) {
+        _center.rotateAround(center, sin, cos);
+        _aabb.reset();
+        for (Vector3f vector : _points) {
             vector.rotateAround(center, sin, cos);
-            this.aabb.addPoint(vector.getX(), vector.getY());
+            _aabb.addPoint(vector.getX(), vector.getY());
         }
     }
 
     public void setAngle(Vector3f center, float angle) {
-        this.rotateAround(center, -this.angle + angle);
+        rotateAround(center, -_angle + angle);
     }
 
     public float getAngle() {
-        return angle;
+        return _angle;
     }
 
     public void setAngle(float angle) {
-        this.rotate(-this.angle + angle);
+        rotate(-_angle + angle);
     }
 
     protected void renderCenter() {
-        // render center
+        // render _center
         Color.red.bind();
         glBegin(GL_LINE_LOOP);
         glVertex3i(-2, -2, 0);
@@ -173,11 +205,11 @@ public class Hitbox {
             glDisable(GL_TEXTURE_2D);
             glLineWidth(1f);
 
-            // translate & render center
+            // translate & render _center
             glPushMatrix();
             {
-                glTranslatef(this.center.getX(), this.center.getY(), 0);
-                this.renderCenter();
+                glTranslatef(_center.getX(), _center.getY(), 0);
+                renderCenter();
             }
             glPopMatrix();
 
@@ -186,16 +218,15 @@ public class Hitbox {
             {
                 Color.green.bind();
                 glBegin(GL_LINE_LOOP);
-                for (Vector3f vector : this.points) {
-                    vector.render();
+                for (final Line line : getLines()) {
+                    line.render();
                 }
                 glEnd();
             }
             glPopMatrix();
 
             // render AABB
-            // this.aabb.render();
-
+            // _aabb.render();
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
         }
@@ -203,51 +234,87 @@ public class Hitbox {
     }
 
     public void scale(float scaleX, float scaleY) {
-        float currentAngle = this.angle;
-        this.setAngle(0);
-        for (Vector3f vector : this.points) {
-            float currentX = vector.getX() - this.center.getX();
-            float currentY = vector.getY() - this.center.getY();
+        float currentAngle = _angle;
+        setAngle(0);
+        for (Vector3f vector : _points) {
+            float currentX = vector.getX() - _center.getX();
+            float currentY = vector.getY() - _center.getY();
             currentX *= scaleX;
             currentY *= scaleY;
-            vector.setX(this.center.getX() + currentX);
-            vector.setY(this.center.getY() + currentY);
+            vector.setX(_center.getX() + currentX);
+            vector.setY(_center.getY() + currentY);
         }
-        this.setAngle(currentAngle);
+        setAngle(currentAngle);
     }
 
-    public void scaleByPixel(float pixel) {
-        for (Vector3f vector : this.points) {
-            Vector3f vect = Vector3f.sub(vector, center);
-            vect = Vector3f.normalize(vect);
-            vect = vect.scale(pixel);
-            vector.setX(vect.getX() + vector.getX());
-            vector.setY(vect.getY() + vector.getY());
+    public void scaleByPixel(final float pixel) {
+        if (pixel == 0) {
+            return;
+        }
+        final List<Line> lines = pixel > 0 ? grow(pixel) : shrink(pixel);
+
+        for (int index = 0; index < getLines().size(); index++) {
+            final Line line = lines.get(index);
+            final Line prevLine = lines.get((index + getLines().size() - 1) % getLines().size());
+            Point2D.Double point = Line.getLineLineIntersection(prevLine, line);
+            if (point != null) {
+                _points.get(index).set((float) point.getX(), (float) point.getY(), 0);
+            }
+        }
+    }
+
+    private List<Line> grow(final float pixel) {
+        final List<Line> lines = new ArrayList<>();
+        for (int index = 0; index < getLines().size(); index++) {
+            final Line line = getLines().get(index);
+            final Vector3f outwardNormal = line.getOutwardNormal();
+            float dX = outwardNormal.getX() * pixel;
+            float dY = outwardNormal.getY() * pixel;
+            lines.add(new Line(new Vector3f(line.getFirst().getX() + dX, line.getFirst().getY() + dY, line.getFirst().getZ()), new Vector3f(line.getLast().getX() + dX, line.getLast().getY() + dY, line.getLast().getZ())));
+        }
+        return lines;
+    }
+
+    private List<Line> shrink(final float pixel) {
+        final List<Line> lines = new ArrayList<>();
+        for (int index = 0; index < getLines().size(); index++) {
+            final Line line = getLines().get(index);
+            final Vector3f inwardNormal = line.getInwardNormal();
+            float dX = inwardNormal.getX() * pixel;
+            float dY = inwardNormal.getY() * pixel;
+            lines.add(new Line(new Vector3f(line.getFirst().getX() - dX, line.getFirst().getY() - dY, line.getFirst().getZ()), new Vector3f(line.getLast().getX() - dX, line.getLast().getY() - dY, line.getLast().getZ())));
+        }
+        return lines;
+    }
+
+    public void expand(final float factor) {
+        for (final Vector3f vector : _points) {
+            vector.scaleRelative(getCenter(), factor);
         }
     }
 
     public void scaleX(float scaleX) {
-        this.scale(scaleX, 1f);
+        scale(scaleX, 1f);
     }
 
     public void scaleY(float scaleY) {
-        this.scale(1f, scaleY);
+        scale(1f, scaleY);
     }
 
     public Hitbox clone() {
-        Hitbox otherBox = new Hitbox(this.center.clone());
-        for (Vector3f vector : this.points) {
-            otherBox.addPoint(Vector3f.sub(vector, this.center));
+        Hitbox otherBox = new Hitbox(_center.clone());
+        for (Vector3f vector : _points) {
+            otherBox.addPoint(Vector3f.sub(vector, _center));
         }
         return otherBox;
     }
 
     @Override
     public String toString() {
-        String result = this.getClass().getSimpleName() + " { ";
-        for (int i = 0; i < points.size(); i++) {
-            result += points.get(i).toString();
-            if (i < points.size() - 1) {
+        String result = getClass().getSimpleName() + " { ";
+        for (int i = 0; i < _points.size(); i++) {
+            result += _points.get(i).toString();
+            if (i < _points.size() - 1) {
                 result += " ; ";
             }
         }
@@ -255,20 +322,12 @@ public class Hitbox {
     }
 
     public AABB getAABB() {
-        return aabb;
-    }
-
-    public static Hitbox load(Vector3f baseVector, ArrayList<Vector3f> pointList) {
-        Hitbox hitbox = new Hitbox(baseVector);
-        for (Vector3f vector : pointList) {
-            hitbox.addPoint(vector.getX(), vector.getY());
-        }
-        return hitbox;
+        return _aabb;
     }
 
     public void export(ObjectOutputStream outputStream) {
         try {
-            for (Vector3f vector : this.points) {
+            for (Vector3f vector : _points) {
                 outputStream.writeObject(vector);
             }
         } catch (IOException e) {

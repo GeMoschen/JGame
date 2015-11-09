@@ -90,7 +90,7 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 85, "__________________");
             font.drawString(20, 100, "jump: w");
             font.drawString(20, 115, "move: left/right");
-            font.drawString(20, 130, "angle: up/down");
+            font.drawString(20, 130, "_angle: up/down");
             font.drawString(20, 145, "shoot: space");
             font.drawString(20, 150, "__________________");
             font.drawString(20, 165, "reset: F12");
@@ -169,7 +169,7 @@ public class TerrainCore extends GameEngine {
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
 
         if (event.isUp()) {
-            // calculate current center
+            // calculate current _center
             int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
             int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
 
@@ -179,11 +179,11 @@ public class TerrainCore extends GameEngine {
                 this.scale = 1.5f;
             }
 
-            // center camera
+            // _center camera
             this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
             this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
         } else {
-            // calculate current center
+            // calculate current _center
             int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
             int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
 
@@ -193,7 +193,7 @@ public class TerrainCore extends GameEngine {
                 this.scale = 0.5f;
             }
 
-            // center camera
+            // _center camera
             this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
             this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
         }

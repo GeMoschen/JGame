@@ -36,7 +36,7 @@ public class GUITextfield extends GUIElementLabeled {
         right.setPosition(center.getWidth() + center.getPosition().getX(), 0);
 
         this.addGraphic2D("left", left);
-        this.addGraphic2D("center", center);
+        this.addGraphic2D("_center", center);
         this.addGraphic2D("right", right);
 
         this.setPosition(x, y);
@@ -98,8 +98,8 @@ public class GUITextfield extends GUIElementLabeled {
         }
         this.getGraphic2D("left").setSize(GUIConfig.get(configName + ".left").getWidth(), height);
         this.getGraphic2D("right").setSize(GUIConfig.get(configName + ".right").getWidth(), height);
-        this.getGraphic2D("center").setSize(width - this.getGraphic2D("left").getWidth() - this.getGraphic2D("right").getWidth(), height);
-        this.getGraphic2D("right").setPosition(this.getGraphic2D("center").getPosition().getX() + this.getGraphic2D("center").getWidth(), this.getGraphic2D("right").getPosition().getY());
+        this.getGraphic2D("_center").setSize(width - this.getGraphic2D("left").getWidth() - this.getGraphic2D("right").getWidth(), height);
+        this.getGraphic2D("right").setPosition(this.getGraphic2D("_center").getPosition().getX() + this.getGraphic2D("_center").getWidth(), this.getGraphic2D("right").getPosition().getY());
         return true;
     }
     

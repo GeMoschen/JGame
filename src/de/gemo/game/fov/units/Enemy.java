@@ -1,15 +1,17 @@
 package de.gemo.game.fov.units;
 
-import java.util.*;
-
+import de.gemo.game.fov.core.PatrolState;
+import de.gemo.game.fov.navigation.NavMesh;
+import de.gemo.game.fov.navigation.Path;
+import de.gemo.gameengine.collision.CollisionHelper;
+import de.gemo.gameengine.collision.Hitbox;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.units.Vector3f;
 import org.lwjgl.util.vector.Vector2f;
 
-import de.gemo.game.fov.core.*;
-import de.gemo.game.fov.navigation.*;
-import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.units.Vector3f;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -121,9 +123,9 @@ public class Enemy {
                     boolean canSeeTarget = true;
                     for (Tile tile : tileList) {
                         intersections = CollisionHelper.findIntersection(raycast, tile.getHitbox());
-                        if (intersections != null && enemy.getHeight() <= tile.getHitbox().getHeight()) {
-                            canSeeTarget = false;
-                        }
+//                        if (intersections != null && enemy.getHeight() <= tile.getHitbox().getHeight()) {
+//                            canSeeTarget = false;
+//                        }
                     }
                     if (canSeeTarget) {
                         target = enemy;
@@ -392,7 +394,7 @@ public class Enemy {
     }
 
     private void renderHitbox(Hitbox hitbox) {
-        // translate to center
+        // translate to _center
         glPushMatrix();
         {
             glEnable(GL_DEPTH_TEST);
@@ -425,7 +427,7 @@ public class Enemy {
             }
             glPopMatrix();
 
-            // translate & render center
+            // translate & render _center
             glPushMatrix();
             {
                 glEnable(GL_BLEND);
@@ -437,7 +439,7 @@ public class Enemy {
             glPopMatrix();
 
             // render AABB
-            // this.aabb.render();
+            // this._aabb.render();
 
             // glEnable(GL_BLEND);
             // glEnable(GL_TEXTURE_2D);

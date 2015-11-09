@@ -92,7 +92,7 @@ public class GUIElement implements IRenderable {
     public final void setSize(float width, float height) {
         if (this.onChangeSize(this.size.getX(), this.size.getY(), width, height)) {
             // calculate relative movement, because of different anchors
-            // the Hitbox has the anchors in the center
+            // the Hitbox has the anchors in the _center
             // the GUIElement has the anchor on the upper-left corner
             float difHalfSizeX = (width - this.size.getX()) / 2f;
             float difHalfSizeY = (height - this.size.getY()) / 2f;

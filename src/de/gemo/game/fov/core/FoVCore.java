@@ -1,21 +1,30 @@
 package de.gemo.game.fov.core;
 
-import java.nio.*;
-import java.util.*;
+import de.gemo.game.fov.navigation.NavMesh;
+import de.gemo.game.fov.units.Enemy;
+import de.gemo.game.fov.units.Tile;
+import de.gemo.gameengine.collision.CollisionHelper;
+import de.gemo.gameengine.collision.Hitbox;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.events.keyboard.KeyEvent;
+import de.gemo.gameengine.events.mouse.MouseClickEvent;
+import de.gemo.gameengine.events.mouse.MouseDragEvent;
+import de.gemo.gameengine.events.mouse.MouseHoldEvent;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.manager.KeyboardManager;
+import de.gemo.gameengine.manager.MouseManager;
+import de.gemo.gameengine.units.Vector2f;
+import de.gemo.gameengine.units.Vector3f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.util.glu.GLU;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 
-import org.lwjgl.*;
-import org.lwjgl.input.*;
-import org.lwjgl.util.glu.*;
-import org.newdawn.slick.*;
-
-import de.gemo.game.fov.navigation.*;
-import de.gemo.game.fov.units.*;
-import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.events.keyboard.*;
-import de.gemo.gameengine.events.mouse.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.units.*;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -127,7 +136,7 @@ public class FoVCore extends GameEngine {
     }
 
     private void renderMouseTemp(Vector2f vector) {
-        // translate to center
+        // translate to _center
         glPushMatrix();
         {
             glDisable(GL_LIGHTING);
@@ -179,7 +188,7 @@ public class FoVCore extends GameEngine {
 
         if (event.isMiddleButton()) {
             // for (Enemy enemy : this.enemies) {
-            // // enemy.update(this.navMesh, this.tiles);
+            // // enemy.updatePosition(this.navMesh, this.tiles);
             // enemy.setTarget(new Vector3f(event.getX(), event.getY(), 0),
             // navMesh, this.tiles);
             // }

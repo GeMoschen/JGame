@@ -189,9 +189,9 @@ public class Graphic2D implements IRenderable {
     // ////////////////////////////////////////
 
     /**
-     * Get the current angle (in degrees)
+     * Get the current _angle (in degrees)
      * 
-     * @return the current angle in degrees
+     * @return the current _angle in degrees
      */
     public final float getAngle() {
         return angle;
@@ -208,7 +208,7 @@ public class Graphic2D implements IRenderable {
     }
 
     /**
-     * Set the angle of this Graphic2D
+     * Set the _angle of this Graphic2D
      * 
      * @param angle
      *            in degrees
@@ -234,7 +234,7 @@ public class Graphic2D implements IRenderable {
 
     /**
      * Get the current position. <br />
-     * <b>Note:</b> This position is always the center of the graphic. The
+     * <b>Note:</b> This position is always the _center of the graphic. The
      * offsets given by the PositionAnchor are handled seperatly.
      * 
      * @return the position as a {@link Vector2f}

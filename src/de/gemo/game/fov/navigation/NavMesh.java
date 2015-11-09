@@ -1,13 +1,15 @@
 package de.gemo.game.fov.navigation;
 
-import java.util.*;
+import de.gemo.game.fov.core.TimeHandler;
+import de.gemo.game.fov.units.Tile;
+import de.gemo.gameengine.collision.CollisionHelper;
+import de.gemo.gameengine.collision.Hitbox;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.units.Vector3f;
+import de.gemo.gameengine.units.quadtree.Point;
+import de.gemo.gameengine.units.quadtree.QuadTree;
 
-import de.gemo.game.fov.core.*;
-import de.gemo.game.fov.units.*;
-import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.units.*;
-import de.gemo.gameengine.units.quadtree.*;
+import java.util.*;
 
 public class NavMesh {
     private List<NavNode> navPoints;
@@ -37,7 +39,7 @@ public class NavMesh {
             this.tileTree.set(tile.getHitbox().getCenter().getX(), tile.getHitbox().getCenter().getY(), tile);
         }
 
-        // add all available points
+        // add all available _points
         for (Tile tile : tileList) {
             Hitbox hitbox = this.expandHitbox(tile.getHitbox(), 10);
             for (Vector3f vector : hitbox.getPoints()) {
@@ -189,7 +191,7 @@ public class NavMesh {
                 continue;
             }
 
-            // update the neighbor
+            // updatePosition the neighbor
             neighbor.setPreviousNode(currentNode);
             neighbor.setDistanceFromStart(g);
 
@@ -244,7 +246,7 @@ public class NavMesh {
             }
         }
 
-        // if we have too less points, we simply add all points
+        // if we have too less _points, we simply add all _points
         if (points.size() < minPointsToFind) {
             points = this.allPoints;
         }

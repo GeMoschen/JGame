@@ -228,7 +228,7 @@ public class SinglePathSearch {
             return;
         }
 
-        // iterate over the points, but DON'T smooth the first and the last
+        // iterate over the _points, but DON'T smooth the first and the last
         // line. (just time optimization, cause the first and the last lines are
         // always non diagonal)
         for (int index = 1; index < this.walkPath.size() - 1; index++) {
@@ -242,7 +242,7 @@ public class SinglePathSearch {
                 continue;
             }
 
-            // get the points, and the distance between them
+            // get the _points, and the distance between them
             Point currentPoint = this.walkPath.get(index);
             Point nextPoint = this.walkPath.get(index + 1);
             double distance = Math.abs(Math.sqrt(Math.pow(currentPoint.x - nextPoint.x, 2) + Math.pow(currentPoint.y - nextPoint.y, 2)));
@@ -254,7 +254,7 @@ public class SinglePathSearch {
                 continue;
             }
 
-            // determine the values for the calculation of the rotational center
+            // determine the values for the calculation of the rotational _center
             float dX = (nextPoint.x - currentPoint.x);
             float dY = (nextPoint.y - currentPoint.y);
             float offX = 0f;
@@ -265,7 +265,7 @@ public class SinglePathSearch {
                 offX = dX;
             }
 
-            // create the rotational center
+            // create the rotational _center
             Vector2f center = new Vector2f(currentPoint.x + offX, currentPoint.y + offY);
 
             // determine the needed values
@@ -279,7 +279,7 @@ public class SinglePathSearch {
                 startAngle = 270;
             }
 
-            // add new points and rotate them around the rotational center
+            // add new _points and rotate them around the rotational _center
             float currentAngle = angleStep;
             for (int i = 0; i < smoothCount; i++) {
                 Vector2f newPoint = new Vector2f(center.getX() - offX, center.getY() - offY);
@@ -288,7 +288,7 @@ public class SinglePathSearch {
                 currentAngle += angleStep;
             }
 
-            // increment the index, so the currently added points are not
+            // increment the index, so the currently added _points are not
             // smoothed again
             index += (1 + (smoothCount));
         }

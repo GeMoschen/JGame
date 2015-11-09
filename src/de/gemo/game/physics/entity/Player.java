@@ -148,14 +148,14 @@ public class Player extends EntityCollidable {
         Vec2 pos = this.getPosition();
         glPushMatrix();
         {
-            // translate to center
+            // translate to _center
             glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 10);
             glRotatef(this.getAngle(), 0, 0, 1);
             glScalef(Physics2D.pxPerM, Physics2D.pxPerM, 0);
 
             glDisable(GL_LINE_STIPPLE);
 
-            // render center
+            // render _center
             Color.green.bind();
             glBegin(GL_LINE_LOOP);
             glVertex2f(-0.02f, -0.02f);
@@ -192,13 +192,13 @@ public class Player extends EntityCollidable {
         if (this.hook != null) {
             glPushMatrix();
             {
-                // translate to center
+                // translate to _center
                 glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 8);
                 glScalef(Physics2D.pxPerM, Physics2D.pxPerM, 0);
 
                 glDisable(GL_LINE_STIPPLE);
 
-                // render center
+                // render _center
                 Color.white.bind();
                 glBegin(GL_LINES);
                 glVertex2f(0, 0);

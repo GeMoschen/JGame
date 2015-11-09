@@ -59,7 +59,7 @@ public class Animation {
             result = true;
         }
 
-        // update the frame
+        // updatePosition the frame
         this.currentFrame = frame;
         return result;
     }

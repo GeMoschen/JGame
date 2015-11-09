@@ -237,7 +237,7 @@ public class RectangleTexture implements Texture {
     }
 
     /**
-     * Set the height of the texture. This will update the ratio also.
+     * Set the height of the texture. This will updatePosition the ratio also.
      */
     private void setHeight() {
         if (texHeight != 0) {
@@ -246,7 +246,7 @@ public class RectangleTexture implements Texture {
     }
 
     /**
-     * Set the width of the texture. This will update the ratio also.
+     * Set the width of the texture. This will updatePosition the ratio also.
      */
     private void setWidth() {
         if (texWidth != 0) {

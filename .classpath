@@ -16,5 +16,8 @@
 	<classpathentry kind="lib" path="lib/jars/jbox2d-library-2.2.1.1.jar" sourcepath="lib/jars/jbox2d-library-2.2.1.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jinput.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jdom-2.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/jars/j3dcore.jar" sourcepath="lib/jars/j3dcore.jar"/>
+	<classpathentry kind="lib" path="lib/jars/j3dutils.jar"/>
+	<classpathentry kind="lib" path="lib/jars/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

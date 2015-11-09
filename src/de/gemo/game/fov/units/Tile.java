@@ -1,24 +1,22 @@
 package de.gemo.game.fov.units;
 
-import org.newdawn.slick.*;
-
-import de.gemo.game.fov.core.*;
-import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.units.*;
+import de.gemo.gameengine.collision.Hitbox;
+import de.gemo.gameengine.units.Vector3f;
+import org.newdawn.slick.Color;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Tile {
 
-    private AdvancedHitbox hitbox;
-    public AdvancedHitbox expanded;
+    private Hitbox hitbox;
+    public Hitbox expanded;
 
     public Tile(int x, int y, int width, int height) {
         this.createHitbox(x, y, width, height);
     }
 
     private void createHitbox(int x, int y, int width, int height) {
-        this.hitbox = new AdvancedHitbox(x, y, 15 + (float) (Math.random() * 30));
+        this.hitbox = new Hitbox(x, y);
         this.hitbox.addPoint(-width, -height);
         // this.hitbox.addPoint(-width - (float) Math.random() * 10f, 0);
         this.hitbox.addPoint(-width, +height);
@@ -28,12 +26,12 @@ public class Tile {
         this.hitbox.addPoint(+width, -height);
         // this.hitbox.addPoint(0, -height + (float) Math.random() * 10f);
 
-        this.expanded = (AdvancedHitbox) this.hitbox.clone();
+        this.expanded = this.hitbox.clone();
         this.expanded.scaleByPixel(9f);
     }
 
     public void render() {
-        // translate to center
+        // translate to _center
         glPushMatrix();
         {
             glDisable(GL_LIGHTING);
@@ -67,7 +65,7 @@ public class Tile {
         this.hitbox.render();
     }
 
-    public AdvancedHitbox getHitbox() {
+    public Hitbox getHitbox() {
         return hitbox;
     }
 

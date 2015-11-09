@@ -166,7 +166,7 @@ public class World implements IRenderObject {
             this.fillCircle(midX, midY, airRadius, airRadius, TerrainType.AIR);
         }
 
-        // update texture
+        // updatePosition texture
         int leftX = midX - radius - 1;
         int topY = midY - radius - 1;
         this.terrainTexture.updatePartial(leftX, topY, radius * 2 + 2, radius * 2 + 2);

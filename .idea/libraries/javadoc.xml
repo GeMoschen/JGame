@@ -1,0 +1,39 @@
+<component name="libraryTable">
+  <library name="javadoc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jars/CodecJLayerMP3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/CodecJOrbis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/CodecWav.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/javaGeom-0.11.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/javapng-2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/jbox2d-library-2.2.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/jdom-2.0.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/jinput.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/LibraryLWJGLOpenAL.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/lwjgl_util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/slick.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/SoundSystem.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/lib/jars/javadoc" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/jbox2d-library-2.2.1.1-javadoc.jar!/" />
+    </JAVADOC>
+    <NATIVE>
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
+    </NATIVE>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jars/jbox2d-library-2.2.1.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/lwjgl-source-2.9.0.zip!/src/generated" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/lwjgl-source-2.9.0.zip!/src/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jars/lwjgl-source-2.9.0.zip!/src/templates" />
+    </SOURCES>
+  </library>
+</component>

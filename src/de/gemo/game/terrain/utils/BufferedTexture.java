@@ -49,7 +49,7 @@ public class BufferedTexture {
         int dX = maxX - minX + 1;
         int dY = maxY - minY + 1;
 
-        // we need at least 1 pixel to update...
+        // we need at least 1 pixel to updatePosition...
         if (dX < 1 || dY < 1) {
             // return false
             return false;
@@ -78,7 +78,7 @@ public class BufferedTexture {
         this.buffer.position(oldBufferPosition);
         newBuffer.position(0);
 
-        // update texture
+        // updatePosition texture
         this.bind();
         glTexSubImage2D(GL_TEXTURE_2D, 0, minX, minY, dX - 1, dY - 1, GL_RGBA, GL_UNSIGNED_BYTE, newBuffer);
         this.unbind();

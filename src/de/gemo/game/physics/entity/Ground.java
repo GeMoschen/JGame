@@ -72,12 +72,12 @@ public class Ground extends EntityCollidable {
 
         glPushMatrix();
         {
-            // translate to center
+            // translate to _center
             glTranslatef(pos.x * Physics2D.pxPerM, pos.y * Physics2D.pxPerM, 0);
             glRotatef(this.getAngle(), 0, 0, 1);
             Color.black.bind();
 
-            // render center
+            // render _center
             glBegin(GL_POLYGON);
             glVertex3f(-halfWidth, -halfHeight, 0f);
             glVertex3f(+halfWidth, -halfHeight, 0f);

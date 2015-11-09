@@ -1,14 +1,14 @@
 package de.gemo.game.fov.core;
 
-import java.util.*;
+import de.gemo.gameengine.collision.Hitbox;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.units.Vector3f;
+import org.newdawn.slick.Color;
 
-import org.newdawn.slick.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-
-import de.gemo.gameengine.collision.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.units.*;
 
 public class AdvancedHitbox extends Hitbox {
 
@@ -66,7 +66,7 @@ public class AdvancedHitbox extends Hitbox {
             {
                 Color.gray.bind();
                 glBegin(GL_QUADS);
-                for (Vector3f vector : this.points) {
+                for (Vector3f vector : this._points) {
                     glVertex3f(vector.getX(), this.height, vector.getY());
                 }
                 glEnd();
@@ -74,14 +74,14 @@ public class AdvancedHitbox extends Hitbox {
             glPopMatrix();
 
             // render AABB
-            // this.aabb.render();
+            // this._aabb.render();
 
             this.renderSegments();
 
             glEnable(GL_BLEND);
             glEnable(GL_TEXTURE_2D);
 
-            // translate & render center
+            // translate & render _center
             glPushMatrix();
             {
 
@@ -96,7 +96,7 @@ public class AdvancedHitbox extends Hitbox {
 
     @Override
     protected void renderCenter() {
-        // render center
+        // render _center
         Color.red.bind();
         glBegin(GL_LINE_LOOP);
         glVertex3i(-2, 0, -2);
@@ -150,9 +150,9 @@ public class AdvancedHitbox extends Hitbox {
 
     @Override
     public Hitbox clone() {
-        Hitbox otherBox = new AdvancedHitbox(this.center.clone(), this.height);
-        for (Vector3f vector : this.points) {
-            otherBox.addPoint(Vector3f.sub(vector, this.center));
+        Hitbox otherBox = new AdvancedHitbox(this._center.clone(), this.height);
+        for (Vector3f vector : this._points) {
+            otherBox.addPoint(Vector3f.sub(vector, this._center));
         }
         return otherBox;
     }
