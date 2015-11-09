@@ -60,14 +60,19 @@ public class Enemy {
 
     public void updatePosition() {
         final Vector3f targetVector = pathFollowing();
+
         if (targetVector != null) {
             final Vector3f normalized = Vector3f.normalize(Vector3f.sub(targetVector, _position));
+            normalized.scale(0.5f);
             _velocity.set(normalized.getX(), normalized.getY(), 0);
-            _hitbox.setAngle(targetVector.getAngle(_position));
-            _viewField.setAngle(_hitbox.getAngle());
+            _angle = targetVector.getAngle(_position);
+            _hitbox.setAngle(_angle);
+            _viewField.setParentAngle(_angle);
             _hitbox.move(_velocity.getX(), _velocity.getY());
             _viewField.move(_velocity.getX(), _velocity.getY());
         }
+        _viewField.doRotate(1f);
+        _viewField.updatePosition(0);
     }
 
     public void render() {

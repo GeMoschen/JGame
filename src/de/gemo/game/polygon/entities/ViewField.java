@@ -20,8 +20,13 @@ public class ViewField {
 
     private final Hitbox _nearView;
     private final Hitbox _farView;
+    private final List<Hitbox> _obstaclesInView;
     private Hitbox _constructedHitbox;
     private List<Vector3f[]> _obstaclePolygons;
+    private float _parentAngle;
+    private float _selfAngle = 0;
+    private boolean _rotateRight = true;
+
 
     private boolean _canSeeTarget = false;
 
@@ -29,11 +34,33 @@ public class ViewField {
         _nearView = createHitbox(position.clone(), NEAR);
         _farView = createHitbox(position.clone(), FAR);
         _obstaclePolygons = new ArrayList<>();
+        _obstaclesInView = new ArrayList<>();
         _constructedHitbox = constructHitbox();
     }
 
     public Vector3f getLocation() {
         return _farView.getCenter();
+    }
+
+    public void doRotate(final float speedMultiplier) {
+        final float maxAngle = 35f;
+        final float speed = 0.5f;
+        if (_rotateRight) {
+            _selfAngle += speed * speedMultiplier;
+            if (_selfAngle >= maxAngle) {
+                _rotateRight = !_rotateRight;
+            }
+        } else {
+            _selfAngle -= speed * speedMultiplier;
+            if (_selfAngle <= -maxAngle) {
+                _rotateRight = !_rotateRight;
+            }
+        }
+    }
+
+    public ViewField setParentAngle(float parentAngle) {
+        _parentAngle = parentAngle;
+        return this;
     }
 
     private Hitbox createHitbox(Vector3f location, final int distance) {
@@ -55,10 +82,8 @@ public class ViewField {
 
 
     public void updatePosition(final int delta) {
-        if (!_canSeeTarget) {
-            _nearView.rotate(0.25f);
-            _farView.setAngle(_nearView.getAngle());
-        }
+        _nearView.setAngle(_parentAngle + _selfAngle);
+        _farView.setAngle(_nearView.getAngle());
     }
 
     public void updateCollisions(final List<Hitbox> obstacles) {
@@ -88,9 +113,20 @@ public class ViewField {
     }
 
     private boolean canSeeTarget(final Vector3f vector) {
-        if (Math.abs(vector.distanceTo(_farView.getCenter())) > FAR || !CollisionHelper.isVectorInHitbox(vector, _constructedHitbox)) {
+        if (Math.abs(vector.distanceTo(_farView.getCenter())) > FAR || !CollisionHelper.isVectorInHitbox(vector, _farView)) {
             return false;
         }
+
+        final Hitbox raycast = new Hitbox(0, 0);
+        raycast.addPoint(getLocation());
+        raycast.addPoint(vector);
+
+        for (final Hitbox obstacle : _obstaclesInView) {
+            if (CollisionHelper.isColliding(raycast, obstacle)) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -129,19 +165,20 @@ public class ViewField {
                     hitbox.addPoint((int) point.x / scaleFactor, (int) point.y / scaleFactor);
                 }
             }
-        }catch(final Exception e) {
-e.printStackTrace();
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
-
 
 
         return hitbox;
     }
 
     public List<Vector3f[]> calculateObstacles(final Hitbox hitbox, final List<Hitbox> obstacles) {
+        _obstaclesInView.clear();
         final List<Vector3f[]> result = new ArrayList<>();
         for (final Hitbox obstacle : obstacles) {
             if (CollisionHelper.isColliding(hitbox, obstacle)) {
+                _obstaclesInView.add(obstacle);
                 for (final Line line : obstacle.getLines()) {
                     if (line.isInFront(hitbox.getCenter())) {
                         final double scaleFactor = 1d / (Math.min(Math.abs(hitbox.getCenter().getDistance(line.getFirst())), Math.abs(hitbox.getCenter().getDistance(line.getLast()))) / (FAR * 5d));
@@ -175,9 +212,9 @@ e.printStackTrace();
             }
             glEnd();
         }
-        glStencilMask(0x00);
 
         // first: render the near-view
+        glStencilMask(0x0F);
         glStencilFunc(GL_EQUAL, 0, 0xFF);
         renderHitbox(_nearView, 0.75f);
 
@@ -188,8 +225,20 @@ e.printStackTrace();
 
         // third: render the far-view
         glStencilFunc(GL_EQUAL, 0, 0xFF);
-        glStencilMask(0x00);
+        glStencilMask(0x0F);
         renderHitbox(_farView, 0.35f);
+
+        // fourth: add the far-view to the stencil, so it will be removed from the outline
+        glStencilMask(0xFF);
+        glStencilFunc(GL_NEVER, 1, 0xFF);
+        renderHitbox(_farView, 1f);
+
+        // sixth: render the outline
+        glStencilFunc(GL_GEQUAL, 0, 0xFF);
+        glStencilMask(1);
+        final Hitbox outline = _farView.clone();
+        outline.scaleByPixel(-1.25f);
+        renderHitbox(outline, 1f);
 
         // last: render outside of the mask
         glStencilFunc(GL_EQUAL, 1, 0xFF);
@@ -197,7 +246,6 @@ e.printStackTrace();
         glDisable(GL_STENCIL_TEST);
 
         // last: normal render -> outline
-        renderOutline();
     }
 
     private final void renderOutline() {
@@ -242,8 +290,4 @@ e.printStackTrace();
         hitbox.move(x, y);
     }
 
-    public void setAngle(final float angle) {
-        _nearView.setAngle(angle);
-        _farView.setAngle(_nearView.getAngle());
-    }
 }
