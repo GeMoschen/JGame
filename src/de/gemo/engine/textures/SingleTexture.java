@@ -35,7 +35,7 @@ public class SingleTexture {
     }
 
     public SingleTexture crop(float x, float y, float width, float height) {
-        return new SingleTexture(texture, x, y, width - 1, height - 1);
+        return new SingleTexture(texture, x, y, width, height);
     }
 
     public void setDimensions(float x, float y, float width, float height) {
@@ -59,21 +59,6 @@ public class SingleTexture {
         tex = BufferUtils.createFloatBuffer(2 * 4);
         verts.put(new float[]{-halfWidth, -halfHeight, halfWidth, -halfHeight, halfWidth, halfHeight, -halfWidth, halfHeight});
         tex.put(new float[]{u, v, u2, v, u2, v2, u, v2});
-
-        verts.flip();
-        tex.flip();
-
-        vboVertexHandle = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
-        glBufferData(GL_ARRAY_BUFFER, verts, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        vboTextureHandle = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboTextureHandle);
-        glBufferData(GL_ARRAY_BUFFER, tex, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        newList = false;
     }
 
     public float getWidth() {
@@ -137,28 +122,22 @@ public class SingleTexture {
     public void renderEmbedded() {
         glPushMatrix();
         {
-            if (newList) {
-                this.createVertices();
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(u, v);
+                glVertex2f(-halfWidth, -halfHeight);
+                glTexCoord2f(u, v2);
+                glVertex2f(-halfWidth, +halfHeight);
+                glTexCoord2f(u2, v2);
+                glVertex2f(+halfWidth, +halfHeight);
+                glTexCoord2f(u2, v);
+                glVertex2f(+halfWidth, -halfHeight);
             }
-
-            glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
-            glVertexPointer(2, GL_FLOAT, 0, 0L);
-
-            glBindBuffer(GL_ARRAY_BUFFER, vboTextureHandle);
-            glTexCoordPointer(2, GL_FLOAT, 0, 0L);
-
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDrawArrays(GL_QUADS, 0, 4);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
+            glEnd();
         }
         glPopMatrix();
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
 
     public MultiTexture toMultiTexture() {
         return TextureManager.SingleToMultiTexture(this);

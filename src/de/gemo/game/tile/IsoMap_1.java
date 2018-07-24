@@ -14,6 +14,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class IsoMap_1 extends IsoMap {
 
+    private static int tick = 0;
+    private static boolean showTick = false;
     public static SingleTexture noPower;
     static {
         noPower = TextureManager.getTexture("icon_nopower").getTexture(0);
@@ -34,7 +36,11 @@ public class IsoMap_1 extends IsoMap {
 
     @Override
     public void render(int minX, int maxX, int minY, int maxY) {
-
+        tick++;
+        if(tick > 60) {
+            tick = 0;
+            showTick = !showTick;
+        }
         glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
@@ -82,7 +88,7 @@ public class IsoMap_1 extends IsoMap {
                                     overlayMap[renderX][renderY].setAlpha(1f);
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
-                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered() && showTick ) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
                                         glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
@@ -95,7 +101,7 @@ public class IsoMap_1 extends IsoMap {
                                     overlayMap[renderX][renderY].render();
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
-                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()&& showTick) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
                                         glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
@@ -143,7 +149,7 @@ public class IsoMap_1 extends IsoMap {
                                     overlayMap[renderX][renderY].setAlpha(1f);
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
-                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()&& showTick) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
                                         glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);
@@ -156,7 +162,7 @@ public class IsoMap_1 extends IsoMap {
                                     overlayMap[renderX][renderY].render();
                                 }
                                 if (tileMap[renderX][renderY].getType().needsPower() || (overlayMap[renderX][renderY] != null && overlayMap[renderX][renderY].getType().needsPower())) {
-                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()) {
+                                    if (!this.getUnsafeTileInformation(renderX, renderY).isPowered()&& showTick) {
                                         float offX = this.halfTileWidth * (tileMap[renderX][renderY].getDimX() - 1);
                                         glTranslatef(offX, -10, 0);
                                         noPower.render(1, 1, 1, 1);

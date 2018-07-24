@@ -32,7 +32,7 @@ public class Minetown extends Engine {
     public static float SCALE = 1f;
 
     public Minetown() {
-        super("Minetown", 800, 600, false);
+        super("CityBuilder", 1280, 1024, false);
     }
 
     @Override
@@ -268,11 +268,13 @@ public class Minetown extends Engine {
         this.gameState = gameState;
         if (gameState.equals(GameState.MAIN_MENU)) {
             this.unregisterAllGUIManagers();
-            Hitbox hitbox = new Hitbox(400, 300);
-            hitbox.addPoint(-400, -300);
-            hitbox.addPoint(400, -300);
-            hitbox.addPoint(400, 300);
-            hitbox.addPoint(-400, 300);
+            final int width = getWindowWidth() / 2;
+            final int height = getWindowHeight() / 2;
+            Hitbox hitbox = new Hitbox(width, height);
+            hitbox.addPoint(-width, -height);
+            hitbox.addPoint(width, -height);
+            hitbox.addPoint(width, height);
+            hitbox.addPoint(-width, height);
             this.registerGUIManager(new Mainmenu("MAINMENU", hitbox, MouseManager.INSTANCE.getMouseVector(), 0));
             this.initGUIManager(this.getGUIManager("MAINMENU"));
             this.isoMap = null;
@@ -280,12 +282,14 @@ public class Minetown extends Engine {
             this.unregisterGUIManager(this.getGUIManager("GAME_PAUSED"));
             if (this.isoMap == null) {
                 this.unregisterAllGUIManagers();
-                this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, 760, 630);
-                Hitbox hitbox = new Hitbox(400, 300);
-                hitbox.addPoint(-400, -300);
-                hitbox.addPoint(400, -300);
-                hitbox.addPoint(400, 300);
-                hitbox.addPoint(-400, 300);
+                final int width = getWindowWidth() / 2;
+                final int height = getWindowHeight() / 2;
+                this.isoMap = new IsoMap_1(100, 100, 64, 32, 0, 0, getWindowWidth() + 200, getWindowHeight() + 200);
+                Hitbox hitbox = new Hitbox(width, height);
+                hitbox.addPoint(-width, -height);
+                hitbox.addPoint(width, -height);
+                hitbox.addPoint(width, height);
+                hitbox.addPoint(-width, height);
                 this.registerGUIManager(new MaingameGUIManager("GUI", hitbox, MouseManager.INSTANCE.getMouseVector(), 0, this.isoMap));
                 this.initGUIManager(this.getGUIManager("GUI"));
             }

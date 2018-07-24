@@ -26,8 +26,8 @@ public class Mainmenu extends GUIManager {
     protected void initGUI() {
         this.background = new GUIGraphic(0, 0, TextureManager.getTexture("MAINMENU_BG"));
 
-        int startY = 250;
-        int distance = 65;
+        int startY = 450;
+        int distance = 85;
 
         MainmenuButtonListener listener = new MainmenuButtonListener();
 
@@ -53,13 +53,14 @@ public class Mainmenu extends GUIManager {
     }
 
     private GUIButton createButton(int y, String label) {
-        TrueTypeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 26);
-        GUIButton button = new GUIButton(262, y, TextureManager.getTexture("MAINMENU_BTN"));
+        TrueTypeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 20);
+        GUIButton button = new GUIButton(0, y, TextureManager.getTexture("MAINMENU_BTN"));
+        button.setPositionOnScreen(1280 / 2 - button.getWidth() / 2, button.getYOnScreen());
         button.setLabel(label);
         button.setFont(font);
-        button.setColor(Color.white);
-        button.setHoverColor(Color.gray);
-        button.setPressedColor(Color.darkGray);
+        button.setColor(Color.red);
+        button.setHoverColor(Color.red);
+        button.setPressedColor(Color.red);
         return button;
     }
 

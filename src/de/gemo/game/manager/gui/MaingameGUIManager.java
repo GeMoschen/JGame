@@ -61,14 +61,14 @@ public class MaingameGUIManager extends GUIManager {
         this.minetown = (Minetown) Engine.INSTANCE;
         try {
             // CREATE GUI
-            gui = new GUIGraphic(800 - 82, 0, TextureManager.getTexture("GUI"));
+            gui = new GUIGraphic(1280 - 82, 0, TextureManager.getTexture("GUI"));
             gui.setZ(10);
 
             // CREATE EXIT-BUTTON
             Animation animationButton = new Animation(TextureManager.getTexture("BTN_GAME_MAIN"));
 
             ExitButtonListener listener = new ExitButtonListener();
-            btn_exit = new GUIButton(727, 527, animationButton);
+            btn_exit = new GUIButton(1207, 527, animationButton);
             btn_exit.setLabel("Pause");
             btn_exit.setColor(Color.white);
             btn_exit.setHoverColor(Color.lightGray);
@@ -80,37 +80,37 @@ public class MaingameGUIManager extends GUIManager {
             Animation animationButtonIcons = new Animation(TextureManager.getTexture("BTN_GAME_MAIN_ICONS"));
 
             MainButtonListener buttonListener = new MainButtonListener();
-            btn_plant = new GUIImageButton(727, 8, animationButton, animationButtonIcons, 0);
+            btn_plant = new GUIImageButton(1207, 8, animationButton, animationButtonIcons, 0);
             btn_plant.setMouseListener(buttonListener);
             btn_plant.setLabel("Power");
             this.add(btn_plant);
 
             // CREATE POLICE BUTTON
-            btn_police = new GUIImageButton(727, 8 + 1 * 76, animationButton, animationButtonIcons, 1);
+            btn_police = new GUIImageButton(1207, 8 + 1 * 76, animationButton, animationButtonIcons, 1);
             btn_police.setMouseListener(buttonListener);
             btn_police.setLabel("Police");
             this.add(btn_police);
 
             // CREATE HOUSE BUTTON
-            btn_house = new GUIImageButton(727, 8 + 2 * 76, animationButton, animationButtonIcons, 2);
+            btn_house = new GUIImageButton(1207, 8 + 2 * 76, animationButton, animationButtonIcons, 2);
             btn_house.setMouseListener(buttonListener);
             btn_house.setLabel("House");
             this.add(btn_house);
 
             // CREATE STREET BUTTON
-            btn_street = new GUIImageButton(727, 8 + 3 * 76, animationButton, animationButtonIcons, 3);
+            btn_street = new GUIImageButton(1207, 8 + 3 * 76, animationButton, animationButtonIcons, 3);
             btn_street.setMouseListener(buttonListener);
             btn_street.setLabel("Streets");
             this.add(btn_street);
 
             // CREATE POWERLINE BUTTON
-            btn_powerline = new GUIImageButton(727, 8 + 4 * 76, animationButton, animationButtonIcons, 5);
+            btn_powerline = new GUIImageButton(1207, 8 + 4 * 76, animationButton, animationButtonIcons, 5);
             btn_powerline.setMouseListener(buttonListener);
             btn_powerline.setLabel("Powerline");
             this.add(btn_powerline);
 
             // CREATE BULLDOZER BUTTON
-            btn_bulldozer = new GUIImageButton(727, 527 - 1 * 76, animationButton, animationButtonIcons, 4);
+            btn_bulldozer = new GUIImageButton(1207, 527 - 1 * 76, animationButton, animationButtonIcons, 4);
             btn_bulldozer.setMouseListener(buttonListener);
             btn_bulldozer.setLabel("Bulldozer");
             this.add(btn_bulldozer);
@@ -233,7 +233,7 @@ public class MaingameGUIManager extends GUIManager {
         lastTileX = mouseTileX;
         lastTileY = mouseTileY;
 
-        if (!(event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600)) {
+        if (!(event.getX() > 0 && event.getY() > 0 && event.getX() < 1280 - 82 && event.getY() < 1024)) {
             this.inDragBuild = false;
         }
     }
@@ -286,7 +286,7 @@ public class MaingameGUIManager extends GUIManager {
 
     @Override
     public void onMouseClick(MouseClickEvent event) {
-        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
+        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 1280 - 82 && event.getY() < 1024) {
             if (event.isLeftButton()) {
                 if (TileDimension.isFree() || (!TileDimension.isFree() && TileDimension.getSelectedTile().getType().equals(TileType.BULLDOZER))) {
                     downMouseX = mouseTileX;
@@ -303,7 +303,7 @@ public class MaingameGUIManager extends GUIManager {
 
     @Override
     public void onMouseRelease(MouseReleaseEvent event) {
-        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
+        if (event.getX() > 0 && event.getY() > 0 && event.getX() < 1280 - 82 && event.getY() < 1024) {
             if (event.isLeftButton() && inDragBuild) {
                 inDragBuild = false;
                 if ((TileDimension.isFree() || (!TileDimension.isFree() && TileDimension.getSelectedTile().getType().equals(TileType.BULLDOZER))) && downMouseX > -1 && downMouseY > -1) {
@@ -350,7 +350,7 @@ public class MaingameGUIManager extends GUIManager {
     @Override
     public void onMouseDrag(MouseDragEvent event) {
         if (event.isRightButton()) {
-            if (event.getX() > 0 && event.getY() > 0 && event.getX() < 800 - 82 && event.getY() < 600) {
+            if (event.getX() > 0 && event.getY() > 0 && event.getX() < 1280 - 82 && event.getY() < 1024) {
                 float offsetX = this.isoMap.getOffsetX() + event.getDifX();
                 float offsetY = this.isoMap.getOffsetY() + event.getDifY();
                 this.isoMap.setOffset(offsetX, offsetY);

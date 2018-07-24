@@ -12,7 +12,7 @@ public class Game extends Thread {
      */
     public static void main(String[] args) {
         if (INSTANCE == null) {
-            Game game = new Game(new Testgame());
+            Game game = new Game(new Minetown());
         }
     }
 
