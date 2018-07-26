@@ -335,12 +335,12 @@ public class MaingameGUIManager extends GUIManager {
     @Override
     public void onMouseWheel(MouseWheelEvent event) {
         if (event.isUp() && Minetown.SCALE < 1.45f) {
-            Minetown.SCALE += 0.1f;
+            Minetown.SCALE += 0.05f;
             float newOffX = event.getX() / Minetown.SCALE;
             float newOffY = event.getY() / Minetown.SCALE;
             this.isoMap.addOffset(-newOffX / 10f, -newOffY / 10f);
         } else if (event.isDown() && Minetown.SCALE > 0.55f) {
-            Minetown.SCALE -= 0.1f;
+            Minetown.SCALE -= 0.05f;
             float newOffX = event.getX() / Minetown.SCALE;
             float newOffY = event.getY() / Minetown.SCALE;
             this.isoMap.addOffset(newOffX / 10f, newOffY / 10f);

@@ -294,11 +294,13 @@ public class Minetown extends Engine {
                 this.initGUIManager(this.getGUIManager("GUI"));
             }
         } else if (gameState.equals(GameState.GAME_PAUSED)) {
-            Hitbox hitbox = new Hitbox(400, 300);
-            hitbox.addPoint(-400, -300);
-            hitbox.addPoint(400, -300);
-            hitbox.addPoint(400, 300);
-            hitbox.addPoint(-400, 300);
+            final int width = getWindowWidth() / 2;
+            final int height = getWindowHeight() / 2;
+            Hitbox hitbox = new Hitbox(width, height);
+            hitbox.addPoint(-width, -height);
+            hitbox.addPoint(width, -height);
+            hitbox.addPoint(width, height);
+            hitbox.addPoint(-width, height);
             this.registerGUIManager(new GamePausedMenu("GAME_PAUSED", hitbox, MouseManager.INSTANCE.getMouseVector(), -1));
             this.initGUIManager(this.getGUIManager("GAME_PAUSED"));
         }

@@ -23,8 +23,8 @@ public class GamePausedMenu extends GUIManager {
 
     @Override
     protected void initGUI() {
-        int startY = 160;
-        int distance = 65;
+        int startY = 300;
+        int distance = 85;
 
         MainmenuButtonListener listener = new MainmenuButtonListener();
 
@@ -56,7 +56,8 @@ public class GamePausedMenu extends GUIManager {
 
     private GUIButton createButton(int y, String label) {
         TrueTypeFont font = FontManager.getFont(FontManager.ANALOG, Font.PLAIN, 26);
-        GUIButton button = new GUIButton(262, y, TextureManager.getTexture("MAINMENU_BTN"));
+        GUIButton button = new GUIButton(0, y, TextureManager.getTexture("MAINMENU_BTN"));
+        button.setPositionOnScreen(1280 / 2 - button.getWidth() / 2, button.getYOnScreen());
         button.setLabel(label);
         button.setFont(font);
         button.setColor(Color.white);
@@ -67,56 +68,6 @@ public class GamePausedMenu extends GUIManager {
 
     @Override
     public void render() {
-        float color = 0f;
-        float color2 = 0.2f;
-        glDisable(GL_TEXTURE_2D);
-        // first quad
-        glBegin(GL_QUADS);
-        glColor4f(color, color, color, 1f);
-        glVertex2i(0, 0);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(400, 0);
-        glColor4f(color2, color2, color2, 0.4f);
-        glVertex2i(400, 300);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(0, 300);
-        glEnd();
-
-        // second quad
-        glBegin(GL_QUADS);
-        glColor4f(color, color, color, 1f);
-        glVertex2i(800, 0);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(400, 0);
-        glColor4f(color2, color2, color2, 0.4f);
-        glVertex2i(400, 300);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(800, 300);
-        glEnd();
-
-        // third quad
-        glBegin(GL_QUADS);
-        glColor4f(color, color, color, 1f);
-        glVertex2i(0, 600);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(400, 600);
-        glColor4f(color2, color2, color2, 0.4f);
-        glVertex2i(400, 300);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(0, 300);
-        glEnd();
-
-        // fourth quad
-        glBegin(GL_QUADS);
-        glColor4f(color, color, color, 1f);
-        glVertex2i(800, 600);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(400, 600);
-        glColor4f(color2, color2, color2, 0.4f);
-        glVertex2i(400, 300);
-        glColor4f(color2, color2, color2, 0.7f);
-        glVertex2i(800, 300);
-        glEnd();
         super.render();
     }
 }
