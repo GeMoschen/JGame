@@ -25,6 +25,9 @@ import de.gemo.game.physics.Physics2D;
 
 public class Ground extends EntityCollidable {
 
+    private final Vec2[] _vertices;
+    private final int _vertexCount;
+
     private float halfWidth, halfHeight;
     private boolean down;
 
@@ -54,6 +57,9 @@ public class Ground extends EntityCollidable {
         fDef.friction = friction;
         body.createFixture(fDef);
 
+        _vertexCount = shape.getVertexCount();
+        _vertices = shape.getVertices();
+
         super.init(body, x, y);
     }
 
@@ -79,10 +85,9 @@ public class Ground extends EntityCollidable {
 
             // render _center
             glBegin(GL_POLYGON);
-            glVertex3f(-halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, -halfHeight, 0f);
-            glVertex3f(+halfWidth, +halfHeight, 0f);
-            glVertex3f(-halfWidth, +halfHeight, 0f);
+            for(int i = 0; i < _vertexCount; i++) {
+                glVertex3f(_vertices[i].x * Physics2D.pxPerM, _vertices[i].y* Physics2D.pxPerM, 0f);
+            }
             glEnd();
 
             // render down
@@ -91,8 +96,8 @@ public class Ground extends EntityCollidable {
                 glDisable(GL_LINE_STIPPLE);
                 Color.white.bind();
                 glBegin(GL_LINES);
-                glVertex3f(-halfWidth, +halfHeight, 0f);
-                glVertex3f(+halfWidth, +halfHeight, 0f);
+                glVertex3f(_vertices[2].x * Physics2D.pxPerM, _vertices[2].y* Physics2D.pxPerM, 0f);
+                glVertex3f(_vertices[3].x * Physics2D.pxPerM, _vertices[3].y* Physics2D.pxPerM, 0f);
                 glEnd();
             }
         }

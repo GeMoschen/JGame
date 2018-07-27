@@ -1,9 +1,11 @@
 package de.gemo.game.physics;
 
 import java.awt.Font;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
+import de.gemo.gameengine.textures.SingleTexture;
 import org.jbox2d.collision.*;
 import org.jbox2d.common.*;
 import org.jbox2d.dynamics.*;
@@ -12,7 +14,6 @@ import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 
 import de.gemo.game.physics.entity.*;
-import de.gemo.game.physics.gui.implementations.*;
 import de.gemo.game.physics.gui.statics.*;
 import de.gemo.gameengine.core.*;
 import de.gemo.gameengine.events.keyboard.*;
@@ -41,6 +42,7 @@ public class Physics2D extends GameEngine {
     private List<EntityCollidable> renderList;
     private long renderTime = 0, updateTime = 0, physicsTime = 0;
     private AABB screenBounds = new AABB();
+    private SingleTexture _backgroundTexture;
 
     public Physics2D(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, 1024, 768, fullscreen);
@@ -54,12 +56,12 @@ public class Physics2D extends GameEngine {
     private void createBodies() {
         this.player = new Player(512, 384);
         this.screenMovement.set(0, 0);
-        new Ground(1000, 550, 2000, 100, false);
         new Wall(100, -1000, 50, 3840, false, true);
         new Wall(384, -100, 25, 825, true, false);
         new Wall(1950, -1000, 50, 3840, true, false);
+        new Ground(1000, 550, 2000, 100, false);
         for (int i = 0; i < 5; i++) {
-            new Ground(384 + 300, 300 - i * 260, 600, 25, true);
+            new Ground(384 + 300 + 150 * i, 300 - i * 260, 600, 25, true);
         }
 
         listener = new EntityContactListener();
@@ -70,27 +72,16 @@ public class Physics2D extends GameEngine {
 
     @Override
     protected void createManager() {
+        try {
+            _backgroundTexture = TextureManager.loadSingleTexture("resources/background_speedy.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.createBodies();
     }
 
     @Override
     protected void createGUI() {
-        GUITextures.load();
-
-        // button
-        GUIButton button = new GUIButton(100, 300, 300, 25);
-        TestListener listener = new TestListener();
-        button.setMouseListener(listener);
-        button.setFocusListener(listener);
-        button.setText("Button");
-        this.addGUIElement("button", button);
-
-        // textfield
-        GUITextfield textfield = new GUITextfield(100, 330, 100, 25);
-        textfield.setMouseListener(listener);
-        textfield.setFocusListener(listener);
-        textfield.setText("Textfield");
-        this.addGUIElement("textfield", textfield);
     }
 
     @Override
@@ -145,13 +136,6 @@ public class Physics2D extends GameEngine {
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_BLEND);
 
-        // draw background
-        glPushMatrix();
-        {
-            glColor4f(0.2f, 0.2f, 0.5f, 1f);
-            glRectf(0, 0, 1024, 768);
-        }
-        glPopMatrix();
 
         // render game
         glPushMatrix();
@@ -161,6 +145,13 @@ public class Physics2D extends GameEngine {
 
             // glTranslatef(0, 500, 0);
             // glScalef(0.25f, 0.25f, 1);
+            // draw background
+            glPushMatrix();
+            {
+                glTranslatef(512, 384, 0);
+                _backgroundTexture.render(1,1,1,1);
+            }
+            glPopMatrix();
 
             glTranslatef(screenMovement.x, screenMovement.y, 0);
 
