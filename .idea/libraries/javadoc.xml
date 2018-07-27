@@ -21,13 +21,6 @@
     </JAVADOC>
     <NATIVE>
       <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
-      <root url="file://$PROJECT_DIR$/lib/natives-windows" />
     </NATIVE>
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/lib/jars/jbox2d-library-2.2.1.1-sources.jar!/" />

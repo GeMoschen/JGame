@@ -1,7 +1,9 @@
 package de.gemo.game.terrain.core;
 
 import java.awt.Font;
+import java.io.IOException;
 
+import de.gemo.gameengine.textures.SingleTexture;
 import org.lwjgl.input.*;
 import org.newdawn.slick.*;
 import org.newdawn.slick.Color;
@@ -32,6 +34,7 @@ public class TerrainCore extends GameEngine {
     private float scale = 1f;
 
     private long lastTickTime = System.currentTimeMillis();
+    private SingleTexture _backgroundTexture;
 
     public TerrainCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
         super(windowTitle, windowWidth, windowHeight, false);
@@ -47,6 +50,11 @@ public class TerrainCore extends GameEngine {
         this.physicsHandler.add(this.player);
         this.renderHandler.add(this.world);
         this.renderHandler.add(this.player);
+        try {
+            _backgroundTexture = TextureManager.loadSingleTexture("resources/background_speedy.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -58,6 +66,14 @@ public class TerrainCore extends GameEngine {
 
         glDisable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_TEXTURE_2D);
+
+        // draw background
+        glPushMatrix();
+        {
+            glTranslatef(512, 384, 0);
+            _backgroundTexture.render(1,1,1,1);
+        }
+        glPopMatrix();
 
         glPushMatrix();
         {
