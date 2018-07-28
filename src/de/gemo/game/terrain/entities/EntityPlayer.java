@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.entities;
 
+import com.sun.istack.internal.NotNull;
 import de.gemo.game.terrain.entities.weapons.EntityBazooka;
 import de.gemo.game.terrain.handler.PlayerHandler;
 import de.gemo.game.terrain.world.World;
@@ -20,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
-    private final Animation _animation;
+    private Animation _animation;
     private int playerWidth = 5, playerHeight = 10;
     private Vector2f position, velocity;
     private boolean lookRight = true;
@@ -40,26 +41,38 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
-    private static Animation ANIMATION = null;
+    private static Animation ANIMATION_WALK = null;
+    private static Animation ANIMATION_JUMP = null;
 
     static {
         try {
-            final SingleTexture singleTexture = TextureManager.loadSingleTexture("resources/worms/walk.png", GL_LINEAR);
-            final int dim = 64;
-            final MultiTexture multiTexture = new MultiTexture(dim, dim);
-            for (int y = 0; y < dim * 15; y += dim) {
-                for (int x = 0; x < dim; x += dim) {
-                    multiTexture.addTextures(singleTexture.crop(x, y, dim, dim));
+            {
+                final SingleTexture singleTexture = TextureManager.loadSingleTexture("resources/worms/walk.png", GL_LINEAR);
+                final int dim = 64;
+                final MultiTexture multiTexture = new MultiTexture(dim, dim);
+                for (int y = 0; y < dim * 15; y += dim) {
+                    for (int x = 0; x < dim; x += dim) {
+                        multiTexture.addTextures(singleTexture.crop(x, y, dim, dim));
+                    }
                 }
+                ANIMATION_WALK = multiTexture.toAnimation();
             }
-            ANIMATION = multiTexture.toAnimation();
+            {
+                final SingleTexture singleTexture = TextureManager.loadSingleTexture("resources/worms/jump.png", GL_LINEAR);
+                final int dim = 64;
+                final MultiTexture multiTexture = new MultiTexture(dim, dim);
+                for (int x = 0; x < dim * 8; x += dim) {
+                    multiTexture.addTextures(singleTexture.crop(x, 0, dim, dim));
+                }
+                ANIMATION_JUMP = multiTexture.toAnimation();
+            }
         } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
     public EntityPlayer(World world, Vector2f position) {
-        _animation = ANIMATION.clone();
+        _animation = ANIMATION_WALK.clone();
         this.world = world;
         this.position = position.clone();
         this.velocity = new Vector2f(0, 0);
@@ -78,7 +91,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public void jump() {
         if ((this.onGround)) {
-            this.velocity.setY(-0.17f * GameEngine.$.getCurrentDelta());
+            this.velocity.setY(-0.2f * GameEngine.$.getCurrentDelta());
             float jumpX = 0.1f * GameEngine.$.getCurrentDelta();
             if (this.lookRight) {
                 this.velocity.setX(jumpX);
@@ -192,7 +205,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         // WALKING LEFT OR RIGHT
-        if (this.onGround) {
+        if (this.onGround && !this.pushedByWeapon) {
             float walkSpeed = 0.03f;
             if (this.movement[LEFT] && !this.movement[RIGHT]) {
                 this.lookRight = false;
@@ -222,6 +235,9 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
         this.onGround = !this.canFall();
         if (this.onGround) {
+            if(!_animation.equals(ANIMATION_WALK)) {
+                _animation = ANIMATION_WALK.clone();
+            }
             if ((!this.movement[LEFT] && !this.movement[RIGHT] && !this.pushedByWeapon) || (!this.pushedByWeapon)) {
                 vX = 0f;
             } else {
@@ -237,13 +253,26 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     private void updateAnimations(final int delta) {
-        if (this.movement[RIGHT] || this.movement[LEFT]) {
+        if (!_jumping && (this.movement[RIGHT] || this.movement[LEFT]) && !this.pushedByWeapon) {
+            if (!_animation.equals(ANIMATION_WALK)) {
+                _animation = ANIMATION_WALK.clone();
+            }
             _animation.step(delta);
         } else {
             if (pushedByWeapon || _jumping) {
-                _animation.setCurrentFrame(5);
+                if (!_animation.equals(ANIMATION_JUMP)) {
+                    _animation = ANIMATION_JUMP.clone();
+                }
+                if (_animation.getCurrentStep() < 7) {
+                    _animation.step(delta);
+                } else {
+                    _animation.goToLastFrame();
+                }
             } else {
-                _animation.setCurrentFrame(0);
+                if(onGround && !_animation.equals(ANIMATION_WALK)) {
+                    _animation = ANIMATION_WALK.clone();
+                }
+                _animation.setCurrentFrame(3);
             }
         }
     }
@@ -368,9 +397,13 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         glPushMatrix();
         {
             glTranslatef(this.position.getX(), this.position.getY() - 19, 0);
+            if(_animation.equals(ANIMATION_JUMP)) {
+                glTranslatef(0, 19, 0);
+            }
             if (!this.lookRight) {
                 glScalef(-1, 1, 1);
             }
+
             _animation.render();
         }
 
@@ -556,6 +589,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public String getCurrentWeaponName() {
         return this.currentWeapon.getSimpleName().replaceAll("Entity", "");
+    }
+
+    public Class<? extends EntityWeapon> getCurrentWeaponClass() {
+        return currentWeapon;
     }
 
     // ///////////////////////////////////////////////////////////////

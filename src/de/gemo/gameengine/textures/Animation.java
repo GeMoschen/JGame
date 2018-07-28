@@ -1,6 +1,11 @@
 package de.gemo.gameengine.textures;
 
+import java.util.HashSet;
+import java.util.UUID;
+
 public class Animation {
+
+    private static final HashSet<UUID> TAKEN_UUIDS = new HashSet<>();
 
     protected int currentFrame = -1;
     private MultiTexture multiTextures;
@@ -11,6 +16,7 @@ public class Animation {
     private float wantedFPS;
 
     private Runnable _endListener = null;
+    private UUID _uuid;
 
     public Animation(MultiTexture multiTexture) {
         this(multiTexture, 30);
@@ -22,6 +28,10 @@ public class Animation {
         this.halfWidth = this.multiTextures.getWidth() / 2f;
         this.halfHeight = this.multiTextures.getHeight() / 2f;
         this.goToFrame(0);
+        _uuid = UUID.randomUUID();
+        while (TAKEN_UUIDS.contains(_uuid)) {
+            _uuid = UUID.randomUUID();
+        }
     }
 
     public void setEndListener(final Runnable endListener) {
@@ -36,12 +46,24 @@ public class Animation {
         return halfHeight;
     }
 
-    public void nextFrame() {
-        this.goToFrame(this.currentFrame + 1);
+    public int getNumFrames() {
+        return multiTextures.getTextureCount();
     }
 
-    public void lastFrame() {
-        this.goToFrame(this.currentFrame - 1);
+    public void goToNextFrame() {
+        this.setCurrentFrame(this.currentFrame + 1);
+    }
+
+    public void goToPreviousFrame() {
+        this.setCurrentFrame(this.currentFrame - 1);
+    }
+
+    public void goToFirstFrame() {
+        this.setCurrentFrame(0);
+    }
+
+    public void goToLastFrame() {
+        this.setCurrentFrame(getNumFrames() - 1);
     }
 
     public void setCurrentFrame(int frame) {
@@ -159,6 +181,20 @@ public class Animation {
     }
 
     public Animation clone() {
-        return new Animation(this.multiTextures);
+        final Animation animation = new Animation(this.multiTextures);
+        animation._uuid = _uuid;
+        return animation;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Animation) {
+            final Animation other = (Animation) obj;
+            return _uuid == other._uuid;
+        }
+        return false;
     }
 }

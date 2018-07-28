@@ -131,8 +131,8 @@ public class EntityBazooka extends EntityWeapon {
             Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
             toVector = Vector2f.normalize(toVector);
             toVector.setY(toVector.getY() - 0.35f);
-            toVector.setX(toVector.getX() * 4.5f);
-            toVector.setY(toVector.getY() * 4.5f);
+            toVector.setX(toVector.getX() * 5f);
+            toVector.setY(toVector.getY() * 5f);
             player.setPushedByWeapon(true);
             player.addVelocity(toVector);
         }

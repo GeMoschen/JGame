@@ -1,7 +1,5 @@
 package de.gemo.gameengine.core;
 
-import de.gemo.game.physics.Physics2D;
-import de.gemo.game.polygon.core.PolygonCore;
 import de.gemo.game.terrain.core.TerrainCore;
 
 public class StartUp extends Thread {

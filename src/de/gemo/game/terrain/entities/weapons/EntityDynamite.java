@@ -23,9 +23,10 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, WeaponDirectShoot {
 
+    public static int TIMER = 5;
+
     private static SingleTexture texture = null;
     private long startTime;
-    private final int timer = 5;
     private int ticksToLive;
 
     static {
@@ -41,7 +42,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
     public EntityDynamite(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         super(world, owner, position, angle, power);
         this.startTime = System.currentTimeMillis();
-        this.ticksToLive = this.timer * GameEngine.$.getTicksPerSecond();
+        this.ticksToLive = TIMER * GameEngine.$.getTicksPerSecond();
     }
 
     @Override
@@ -96,10 +97,10 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             glEnable(GL_TEXTURE_2D);
             TextureImpl.bindNone();
 
-            int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
+            int timeLeft = TIMER - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
             if (timeLeft > 0) {
-                TrueTypeFont font = FontManager.getStandardFont(20, Font.BOLD);
-                glTranslatef(-font.getWidth("" + timeLeft) / 2, -40, 0);
+                TrueTypeFont font = FontManager.getStandardFont(12, Font.BOLD);
+                glTranslatef(-font.getWidth("" + timeLeft) / 2, -24, 0);
                 font.drawString(0, 0, "" + timeLeft, Color.green);
             }
         }
@@ -189,8 +190,8 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
             toVector = Vector2f.normalize(toVector);
             toVector.setY(toVector.getY() - 0.7f);
-            toVector.setX(toVector.getX() * 5f);
-            toVector.setY(toVector.getY() * 5f);
+            toVector.setX(toVector.getX() * 5.5f);
+            toVector.setY(toVector.getY() * 5.5f);
             player.setPushedByWeapon(true);
             player.addVelocity(toVector);
         }

@@ -91,9 +91,10 @@ public class TerrainCore extends GameEngine {
             if (currentBullet != null) {
                 final Vector2f position = currentBullet.getPosition();
                 final float correctY = position.getY() + world.getHeight() * 4;
-                final float factorY = (world.getHeight() / correctY) * 4;
-                currentScale += (scale - factorY) * 6;
-                currentScale = Math.min(2.2f, Math.max(0.8f, currentScale));
+                final float factorY = Math.min(1.2f, (world.getHeight() / correctY) * 4);
+
+                currentScale += (scale - factorY) * 2;
+                currentScale = Math.min(1.75f, Math.max(0.6f, currentScale));
                 glTranslatef(-position.getX() * currentScale + getWindowWidth() / 2, -position.getY() * currentScale + getWindowHeight() - getWindowHeight() / 2, 0);
             } else {
                 glTranslatef(offset.getX(), offset.getY(), 0);
@@ -133,7 +134,21 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
 
-            FontManager.getStandardFont(16, Font.BOLD).drawString(20, this.VIEW_HEIGHT - 30, "Weapon: " + this.player.getCurrentWeaponName());
+            String text = this.player.getCurrentWeaponName();
+            if (EntityGrenade.class.equals(this.player.getCurrentWeaponClass())) {
+                if (EntityGrenade.TIMER == 1) {
+                    text += " ( " + EntityGrenade.TIMER + " second )";
+                } else {
+                    text += " ( " + EntityGrenade.TIMER + " seconds )";
+                }
+            } else if (EntityDynamite.class.equals(this.player.getCurrentWeaponClass())) {
+                if (EntityDynamite.TIMER == 1) {
+                    text += " ( " + EntityDynamite.TIMER + " second )";
+                } else {
+                    text += " ( " + EntityDynamite.TIMER + " seconds )";
+                }
+            }
+            FontManager.getStandardFont(16, Font.BOLD).drawString(20, this.VIEW_HEIGHT - 30, "Weapon: " + text);
             // font.drawString(20, 200, "__________________");
             // font.drawString(20, 215, "gravity +/-: a/y " + " ( " +
             // EntityBazooka.gravity + " )");
@@ -164,6 +179,36 @@ public class TerrainCore extends GameEngine {
             this.player.setWeapon(EntityGrenade.class);
         } else if (event.getKey() == Keyboard.KEY_3) {
             this.player.setWeapon(EntityDynamite.class);
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD1 && RenderHandler.CURRENT_BULLET == null) {
+            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+                EntityGrenade.TIMER = 1;
+            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+                EntityDynamite.TIMER = 1;
+            }
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD2 && RenderHandler.CURRENT_BULLET == null) {
+            if (RenderHandler.CURRENT_BULLET == null && EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+                EntityGrenade.TIMER = 2;
+            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+                EntityDynamite.TIMER = 2;
+            }
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD3 && RenderHandler.CURRENT_BULLET == null) {
+            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+                EntityGrenade.TIMER = 3;
+            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+                EntityDynamite.TIMER = 3;
+            }
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD4 && RenderHandler.CURRENT_BULLET == null) {
+            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+                EntityGrenade.TIMER = 4;
+            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+                EntityDynamite.TIMER = 4;
+            }
+        } else if (event.getKey() == Keyboard.KEY_NUMPAD5 && RenderHandler.CURRENT_BULLET == null) {
+            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+                EntityGrenade.TIMER = 5;
+            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+                EntityDynamite.TIMER = 5;
+            }
         } else {
             super.onKeyPressed(event);
         }
