@@ -6,12 +6,10 @@ public class TerrainSettings {
     private float frequencyX = 0.0025f, frequencyY = 0.005f;
     private float offsetX, offsetY;
 
-    private float lowerCutOff = 0.35f, upperCutOff = 20f;
+    private float lowerCutOff = 0.35f, upperCutOff = 1.6f;
 
     public TerrainSettings(long seed) {
-        Random random = new Random(seed);
-        this.offsetX = (float) (random.nextFloat() * (random.nextFloat() * 50000));
-        this.offsetY = (float) (random.nextFloat() * (random.nextFloat() * 50000));
+        setSeed(seed);
     }
 
     public TerrainSettings(String seed) {
@@ -19,13 +17,15 @@ public class TerrainSettings {
     }
 
     public TerrainSettings() {
-        this((long) (Math.random() * 50000));
+        this((long) (Math.random() * 500000));
     }
 
     public void setSeed(long seed) {
         Random random = new Random(seed);
-        this.offsetX = (float) (random.nextFloat() * (random.nextFloat() * 50000));
-        this.offsetY = (float) (random.nextFloat() * (random.nextFloat() * 50000));
+        final int seedMagic = 5000;
+        this.offsetX = random.nextFloat() * (random.nextFloat() * seedMagic);// / (random.nextFloat() * seedMagic) * (random.nextFloat() * 800 / frequencyX);
+        this.offsetY = random.nextFloat() * (random.nextFloat() * seedMagic);//  / (random.nextFloat() * seedMagic)* (random.nextFloat() * 800 / frequencyY);
+        System.out.println(offsetX + " / " + offsetY);
     }
 
     public void setSeed(String seed) {

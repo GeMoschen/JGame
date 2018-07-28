@@ -47,14 +47,14 @@ public class EntityCloud implements IPhysicsObject, IRenderObject {
         glEnable(GL_DEPTH_TEST);
         glTranslatef(this.position.getX(), this.position.getY(), -1);
         glRotatef(this.angle, 0, 0, 1);
-        glScalef(0.33f * this.scale, 0.33f * this.scale, 1f);
+        glScalef(0.17f * this.scale, 0.17f * this.scale, 1f);
         texture.render(1, 1, 1, this.lifeTime * 0.75f);
     }
 
     @Override
     public void updatePhysics(int delta) {
-        this.lifeTime -= 0.04f;
-        this.scale += 0.08f;
+        this.lifeTime -= 0.08f;
+        this.scale += 0.12f;
         if (this.lifeTime <= 0) {
             // remove from handler
             PhysicsHandler.removeObject(this);

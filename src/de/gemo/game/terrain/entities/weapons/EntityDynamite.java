@@ -1,20 +1,23 @@
 package de.gemo.game.terrain.entities.weapons;
 
-import java.awt.Font;
-import java.io.*;
-import java.util.List;
-
-import org.newdawn.slick.*;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.opengl.*;
-
 import de.gemo.game.terrain.entities.*;
-import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.world.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.textures.*;
-import de.gemo.gameengine.units.*;
+import de.gemo.game.terrain.handler.PhysicsHandler;
+import de.gemo.game.terrain.handler.PlayerHandler;
+import de.gemo.game.terrain.handler.RenderHandler;
+import de.gemo.game.terrain.world.World;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.manager.TextureManager;
+import de.gemo.gameengine.textures.SingleTexture;
+import de.gemo.gameengine.units.Vector2f;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
+
+import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -52,6 +55,11 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
         this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * 16));
         this.velocity.rotateAround(this.position, angle);
         this.velocity = Vector2f.sub(this.velocity, this.position);
+    }
+
+    @Override
+    public boolean cameraFollows() {
+        return false;
     }
 
     @Override
@@ -165,6 +173,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
 
         // explode
         this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius, this.blastRadius - 25);
+        new EntityExplosion(this.world, this.position);
 
         // scan for players
         List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);

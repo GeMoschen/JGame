@@ -16,7 +16,7 @@ public class BridgeCreator {
     }
 
     public static void generate(boolean[][] terrainData, BufferedTexture terrainTexture, int searchX, int maxDistance) {
-        for (int y = texture.getHeight() * 3; y < terrainData[0].length - texture.getHeight() * 3; y += texture.getHeight() * 1) {
+        for (int y = texture.getHeight() * 5; y < terrainData[0].length - texture.getHeight() * 5; y += texture.getHeight() * 1) {
             if (!terrainData[searchX][y]) {
                 int foundLeft = -1;
                 for (int x = searchX - 1; x > searchX - maxDistance / 2; x--) {

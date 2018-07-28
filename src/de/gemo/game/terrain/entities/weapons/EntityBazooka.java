@@ -1,14 +1,19 @@
 package de.gemo.game.terrain.entities.weapons;
 
-import java.io.*;
-import java.util.*;
+import de.gemo.game.terrain.entities.EntityCloud;
+import de.gemo.game.terrain.entities.EntityExplosion;
+import de.gemo.game.terrain.entities.EntityPlayer;
+import de.gemo.game.terrain.entities.EntityWeapon;
+import de.gemo.game.terrain.handler.PhysicsHandler;
+import de.gemo.game.terrain.handler.PlayerHandler;
+import de.gemo.game.terrain.handler.RenderHandler;
+import de.gemo.game.terrain.world.World;
+import de.gemo.gameengine.manager.TextureManager;
+import de.gemo.gameengine.textures.SingleTexture;
+import de.gemo.gameengine.units.Vector2f;
 
-import de.gemo.game.terrain.entities.*;
-import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.world.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.textures.*;
-import de.gemo.gameengine.units.*;
+import java.io.IOException;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -18,10 +23,8 @@ public class EntityBazooka extends EntityWeapon {
 
     static {
         try {
-            texture = TextureManager.loadSingleTexture("resources/weapons/bazooka.png");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            texture = TextureManager.loadSingleTexture("resources/weapons/bazooka.png", GL_LINEAR);
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
@@ -39,6 +42,11 @@ public class EntityBazooka extends EntityWeapon {
 
         // get _angle
         this.angle = this.position.getAngle(this.position.getX() + this.velocity.getX(), this.position.getY() + this.velocity.getY());
+    }
+
+    @Override
+    public boolean cameraFollows() {
+        return true;
     }
 
     @Override
@@ -107,6 +115,7 @@ public class EntityBazooka extends EntityWeapon {
 
         // updatePosition world
         this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
+        new EntityExplosion(this.world, this.position);
 
         // scan for players
         List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);

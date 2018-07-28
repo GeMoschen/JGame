@@ -51,6 +51,8 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
         }
     }
 
+    public abstract boolean cameraFollows();
+
     protected abstract void init(float angle, float power);
 
     protected int[] raycast(int x, int y, int x2, int y2) {

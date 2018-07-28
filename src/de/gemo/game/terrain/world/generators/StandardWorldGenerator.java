@@ -16,29 +16,33 @@ public class StandardWorldGenerator extends AbstractWorldGenerator {
                 int y = this.getHeight() - wrongY - 1;
                 double noise = SimplexNoise.noise(x * this.terrainSettings.getFrequencyX() + this.terrainSettings.getOffsetX(), y * this.terrainSettings.getFrequencyY() + this.terrainSettings.getOffsetY());
                 double addY = ((double) (y) / (double) this.getHeight());
-                noise += 3.25f * addY;
-                // left
-                double dX = (double) x / (this.getWidth() / 2d);
+                noise += 1.25f * addY;
+                // left cutoff for level
+                double dX = (double) x / (this.getWidth() / 8d);
                 if (dX < 1) {
                     noise *= dX;
                 }
 
-                // right
-                dX = Math.abs(x - this.getWidth()) / (this.getWidth() / 2d);
+                // right cutoff for level
+                dX = Math.abs(x - this.getWidth()) / (this.getWidth() / 8d);
                 if (dX < 1) {
                     noise *= dX;
                 }
 
-                // middle
+                // middle cutoff - lower values = more space in the middle ; higher values = less space in the middle
+                final float cutoffMiddle = 3.8f;
                 if (x > 0) {
                     double distX = Math.abs((double) x - ((double) this.getWidth() / 2f));
-                    if (distX < ((double) this.getWidth() / 2f)) {
-                        distX = distX / ((double) this.getWidth() / 2f);
+                    if (distX < ((double) this.getWidth() / cutoffMiddle)) {
+                        distX = distX / ((double) this.getWidth() / cutoffMiddle);
                         noise *= distX;
                     }
                 }
 
+                // cutoff
                 terrainData[x][y] = (noise >= this.terrainSettings.getLowerCutOff() && noise < this.terrainSettings.getUpperCutOff());
+
+                // level borders left & right
                 if (x < 5 || x > this.getWidth() - 5) {
                     terrainData[x][y] = true;
                 }

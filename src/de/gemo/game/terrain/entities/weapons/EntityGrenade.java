@@ -1,19 +1,24 @@
 package de.gemo.game.terrain.entities.weapons;
 
-import java.awt.Font;
-import java.io.*;
+import de.gemo.game.terrain.entities.EntityExplosion;
+import de.gemo.game.terrain.entities.EntityPlayer;
+import de.gemo.game.terrain.entities.EntityWeapon;
+import de.gemo.game.terrain.handler.PhysicsHandler;
+import de.gemo.game.terrain.handler.PlayerHandler;
+import de.gemo.game.terrain.handler.RenderHandler;
+import de.gemo.game.terrain.world.World;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.manager.TextureManager;
+import de.gemo.gameengine.textures.SingleTexture;
+import de.gemo.gameengine.units.Vector2f;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
+
+import java.awt.*;
+import java.io.IOException;
 import java.util.List;
-
-import org.newdawn.slick.*;
-import org.newdawn.slick.opengl.*;
-
-import de.gemo.game.terrain.entities.*;
-import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.world.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.textures.*;
-import de.gemo.gameengine.units.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -26,10 +31,8 @@ public class EntityGrenade extends EntityWeapon {
 
     static {
         try {
-            texture = TextureManager.loadSingleTexture("resources/weapons/grenade.png");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            texture = TextureManager.loadSingleTexture("resources/weapons/grenade.png", GL_LINEAR);
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
@@ -50,13 +53,19 @@ public class EntityGrenade extends EntityWeapon {
         this.velocity.rotateAround(this.position, angle);
         this.velocity = Vector2f.sub(this.velocity, this.position);
 
-        // get _angle
+        // get angle
         this.angle = this.position.getAngle(this.position.getX() + this.velocity.getX(), this.position.getY() + this.velocity.getY());
+    }
+
+    @Override
+    public boolean cameraFollows() {
+        return true;
     }
 
     @Override
     public void render() {
         glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glRotatef(angle, 0, 0, 1);
 
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
@@ -78,6 +87,7 @@ public class EntityGrenade extends EntityWeapon {
             int timeLeft = timer - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
             if (timeLeft > 0) {
                 TrueTypeFont font = FontManager.getStandardFont(20, Font.BOLD);
+                glRotatef(-angle, 0, 0, 1);
                 glTranslatef(-font.getWidth("" + timeLeft) / 2, -35, 0);
                 font.drawString(0, 0, "" + timeLeft, Color.green);
             }
@@ -152,6 +162,7 @@ public class EntityGrenade extends EntityWeapon {
 
         // explode
         this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
+        new EntityExplosion(this.world, this.position);
 
         // scan for players
         List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);

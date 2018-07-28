@@ -1,8 +1,13 @@
 package de.gemo.game.terrain.handler;
 
-import java.util.*;
+import de.gemo.game.terrain.entities.EntityWeapon;
+import de.gemo.game.terrain.entities.IRenderObject;
 
-import de.gemo.game.terrain.entities.*;
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -12,16 +17,31 @@ public class RenderHandler {
 
     private List<IRenderObject> objects = new ArrayList<IRenderObject>();
 
+    public static EntityWeapon CURRENT_BULLET = null;
+
     public RenderHandler() {
         handler = this;
     }
 
     public static void addObject(IRenderObject object) {
         handler.add(object);
+        if (object instanceof EntityWeapon && ((EntityWeapon) object).cameraFollows() && CURRENT_BULLET == null) {
+            CURRENT_BULLET = (EntityWeapon) object;
+        }
     }
 
     public static void removeObject(IRenderObject object) {
         handler.remove(object);
+        if (object instanceof EntityWeapon && ((EntityWeapon) object).cameraFollows()) {
+            final Timer timer = new Timer(true);
+            final TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    CURRENT_BULLET = null;
+                }
+            };
+            timer.schedule(timerTask, 1250);
+        }
     }
 
     public void add(IRenderObject object) {

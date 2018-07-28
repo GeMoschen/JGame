@@ -10,6 +10,8 @@ public class Animation {
 
     private float wantedFPS;
 
+    private Runnable _endListener = null;
+
     public Animation(MultiTexture multiTexture) {
         this(multiTexture, 30);
     }
@@ -20,6 +22,10 @@ public class Animation {
         this.halfWidth = this.multiTextures.getWidth() / 2f;
         this.halfHeight = this.multiTextures.getHeight() / 2f;
         this.goToFrame(0);
+    }
+
+    public void setEndListener(final Runnable endListener) {
+        _endListener = endListener;
     }
 
     public float getHalfWidth() {
@@ -36,6 +42,11 @@ public class Animation {
 
     public void lastFrame() {
         this.goToFrame(this.currentFrame - 1);
+    }
+
+    public void setCurrentFrame(int frame) {
+        this.currentFrame = frame;
+        this.currentStep = frame;
     }
 
     public boolean goToFrame(int frame) {
@@ -57,6 +68,10 @@ public class Animation {
         } else if (frame > this.multiTextures.getTextureCount() - 1) {
             frame = 0;
             result = true;
+            currentStep -= (int) currentStep;
+            if (_endListener != null) {
+                _endListener.run();
+            }
         }
 
         // updatePosition the frame
@@ -78,6 +93,9 @@ public class Animation {
         boolean result = false;
         if (this.currentStep >= this.multiTextures.getTextureCount()) {
             this.currentStep -= this.multiTextures.getTextureCount();
+            if (_endListener != null) {
+                _endListener.run();
+            }
             result = true;
         }
         return result || this.goToFrame((int) this.currentStep);
@@ -85,6 +103,10 @@ public class Animation {
 
     public int getCurrentFrame() {
         return currentFrame;
+    }
+
+    public float getCurrentStep() {
+        return currentStep;
     }
 
     public SingleTexture getCurrentTexture() {

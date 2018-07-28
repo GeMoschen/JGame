@@ -1,25 +1,34 @@
 package de.gemo.game.terrain.core;
 
-import java.awt.Font;
+import de.gemo.game.terrain.entities.EntityPlayer;
+import de.gemo.game.terrain.entities.EntityWeapon;
+import de.gemo.game.terrain.entities.weapons.EntityBazooka;
+import de.gemo.game.terrain.entities.weapons.EntityDynamite;
+import de.gemo.game.terrain.entities.weapons.EntityGrenade;
+import de.gemo.game.terrain.handler.PhysicsHandler;
+import de.gemo.game.terrain.handler.PlayerHandler;
+import de.gemo.game.terrain.handler.RenderHandler;
+import de.gemo.game.terrain.world.World;
+import de.gemo.gameengine.core.GameEngine;
+import de.gemo.gameengine.events.keyboard.KeyEvent;
+import de.gemo.gameengine.events.mouse.MouseButton;
+import de.gemo.gameengine.events.mouse.MouseMoveEvent;
+import de.gemo.gameengine.events.mouse.MouseWheelEvent;
+import de.gemo.gameengine.manager.FontManager;
+import de.gemo.gameengine.manager.KeyboardManager;
+import de.gemo.gameengine.manager.MouseManager;
+import de.gemo.gameengine.manager.TextureManager;
+import de.gemo.gameengine.textures.SingleTexture;
+import de.gemo.gameengine.units.Vector2f;
+import org.lwjgl.input.Keyboard;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
+
+import java.awt.*;
 import java.io.IOException;
 
-import de.gemo.gameengine.textures.SingleTexture;
-import org.lwjgl.input.*;
-import org.newdawn.slick.*;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.opengl.*;
-
-import de.gemo.game.terrain.entities.*;
-import de.gemo.game.terrain.entities.weapons.*;
-import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.world.*;
-import de.gemo.gameengine.core.*;
-import de.gemo.gameengine.events.keyboard.*;
-import de.gemo.gameengine.events.mouse.*;
-import de.gemo.gameengine.manager.*;
-import de.gemo.gameengine.units.*;
-
-import static org.lwjgl.opengl.ARBTextureRectangle.*;
+import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TerrainCore extends GameEngine {
@@ -71,14 +80,25 @@ public class TerrainCore extends GameEngine {
         glPushMatrix();
         {
             glTranslatef(512, 384, 0);
-            _backgroundTexture.render(1,1,1,1);
+            _backgroundTexture.render(1, 1, 1, 1);
         }
         glPopMatrix();
 
         glPushMatrix();
         {
-            glTranslatef(offset.getX(), offset.getY(), 0);
-            glScalef(scale, scale, 1);
+            float currentScale = this.scale;
+            final EntityWeapon currentBullet = RenderHandler.CURRENT_BULLET;
+            if (currentBullet != null) {
+                final Vector2f position = currentBullet.getPosition();
+                final float correctY = position.getY() + world.getHeight() * 4;
+                final float factorY = (world.getHeight() / correctY) * 4;
+                currentScale += (scale - factorY) * 6;
+                currentScale = Math.min(2.2f, Math.max(0.8f, currentScale));
+                glTranslatef(-position.getX() * currentScale + getWindowWidth() / 2, -position.getY() * currentScale + getWindowHeight() - getWindowHeight() / 2, 0);
+            } else {
+                glTranslatef(offset.getX(), offset.getY(), 0);
+            }
+            glScalef(currentScale, currentScale, 1);
             glColor4f(1, 1, 1, 1);
             this.renderHandler.renderAll();
         }
@@ -151,7 +171,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onKeyHold(KeyEvent event) {
-        if (event.getKey() == Keyboard.KEY_SPACE) {
+        if (event.getKey() == Keyboard.KEY_SPACE && RenderHandler.CURRENT_BULLET == null) {
             this.player.shoot();
         } else {
             super.onKeyPressed(event);
@@ -173,8 +193,7 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseMove(boolean handled, MouseMoveEvent event) {
-        if (MouseManager.$.isButtonDown(MouseButton.MIDDLE.getID())) {
-            System.out.println(offset);
+        if (MouseManager.$.isButtonDown(MouseButton.MIDDLE.getID()) && RenderHandler.CURRENT_BULLET == null) {
             if (offset.getX() + event.getDifX() < this.VIEW_WIDTH / 2 && offset.getX() + event.getDifX() > -this.world.getWidth() + this.VIEW_WIDTH / 2) {
                 offset.move(event.getDifX(), event.getDifY());
             }
@@ -183,7 +202,6 @@ public class TerrainCore extends GameEngine {
 
     @Override
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
-
         if (event.isUp()) {
             // calculate current _center
             int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
