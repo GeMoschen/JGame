@@ -12,28 +12,27 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityCloud implements IPhysicsObject, IRenderObject {
 
-    protected World world;
-    protected Vector2f position;
-    protected float lifeTime, scale, angle;
+    private static SingleTexture TEXTURE = null;
+    
+    private World _world;
+    private Vector2f _position;
+    private float _lifeTime, _scale, _angle;
 
-    private static SingleTexture texture = null;
 
     static {
         try {
-            texture = TextureManager.loadSingleTexture("resources/fx/cloud_64x64.png");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            TEXTURE = TextureManager.loadSingleTexture("resources/fx/cloud_64x64.png");
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
     public EntityCloud(World world, Vector2f position) {
-        this.world = world;
-        this.position = position.clone();
-        this.lifeTime = 1f;
-        this.scale = 1f;
-        this.angle = (float) (Math.random() * 360f);
+        _world = world;
+        _position = position.clone();
+        _lifeTime = 1f;
+        _scale = 1f;
+        _angle = (float) (Math.random() * 360f);
 
         // add to handler
         PhysicsHandler.addObject(this);
@@ -45,17 +44,17 @@ public class EntityCloud implements IPhysicsObject, IRenderObject {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
-        glTranslatef(this.position.getX(), this.position.getY(), -1);
-        glRotatef(this.angle, 0, 0, 1);
-        glScalef(0.17f * this.scale, 0.17f * this.scale, 1f);
-        texture.render(1, 1, 1, this.lifeTime * 0.75f);
+        glTranslatef(_position.getX(), _position.getY(), -1);
+        glRotatef(_angle, 0, 0, 1);
+        glScalef(0.17f * _scale, 0.17f * _scale, 1f);
+        TEXTURE.render(1, 1, 1, _lifeTime * 0.75f);
     }
 
     @Override
     public void updatePhysics(int delta) {
-        this.lifeTime -= 0.08f;
-        this.scale += 0.12f;
-        if (this.lifeTime <= 0) {
+        _lifeTime -= 0.08f;
+        _scale += 0.12f;
+        if (_lifeTime <= 0) {
             // remove from handler
             PhysicsHandler.removeObject(this);
             RenderHandler.removeObject(this);
@@ -70,7 +69,7 @@ public class EntityCloud implements IPhysicsObject, IRenderObject {
 
     @Override
     public Vector2f getPosition() {
-        return this.position;
+        return _position;
     }
 
     @Override
@@ -80,7 +79,7 @@ public class EntityCloud implements IPhysicsObject, IRenderObject {
 
     @Override
     public void setPosition(Vector2f position) {
-        this.position.set(position.getX(), position.getY());
+        _position.set(position.getX(), position.getY());
     }
 
     @Override

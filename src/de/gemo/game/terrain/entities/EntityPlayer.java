@@ -1,6 +1,5 @@
 package de.gemo.game.terrain.entities;
 
-import com.sun.istack.internal.NotNull;
 import de.gemo.game.terrain.entities.weapons.EntityBazooka;
 import de.gemo.game.terrain.handler.PlayerHandler;
 import de.gemo.game.terrain.world.World;
@@ -21,30 +20,11 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
-    private Animation _animation;
-    private int playerWidth = 5, playerHeight = 10;
-    private Vector2f position, velocity;
-    private boolean lookRight = true;
-    private World world;
-
-    private float shootAngle = 0f;
-    private float shootPower = 0f;
-
-    private boolean[] movement = new boolean[5];
-    private boolean onGround, shotFired = false, pushedByWeapon = false;
-    private boolean _jumping = false;
-    private SingleTexture crosshair;
-
-    private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
-
-    private int health = 100;
-
-    private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
-
+    private static SingleTexture CROSSHAIR;
     private static Animation ANIMATION_WALK = null;
     private static Animation ANIMATION_JUMP = null;
 
-    static {
+    {
         try {
             {
                 final SingleTexture singleTexture = TextureManager.loadSingleTexture("resources/worms/walk.png", GL_LINEAR);
@@ -66,22 +46,36 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
                 }
                 ANIMATION_JUMP = multiTexture.toAnimation();
             }
+            CROSSHAIR = TextureManager.loadSingleTexture("resources/crosshair.png", GL_LINEAR);
         } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
+    private Animation _animation;
+    private int _playerWidth = 5, _playerHeight = 10;
+    private Vector2f _position, _velocity;
+    private boolean _lookRight = true;
+    private World _world;
+
+    private float _shootAngle = 0f;
+    private float _shootPower = 0f;
+
+    private boolean[] _movement = new boolean[5];
+    private boolean _onGround, _shotFired = false, _pushedByWeapon = false;
+    private boolean _jumping = false;
+
+    private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
+
+    private int health = 100;
+
+    private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
+
     public EntityPlayer(World world, Vector2f position) {
         _animation = ANIMATION_WALK.clone();
-        this.world = world;
-        this.position = position.clone();
-        this.velocity = new Vector2f(0, 0);
-        try {
-            this.crosshair = TextureManager.loadSingleTexture("resources/crosshair.png", GL_LINEAR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        _world = world;
+        _position = position.clone();
+        _velocity = new Vector2f(0, 0);
         PlayerHandler.addPlayer(this);
     }
 
@@ -90,44 +84,44 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     public void jump() {
-        if ((this.onGround)) {
-            this.velocity.setY(-0.2f * GameEngine.$.getCurrentDelta());
+        if ((_onGround)) {
+            _velocity.setY(-0.2f * GameEngine.$.getCurrentDelta());
             float jumpX = 0.1f * GameEngine.$.getCurrentDelta();
-            if (this.lookRight) {
-                this.velocity.setX(jumpX);
+            if (_lookRight) {
+                _velocity.setX(jumpX);
             } else {
-                this.velocity.setX(-jumpX);
+                _velocity.setX(-jumpX);
             }
             _jumping = true;
-            this.onGround = false;
+            _onGround = false;
         }
     }
 
     public void shoot() {
-        if (this.shotFired) {
+        if (_shotFired) {
             return;
         }
-        this.shootPower += (GameEngine.$.getCurrentDelta() * 0.0006f);
-        if (this.shootPower >= 1 || WeaponDirectShoot.class.isAssignableFrom(currentWeapon)) {
-            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, 1f);
-            this.shotFired = true;
-            this.shootPower = 0;
+        _shootPower += (GameEngine.$.getCurrentDelta() * 0.0006f);
+        if (_shootPower >= 1 || WeaponDirectShoot.class.isAssignableFrom(currentWeapon)) {
+            EntityWeapon.fire(currentWeapon, _world, this, _position, _shootAngle, 1f);
+            _shotFired = true;
+            _shootPower = 0;
         }
     }
 
     public void resetPower() {
-        if (this.shootPower > 0) {
-            EntityWeapon.fire(this.currentWeapon, this.world, this, this.position, this.shootAngle, this.shootPower);
+        if (_shootPower > 0) {
+            EntityWeapon.fire(currentWeapon, _world, this, _position, _shootAngle, _shootPower);
         }
-        this.shootPower = 0;
-        this.shotFired = false;
+        _shootPower = 0;
+        _shotFired = false;
     }
 
     public boolean canFall() {
         for (int tY = 1; tY < 2; tY++) {
-            int bottomY = (int) (this.position.getY() + this.playerHeight + tY);
-            for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
+            int bottomY = (int) (_position.getY() + _playerHeight + tY);
+            for (int x = (int) -_playerWidth; x <= _playerWidth; x++) {
+                if (_world.isPixelSolid((int) (_position.getX() + x), bottomY)) {
                     return false;
                 }
             }
@@ -136,10 +130,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     public Vector2f getCollidingNormal() {
-        int bottomY = (int) (this.position.getY() + this.playerHeight) + 1;
-        for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-            if (this.world.isPixelSolid((int) (this.position.getX() + x), bottomY)) {
-                return this.world.getNormal((int) (this.position.getX() + x), bottomY);
+        int bottomY = (int) (_position.getY() + _playerHeight) + 1;
+        for (int x = (int) -_playerWidth; x <= _playerWidth; x++) {
+            if (_world.isPixelSolid((int) (_position.getX() + x), bottomY)) {
+                return _world.getNormal((int) (_position.getX() + x), bottomY);
             }
         }
         return new Vector2f(0, 0);
@@ -152,41 +146,41 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
         // shoot angle
         float rotationSpeed = 0.05f;
-        if ((this.movement[UP] && this.lookRight) || (this.movement[DOWN] && !this.lookRight)) {
-            if ((this.lookRight && this.shootAngle > rotationSpeed) || (!this.lookRight && this.shootAngle > -170)) {
-                this.shootAngle -= rotationSpeed * delta;
+        if ((_movement[UP] && _lookRight) || (_movement[DOWN] && !_lookRight)) {
+            if ((_lookRight && _shootAngle > rotationSpeed) || (!_lookRight && _shootAngle > -170)) {
+                _shootAngle -= rotationSpeed * delta;
             }
-        } else if ((this.movement[DOWN] && this.lookRight) || (this.movement[UP] && !this.lookRight)) {
-            if ((!this.lookRight && this.shootAngle < -rotationSpeed) || (this.lookRight && this.shootAngle < 170)) {
-                this.shootAngle += rotationSpeed * delta;
+        } else if ((_movement[DOWN] && _lookRight) || (_movement[UP] && !_lookRight)) {
+            if ((!_lookRight && _shootAngle < -rotationSpeed) || (_lookRight && _shootAngle < 170)) {
+                _shootAngle += rotationSpeed * delta;
             }
         }
 
         // look left/right
-        if (this.lookRight && this.shootAngle < 0) {
-            this.shootAngle = -this.shootAngle;
-        } else if (!this.lookRight && this.shootAngle > 0) {
-            this.shootAngle = -this.shootAngle;
+        if (_lookRight && _shootAngle < 0) {
+            _shootAngle = -_shootAngle;
+        } else if (!_lookRight && _shootAngle > 0) {
+            _shootAngle = -_shootAngle;
         }
 
         // get velocity
-        float vX = this.velocity.getX();
-        float vY = this.velocity.getY();
+        float vX = _velocity.getX();
+        float vY = _velocity.getY();
 
         // gravity
-        boolean canFall = this.canFall();
+        boolean canFall = canFall();
         if (canFall) {
             vY += (0.015F * delta);
-            vY = this.getMaxAdvanceY(vY);
+            vY = getMaxAdvanceY(vY);
         } else {
             // is on ground.. if vY < 0, we are jumping or flying high
             if (Math.abs(vX) < 0.1f) {
-                this.pushedByWeapon = false;
+                _pushedByWeapon = false;
             }
             if (vY > 0) {
                 vY = -0.0005f;
 
-                Vector2f normal = this.getCollidingNormal();
+                Vector2f normal = getCollidingNormal();
                 if (normal.getY() > -0.15f) {
                     vX += (normal.getX() / 16f);
                 }
@@ -194,8 +188,8 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         // friction
-        if (!this.pushedByWeapon) {
-            if (!this.onGround) {
+        if (!_pushedByWeapon) {
+            if (!_onGround) {
                 vX *= 0.97f;
             } else {
                 vX *= 0.99f;
@@ -205,61 +199,61 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         // WALKING LEFT OR RIGHT
-        if (this.onGround && !this.pushedByWeapon) {
+        if (_onGround && !_pushedByWeapon) {
             float walkSpeed = 0.03f;
-            if (this.movement[LEFT] && !this.movement[RIGHT]) {
-                this.lookRight = false;
+            if (_movement[LEFT] && !_movement[RIGHT]) {
+                _lookRight = false;
                 vX = -walkSpeed * delta;
             }
-            if (this.movement[RIGHT] && !this.movement[LEFT]) {
-                this.lookRight = true;
+            if (_movement[RIGHT] && !_movement[LEFT]) {
+                _lookRight = true;
                 vX = +walkSpeed * delta;
             }
         }
 
-        float maxAdvanceX = this.getMaxAdvanceX(vX);
-        this.position.move(maxAdvanceX, vY);
-        this.velocity.set(vX, vY);
+        float maxAdvanceX = getMaxAdvanceX(vX);
+        _position.move(maxAdvanceX, vY);
+        _velocity.set(vX, vY);
 
         if (vX != maxAdvanceX) {
             int maxStepSize = 4;
 
-            Vector2f normal = this.getCollidingNormal();
-            if (this.canGoThere(maxStepSize, vX) && Math.abs(normal.getX()) < 0.98f) {
-                int upShift = this.getUpshift(maxStepSize, vX);
+            Vector2f normal = getCollidingNormal();
+            if (canGoThere(maxStepSize, vX) && Math.abs(normal.getX()) < 0.98f) {
+                int upShift = getUpshift(maxStepSize, vX);
                 if (upShift != 0) {
-                    this.position.move((vX - maxAdvanceX) / (upShift * 2f), this.getMaxAdvanceY(-upShift));
+                    _position.move((vX - maxAdvanceX) / (upShift * 2f), getMaxAdvanceY(-upShift));
                 }
             }
         }
 
-        this.onGround = !this.canFall();
-        if (this.onGround) {
-            if(!_animation.equals(ANIMATION_WALK)) {
+        _onGround = !canFall();
+        if (_onGround) {
+            if (!_animation.equals(ANIMATION_WALK)) {
                 _animation = ANIMATION_WALK.clone();
             }
-            if ((!this.movement[LEFT] && !this.movement[RIGHT] && !this.pushedByWeapon) || (!this.pushedByWeapon)) {
+            if ((!_movement[LEFT] && !_movement[RIGHT] && !_pushedByWeapon) || (!_pushedByWeapon)) {
                 vX = 0f;
             } else {
                 vX *= 0.98f;
             }
 
             _jumping = false;
-            this.velocity.set(vX, vY);
+            _velocity.set(vX, vY);
         } else {
             vX *= 0.99f;
-            this.velocity.set(vX, vY);
+            _velocity.set(vX, vY);
         }
     }
 
     private void updateAnimations(final int delta) {
-        if (!_jumping && (this.movement[RIGHT] || this.movement[LEFT]) && !this.pushedByWeapon) {
+        if (!_jumping && (_movement[RIGHT] || _movement[LEFT]) && !_pushedByWeapon) {
             if (!_animation.equals(ANIMATION_WALK)) {
                 _animation = ANIMATION_WALK.clone();
             }
             _animation.step(delta);
         } else {
-            if (pushedByWeapon || _jumping) {
+            if (_pushedByWeapon || _jumping) {
                 if (!_animation.equals(ANIMATION_JUMP)) {
                     _animation = ANIMATION_JUMP.clone();
                 }
@@ -269,7 +263,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
                     _animation.goToLastFrame();
                 }
             } else {
-                if(onGround && !_animation.equals(ANIMATION_WALK)) {
+                if (_onGround && !_animation.equals(ANIMATION_WALK)) {
                     _animation = ANIMATION_WALK.clone();
                 }
                 _animation.setCurrentFrame(3);
@@ -278,22 +272,22 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     public void setPushedByWeapon(boolean pushedByWeapon) {
-        this.pushedByWeapon = pushedByWeapon;
-        this.onGround = false;
+        _pushedByWeapon = pushedByWeapon;
+        _onGround = false;
     }
 
     private boolean canGoThere(int steps, float vX) {
-        if (this.canFall()) {
+        if (canFall()) {
             return true;
         }
 
-        int minX = (int) (this.position.getX() + vX - this.playerWidth);
-        int maxX = (int) (this.position.getX() + vX + this.playerWidth);
+        int minX = (int) (_position.getX() + vX - _playerWidth);
+        int maxX = (int) (_position.getX() + vX + _playerWidth);
 
-        int bottomY = (int) (this.position.getY() + this.playerHeight - steps);
+        int bottomY = (int) (_position.getY() + _playerHeight - steps);
         for (int x = minX; x <= maxX; x++) {
-            for (int currentStep = 1; currentStep <= this.playerHeight * 2; currentStep++) {
-                if (this.world.isPixelSolid(x, bottomY - currentStep)) {
+            for (int currentStep = 1; currentStep <= _playerHeight * 2; currentStep++) {
+                if (_world.isPixelSolid(x, bottomY - currentStep)) {
                     return false;
                 }
             }
@@ -303,19 +297,19 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     }
 
     private int getUpshift(int steps, float vX) {
-        if (this.canFall()) {
+        if (canFall()) {
             return 0;
         }
 
-        int minX = (int) (this.position.getX() + vX - this.playerWidth);
-        int maxX = (int) (this.position.getX() + vX + this.playerWidth + 1);
+        int minX = (int) (_position.getX() + vX - _playerWidth);
+        int maxX = (int) (_position.getX() + vX + _playerWidth + 1);
 
-        int bottomY = (int) (this.position.getY() + this.playerHeight);
+        int bottomY = (int) (_position.getY() + _playerHeight);
         int upShift = 0;
         for (int currentStep = 1; currentStep <= steps; currentStep++) {
             boolean rowFree = true;
             for (int x = minX; x <= maxX; x++) {
-                if (this.world.isPixelSolid(x, bottomY - currentStep)) {
+                if (_world.isPixelSolid(x, bottomY - currentStep)) {
                     rowFree = false;
                 }
             }
@@ -330,21 +324,21 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     private float getMaxAdvanceX(float vX) {
         if (vX > 0) {
-            int rightX = (int) (this.position.getX() + this.playerWidth);
+            int rightX = (int) (_position.getX() + _playerWidth);
             float advanceX = 0f;
             for (int x = rightX; advanceX <= vX; advanceX++) {
-                for (int y = (int) -this.playerHeight; y <= this.playerHeight; y++) {
-                    if (this.world.isPixelSolid((int) (x + advanceX), (int) (this.position.getY() + y))) {
+                for (int y = (int) -_playerHeight; y <= _playerHeight; y++) {
+                    if (_world.isPixelSolid((int) (x + advanceX), (int) (_position.getY() + y))) {
                         return Math.max(0, advanceX - 1f);
                     }
                 }
             }
         } else if (vX < 0) {
-            int leftX = (int) (this.position.getX() - this.playerWidth);
+            int leftX = (int) (_position.getX() - _playerWidth);
             float advanceX = 0f;
             for (int x = leftX; advanceX >= vX; advanceX--) {
-                for (int y = (int) -this.playerHeight; y <= this.playerHeight; y++) {
-                    if (this.world.isPixelSolid((int) (x + advanceX), (int) (this.position.getY() + y))) {
+                for (int y = (int) -_playerHeight; y <= _playerHeight; y++) {
+                    if (_world.isPixelSolid((int) (x + advanceX), (int) (_position.getY() + y))) {
                         return Math.min(advanceX + 1f, 0f);
                     }
                 }
@@ -355,12 +349,12 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     private float getMaxAdvanceY(float vY) {
         if (vY > 0) {
-            float bottomY = this.position.getY() + this.playerHeight + 1f;
+            float bottomY = _position.getY() + _playerHeight + 1f;
             float advanceY = vY;
             float canAdvance = vY;
             for (float y = bottomY + advanceY; advanceY >= (-vY); advanceY--) {
-                for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                    if (this.world.isPixelSolid((int) (this.position.getX() + x), (int) y)) {
+                for (int x = (int) -_playerWidth; x <= _playerWidth; x++) {
+                    if (_world.isPixelSolid((int) (_position.getX() + x), (int) y)) {
                         canAdvance = advanceY;
                     }
                 }
@@ -370,12 +364,12 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             }
             return canAdvance;
         } else if (vY < 0) {
-            float topY = this.position.getY() - this.playerHeight - 1f;
+            float topY = _position.getY() - _playerHeight - 1f;
             float advanceY = vY;
             float canAdvance = vY;
             for (float y = topY - advanceY; advanceY <= (-vY); advanceY++) {
-                for (int x = (int) -this.playerWidth; x <= this.playerWidth; x++) {
-                    if (this.world.isPixelSolid((int) (this.position.getX() + x), (int) y)) {
+                for (int x = (int) -_playerWidth; x <= _playerWidth; x++) {
+                    if (_world.isPixelSolid((int) (_position.getX() + x), (int) y)) {
                         canAdvance = advanceY;
                     }
                 }
@@ -396,11 +390,11 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
         glPushMatrix();
         {
-            glTranslatef(this.position.getX(), this.position.getY() - 19, 0);
-            if(_animation.equals(ANIMATION_JUMP)) {
+            glTranslatef(_position.getX(), _position.getY() - 19, 0);
+            if (_animation.equals(ANIMATION_JUMP)) {
                 glTranslatef(0, 19, 0);
             }
-            if (!this.lookRight) {
+            if (!_lookRight) {
                 glScalef(-1, 1, 1);
             }
 
@@ -408,7 +402,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         glPopMatrix();
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glTranslatef(_position.getX(), _position.getY(), 0);
 
 //        renderDebugHitbox();
 
@@ -418,23 +412,23 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         // crosshair
         if (!WeaponNoCrosshair.class.isAssignableFrom(currentWeapon)) {
             float crosshairDistance = 100f;
-            float x2 = this.crosshair.getHalfWidth() - this.crosshair.getHalfWidth() / 2f;
+            float x2 = CROSSHAIR.getHalfWidth() - CROSSHAIR.getHalfWidth() / 2f;
 
             // powersign
             glPushMatrix();
             {
                 glDisable(GL_TEXTURE_2D);
-                glRotatef(this.shootAngle, 0, 0, 1);
+                glRotatef(_shootAngle, 0, 0, 1);
                 glBegin(GL_POLYGON);
                 {
                     glColor4f(0, 1, 0, 0.6f);
                     glVertex2f(0, 0);
-                    glColor4f(1 * this.shootPower, 1 * (1 - this.shootPower), 0, 0.6f);
-                    glVertex2f(-x2 * this.shootPower, -crosshairDistance * this.shootPower);
-                    glVertex2f(-x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
-                    glVertex2f(0, (-crosshairDistance - x2 / 2f) * this.shootPower);
-                    glVertex2f(+x2 / 1.75f * this.shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * this.shootPower);
-                    glVertex2f(+x2 * this.shootPower, -crosshairDistance * this.shootPower);
+                    glColor4f(1 * _shootPower, 1 * (1 - _shootPower), 0, 0.6f);
+                    glVertex2f(-x2 * _shootPower, -crosshairDistance * _shootPower);
+                    glVertex2f(-x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
+                    glVertex2f(0, (-crosshairDistance - x2 / 2f) * _shootPower);
+                    glVertex2f(+x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
+                    glVertex2f(+x2 * _shootPower, -crosshairDistance * _shootPower);
                 }
                 glEnd();
             }
@@ -443,11 +437,11 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             // crosshair
             glPushMatrix();
             {
-                glRotatef(this.shootAngle, 0, 0, 1);
+                glRotatef(_shootAngle, 0, 0, 1);
                 glTranslatef(0, -crosshairDistance, 0);
                 glEnable(GL_TEXTURE_2D);
                 glEnable(GL_BLEND);
-                this.crosshair.render(1, 1, 1, 1);
+                CROSSHAIR.render(1, 1, 1, 1);
             }
             glPopMatrix();
         }
@@ -457,10 +451,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         glColor4f(1, 0, 0, 1);
         glBegin(GL_LINE_LOOP);
         {
-            glVertex2f(-this.playerWidth, -this.playerHeight);
-            glVertex2f(+this.playerWidth, -this.playerHeight);
-            glVertex2f(+this.playerWidth, +this.playerHeight);
-            glVertex2f(-this.playerWidth, +this.playerHeight);
+            glVertex2f(-_playerWidth, -_playerHeight);
+            glVertex2f(+_playerWidth, -_playerHeight);
+            glVertex2f(+_playerWidth, +_playerHeight);
+            glVertex2f(-_playerWidth, +_playerHeight);
         }
         glEnd();
 
@@ -471,10 +465,10 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             glBegin(GL_LINES);
             {
                 glVertex2f(0, 0);
-                if (this.lookRight) {
-                    glVertex2f(this.playerWidth, 0);
+                if (_lookRight) {
+                    glVertex2f(_playerWidth, 0);
                 } else {
-                    glVertex2f(-this.playerWidth, 0);
+                    glVertex2f(-_playerWidth, 0);
                 }
             }
             glEnd();
@@ -485,11 +479,11 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         glPushMatrix();
         {
             glColor4f(1, 1, 1, 1);
-            glRotatef(shootAngle - 90, 0, 0, 1);
+            glRotatef(_shootAngle - 90, 0, 0, 1);
             glBegin(GL_LINES);
             {
                 glVertex2f(0, 0);
-                glVertex2f(this.playerWidth * 30, 0);
+                glVertex2f(_playerWidth * 30, 0);
             }
             glEnd();
         }
@@ -528,7 +522,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
                     glVertex2f(0, -4);
                     glVertex2f(0, +4);
 
-                    int maxHealth = Math.min(100, this.health);
+                    int maxHealth = Math.min(100, health);
                     maxHealth = Math.max(0, maxHealth);
 
                     float percent = (float) maxHealth / 100f;
@@ -560,19 +554,19 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     public void setMovement(boolean... args) {
         for (int i = 0; i < args.length; i++) {
-            this.movement[i] = args[i];
+            _movement[i] = args[i];
         }
     }
 
     public int addHealth(int health) {
-        this.health += health;
-        this.health = Math.max(0, this.health);
-        this.health = Math.min(250, this.health);
-        return this.health;
+        health += health;
+        health = Math.max(0, health);
+        health = Math.min(250, health);
+        return health;
     }
 
     public void setHealth(int health) {
-        this.health = health;
+        health = health;
     }
 
     public int getHealth() {
@@ -584,11 +578,11 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             return;
         }
 
-        this.currentWeapon = clazz;
+        currentWeapon = clazz;
     }
 
     public String getCurrentWeaponName() {
-        return this.currentWeapon.getSimpleName().replaceAll("Entity", "");
+        return currentWeapon.getSimpleName().replaceAll("Entity", "");
     }
 
     public Class<? extends EntityWeapon> getCurrentWeaponClass() {
@@ -603,25 +597,25 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     @Override
     public Vector2f getPosition() {
-        return this.position;
+        return _position;
     }
 
     @Override
     public Vector2f getVelocity() {
-        return this.velocity;
+        return _velocity;
     }
 
     @Override
     public void setPosition(Vector2f position) {
-        this.position.set(position.getX(), position.getY());
+        _position.set(position.getX(), position.getY());
     }
 
     @Override
     public void setVelocity(Vector2f velocity) {
-        this.velocity.set(velocity.getX(), velocity.getY());
+        _velocity.set(velocity.getX(), velocity.getY());
     }
 
     public void addVelocity(Vector2f toVector) {
-        this.velocity.set(this.velocity.getX() + toVector.getX(), this.velocity.getY() + toVector.getY());
+        _velocity.set(_velocity.getX() + toVector.getX(), _velocity.getY() + toVector.getY());
     }
 }

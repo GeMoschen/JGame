@@ -1,63 +1,66 @@
 package de.gemo.game.terrain.world;
 
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
+import de.gemo.game.terrain.entities.IRenderObject;
+import de.gemo.game.terrain.utils.BufferedTexture;
+import de.gemo.game.terrain.utils.TerrainType;
+import de.gemo.game.terrain.utils.TexData;
+import de.gemo.game.terrain.world.generators.AbstractWorldGenerator;
+import de.gemo.game.terrain.world.generators.StandardWorldGenerator;
+import de.gemo.gameengine.units.Vector2f;
 
-import de.gemo.game.terrain.entities.*;
-import de.gemo.game.terrain.utils.*;
-import de.gemo.game.terrain.world.generators.*;
-import de.gemo.gameengine.units.*;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class World implements IRenderObject {
 
-    private int width, height;
+    private int _width, _height;
 
-    private boolean[][] terrainData;
-    private TexData texTerrain, texGrass, texBackground;
+    private boolean[][] _terrainData;
+    private TexData _texTerrain, _texGrass, _texBackground;
 
-    private int craterR = 152, craterG = 113, craterB = 82;
-    private BufferedTexture terrainTexture;
-    private AbstractWorldGenerator generator;
+    private int _craterR = 152, _craterG = 113, _craterB = 82;
+    private BufferedTexture _terrainTexture;
+    private AbstractWorldGenerator _worldGenerator;
 
     public World(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.createWorld(width, height);
+        _width = width;
+        _height = height;
+        createWorld(width, height);
     }
 
     public void createWorld(int width, int height) {
         try {
-            this.texTerrain = new TexData("resources/terrain/wood_terrain.jpg");
-            this.texBackground = new TexData("resources/terrainBackgrounds/background_wood.jpg");
-            this.texGrass = new TexData("resources/grasses/wood.png");
+            _texTerrain = new TexData("resources/terrain/wood_terrain.jpg");
+            _texBackground = new TexData("resources/terrainBackgrounds/background_wood.jpg");
+            _texGrass = new TexData("resources/grasses/wood.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        this.generator = new StandardWorldGenerator(this.getWidth(), this.getHeight());
-        this.terrainTexture = new BufferedTexture(this.getWidth(), this.getHeight());
-        this.terrainData = generator.generate();
-        this.paintTerrain();
-        this.createFX();
-        this.createBridge();
-        this.terrainTexture.update();
+        _worldGenerator = new StandardWorldGenerator(getWidth(), getHeight());
+        _terrainTexture = new BufferedTexture(getWidth(), getHeight());
+        _terrainData = _worldGenerator.generate();
+        paintTerrain();
+        createFX();
+        createBridge();
+        _terrainTexture.update();
     }
 
     private void createBridge() {
-        BridgeCreator.generate(this.terrainData, this.terrainTexture, this.width / 2, 800);
+        BridgeCreator.generate(_terrainData, _terrainTexture, _width / 2, 800);
     }
 
     private void paintTerrain() {
-        for (int y = 0; y < this.getHeight(); y++) {
-            for (int x = 0; x < this.getWidth(); x++) {
-                if (this.terrainData[x][y]) {
-                    this.terrainTexture.setPixel(x, y, this.texTerrain.getR(x, y), this.texTerrain.getG(x, y), this.texTerrain.getB(x, y), 255);
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                if (_terrainData[x][y]) {
+                    _terrainTexture.setPixel(x, y, _texTerrain.getR(x, y), _texTerrain.getG(x, y), _texTerrain.getB(x, y), 255);
                 } else {
-                    this.terrainTexture.clearPixel(x, y);
+                    _terrainTexture.clearPixel(x, y);
                 }
             }
         }
@@ -68,19 +71,19 @@ public class World implements IRenderObject {
         List<Point> left3D = new ArrayList<Point>();
         List<Point> right3D = new ArrayList<Point>();
 
-        for (int y = this.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < this.getWidth(); x++) {
-                boolean placeGrass_1 = !this.isPixelSolid(x, y - 1) && this.isPixelSolid(x, y);
+        for (int y = getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < getWidth(); x++) {
+                boolean placeGrass_1 = !isPixelSolid(x, y - 1) && isPixelSolid(x, y);
                 if (placeGrass_1) {
                     grassList.add(new Point(x, y));
                 }
 
-                boolean threeDEffectRight = (this.isPixelSolid(x, y) && !this.isPixelSolid(x + 1, y));
+                boolean threeDEffectRight = (isPixelSolid(x, y) && !isPixelSolid(x + 1, y));
                 if (threeDEffectRight) {
                     right3D.add(new Point(x, y));
                 }
 
-                boolean threeDEffectLeft = (this.isPixelSolid(x, y) && !this.isPixelSolid(x - 1, y));
+                boolean threeDEffectLeft = (isPixelSolid(x, y) && !isPixelSolid(x - 1, y));
                 if (threeDEffectLeft) {
                     left3D.add(new Point(x, y));
                 }
@@ -92,17 +95,17 @@ public class World implements IRenderObject {
             int x = point.x;
             int y = point.y;
             for (int offX = 0; offX < 11; offX++) {
-                if (x - offX < 0 || x - offX >= this.terrainData.length || !this.terrainData[x - offX][y]) {
+                if (x - offX < 0 || x - offX >= _terrainData.length || !_terrainData[x - offX][y]) {
                     continue;
                 }
-                int r = this.terrainTexture.getR(x - offX, y);
-                int g = this.terrainTexture.getG(x - offX, y);
-                int b = this.terrainTexture.getB(x - offX, y);
+                int r = _terrainTexture.getR(x - offX, y);
+                int g = _terrainTexture.getG(x - offX, y);
+                int b = _terrainTexture.getB(x - offX, y);
                 float alpha = 0.8f - ((float) offX * 0.08f);
-                r = this.getBlendedValue(r, 10 + offX * 10, alpha);
-                g = this.getBlendedValue(g, 10 + offX * 10, alpha);
-                b = this.getBlendedValue(b, 10 + offX * 10, alpha);
-                this.terrainTexture.setPixel(x - offX, y, r, g, b, 255);
+                r = getBlendedValue(r, 10 + offX * 10, alpha);
+                g = getBlendedValue(g, 10 + offX * 10, alpha);
+                b = getBlendedValue(b, 10 + offX * 10, alpha);
+                _terrainTexture.setPixel(x - offX, y, r, g, b, 255);
             }
         }
 
@@ -111,17 +114,17 @@ public class World implements IRenderObject {
             int x = point.x;
             int y = point.y;
             for (int offX = 0; offX < 6; offX++) {
-                if (x + offX < 0 || x + offX >= this.terrainData.length || !this.terrainData[x + offX][y]) {
+                if (x + offX < 0 || x + offX >= _terrainData.length || !_terrainData[x + offX][y]) {
                     continue;
                 }
-                int r = this.terrainTexture.getR(x + offX, y);
-                int g = this.terrainTexture.getG(x + offX, y);
-                int b = this.terrainTexture.getB(x + offX, y);
+                int r = _terrainTexture.getR(x + offX, y);
+                int g = _terrainTexture.getG(x + offX, y);
+                int b = _terrainTexture.getB(x + offX, y);
                 float alpha = 0.8f - ((float) offX * 0.1f);
-                r = this.getBlendedValue(r, 55 + offX * 10, alpha);
-                g = this.getBlendedValue(g, 55 + offX * 10, alpha);
-                b = this.getBlendedValue(b, 55 + offX * 10, alpha);
-                this.terrainTexture.setPixel(x + offX, y, r, g, b, 255);
+                r = getBlendedValue(r, 55 + offX * 10, alpha);
+                g = getBlendedValue(g, 55 + offX * 10, alpha);
+                b = getBlendedValue(b, 55 + offX * 10, alpha);
+                _terrainTexture.setPixel(x + offX, y, r, g, b, 255);
             }
         }
 
@@ -129,55 +132,55 @@ public class World implements IRenderObject {
         for (Point point : grassList) {
             int x = point.x;
             int y = point.y;
-            for (int offY = 0; offY < this.texGrass.getHeight(); offY++) {
-                if (!this.texGrass.isFuchsia(x, offY)) {
+            for (int offY = 0; offY < _texGrass.getHeight(); offY++) {
+                if (!_texGrass.isFuchsia(x, offY)) {
                     int newY = y + offY - 8;
-                    if (newY < 0 || newY >= this.height) {
+                    if (newY < 0 || newY >= _height) {
                         continue;
                     }
-                    this.terrainData[x][y + offY - 8] = true;
-                    this.terrainTexture.setPixel(x, y + offY - 8, this.texGrass.getR(x, offY), this.texGrass.getG(x, offY), this.texGrass.getB(x, offY), 255);
+                    _terrainData[x][y + offY - 8] = true;
+                    _terrainTexture.setPixel(x, y + offY - 8, _texGrass.getR(x, offY), _texGrass.getG(x, offY), _texGrass.getB(x, offY), 255);
                 }
             }
         }
     }
 
     public void explode(float midX, float midY, int radius) {
-        this.explode(midX, midY, radius, 0);
+        explode(midX, midY, radius, 0);
     }
 
     public void explode(int midX, int midY, int radius) {
-        this.explode(midX, midY, radius, 0);
+        explode(midX, midY, radius, 0);
     }
 
     public void explode(float midX, float midY, int radius, int airRadius) {
-        this.explode((int) midX, (int) midY, radius, airRadius);
+        explode((int) midX, (int) midY, radius, airRadius);
     }
 
     public void explode(int midX, int midY, int radius, int airRadius) {
         // crater
-        this.fillCircle(midX, midY, radius, 7, TerrainType.CRATER);
+        fillCircle(midX, midY, radius, 7, TerrainType.CRATER);
 
         // background
-        this.fillCircle(midX, midY, radius - 7, radius - 7, TerrainType.BACKGROUND);
+        fillCircle(midX, midY, radius - 7, radius - 7, TerrainType.BACKGROUND);
 
         // air
         if (airRadius > 0) {
-            this.fillCircle(midX, midY, airRadius, airRadius, TerrainType.AIR);
+            fillCircle(midX, midY, airRadius, airRadius, TerrainType.AIR);
         }
 
         // updatePosition texture
         int leftX = midX - radius - 1;
         int topY = midY - radius - 1;
-        this.terrainTexture.updatePartial(leftX, topY, radius * 2 + 2, radius * 2 + 2);
+        _terrainTexture.updatePartial(leftX, topY, radius * 2 + 2, radius * 2 + 2);
     }
 
     public boolean isOutOfEntityBounds(Vector2f vector) {
-        return this.isOutOfEntityBounds(vector.getX(), vector.getY());
+        return isOutOfEntityBounds(vector.getX(), vector.getY());
     }
 
     public boolean isOutOfEntityBounds(float x, float y) {
-        return x < -50 || x > this.width + 50 || y > this.getHeight() + 50;
+        return x < -50 || x > _width + 50 || y > getHeight() + 50;
     }
 
     private void fillCircle(int midX, int midY, int radius, int wallThickness, TerrainType terrainType) {
@@ -196,24 +199,24 @@ public class World implements IRenderObject {
                     int newX = midX + x;
                     int newY = midY + y;
 
-                    if (newX < 0 || newY < 0 || newX >= this.width || newY >= this.height) {
+                    if (newX < 0 || newY < 0 || newX >= _width || newY >= _height) {
                         continue;
                     }
 
                     if (terrainType.equals(TerrainType.AIR)) {
                         // air
-                        this.terrainTexture.clearPixel(newX, newY);
-                        this.terrainData[newX][newY] = false;
+                        _terrainTexture.clearPixel(newX, newY);
+                        _terrainData[newX][newY] = false;
                     } else if (terrainType.equals(TerrainType.CRATER)) {
                         // crater
-                        if (this.terrainData[newX][newY]) {
-                            this.terrainTexture.setPixel(newX, newY, craterR, craterG, craterB, 255);
+                        if (_terrainData[newX][newY]) {
+                            _terrainTexture.setPixel(newX, newY, _craterR, _craterG, _craterB, 255);
                         }
                     } else if (terrainType.equals(TerrainType.BACKGROUND)) {
                         // background
-                        if (this.terrainData[newX][newY]) {
-                            this.terrainTexture.setPixel(newX, newY, this.texBackground.getR(newX, newY), this.texBackground.getG(newX, newY), this.texBackground.getB(newX, newY), 255);
-                            this.terrainData[newX][newY] = false;
+                        if (_terrainData[newX][newY]) {
+                            _terrainTexture.setPixel(newX, newY, _texBackground.getR(newX, newY), _texBackground.getG(newX, newY), _texBackground.getB(newX, newY), 255);
+                            _terrainData[newX][newY] = false;
                         }
                     }
 
@@ -223,12 +226,12 @@ public class World implements IRenderObject {
     }
 
     public boolean isPixelSolid(int x, int y) {
-        return this.isPixelSolid(x, y, true);
+        return isPixelSolid(x, y, true);
     }
 
     public boolean isUnderFreeSky(int x, int y) {
         for (int thisY = y - 1; thisY >= 0; thisY--) {
-            if (this.isPixelSolid(x, thisY)) {
+            if (isPixelSolid(x, thisY)) {
                 return false;
             }
         }
@@ -236,8 +239,8 @@ public class World implements IRenderObject {
     }
 
     public boolean isPixelSolid(int x, int y, boolean defaultValue) {
-        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return this.terrainData[x][y];
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            return _terrainData[x][y];
         } else {
             return defaultValue;
         }
@@ -248,7 +251,7 @@ public class World implements IRenderObject {
         int normalSize = 5;
         for (int i = -normalSize; i <= normalSize; i++) {
             for (int j = -normalSize; j <= normalSize; j++) {
-                if (this.isPixelSolid(x + i, y + j)) {
+                if (isPixelSolid(x + i, y + j)) {
                     Vector2f.sub(average, new Vector2f(i, j), average);
                 }
             }
@@ -269,35 +272,35 @@ public class World implements IRenderObject {
         glColor4f(1, 1, 1, 1);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
-        this.renderTexture();
+        renderTexture();
     }
 
     private void renderTexture() {
-        this.terrainTexture.bind();
+        _terrainTexture.bind();
         glBegin(GL_QUADS);
         {
             glTexCoord2f(0, 0);
             glVertex3i(0, 0, -1);
 
             glTexCoord2f(1, 0);
-            glVertex3i(this.getWidth(), 0, -1);
+            glVertex3i(getWidth(), 0, -1);
 
             glTexCoord2f(1, 1);
-            glVertex3i(this.getWidth(), this.getHeight(), -1);
+            glVertex3i(getWidth(), getHeight(), -1);
 
             glTexCoord2f(0, 1);
-            glVertex3i(0, this.getHeight(), -1);
+            glVertex3i(0, getHeight(), -1);
         }
         glEnd();
-        this.terrainTexture.unbind();
+        _terrainTexture.unbind();
     }
 
     public int getWidth() {
-        return this.width;
+        return _width;
     }
 
     public int getHeight() {
-        return this.height;
+        return _height;
     }
 
 }

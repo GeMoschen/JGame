@@ -19,11 +19,11 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityBazooka extends EntityWeapon {
 
-    private static SingleTexture texture = null;
+    private static SingleTexture TEXTURE = null;
 
     static {
         try {
-            texture = TextureManager.loadSingleTexture("resources/weapons/bazooka.png", GL_LINEAR);
+            TEXTURE = TextureManager.loadSingleTexture("resources/weapons/bazooka.png", GL_LINEAR);
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -36,12 +36,12 @@ public class EntityBazooka extends EntityWeapon {
     @Override
     protected void init(float angle, float power) {
         // construct velocity
-        this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * 16));
-        this.velocity.rotateAround(this.position, angle);
-        this.velocity = Vector2f.sub(this.velocity, this.position);
+        _velocity = Vector2f.add(_position, new Vector2f(0, -_maxPower * power * 16));
+        _velocity.rotateAround(_position, angle);
+        _velocity = Vector2f.sub(_velocity, _position);
 
         // get _angle
-        this.angle = this.position.getAngle(this.position.getX() + this.velocity.getX(), this.position.getY() + this.velocity.getY());
+        _angle = _position.getAngle(_position.getX() + _velocity.getX(), _position.getY() + _velocity.getY());
     }
 
     @Override
@@ -55,10 +55,10 @@ public class EntityBazooka extends EntityWeapon {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
 
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
-        glRotatef(this.angle - 180, 0, 0, 1);
+        glTranslatef(_position.getX(), _position.getY(), 0);
+        glRotatef(_angle - 180, 0, 0, 1);
         glTranslatef(3, 1, 0);
-        texture.render(1, 1, 1, 1);
+        TEXTURE.render(1, 1, 1, 1);
     }
 
     int i = 0;
@@ -67,44 +67,44 @@ public class EntityBazooka extends EntityWeapon {
     public void updatePhysics(int delta) {
         delta = 16;
         // get velocity
-        float vX = this.velocity.getX();
-        float vY = this.velocity.getY();
+        float vX = _velocity.getX();
+        float vY = _velocity.getY();
 
-        this.angle = this.position.getAngle(this.position.getX() + vX, this.position.getY() + vY);
+        _angle = _position.getAngle(_position.getX() + vX, _position.getY() + vY);
 
-        vY += (gravity * delta);
+        vY += (_gravity * delta);
         vX *= 0.999f;
         vY *= 0.999f;
 
-        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX), (int) (this.position.getY() + vY));
+        int[] raycast = raycast((int) _position.getX(), (int) _position.getY(), (int) (_position.getX() + vX), (int) (_position.getY() + vY));
         if (raycast == null) {
             // create clouds behind
             i++;
             // if (i == 0) {
-            Vector2f spawnPosition = this.position.clone();
+            Vector2f spawnPosition = _position.clone();
             spawnPosition.move(-vX / 6, -vY / 6);
-            new EntityCloud(this.world, spawnPosition);
+            new EntityCloud(_world, spawnPosition);
             i = 0;
             // }
 
             // advance position
-            this.position.move(vX, vY);
+            _position.move(vX, vY);
 
             // handle out of bounds
-            if (this.world.isOutOfEntityBounds(this.position)) {
+            if (_world.isOutOfEntityBounds(_position)) {
                 RenderHandler.removeObject(this);
                 PhysicsHandler.removeObject(this);
             }
 
             // set velocity
-            this.velocity.set(vX, vY);
+            _velocity.set(vX, vY);
         } else {
 
             // updatePosition position
-            this.position.set(raycast[0], raycast[1]);
+            _position.set(raycast[0], raycast[1]);
 
             // explode
-            this.explode();
+            explode();
         }
     }
 
@@ -114,21 +114,21 @@ public class EntityBazooka extends EntityWeapon {
         PhysicsHandler.removeObject(this);
 
         // updatePosition world
-        this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius);
-        new EntityExplosion(this.world, this.position);
+        _world.explode(_position.getX(), _position.getY(), _blastRadius);
+        new EntityExplosion(_world, _position);
 
         // scan for players
-        List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);
+        List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(_position, _damageRadius);
         for (EntityPlayer player : players) {
             // get distance
-            float distance = (float) player.getPosition().distanceTo(this.position);
+            float distance = (float) player.getPosition().distanceTo(_position);
 
             // give damage to players
-            int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
+            int damage = (int) ((_maxDamage + 8) * (1 - (distance / _damageRadius)));
             player.addHealth(-damage);
 
             // add momentum
-            Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
+            Vector2f toVector = Vector2f.sub(player.getPosition(), _position);
             toVector = Vector2f.normalize(toVector);
             toVector.setY(toVector.getY() - 0.35f);
             toVector.setX(toVector.getX() * 5f);

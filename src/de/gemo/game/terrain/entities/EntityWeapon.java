@@ -8,34 +8,34 @@ import de.gemo.gameengine.units.*;
 
 public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
 
-    protected World world;
-    protected EntityPlayer owner;
+    protected World _world;
+    protected EntityPlayer _owner;
 
-    protected Vector2f position, velocity;
-    protected float angle = 0;
+    protected Vector2f _position, _velocity;
+    protected float _angle = 0;
 
-    protected float maxPower = 1.55f;
-    protected int maxDamage = 45;
-    protected int blastRadius = 60;
-    protected int damageRadius = blastRadius + 10;
-    protected float gravity = 0.009f;
+    protected float _maxPower = 1.55f;
+    protected int _maxDamage = 45;
+    protected int _blastRadius = 60;
+    protected int _damageRadius = _blastRadius + 10;
+    protected float _gravity = 0.009f;
 
     public EntityWeapon(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
-        this.world = world;
-        this.owner = owner;
-        this.position = position.clone();
+        _world = world;
+        _owner = owner;
+        _position = position.clone();
 
-        this.velocity = new Vector2f();
-        this.angle = 0;
+        _velocity = new Vector2f();
+        _angle = 0;
 
-        this.init(angle, power);
+        init(angle, power);
 
         // add to handler
         PhysicsHandler.addObject(this);
         RenderHandler.addObject(this);
     }
 
-    public static final EntityWeapon fire(Class<? extends EntityWeapon> clazz, World world, EntityPlayer owner, Vector2f position, float angle, float power) {
+    public static EntityWeapon fire(Class<? extends EntityWeapon> clazz, World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         // check for null
         if (clazz == null) {
             return null;
@@ -84,7 +84,7 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
         }
         int numerator = longest >> 1;
         for (int i = 0; i <= longest; i++) {
-            if (this.world.isPixelSolid(x, y, false)) {
+            if (_world.isPixelSolid(x, y, false)) {
                 int[] result = new int[2];
                 result[0] = x;
                 result[1] = y;
@@ -111,21 +111,21 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
 
     @Override
     public Vector2f getPosition() {
-        return this.position;
+        return _position;
     }
 
     @Override
     public Vector2f getVelocity() {
-        return this.velocity;
+        return _velocity;
     }
 
     @Override
     public void setPosition(Vector2f position) {
-        this.position.set(position.getX(), position.getY());
+        _position.set(position.getX(), position.getY());
     }
 
     @Override
     public void setVelocity(Vector2f velocity) {
-        this.velocity.set(velocity.getX(), velocity.getY());
+        _velocity.set(velocity.getX(), velocity.getY());
     }
 }

@@ -4,47 +4,47 @@ import de.gemo.game.terrain.utils.*;
 
 public abstract class AbstractWorldGenerator {
 
-    private final int width, height;
-    protected final TerrainSettings terrainSettings;
+    private final int _width, _height;
+    protected final TerrainSettings _terrainSettings;
 
     public AbstractWorldGenerator(TerrainSettings terrainSettings, int width, int height) {
-        this.terrainSettings = terrainSettings;
-        this.width = width;
-        this.height = height;
+        _terrainSettings = terrainSettings;
+        _width = width;
+        _height = height;
     }
 
     protected int getBufferPosition(int x, int y) {
-        if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
-            return (y * this.getWidth() + x) * CONSTANTS.BYTES_PER_PIXEL;
+        if (x >= 0 && y >= 0 && x < getWidth() && y < getHeight()) {
+            return (y * getWidth() + x) * CONSTANTS.BYTES_PER_PIXEL;
         } else {
             return 0;
         }
     }
 
     protected int getHeight() {
-        return height;
+        return _height;
     }
 
     protected int getWidth() {
-        return width;
+        return _width;
     }
 
     public TerrainSettings getTerrainSettings() {
-        return terrainSettings;
+        return _terrainSettings;
     }
 
     public final boolean[][] generate() {
-        return this.createPerlinWorld();
+        return createPerlinWorld();
     }
 
     public final boolean[][] generate(long seed) {
-        this.terrainSettings.setSeed(seed);
-        return this.generate();
+        _terrainSettings.setSeed(seed);
+        return generate();
     }
 
     public final boolean[][] generate(String seed) {
-        this.terrainSettings.setSeed(seed);
-        return this.generate();
+        _terrainSettings.setSeed(seed);
+        return generate();
     }
 
     protected abstract boolean[][] createPerlinWorld();

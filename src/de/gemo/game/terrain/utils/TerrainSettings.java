@@ -1,12 +1,12 @@
 package de.gemo.game.terrain.utils;
 
-import java.util.*;
+import java.util.Random;
 
 public class TerrainSettings {
-    private float frequencyX = 0.0025f, frequencyY = 0.005f;
-    private float offsetX, offsetY;
-
-    private float lowerCutOff = 0.35f, upperCutOff = 1.6f;
+    
+    private float _frequencyX = 0.0025f, _frequencyY = 0.005f;
+    private float _lowerCutOff = 0.35f, _upperCutOff = 1.6f;
+    private float _offsetX, _offsetY;
 
     public TerrainSettings(long seed) {
         setSeed(seed);
@@ -23,37 +23,37 @@ public class TerrainSettings {
     public void setSeed(long seed) {
         Random random = new Random(seed);
         final int seedMagic = 5000;
-        this.offsetX = random.nextFloat() * (random.nextFloat() * seedMagic);// / (random.nextFloat() * seedMagic) * (random.nextFloat() * 800 / frequencyX);
-        this.offsetY = random.nextFloat() * (random.nextFloat() * seedMagic);//  / (random.nextFloat() * seedMagic)* (random.nextFloat() * 800 / frequencyY);
-        System.out.println(offsetX + " / " + offsetY);
+        _offsetX = random.nextFloat() * (random.nextFloat() * seedMagic);// / (random.nextFloat() * seedMagic) * (random.nextFloat() * 800 / frequencyX);
+        _offsetY = random.nextFloat() * (random.nextFloat() * seedMagic);//  / (random.nextFloat() * seedMagic)* (random.nextFloat() * 800 / frequencyY);
+        System.out.println(_offsetX + " / " + _offsetY);
     }
 
     public void setSeed(String seed) {
-        this.setSeed(seed.hashCode());
+        setSeed(seed.hashCode());
     }
 
     public float getFrequencyX() {
-        return frequencyX;
+        return _frequencyX;
     }
 
     public float getFrequencyY() {
-        return frequencyY;
+        return _frequencyY;
     }
 
     public float getOffsetX() {
-        return offsetX;
+        return _offsetX;
     }
 
     public float getOffsetY() {
-        return offsetY;
+        return _offsetY;
     }
 
     public float getLowerCutOff() {
-        return lowerCutOff;
+        return _lowerCutOff;
     }
 
     public float getUpperCutOff() {
-        return upperCutOff;
+        return _upperCutOff;
     }
 
 }

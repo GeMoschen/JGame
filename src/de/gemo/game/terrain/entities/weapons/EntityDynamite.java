@@ -15,7 +15,6 @@ import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.TextureImpl;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -24,38 +23,36 @@ import static org.lwjgl.opengl.GL11.*;
 public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, WeaponDirectShoot {
 
     public static int TIMER = 5;
+    private static SingleTexture TEXTURE = null;
 
-    private static SingleTexture texture = null;
-    private long startTime;
-    private int ticksToLive;
+    private long _startTime;
+    private int _ticksToLive;
 
     static {
         try {
-            texture = TextureManager.loadSingleTexture("resources/weapons/dynamite.png");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            TEXTURE = TextureManager.loadSingleTexture("resources/weapons/dynamite.png");
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
     public EntityDynamite(World world, EntityPlayer owner, Vector2f position, float angle, float power) {
         super(world, owner, position, angle, power);
-        this.startTime = System.currentTimeMillis();
-        this.ticksToLive = TIMER * GameEngine.$.getTicksPerSecond();
+        _startTime = System.currentTimeMillis();
+        _ticksToLive = TIMER * GameEngine.$.getTicksPerSecond();
     }
 
     @Override
     protected void init(float angle, float power) {
-        this.maxDamage = 65;
-        this.gravity = 0.015f;
-        this.maxPower = 0.1f;
-        this.blastRadius = 100;
+        _maxDamage = 65;
+        _gravity = 0.015f;
+        _maxPower = 0.1f;
+        _blastRadius = 100;
 
         // construct velocity
-        this.velocity = Vector2f.add(this.position, new Vector2f(0, -maxPower * power * 16));
-        this.velocity.rotateAround(this.position, angle);
-        this.velocity = Vector2f.sub(this.velocity, this.position);
+        _velocity = Vector2f.add(_position, new Vector2f(0, -_maxPower * power * 16));
+        _velocity.rotateAround(_position, angle);
+        _velocity = Vector2f.sub(_velocity, _position);
     }
 
     @Override
@@ -65,7 +62,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
 
     @Override
     public void render() {
-        glTranslatef(this.position.getX(), this.position.getY(), 0);
+        glTranslatef(_position.getX(), _position.getY(), 0);
 
         glPushMatrix();
         {
@@ -86,7 +83,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
         glPushMatrix();
         {
             glTranslatef(1, 0, 0);
-            texture.render(1, 1, 1, 1);
+            TEXTURE.render(1, 1, 1, 1);
         }
         glPopMatrix();
 
@@ -97,7 +94,7 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             glEnable(GL_TEXTURE_2D);
             TextureImpl.bindNone();
 
-            int timeLeft = TIMER - (int) ((System.currentTimeMillis() - this.startTime) / 1000f);
+            int timeLeft = TIMER - (int) ((System.currentTimeMillis() - _startTime) / 1000f);
             if (timeLeft > 0) {
                 TrueTypeFont font = FontManager.getStandardFont(12, Font.BOLD);
                 glTranslatef(-font.getWidth("" + timeLeft) / 2, -24, 0);
@@ -109,18 +106,18 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
 
     @Override
     public void updatePhysics(int delta) {
-        if (this.ticksToLive < 1) {
-            this.explode();
+        if (_ticksToLive < 1) {
+            explode();
             return;
         }
-        this.ticksToLive--;
+        _ticksToLive--;
 
         delta = 16;
         // get velocity
-        float vX = this.velocity.getX();
-        float vY = this.velocity.getY();
+        float vX = _velocity.getX();
+        float vY = _velocity.getY();
 
-        vY += (gravity * delta);
+        vY += (_gravity * delta);
         vX *= 0.999f;
         vY *= 0.999f;
 
@@ -139,30 +136,30 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             signumY = +1;
         }
 
-        int[] raycast = this.raycast((int) this.position.getX(), (int) this.position.getY(), (int) (this.position.getX() + vX + 15 * signumX), (int) (this.position.getY() + vY + 15 * signumY));
+        int[] raycast = raycast((int) _position.getX(), (int) _position.getY(), (int) (_position.getX() + vX + 15 * signumX), (int) (_position.getY() + vY + 15 * signumY));
         if (raycast == null) {
             // advance position
-            this.position.move(vX, vY);
+            _position.move(vX, vY);
 
             // handle out of bounds
-            if (this.world.isOutOfEntityBounds(this.position)) {
+            if (_world.isOutOfEntityBounds(_position)) {
                 RenderHandler.removeObject(this);
                 PhysicsHandler.removeObject(this);
             }
 
             // set velocity
-            this.velocity.set(vX, vY);
+            _velocity.set(vX, vY);
 
-            this.angle = this.position.getAngle(this.position.getX() + vX, this.position.getY() + vY);
+            _angle = _position.getAngle(_position.getX() + vX, _position.getY() + vY);
         } else {
             // get normal
-            Vector2f normal = this.world.getNormal(raycast[0], raycast[1]);
-            float f = 2F * (this.velocity.getX() * normal.getX() + this.velocity.getY() * normal.getY());
-            this.velocity.move(-normal.getX() * f, -normal.getY() * f);
+            Vector2f normal = _world.getNormal(raycast[0], raycast[1]);
+            float f = 2F * (_velocity.getX() * normal.getX() + _velocity.getY() * normal.getY());
+            _velocity.move(-normal.getX() * f, -normal.getY() * f);
 
             // friction bounciness
             float bounceFriction = 0.2f;
-            this.velocity.set(this.velocity.getX() * bounceFriction, this.velocity.getY() * bounceFriction);
+            _velocity.set(_velocity.getX() * bounceFriction, _velocity.getY() * bounceFriction);
             return;
         }
     }
@@ -173,21 +170,21 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
         PhysicsHandler.removeObject(this);
 
         // explode
-        this.world.explode(this.position.getX(), this.position.getY(), this.blastRadius, this.blastRadius - 25);
-        new EntityExplosion(this.world, this.position);
+        _world.explode(_position.getX(), _position.getY(), _blastRadius, _blastRadius - 25);
+        new EntityExplosion(_world, _position);
 
         // scan for players
-        List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(this.position, this.damageRadius);
+        List<EntityPlayer> players = PlayerHandler.getPlayersInRadius(_position, _damageRadius);
         for (EntityPlayer player : players) {
             // get distance
-            float distance = (float) player.getPosition().distanceTo(this.position);
+            float distance = (float) player.getPosition().distanceTo(_position);
 
             // give damage to players
-            int damage = (int) ((this.maxDamage + 8) * (1 - (distance / this.damageRadius)));
+            int damage = (int) ((_maxDamage + 8) * (1 - (distance / _damageRadius)));
             player.addHealth(-damage);
 
             // add momentum
-            Vector2f toVector = Vector2f.sub(player.getPosition(), this.position);
+            Vector2f toVector = Vector2f.sub(player.getPosition(), _position);
             toVector = Vector2f.normalize(toVector);
             toVector.setY(toVector.getY() - 0.7f);
             toVector.setX(toVector.getX() * 5.5f);

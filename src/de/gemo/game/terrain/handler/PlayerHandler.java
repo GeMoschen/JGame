@@ -7,34 +7,34 @@ import de.gemo.gameengine.units.*;
 
 public class PlayerHandler {
 
-    private static PlayerHandler handler;
+    private static PlayerHandler HANDLER;
 
-    private List<EntityPlayer> playerList = new ArrayList<EntityPlayer>();
+    private List<EntityPlayer> _players = new ArrayList<EntityPlayer>();
 
     public PlayerHandler() {
-        handler = this;
+        HANDLER = this;
     }
 
     public static void addPlayer(EntityPlayer object) {
-        handler.add(object);
+        HANDLER.add(object);
     }
 
     public static void removePlayer(EntityPlayer object) {
-        handler.remove(object);
+        HANDLER.remove(object);
     }
 
     public static List<EntityPlayer> getPlayersInRadius(Vector2f center, int radius) {
-        return handler.getPlayersInRange(center, radius);
+        return HANDLER.getPlayersInRange(center, radius);
     }
 
     public void add(EntityPlayer object) {
-        this.playerList.add(object);
+        _players.add(object);
     }
 
     public void remove(EntityPlayer object) {
-        for (int i = 0; i < this.playerList.size(); i++) {
-            if (this.playerList.get(i) == object) {
-                this.playerList.remove(i);
+        for (int i = 0; i < _players.size(); i++) {
+            if (_players.get(i) == object) {
+                _players.remove(i);
                 return;
             }
         }
@@ -42,7 +42,7 @@ public class PlayerHandler {
 
     public List<EntityPlayer> getPlayersInRange(Vector2f center, int radius) {
         List<EntityPlayer> list = new ArrayList<EntityPlayer>();
-        for (EntityPlayer player : this.playerList) {
+        for (EntityPlayer player : _players) {
             if (center.distanceTo(player.getPosition()) <= radius) {
                 list.add(player);
             }

@@ -33,16 +33,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class TerrainCore extends GameEngine {
 
-    private Vector2f offset = new Vector2f();
-    private EntityPlayer player;
-    private PhysicsHandler physicsHandler;
-    private RenderHandler renderHandler;
-    private PlayerHandler playerHandler;
+    private Vector2f _screenOffset = new Vector2f();
+    private EntityPlayer _currentPlayer;
+    private PhysicsHandler _physicsHandler;
+    private RenderHandler _renderHandler;
+    private PlayerHandler _playerHandler;
 
-    private World world;
-    private float scale = 1f;
+    private World _world;
+    private float _scale = 1f;
 
-    private long lastTickTime = System.currentTimeMillis();
+    private long _lastTickTime = System.currentTimeMillis();
     private SingleTexture _backgroundTexture;
 
     public TerrainCore(String windowTitle, int windowWidth, int windowHeight, boolean fullscreen) {
@@ -51,14 +51,14 @@ public class TerrainCore extends GameEngine {
 
     @Override
     protected void createManager() {
-        this.world = new World(2048, 1024);
-        this.physicsHandler = new PhysicsHandler();
-        this.renderHandler = new RenderHandler();
-        this.playerHandler = new PlayerHandler();
-        this.player = new EntityPlayer(this.world, 500, 100);
-        this.physicsHandler.add(this.player);
-        this.renderHandler.add(this.world);
-        this.renderHandler.add(this.player);
+        _world = new World(getWindowWidth() * 2, getWindowHeight());
+        _physicsHandler = new PhysicsHandler();
+        _renderHandler = new RenderHandler();
+        _playerHandler = new PlayerHandler();
+        _currentPlayer = new EntityPlayer(_world, 500, 100);
+        _physicsHandler.add(_currentPlayer);
+        _renderHandler.add(_world);
+        _renderHandler.add(_currentPlayer);
         try {
             _backgroundTexture = TextureManager.loadSingleTexture("resources/background_speedy.jpg");
         } catch (IOException e) {
@@ -86,22 +86,22 @@ public class TerrainCore extends GameEngine {
 
         glPushMatrix();
         {
-            float currentScale = this.scale;
+            float currentScale = _scale;
             final EntityWeapon currentBullet = RenderHandler.CURRENT_BULLET;
             if (currentBullet != null) {
                 final Vector2f position = currentBullet.getPosition();
-                final float correctY = position.getY() + world.getHeight() * 4;
-                final float factorY = Math.min(1.2f, (world.getHeight() / correctY) * 4);
+                final float correctY = position.getY() + _world.getHeight() * 4;
+                final float factorY = Math.min(1.2f, (_world.getHeight() / correctY) * 4);
 
-                currentScale += (scale - factorY) * 2;
+                currentScale += (_scale - factorY) * 2;
                 currentScale = Math.min(1.75f, Math.max(0.6f, currentScale));
                 glTranslatef(-position.getX() * currentScale + getWindowWidth() / 2, -position.getY() * currentScale + getWindowHeight() - getWindowHeight() / 2, 0);
             } else {
-                glTranslatef(offset.getX(), offset.getY(), 0);
+                glTranslatef(_screenOffset.getX(), _screenOffset.getY(), 0);
             }
             glScalef(currentScale, currentScale, 1);
             glColor4f(1, 1, 1, 1);
-            this.renderHandler.renderAll();
+            _renderHandler.renderAll();
         }
         glPopMatrix();
 
@@ -117,10 +117,10 @@ public class TerrainCore extends GameEngine {
             TrueTypeFont font = FontManager.getStandardFont();
 
             font.drawString(20, 20, "FPS: " + GameEngine.$.getDebugMonitor().getFPS());
-            font.drawString(20, 35, "Scale: " + this.scale);
+            font.drawString(20, 35, "Scale: " + _scale);
 
-            int midX = (int) ((MouseManager.$.getCurrentX() - (int) offset.getX()) * (1f / this.scale));
-            int midY = (int) ((MouseManager.$.getCurrentY() - (int) offset.getY()) * (1f / this.scale));
+            int midX = (int) ((MouseManager.$.getCurrentX() - (int) _screenOffset.getX()) * (1f / _scale));
+            int midY = (int) ((MouseManager.$.getCurrentY() - (int) _screenOffset.getY()) * (1f / _scale));
             font.drawString(20, 50, "Mouse: " + midX + " / " + midY);
 
             font.drawString(20, 80, "Controls");
@@ -134,21 +134,21 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
 
-            String text = this.player.getCurrentWeaponName();
-            if (EntityGrenade.class.equals(this.player.getCurrentWeaponClass())) {
+            String text = _currentPlayer.getCurrentWeaponName();
+            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 if (EntityGrenade.TIMER == 1) {
                     text += " ( " + EntityGrenade.TIMER + " second )";
                 } else {
                     text += " ( " + EntityGrenade.TIMER + " seconds )";
                 }
-            } else if (EntityDynamite.class.equals(this.player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 if (EntityDynamite.TIMER == 1) {
                     text += " ( " + EntityDynamite.TIMER + " second )";
                 } else {
                     text += " ( " + EntityDynamite.TIMER + " seconds )";
                 }
             }
-            FontManager.getStandardFont(16, Font.BOLD).drawString(20, this.VIEW_HEIGHT - 30, "Weapon: " + text);
+            FontManager.getStandardFont(16, Font.BOLD).drawString(20, VIEW_HEIGHT - 30, "Weapon: " + text);
             // font.drawString(20, 200, "__________________");
             // font.drawString(20, 215, "gravity +/-: a/y " + " ( " +
             // EntityBazooka.gravity + " )");
@@ -166,47 +166,47 @@ public class TerrainCore extends GameEngine {
         boolean up = KeyboardManager.$.isKeyDown(Keyboard.KEY_UP);
         boolean down = KeyboardManager.$.isKeyDown(Keyboard.KEY_DOWN);
         boolean space = KeyboardManager.$.isKeyDown(Keyboard.KEY_SPACE);
-        this.player.setMovement(left, right, up, down, space);
+        _currentPlayer.setMovement(left, right, up, down, space);
     }
 
     @Override
     public void onKeyPressed(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_W) {
-            this.player.jump();
+            _currentPlayer.jump();
         } else if (event.getKey() == Keyboard.KEY_1) {
-            this.player.setWeapon(EntityBazooka.class);
+            _currentPlayer.setWeapon(EntityBazooka.class);
         } else if (event.getKey() == Keyboard.KEY_2) {
-            this.player.setWeapon(EntityGrenade.class);
+            _currentPlayer.setWeapon(EntityGrenade.class);
         } else if (event.getKey() == Keyboard.KEY_3) {
-            this.player.setWeapon(EntityDynamite.class);
+            _currentPlayer.setWeapon(EntityDynamite.class);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD1 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 1;
-            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 1;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD2 && RenderHandler.CURRENT_BULLET == null) {
-            if (RenderHandler.CURRENT_BULLET == null && EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+            if (RenderHandler.CURRENT_BULLET == null && EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 2;
-            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 2;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD3 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 3;
-            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 3;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD4 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 4;
-            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 4;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD5 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(player.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 5;
-            } else if (EntityDynamite.class.equals(player.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 5;
             }
         } else {
@@ -217,7 +217,7 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onKeyHold(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_SPACE && RenderHandler.CURRENT_BULLET == null) {
-            this.player.shoot();
+            _currentPlayer.shoot();
         } else {
             super.onKeyPressed(event);
         }
@@ -226,11 +226,11 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F12) {
-            this.world.createWorld(this.world.getWidth(), this.world.getHeight());
-            this.player.setPosition(new Vector2f(500, 100));
-            this.player.setHealth(100);
+            _world.createWorld(_world.getWidth(), _world.getHeight());
+            _currentPlayer.setPosition(new Vector2f(500, 100));
+            _currentPlayer.setHealth(100);
         } else if (event.getKey() == Keyboard.KEY_SPACE) {
-            this.player.resetPower();
+            _currentPlayer.resetPower();
         } else {
             super.onKeyReleased(event);
         }
@@ -239,8 +239,8 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onMouseMove(boolean handled, MouseMoveEvent event) {
         if (MouseManager.$.isButtonDown(MouseButton.MIDDLE.getID()) && RenderHandler.CURRENT_BULLET == null) {
-            if (offset.getX() + event.getDifX() < this.VIEW_WIDTH / 2 && offset.getX() + event.getDifX() > -this.world.getWidth() + this.VIEW_WIDTH / 2) {
-                offset.move(event.getDifX(), event.getDifY());
+            if (_screenOffset.getX() + event.getDifX() < VIEW_WIDTH / 2 && _screenOffset.getX() + event.getDifX() > -_world.getWidth() + VIEW_WIDTH / 2) {
+                _screenOffset.move(event.getDifX(), event.getDifY());
             }
         }
     }
@@ -249,42 +249,42 @@ public class TerrainCore extends GameEngine {
     public void onMouseWheel(boolean handled, MouseWheelEvent event) {
         if (event.isUp()) {
             // calculate current _center
-            int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
-            int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
+            int midX = (int) (((VIEW_WIDTH / 2) - (int) _screenOffset.getX()) * (1f / _scale));
+            int midY = (int) (((VIEW_HEIGHT / 2) - (int) _screenOffset.getY()) * (1f / _scale));
 
             // scale
-            this.scale += 0.1f;
-            if (this.scale > 1.5f) {
-                this.scale = 1.5f;
+            _scale += 0.1f;
+            if (_scale > 1.5f) {
+                _scale = 1.5f;
             }
 
             // _center camera
-            this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
-            this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
+            _screenOffset.setX(-((midX * _scale) - (VIEW_WIDTH / 2f)));
+            _screenOffset.setY(-((midY * _scale) - (VIEW_HEIGHT / 2f)));
         } else {
             // calculate current _center
-            int midX = (int) (((this.VIEW_WIDTH / 2) - (int) offset.getX()) * (1f / this.scale));
-            int midY = (int) (((this.VIEW_HEIGHT / 2) - (int) offset.getY()) * (1f / this.scale));
+            int midX = (int) (((VIEW_WIDTH / 2) - (int) _screenOffset.getX()) * (1f / _scale));
+            int midY = (int) (((VIEW_HEIGHT / 2) - (int) _screenOffset.getY()) * (1f / _scale));
 
             // scale
-            this.scale -= 0.1f;
-            if (this.scale < 0.5f) {
-                this.scale = 0.5f;
+            _scale -= 0.1f;
+            if (_scale < 0.5f) {
+                _scale = 0.5f;
             }
 
             // _center camera
-            this.offset.setX(-((midX * scale) - (this.VIEW_WIDTH / 2f)));
-            this.offset.setY(-((midY * scale) - (this.VIEW_HEIGHT / 2f)));
+            _screenOffset.setX(-((midX * _scale) - (VIEW_WIDTH / 2f)));
+            _screenOffset.setY(-((midY * _scale) - (VIEW_HEIGHT / 2f)));
         }
     }
 
     @Override
     protected void tickGame(int delta) {
-        long timeSinceLastTick = System.currentTimeMillis() - this.lastTickTime;
+        long timeSinceLastTick = System.currentTimeMillis() - _lastTickTime;
         int timesToTick = (int) (timeSinceLastTick / GameEngine.$.getTickTime());
         for (int tick = 0; tick < timesToTick; tick++) {
-            this.physicsHandler.updateAll(delta);
+            _physicsHandler.updateAll(delta);
         }
-        this.lastTickTime = System.currentTimeMillis();
+        _lastTickTime = System.currentTimeMillis();
     }
 }

@@ -16,10 +16,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EntityExplosion implements IPhysicsObject, IRenderObject {
 
-    private final Animation _animation;
-    protected World world;
-    protected Vector2f position;
-
     private static Animation ANIMATION = null;
 
     static {
@@ -40,6 +36,10 @@ public class EntityExplosion implements IPhysicsObject, IRenderObject {
         }
     }
 
+    private final Animation _animation;
+    private World _world;
+    private Vector2f _position;
+
     public EntityExplosion(World world, Vector2f position) {
         _animation = ANIMATION.clone();
         _animation.setEndListener(new Runnable() {
@@ -50,8 +50,8 @@ public class EntityExplosion implements IPhysicsObject, IRenderObject {
                 RenderHandler.removeObject(EntityExplosion.this);
             }
         });
-        this.world = world;
-        this.position = position.clone();
+        _world = world;
+        _position = position.clone();
 
         // add to handler
         PhysicsHandler.addObject(this);
@@ -63,7 +63,7 @@ public class EntityExplosion implements IPhysicsObject, IRenderObject {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
-        glTranslatef(this.position.getX(), this.position.getY(), -1);
+        glTranslatef(_position.getX(), _position.getY(), -1);
         glScalef(0.5f, 0.5f, 1f);
         _animation.render(1, 1, 1, 1);
     }
@@ -81,7 +81,7 @@ public class EntityExplosion implements IPhysicsObject, IRenderObject {
 
     @Override
     public Vector2f getPosition() {
-        return this.position;
+        return _position;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class EntityExplosion implements IPhysicsObject, IRenderObject {
 
     @Override
     public void setPosition(Vector2f position) {
-        this.position.set(position.getX(), position.getY());
+        _position.set(position.getX(), position.getY());
     }
 
     @Override

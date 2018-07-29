@@ -3,7 +3,6 @@ package de.gemo.game.terrain.handler;
 import de.gemo.game.terrain.entities.EntityWeapon;
 import de.gemo.game.terrain.entities.IRenderObject;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -13,25 +12,24 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHandler {
 
-    private static RenderHandler handler;
-
-    private List<IRenderObject> objects = new ArrayList<IRenderObject>();
-
+    private static RenderHandler HANDLER;
     public static EntityWeapon CURRENT_BULLET = null;
 
+    private List<IRenderObject> _objects = new ArrayList<IRenderObject>();
+
     public RenderHandler() {
-        handler = this;
+        HANDLER = this;
     }
 
     public static void addObject(IRenderObject object) {
-        handler.add(object);
+        HANDLER.add(object);
         if (object instanceof EntityWeapon && ((EntityWeapon) object).cameraFollows() && CURRENT_BULLET == null) {
             CURRENT_BULLET = (EntityWeapon) object;
         }
     }
 
     public static void removeObject(IRenderObject object) {
-        handler.remove(object);
+        HANDLER.remove(object);
         if (object instanceof EntityWeapon && ((EntityWeapon) object).cameraFollows()) {
             final Timer timer = new Timer(true);
             final TimerTask timerTask = new TimerTask() {
@@ -45,13 +43,13 @@ public class RenderHandler {
     }
 
     public void add(IRenderObject object) {
-        this.objects.add(object);
+        _objects.add(object);
     }
 
     public void remove(IRenderObject object) {
-        for (int i = 0; i < this.objects.size(); i++) {
-            if (this.objects.get(i) == object) {
-                this.objects.remove(i);
+        for (int i = 0; i < _objects.size(); i++) {
+            if (_objects.get(i) == object) {
+                _objects.remove(i);
                 return;
             }
         }
@@ -59,10 +57,10 @@ public class RenderHandler {
 
     public void renderAll() {
         glEnable(GL_DEPTH_TEST);
-        for (int i = 0; i < this.objects.size(); i++) {
+        for (int i = 0; i < _objects.size(); i++) {
             glPushMatrix();
             {
-                this.objects.get(i).render();
+                _objects.get(i).render();
             }
             glPopMatrix();
         }
