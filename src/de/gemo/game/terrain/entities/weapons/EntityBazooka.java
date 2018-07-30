@@ -50,6 +50,16 @@ public class EntityBazooka extends EntityWeapon {
     }
 
     @Override
+    protected int getMinDamage() {
+        return 3;
+    }
+
+    @Override
+    protected int getMaxDamage() {
+        return 60;
+    }
+
+    @Override
     public void render() {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
@@ -124,7 +134,9 @@ public class EntityBazooka extends EntityWeapon {
             float distance = (float) player.getPosition().distanceTo(_position);
 
             // give damage to players
-            int damage = (int) ((_maxDamage + 8) * (1 - (distance / _damageRadius)));
+            int damage = (int) ((getMaxDamage()) * (1 - (distance / _damageRadius)));
+            damage = Math.max(damage, getMinDamage());
+            damage = Math.min(damage, getMaxDamage());
             player.addHealth(-damage);
 
             // add momentum

@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.handler;
 
+import de.gemo.game.terrain.core.TerrainCore;
 import de.gemo.game.terrain.entities.EntityWeapon;
 import de.gemo.game.terrain.entities.IRenderObject;
 
@@ -36,6 +37,7 @@ public class RenderHandler {
                 @Override
                 public void run() {
                     CURRENT_BULLET = null;
+                    TerrainCore.nextPlayer();
                 }
             };
             timer.schedule(timerTask, 1250);

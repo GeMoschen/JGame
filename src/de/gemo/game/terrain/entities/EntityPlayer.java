@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.entities;
 
+import de.gemo.game.terrain.core.TerrainCore;
 import de.gemo.game.terrain.entities.weapons.EntityBazooka;
 import de.gemo.game.terrain.handler.PlayerHandler;
 import de.gemo.game.terrain.world.World;
@@ -24,7 +25,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
     private static Animation ANIMATION_WALK = null;
     private static Animation ANIMATION_JUMP = null;
 
-    {
+    static {
         try {
             {
                 final SingleTexture singleTexture = TextureManager.loadSingleTexture("resources/worms/walk.png", GL_LINEAR);
@@ -47,9 +48,13 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
                 ANIMATION_JUMP = multiTexture.toAnimation();
             }
             CROSSHAIR = TextureManager.loadSingleTexture("resources/crosshair.png", GL_LINEAR);
-        } catch (final IOException e) {
+        } catch (
+                final IOException e)
+
+        {
             e.printStackTrace();
         }
+
     }
 
     private Animation _animation;
@@ -67,20 +72,22 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     private Class<? extends EntityWeapon> currentWeapon = EntityBazooka.class;
 
-    private int health = 100;
+    private int _health = 100;
+    private final int _teamId;
 
     private final static int LEFT = 0, RIGHT = 1, UP = 2, DOWN = 3, SPACE = 4;
 
-    public EntityPlayer(World world, Vector2f position) {
+    public EntityPlayer(World world, Vector2f position, int teamId) {
         _animation = ANIMATION_WALK.clone();
+        _teamId = teamId;
         _world = world;
         _position = position.clone();
         _velocity = new Vector2f(0, 0);
         PlayerHandler.addPlayer(this);
     }
 
-    public EntityPlayer(World world, float x, float y) {
-        this(world, new Vector2f(x, y));
+    public EntityPlayer(World world, float x, float y, int teamId) {
+        this(world, new Vector2f(x, y), teamId);
     }
 
     public void jump() {
@@ -141,6 +148,15 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     @Override
     public void updatePhysics(int delta) {
+        if(TerrainCore.CURRENT_PLAYER != this) {
+            _movement[LEFT] = false;
+            _movement[RIGHT] = false;
+            _movement[UP] = false;
+            _movement[DOWN] = false;
+        }
+        if (getPosition().getY() > _world.getHeight() - 20) {
+            _health = 0;
+        }
         delta = 16;
         updateAnimations(delta);
 
@@ -199,7 +215,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
 
         // WALKING LEFT OR RIGHT
-        if (_onGround && !_pushedByWeapon) {
+        if (_onGround && !_pushedByWeapon && TerrainCore.CURRENT_PLAYER == this) {
             float walkSpeed = 0.03f;
             if (_movement[LEFT] && !_movement[RIGHT]) {
                 _lookRight = false;
@@ -384,9 +400,13 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
 
     @Override
     public void render() {
+        if (getHealth() < 1) {
+            return;
+        }
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
         glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
 
         glPushMatrix();
         {
@@ -410,40 +430,42 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         renderHealthBar();
 
         // crosshair
-        if (!WeaponNoCrosshair.class.isAssignableFrom(currentWeapon)) {
-            float crosshairDistance = 100f;
-            float x2 = CROSSHAIR.getHalfWidth() - CROSSHAIR.getHalfWidth() / 2f;
+        if (TerrainCore.CURRENT_PLAYER == this) {
+            if (!WeaponNoCrosshair.class.isAssignableFrom(currentWeapon)) {
+                float crosshairDistance = 100f;
+                float x2 = CROSSHAIR.getHalfWidth() - CROSSHAIR.getHalfWidth() / 2f;
 
-            // powersign
-            glPushMatrix();
-            {
-                glDisable(GL_TEXTURE_2D);
-                glRotatef(_shootAngle, 0, 0, 1);
-                glBegin(GL_POLYGON);
+                // powersign
+                glPushMatrix();
                 {
-                    glColor4f(0, 1, 0, 0.6f);
-                    glVertex2f(0, 0);
-                    glColor4f(1 * _shootPower, 1 * (1 - _shootPower), 0, 0.6f);
-                    glVertex2f(-x2 * _shootPower, -crosshairDistance * _shootPower);
-                    glVertex2f(-x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
-                    glVertex2f(0, (-crosshairDistance - x2 / 2f) * _shootPower);
-                    glVertex2f(+x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
-                    glVertex2f(+x2 * _shootPower, -crosshairDistance * _shootPower);
+                    glDisable(GL_TEXTURE_2D);
+                    glRotatef(_shootAngle, 0, 0, 1);
+                    glBegin(GL_POLYGON);
+                    {
+                        glColor4f(0, 1, 0, 0.6f);
+                        glVertex2f(0, 0);
+                        glColor4f(1 * _shootPower, 1 * (1 - _shootPower), 0, 0.6f);
+                        glVertex2f(-x2 * _shootPower, -crosshairDistance * _shootPower);
+                        glVertex2f(-x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
+                        glVertex2f(0, (-crosshairDistance - x2 / 2f) * _shootPower);
+                        glVertex2f(+x2 / 1.75f * _shootPower, (-crosshairDistance - x2 / 4f - x2 / 8f) * _shootPower);
+                        glVertex2f(+x2 * _shootPower, -crosshairDistance * _shootPower);
+                    }
+                    glEnd();
                 }
-                glEnd();
-            }
-            glPopMatrix();
+                glPopMatrix();
 
-            // crosshair
-            glPushMatrix();
-            {
-                glRotatef(_shootAngle, 0, 0, 1);
-                glTranslatef(0, -crosshairDistance, 0);
-                glEnable(GL_TEXTURE_2D);
-                glEnable(GL_BLEND);
-                CROSSHAIR.render(1, 1, 1, 1);
+                // crosshair
+                glPushMatrix();
+                {
+                    glRotatef(_shootAngle, 0, 0, 1);
+                    glTranslatef(0, -crosshairDistance, 0);
+                    glEnable(GL_TEXTURE_2D);
+                    glEnable(GL_BLEND);
+                    CROSSHAIR.render(1, 1, 1, 1);
+                }
+                glPopMatrix();
             }
-            glPopMatrix();
         }
     }
 
@@ -494,20 +516,21 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         glPushMatrix();
         {
             // outline
+            final int halfWidth = 22;
+            final int halfHeight = 7;
             glPushMatrix();
             {
                 // translate
-                glTranslatef(0, -20, 0);
-
-                glColor4f(0, 0, 0, 1);
-                glBegin(GL_QUADS);
-                {
-                    glVertex2f(-20, -5);
-                    glVertex2f(+20, -5);
-                    glVertex2f(+20, +5);
-                    glVertex2f(-20, +5);
+                glTranslatef(0, -22, 0);
+                if (_teamId == 0) {
+                    glColor4f(1, 0, 0, 1);
+                } else {
+                    glColor4f(0, 1, 0, 1);
                 }
-                glEnd();
+                glRectf(-halfWidth, -halfHeight, +halfWidth, +halfHeight);
+                // inner black border
+                glColor4f(0, 0, 0, 1);
+                glRectf(-halfWidth + 1, -halfHeight + 1, +halfWidth - 1, +halfHeight - 1);
             }
             glPopMatrix();
 
@@ -515,20 +538,20 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
             glPushMatrix();
             {
                 // translate
-                glTranslatef(-18.5f, -19.5f, 0);
+                glTranslatef(-20f, -23f, 0);
                 glBegin(GL_QUADS);
                 {
                     glColor4f(1, 0, 0, 1);
-                    glVertex2f(0, -4);
-                    glVertex2f(0, +4);
+                    glVertex2f(0, -3.75f);
+                    glVertex2f(0, +6);
 
-                    int maxHealth = Math.min(100, health);
+                    int maxHealth = Math.min(100, getHealth());
                     maxHealth = Math.max(0, maxHealth);
 
                     float percent = (float) maxHealth / 100f;
                     glColor4f(1 - percent, percent, 0, 1);
-                    glVertex2f(percent * 38f, +4);
-                    glVertex2f(percent * 38f, -4);
+                    glVertex2f(percent * 40.5f, +6);
+                    glVertex2f(percent * 40.5f, -3.75f);
                 }
                 glEnd();
             }
@@ -545,7 +568,7 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
                 Color.white.bind();
                 TextureImpl.bindNone();
                 Font font = FontManager.getStandardFont();
-                font.drawString(-(font.getWidth("" + health) / 2), -8, "" + health);
+                font.drawString(-(font.getWidth("" + _health) / 2), -10, "" + _health);
             }
             glPopMatrix();
         }
@@ -558,19 +581,19 @@ public class EntityPlayer implements IPhysicsObject, IRenderObject {
         }
     }
 
-    public int addHealth(int health) {
-        health += health;
-        health = Math.max(0, health);
-        health = Math.min(250, health);
-        return health;
+    public int addHealth(final int health) {
+        _health += health;
+        _health = Math.max(0, _health);
+        _health = Math.min(250, _health);
+        return _health;
     }
 
     public void setHealth(int health) {
-        health = health;
+        _health = health;
     }
 
     public int getHealth() {
-        return health;
+        return _health;
     }
 
     public void setWeapon(Class<? extends EntityWeapon> clazz) {

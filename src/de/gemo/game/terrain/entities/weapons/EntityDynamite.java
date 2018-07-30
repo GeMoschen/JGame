@@ -1,5 +1,6 @@
 package de.gemo.game.terrain.entities.weapons;
 
+import de.gemo.game.terrain.core.TerrainCore;
 import de.gemo.game.terrain.entities.*;
 import de.gemo.game.terrain.handler.PhysicsHandler;
 import de.gemo.game.terrain.handler.PlayerHandler;
@@ -17,6 +18,8 @@ import org.newdawn.slick.opengl.TextureImpl;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -44,7 +47,6 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
 
     @Override
     protected void init(float angle, float power) {
-        _maxDamage = 65;
         _gravity = 0.015f;
         _maxPower = 0.1f;
         _blastRadius = 100;
@@ -58,6 +60,16 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
     @Override
     public boolean cameraFollows() {
         return false;
+    }
+
+    @Override
+    protected int getMinDamage() {
+        return 8;
+    }
+
+    @Override
+    protected int getMaxDamage() {
+        return 70;
     }
 
     @Override
@@ -180,7 +192,9 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             float distance = (float) player.getPosition().distanceTo(_position);
 
             // give damage to players
-            int damage = (int) ((_maxDamage + 8) * (1 - (distance / _damageRadius)));
+            int damage = (int) ((getMaxDamage() + 8) * (1 - (distance / _damageRadius)));
+            damage = Math.max(damage, getMinDamage());
+            damage = Math.min(damage, getMaxDamage());
             player.addHealth(-damage);
 
             // add momentum
@@ -192,5 +206,15 @@ public class EntityDynamite extends EntityWeapon implements WeaponNoCrosshair, W
             player.setPushedByWeapon(true);
             player.addVelocity(toVector);
         }
+
+        final Timer timer = new Timer();
+        final TimerTask timerTask = new TimerTask() {
+
+            @Override
+            public void run() {
+                TerrainCore.nextPlayer();
+            }
+        };
+        timer.schedule(timerTask, 2000);
     }
 }

@@ -1,10 +1,11 @@
 package de.gemo.game.terrain.entities;
 
-import java.lang.reflect.*;
+import de.gemo.game.terrain.handler.PhysicsHandler;
+import de.gemo.game.terrain.handler.RenderHandler;
+import de.gemo.game.terrain.world.World;
+import de.gemo.gameengine.units.Vector2f;
 
-import de.gemo.game.terrain.handler.*;
-import de.gemo.game.terrain.world.*;
-import de.gemo.gameengine.units.*;
+import java.lang.reflect.Constructor;
 
 public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
 
@@ -15,7 +16,6 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
     protected float _angle = 0;
 
     protected float _maxPower = 1.55f;
-    protected int _maxDamage = 45;
     protected int _blastRadius = 60;
     protected int _damageRadius = _blastRadius + 10;
     protected float _gravity = 0.009f;
@@ -52,6 +52,10 @@ public abstract class EntityWeapon implements IPhysicsObject, IRenderObject {
     }
 
     public abstract boolean cameraFollows();
+
+    protected abstract int getMinDamage();
+
+    protected abstract int getMaxDamage();
 
     protected abstract void init(float angle, float power);
 

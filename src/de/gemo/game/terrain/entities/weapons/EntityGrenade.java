@@ -64,6 +64,16 @@ public class EntityGrenade extends EntityWeapon {
     }
 
     @Override
+    protected int getMinDamage() {
+        return 3;
+    }
+
+    @Override
+    protected int getMaxDamage() {
+        return 50;
+    }
+
+    @Override
     public void render() {
         glTranslatef(_position.getX(), _position.getY(), 0);
         glRotatef(_angle, 0, 0, 1);
@@ -172,7 +182,9 @@ public class EntityGrenade extends EntityWeapon {
             float distance = (float) player.getPosition().distanceTo(_position);
 
             // give damage to players
-            int damage = (int) ((_maxDamage + 8) * (1 - (distance / _damageRadius)));
+            int damage = (int) ((getMaxDamage()) * (1 - (distance / _damageRadius)));
+            damage = Math.max(damage, getMinDamage());
+            damage = Math.min(damage, getMaxDamage());
             player.addHealth(-damage);
 
             // add momentum

@@ -27,20 +27,24 @@ import org.newdawn.slick.opengl.TextureImpl;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 
 import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TerrainCore extends GameEngine {
 
-    private Vector2f _screenOffset = new Vector2f();
-    private EntityPlayer _currentPlayer;
+    private static int CURRENT_PLAYER_INDEX = 0;
+    private static java.util.List<EntityPlayer> _players = new ArrayList<>();
+    public static EntityPlayer CURRENT_PLAYER;
+
     private PhysicsHandler _physicsHandler;
     private RenderHandler _renderHandler;
-    private PlayerHandler _playerHandler;
 
     private World _world;
     private float _scale = 1f;
+    private Vector2f _screenOffset = new Vector2f();
 
     private long _lastTickTime = System.currentTimeMillis();
     private SingleTexture _backgroundTexture;
@@ -49,16 +53,39 @@ public class TerrainCore extends GameEngine {
         super(windowTitle, windowWidth, windowHeight, false);
     }
 
+    public static void nextPlayer() {
+        CURRENT_PLAYER_INDEX++;
+        if (CURRENT_PLAYER_INDEX >= _players.size()) {
+            CURRENT_PLAYER_INDEX = 0;
+        }
+        CURRENT_PLAYER = _players.get(CURRENT_PLAYER_INDEX);
+        while (CURRENT_PLAYER.getHealth() < 1) {
+            CURRENT_PLAYER_INDEX+= 2;
+            if (CURRENT_PLAYER_INDEX >= _players.size()) {
+                CURRENT_PLAYER_INDEX -= _players.size();
+            }
+            CURRENT_PLAYER = _players.get(CURRENT_PLAYER_INDEX);
+        }
+    }
+
     @Override
     protected void createManager() {
         _world = new World(getWindowWidth() * 2, getWindowHeight());
         _physicsHandler = new PhysicsHandler();
         _renderHandler = new RenderHandler();
-        _playerHandler = new PlayerHandler();
-        _currentPlayer = new EntityPlayer(_world, 500, 100);
-        _physicsHandler.add(_currentPlayer);
         _renderHandler.add(_world);
-        _renderHandler.add(_currentPlayer);
+        final PlayerHandler playerHandler = new PlayerHandler();
+        final Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            final int x = random.nextInt(_world.getWidth() - 50) + 100;
+            final int y = random.nextInt(_world.getHeight() - 200) + 100;
+            final int teamId = i % 2 == 0 ? 0 : 1;
+            final EntityPlayer player = new EntityPlayer(_world, x, y, teamId);
+            _players.add(player);
+            _physicsHandler.add(player);
+            _renderHandler.add(player);
+        }
+        CURRENT_PLAYER = _players.get(0);
         try {
             _backgroundTexture = TextureManager.loadSingleTexture("resources/background_speedy.jpg");
         } catch (IOException e) {
@@ -84,6 +111,7 @@ public class TerrainCore extends GameEngine {
         }
         glPopMatrix();
 
+        glDisable(GL_DEPTH_TEST);
         glPushMatrix();
         {
             float currentScale = _scale;
@@ -134,14 +162,14 @@ public class TerrainCore extends GameEngine {
             font.drawString(20, 180, "zoom: mousewheel");
             font.drawString(20, 195, "cam: middle mouse + move");
 
-            String text = _currentPlayer.getCurrentWeaponName();
-            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            String text = CURRENT_PLAYER.getCurrentWeaponName();
+            if (EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 if (EntityGrenade.TIMER == 1) {
                     text += " ( " + EntityGrenade.TIMER + " second )";
                 } else {
                     text += " ( " + EntityGrenade.TIMER + " seconds )";
                 }
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 if (EntityDynamite.TIMER == 1) {
                     text += " ( " + EntityDynamite.TIMER + " second )";
                 } else {
@@ -166,47 +194,47 @@ public class TerrainCore extends GameEngine {
         boolean up = KeyboardManager.$.isKeyDown(Keyboard.KEY_UP);
         boolean down = KeyboardManager.$.isKeyDown(Keyboard.KEY_DOWN);
         boolean space = KeyboardManager.$.isKeyDown(Keyboard.KEY_SPACE);
-        _currentPlayer.setMovement(left, right, up, down, space);
+        CURRENT_PLAYER.setMovement(left, right, up, down, space);
     }
 
     @Override
     public void onKeyPressed(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_W) {
-            _currentPlayer.jump();
+            CURRENT_PLAYER.jump();
         } else if (event.getKey() == Keyboard.KEY_1) {
-            _currentPlayer.setWeapon(EntityBazooka.class);
+            CURRENT_PLAYER.setWeapon(EntityBazooka.class);
         } else if (event.getKey() == Keyboard.KEY_2) {
-            _currentPlayer.setWeapon(EntityGrenade.class);
+            CURRENT_PLAYER.setWeapon(EntityGrenade.class);
         } else if (event.getKey() == Keyboard.KEY_3) {
-            _currentPlayer.setWeapon(EntityDynamite.class);
+            CURRENT_PLAYER.setWeapon(EntityDynamite.class);
         } else if (event.getKey() == Keyboard.KEY_NUMPAD1 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 1;
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 1;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD2 && RenderHandler.CURRENT_BULLET == null) {
-            if (RenderHandler.CURRENT_BULLET == null && EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            if (RenderHandler.CURRENT_BULLET == null && EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 2;
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 2;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD3 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 3;
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 3;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD4 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 4;
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 4;
             }
         } else if (event.getKey() == Keyboard.KEY_NUMPAD5 && RenderHandler.CURRENT_BULLET == null) {
-            if (EntityGrenade.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            if (EntityGrenade.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityGrenade.TIMER = 5;
-            } else if (EntityDynamite.class.equals(_currentPlayer.getCurrentWeaponClass())) {
+            } else if (EntityDynamite.class.equals(CURRENT_PLAYER.getCurrentWeaponClass())) {
                 EntityDynamite.TIMER = 5;
             }
         } else {
@@ -217,7 +245,7 @@ public class TerrainCore extends GameEngine {
     @Override
     public void onKeyHold(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_SPACE && RenderHandler.CURRENT_BULLET == null) {
-            _currentPlayer.shoot();
+            CURRENT_PLAYER.shoot();
         } else {
             super.onKeyPressed(event);
         }
@@ -227,10 +255,20 @@ public class TerrainCore extends GameEngine {
     public void onKeyReleased(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_F12) {
             _world.createWorld(_world.getWidth(), _world.getHeight());
-            _currentPlayer.setPosition(new Vector2f(500, 100));
-            _currentPlayer.setHealth(100);
+
+            final Random random = new Random();
+            for (int i = 0; i < 10; i++) {
+                final EntityPlayer player = _players.get(i);
+                final int x = random.nextInt(_world.getWidth() - 100) + 50;
+                final int y = random.nextInt(_world.getHeight() - 200) + 100;
+                player.setPosition(new Vector2f(x, y));
+                player.setHealth(100);
+                player.jump();
+            }
+            CURRENT_PLAYER_INDEX = 0;
+            CURRENT_PLAYER = _players.get(CURRENT_PLAYER_INDEX);
         } else if (event.getKey() == Keyboard.KEY_SPACE) {
-            _currentPlayer.resetPower();
+            CURRENT_PLAYER.resetPower();
         } else {
             super.onKeyReleased(event);
         }
