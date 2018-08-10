@@ -1,25 +1,33 @@
 package de.gemo.game.physics;
 
-import java.util.List;
-
+import de.gemo.game.physics.entity.EntityCollidable;
 import org.jbox2d.callbacks.QueryCallback;
 import org.jbox2d.dynamics.Fixture;
 
-import de.gemo.game.physics.entity.EntityCollidable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RenderCallback implements QueryCallback {
 
-    private List<EntityCollidable> renderList;
+	private final List<EntityCollidable> _renderList;
 
-    public RenderCallback(List<EntityCollidable> renderList) {
-        this.renderList = renderList;
-    }
+	public RenderCallback() {
+		_renderList = new ArrayList<>();
+	}
 
-    @Override
-    public boolean reportFixture(Fixture fixture) {
-        if (fixture.getBody().getUserData() instanceof EntityCollidable) {
-            this.renderList.add((EntityCollidable) fixture.getBody().getUserData());
-        }
-        return true;
-    }
+	@Override
+	public boolean reportFixture(Fixture fixture) {
+		if (fixture.getBody().getUserData() instanceof EntityCollidable) {
+			_renderList.add((EntityCollidable) fixture.getBody().getUserData());
+		}
+		return true;
+	}
+
+	public void reset() {
+		_renderList.clear();
+	}
+
+	public List<EntityCollidable> getRenderList() {
+		return _renderList;
+	}
 }
